@@ -12,7 +12,6 @@ namespace HelpDesk.DAL
         public DbSet<User> Users { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Status> Statuses { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
