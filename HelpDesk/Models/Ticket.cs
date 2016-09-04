@@ -23,7 +23,7 @@ namespace HelpDesk.Models
 
         public virtual User Requestor { get; set; }
         public virtual User Solver { get; set; }
-        public virtual Status { get; set; }
-        public virtual Category { get; set; }
+        public virtual Status Status { get; set; }
+        public virtual Category Category { get; set; }
     }
 }
