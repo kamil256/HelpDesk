@@ -9,9 +9,7 @@ namespace HelpDesk.Models
     public class Ticket
     {
         public int TicketID { get; set; }
-        //[ForeignKey("User")]
         public int RequestorID { get; set; }
-        //[ForeignKey("User")]
         public int SolverID { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime SolveOrCloseDate { get; set; }

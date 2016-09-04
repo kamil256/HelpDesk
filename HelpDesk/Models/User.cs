@@ -18,6 +18,7 @@ namespace HelpDesk.Models
         public string City { get; set; }
         public string Role { get; set; }
 
-        public virtual ICollection<Ticket> Tickets { get; set; }
+        public virtual ICollection<Ticket> CreatedTickets { get; set; }
+        public virtual ICollection<Ticket> SolvedTickets { get; set; }
     }
 }
