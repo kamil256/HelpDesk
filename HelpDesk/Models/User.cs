@@ -15,7 +15,6 @@ namespace HelpDesk.Models
         public string MobilePhone { get; set; }
         public string Company { get; set; }
         public string Department { get; set; }
-        public string City { get; set; }
         public string Role { get; set; }
 
         public virtual ICollection<Ticket> CreatedTickets { get; set; }
