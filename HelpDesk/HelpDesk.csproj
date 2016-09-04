@@ -102,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="DAL\GenericRepository.cs" />
     <Compile Include="DAL\HelpDeskContext.cs" />
     <Compile Include="DAL\IUnitOfWork.cs" />
     <Compile Include="Global.asax.cs">
