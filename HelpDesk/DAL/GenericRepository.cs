@@ -23,7 +23,7 @@ namespace HelpDesk.DAL
             IQueryable<T> query = dbSet;
             if (filter != null)
                 query = query.Where(filter);
-            if (query != null)
+            if (orderBy != null)
                 query = orderBy(query);
             return query.ToList();
         }
