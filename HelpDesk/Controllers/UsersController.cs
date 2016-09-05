@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using HelpDesk.DAL;
 using HelpDesk.Models;
+using static HelpDesk.Infrastructure.Utilities;
 
 namespace HelpDesk.Controllers
 {
@@ -52,15 +53,27 @@ namespace HelpDesk.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "UserId,FirstName,LastName,Email,Password,Salt,Phone,MobilePhone,Company,Department,Role")] User user)
+        public ActionResult Create(NewUserViewModel user)
         {
             if (ModelState.IsValid)
             {
-                unitOfWork.UserRepository.Insert(user);
+                User newUser = new User
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    MobilePhone = user.MobilePhone,
+                    Company = user.Company,
+                    Department = user.Department,
+                    Role = user.Role
+                };
+                newUser.Salt = Guid.NewGuid().ToString();
+                newUser.Password = HashPassword(user.Password, newUser.Salt);
+                unitOfWork.UserRepository.Insert(newUser);
                 unitOfWork.Save();
                 return RedirectToAction("Index");
             }
-
             return View(user);
         }
 
