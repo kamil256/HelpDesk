@@ -64,9 +64,9 @@
             @Html.DisplayFor(modelItem => item.Role)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.UserId }) |
-            @Html.ActionLink("Details", "Details", new { id=item.UserId }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.UserId })
+            <a href='@Url.Action("Index", "Tickets")' class='btn btn-warning btn-sm'>Tickets <span class="badge">7</span></a>
+            @Html.ActionLink("Edit", "Edit", "Users", new { id=item.UserId }, new { @class = "btn btn-warning btn-sm" })
+            @Html.ActionLink("Delete", "Delete", "Users", new { id = item.UserId }, new { @class = "btn btn-warning btn-sm" })
         </td>
     </tr>
 }
