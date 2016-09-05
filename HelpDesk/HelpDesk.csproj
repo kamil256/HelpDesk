@@ -137,6 +137,10 @@
     <Compile Include="Migrations\201609041930303_InitialCreate.Designer.cs">
       <DependentUpon>201609041930303_InitialCreate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201609051754561_ModifyUserRoleToBool.cs" />
+    <Compile Include="Migrations\201609051754561_ModifyUserRoleToBool.Designer.cs">
+      <DependentUpon>201609051754561_ModifyUserRoleToBool.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Category.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
@@ -172,6 +176,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201609041930303_InitialCreate.resx">
       <DependentUpon>201609041930303_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609051754561_ModifyUserRoleToBool.resx">
+      <DependentUpon>201609051754561_ModifyUserRoleToBool.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

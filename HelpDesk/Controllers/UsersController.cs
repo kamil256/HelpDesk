@@ -66,7 +66,7 @@ namespace HelpDesk.Controllers
                     MobilePhone = user.MobilePhone,
                     Company = user.Company,
                     Department = user.Department,
-                    Role = user.Role
+                    Admin = user.Admin
                 };
                 newUser.Salt = Guid.NewGuid().ToString();
                 newUser.Password = HashPassword(user.Password, newUser.Salt);
