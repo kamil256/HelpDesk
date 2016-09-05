@@ -41,8 +41,7 @@ namespace HelpDesk.Controllers
         public ActionResult Login(LoginViewModel model, string returnUrl)
         {
             if (!ModelState.IsValid || !authProvider.Authenticate(model.Email, model.Password))
-            {
-                return View(model);
+            {                return View(model);
             }
             return Redirect(returnUrl);
         }
