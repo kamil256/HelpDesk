@@ -53,26 +53,34 @@ namespace HelpDesk.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(NewUserViewModel user)
+        public ActionResult Create(AddUserViewModel user)
         {
             if (ModelState.IsValid)
             {
-                User newUser = new User
+                if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == user.Email.ToLower()).Count() == 0)
                 {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    Phone = user.Phone,
-                    MobilePhone = user.MobilePhone,
-                    Company = user.Company,
-                    Department = user.Department,
-                    Admin = user.Admin
-                };
-                newUser.Salt = Guid.NewGuid().ToString();
-                newUser.Password = HashPassword(user.Password, newUser.Salt);
-                unitOfWork.UserRepository.Insert(newUser);
-                unitOfWork.Save();
-                return RedirectToAction("Index");
+                    User newUser = new User
+                    {
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        Phone = user.Phone,
+                        MobilePhone = user.MobilePhone,
+                        Company = user.Company,
+                        Department = user.Department,
+                        Admin = user.Admin
+                    };
+
+                    newUser.Salt = Guid.NewGuid().ToString();
+                    newUser.Password = HashPassword(user.Password, newUser.Salt);
+                    unitOfWork.UserRepository.Insert(newUser);
+                    unitOfWork.Save();
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ModelState.AddModelError("", $"Email address {user.Email} exists in database");
+                }
             }
             return View(user);
         }
@@ -97,11 +105,59 @@ namespace HelpDesk.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "UserId,FirstName,LastName,Email,Password,Salt,Phone,MobilePhone,Company,Department,Role")] User user)
+        public ActionResult Edit([Bind(Include = "UserId,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Admin")] User user)
         {
             if (ModelState.IsValid)
             {
-                unitOfWork.UserRepository.Update(user);
+                if (unitOfWork.UserRepository.GetAll(u => u.UserId != user.UserId && u.Email.ToLower() == user.Email.ToLower()).Count() == 0)
+                {
+                    unitOfWork.UserRepository.UpdateUserInfo(user);
+                    unitOfWork.Save();
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ModelState.AddModelError("", $"Email address {user.Email} exists in database");
+                }
+            }
+            return View(user);
+        }
+
+        // GET: Users/Edit/5
+        public ActionResult EditPassword(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            User user = unitOfWork.UserRepository.GetById(id ?? 0);
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(new EditPasswordViewModel
+            {
+                UserId = user.UserId,
+                FirstName = user.FirstName,
+                LastName = user.LastName
+            });
+        }
+
+        // POST: Users/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditPassword([Bind(Include = "UserId,Password,ConfirmPassword")] EditPasswordViewModel user)
+        {
+            if (ModelState.IsValid)
+            {
+                User editedUser = new User();
+                editedUser.UserId = user.UserId;
+                editedUser.Salt = Guid.NewGuid().ToString();
+                editedUser.Password = HashPassword(user.Password, editedUser.Salt);
+                unitOfWork.UserRepository.UpdateUserPassword(editedUser);
                 unitOfWork.Save();
                 return RedirectToAction("Index");
             }

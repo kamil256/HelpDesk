@@ -61,7 +61,7 @@ namespace HelpDesk.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Register(NewUserViewModel model)
+        public ActionResult Register(AddUserViewModel model)
         {
             if (ModelState.IsValid)
             {

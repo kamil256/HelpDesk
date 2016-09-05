@@ -1,4 +1,4 @@
-﻿@model HelpDesk.Models.NewUserViewModel
+﻿@model HelpDesk.Models.AddUserViewModel
 
 @{
     ViewBag.Title = "Create";
@@ -89,14 +89,14 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Admin, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.CheckBoxFor(model => model.Admin, new { htmlAttributes = new { @class = "form-controla" } })
+                @Html.CheckBoxFor(model => model.Admin, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.Admin, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="Create" class="btn btn-warning" />
             </div>
         </div>
     </div>

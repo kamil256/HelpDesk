@@ -11,16 +11,16 @@ namespace HelpDesk.DAL
     {
         private HelpDeskContext context = new HelpDeskContext();
 
-        private GenericRepository<User> userRepository;
+        private UserRepository userRepository;
         private GenericRepository<Ticket> ticketRepository;
         private GenericRepository<Category> categoryRepository;
 
-        public GenericRepository<User> UserRepository
+        public UserRepository UserRepository
         {
             get
             {
                 if (userRepository == null)
-                    userRepository = new GenericRepository<User>(context);
+                    userRepository = new UserRepository(context);
                 return userRepository;
             }
         }
