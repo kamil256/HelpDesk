@@ -1,13 +1,12 @@
 ﻿@model IEnumerable<HelpDesk.Models.User>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Users";
 }
 
-<h2>Index</h2>
-
+<h2>Users</h2>
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Create New", "Create", "Users", null, new { @class = "btn btn-warning btn-sm" })
 </p>
 <table class="table">
     <tr>

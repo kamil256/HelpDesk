@@ -17,10 +17,15 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Help Desk", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
+                    <li><a href="#">New user</a></li>
+                    <li class=@(ViewBag.Title == "Users" ? "active" : "")>@Html.ActionLink("Users", "Index", "Users")</li>
+                    <li><a href="#">New request</a></li>
+                    <li><a href="#">Requests</a></li>
+                    <li><a href="#">Settings</a></li>                    
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>
