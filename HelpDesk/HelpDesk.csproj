@@ -143,6 +143,10 @@
     <Compile Include="Migrations\201609051754561_ModifyUserRoleToBool.Designer.cs">
       <DependentUpon>201609051754561_ModifyUserRoleToBool.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201609062107425_UserAdminToStringRole.cs" />
+    <Compile Include="Migrations\201609062107425_UserAdminToStringRole.Designer.cs">
+      <DependentUpon>201609062107425_UserAdminToStringRole.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\EditPasswordViewModel.cs" />
     <Compile Include="Models\Category.cs" />
@@ -183,6 +187,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201609051754561_ModifyUserRoleToBool.resx">
       <DependentUpon>201609051754561_ModifyUserRoleToBool.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609062107425_UserAdminToStringRole.resx">
+      <DependentUpon>201609062107425_UserAdminToStringRole.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

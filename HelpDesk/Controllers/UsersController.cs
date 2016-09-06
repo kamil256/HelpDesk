@@ -52,7 +52,7 @@ namespace HelpDesk.Controllers
                     propertySelector = u => u.Department;
                     break;
                 case "Role":
-                    propertySelector = u => u.Admin;
+                    propertySelector = u => u.Role;
                     break;
             }
             Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
@@ -107,7 +107,7 @@ namespace HelpDesk.Controllers
                         MobilePhone = user.MobilePhone,
                         Company = user.Company,
                         Department = user.Department,
-                        Admin = user.Admin
+                        Role = user.Role
                     };
 
                     newUser.Salt = Guid.NewGuid().ToString();

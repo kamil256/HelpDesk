@@ -46,6 +46,6 @@ namespace HelpDesk.Models
 
         public string Department { get; set; }
 
-        public bool Admin { get; set; }
+        public string Role { get; set; }
     }
 }
