@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using HelpDesk.DAL;
 using HelpDesk.Models;
 using static HelpDesk.Infrastructure.Utilities;
+using System.Linq.Expressions;
 
 namespace HelpDesk.Controllers
 {
@@ -22,9 +23,45 @@ namespace HelpDesk.Controllers
         }
 
         // GET: Users
-        public ActionResult Index()
+        public ActionResult Index(string sort = "LastName", bool descSort = false)
         {
-            return View(unitOfWork.UserRepository.GetAll());
+            Expression<Func<User, object>> propertySelector = null;
+            switch (sort)
+            {
+                case "FirstName":
+                    propertySelector = u => u.FirstName;
+                    break;
+                case "LastName":
+                    propertySelector = u => u.LastName;
+                    break;
+                case "Email":
+                    propertySelector = u => u.Email;
+                    break;
+                case "Phone":
+                    propertySelector = u => u.Phone;
+                    break;
+                case "MobilePhone":
+                    propertySelector = u => u.MobilePhone;
+                    break;
+                case "Company":
+                    propertySelector = u => u.Company;
+                    break;
+                case "Department":
+                    propertySelector = u => u.Department;
+                    break;
+                case "Role":
+                    propertySelector = u => u.Admin;
+                    break;
+            }
+            Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
+            if (propertySelector != null)
+            {
+                if (descSort)
+                    orderBy = x => x.OrderByDescending(propertySelector);
+                else
+                    orderBy = x => x.OrderBy(propertySelector);
+            }
+            return View(unitOfWork.UserRepository.GetAll(orderBy: orderBy));
         }
 
         // GET: Users/Details/5
