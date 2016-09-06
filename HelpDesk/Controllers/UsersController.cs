@@ -23,10 +23,12 @@ namespace HelpDesk.Controllers
         }
 
         // GET: Users
-        public ActionResult Index(string sort = "LastName", bool descSort = false)
+        public ActionResult Index(string sortBy = "LastName", bool descSort = false)
         {
+            ViewBag.sortBy = sortBy;
+            ViewBag.descSort = descSort;
             Expression<Func<User, object>> propertySelector = null;
-            switch (sort)
+            switch (sortBy)
             {
                 case "FirstName":
                     propertySelector = u => u.FirstName;

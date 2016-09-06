@@ -11,28 +11,28 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.FirstName)
+            @Html.SortableTableColumnHeader("First name", "FirstName", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.LastName)
+            @Html.SortableTableColumnHeader("Last name", "LastName", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Email)
+            @Html.SortableTableColumnHeader("Email", "Email", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Phone)
+            @Html.SortableTableColumnHeader("Phone", "Phone", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.MobilePhone)
+            @Html.SortableTableColumnHeader("Mobile phone", "MobilePhone", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Company)
+            @Html.SortableTableColumnHeader("Company", "Company", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Department)
+            @Html.SortableTableColumnHeader("Department", "Department", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Admin)
+            @Html.SortableTableColumnHeader("Role", "Role", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
         </th>
         <th></th>
     </tr>
