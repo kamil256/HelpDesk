@@ -184,7 +184,7 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            unitOfWork.UserRepository.Delete(unitOfWork.UserRepository.GetById(id));
+            unitOfWork.UserRepository.Delete(id);
             unitOfWork.Save();
             return RedirectToAction("Index");
         }
