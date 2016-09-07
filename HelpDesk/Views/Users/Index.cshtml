@@ -5,34 +5,43 @@
 }
 
 <h2>Users</h2>
-<p>
-    @Html.ActionLink("Add New", "Create", "Users", null, new { @class = "btn btn-warning btn-sm" })
-</p>
+<div style="overflow:  auto; margin-bottom: 10px;">
+    @Html.ActionLink("Add New", "Create", "Users", null, new { @class = "btn btn-warning pull-left" })
+    
+    @using (Html.BeginForm("Index", "Users", FormMethod.Get))
+    {
+        @Html.Hidden("sortBy", (string)@ViewBag.sortBy)
+        @Html.Hidden("descSort", (bool)@ViewBag.descSort)
+        <input type="submit" value="Search" class="btn btn-warning pull-right" />
+        <span class="pull-right">&nbsp;</span>
+        @Html.TextBox("search", (string)ViewBag.search, new { @class = "form-control pull-right" })
+    }
+</div>
 <table class="table">
     <tr>
         <th>
-            @Html.SortableTableColumnHeader("First name", "FirstName", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
+            @Html.SortableTableColumnHeader("First name", "FirstName", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Last name", "LastName", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
+            @Html.SortableTableColumnHeader("Last name", "LastName", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Email", "Email", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
+            @Html.SortableTableColumnHeader("Email", "Email", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Phone", "Phone", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
+            @Html.SortableTableColumnHeader("Phone", "Phone", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Mobile phone", "MobilePhone", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
+            @Html.SortableTableColumnHeader("Mobile phone", "MobilePhone", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Company", "Company", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
+            @Html.SortableTableColumnHeader("Company", "Company", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Department", "Department", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
+            @Html.SortableTableColumnHeader("Department", "Department", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Role", "Role", (string)ViewBag.sortBy, (bool)ViewBag.descSort)
+            @Html.SortableTableColumnHeader("Role", "Role", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
         </th>
         <th></th>
     </tr>
@@ -40,25 +49,25 @@
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.FirstName)
+            @Html.MarkSearchedString(item.FirstName, (string)ViewBag.search)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.LastName)
+            @Html.MarkSearchedString(item.LastName, (string)ViewBag.search)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Email)
+            @Html.MarkSearchedString(item.Email, (string)ViewBag.search)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Phone)
+            @Html.MarkSearchedString(item.Phone, (string)ViewBag.search)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.MobilePhone)
+            @Html.MarkSearchedString(item.MobilePhone, (string)ViewBag.search)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Company)
+            @Html.MarkSearchedString(item.Company, (string)ViewBag.search)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Department)
+            @Html.MarkSearchedString(item.Department, (string)ViewBag.search)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Role)

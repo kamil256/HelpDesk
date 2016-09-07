@@ -31,7 +31,7 @@ namespace HelpDesk.Controllers
 
             Expression<Func<User, bool>> filter = null;
 
-            if (search != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 filter = u => u.FirstName.ToLower().Contains(search.ToLower()) ||
                               u.LastName.ToLower().Contains(search.ToLower()) ||
