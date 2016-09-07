@@ -40,8 +40,10 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginViewModel model, string returnUrl)
         {
+            ViewBag.ReturnUrl = returnUrl;
             if (!ModelState.IsValid || !authProvider.Authenticate(model.Email, model.Password))
-            {                return View(model);
+            {
+                return View(model);
             }
             if (returnUrl != null)
                 return Redirect(returnUrl);
