@@ -46,7 +46,14 @@ namespace HelpDesk.Controllers
             return Redirect(returnUrl);
         }
 
-        
+        [AllowAnonymous]
+        public ActionResult LogOff()
+        {
+            authProvider.LogOut();
+            return RedirectToAction("Index", "Home");
+        }
+
+
 
         //
         // GET: /Account/Register
