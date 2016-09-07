@@ -8,18 +8,18 @@ namespace HelpDesk
 {
     public static class HelperMethods
     {
-        public static MvcHtmlString SortableTableColumnHeader(this HtmlHelper htmlHelper, string displayName, string sortString, string sortBy, bool descSort, string search)
+        public static MvcHtmlString SortableTableColumnHeader(this HtmlHelper htmlHelper, string displayName, string sortString, string sortBy, bool descSort, string search, int page)
         {
             TagBuilder a = new TagBuilder("a");
             UrlHelper url = new UrlHelper(htmlHelper.ViewContext.RequestContext);
             if(sortBy == sortString)
             {
-                a.MergeAttribute("href", url.Action("Index", new { sortBy = sortString, descSort = !descSort, search = search }));
+                a.MergeAttribute("href", url.Action("Index", new { sortBy = sortString, descSort = !descSort, search = search, page = page }));
                 a.InnerHtml = displayName + " " + (descSort ? "\u25BC" : "\u25B2");
             }
             else
             {
-                a.MergeAttribute("href", url.Action("Index", new { sortBy = sortString, search = search }));
+                a.MergeAttribute("href", url.Action("Index", new { sortBy = sortString, search = search, page = page }));
                 a.InnerHtml = displayName;
             }
             return new MvcHtmlString(a.ToString());

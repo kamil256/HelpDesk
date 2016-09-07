@@ -10,6 +10,7 @@ using HelpDesk.DAL;
 using HelpDesk.Models;
 using static HelpDesk.Infrastructure.Utilities;
 using System.Linq.Expressions;
+using PagedList;
 
 namespace HelpDesk.Controllers
 {
@@ -23,11 +24,12 @@ namespace HelpDesk.Controllers
         }
 
         // GET: Users
-        public ActionResult Index(string search = null, string sortBy = "LastName", bool descSort = false)
+        public ActionResult Index(string search = null, string sortBy = "LastName", bool descSort = false, int page = 1)
         {
             ViewBag.search = search;
             ViewBag.sortBy = sortBy;
             ViewBag.descSort = descSort;
+            ViewBag.page = page;
 
             Expression<Func<User, bool>> filter = null;
 
@@ -78,8 +80,8 @@ namespace HelpDesk.Controllers
                 else
                     orderBy = x => x.OrderBy(propertySelector);
             }
-
-            return View(unitOfWork.UserRepository.GetAll(filter: filter, orderBy: orderBy));
+           
+            return View(unitOfWork.UserRepository.GetAll(filter: filter, orderBy: orderBy).ToPagedList(page, 2));
         }
 
         // GET: Users/Details/5

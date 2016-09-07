@@ -1,4 +1,6 @@
-﻿@model IEnumerable<HelpDesk.Models.User>
+﻿@using PagedList.Mvc;
+@model PagedList.IPagedList<HelpDesk.Models.User>
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewBag.Title = "Users";
@@ -20,28 +22,28 @@
 <table class="table">
     <tr>
         <th>
-            @Html.SortableTableColumnHeader("First name", "FirstName", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
+            @Html.SortableTableColumnHeader("First name", "FirstName", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Last name", "LastName", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
+            @Html.SortableTableColumnHeader("Last name", "LastName", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Email", "Email", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
+            @Html.SortableTableColumnHeader("Email", "Email", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Phone", "Phone", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
+            @Html.SortableTableColumnHeader("Phone", "Phone", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Mobile phone", "MobilePhone", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
+            @Html.SortableTableColumnHeader("Mobile phone", "MobilePhone", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Company", "Company", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
+            @Html.SortableTableColumnHeader("Company", "Company", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Department", "Department", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
+            @Html.SortableTableColumnHeader("Department", "Department", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Role", "Role", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search)
+            @Html.SortableTableColumnHeader("Role", "Role", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
         </th>
         <th></th>
     </tr>
@@ -81,3 +83,6 @@
 }
 
 </table>
+
+
+@Html.PagedListPager(Model, page => @Url.Action("Index", new { page = page, sortBy = (string)ViewBag.sortBy, descSort = (bool)ViewBag.descSort, search = (string)ViewBag.search }), PagedListRenderOptions.Classic)
