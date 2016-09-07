@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace HelpDesk.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         // GET: Home

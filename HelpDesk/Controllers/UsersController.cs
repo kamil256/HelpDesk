@@ -14,6 +14,7 @@ using PagedList;
 
 namespace HelpDesk.Controllers
 {
+    [Authorize]
     public class UsersController : Controller
     {
         private IUnitOfWork unitOfWork;

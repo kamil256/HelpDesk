@@ -43,7 +43,10 @@ namespace HelpDesk.Controllers
             if (!ModelState.IsValid || !authProvider.Authenticate(model.Email, model.Password))
             {                return View(model);
             }
-            return Redirect(returnUrl);
+            if (returnUrl != null)
+                return Redirect(returnUrl);
+            else
+                return RedirectToAction("Index", "Home");
         }
 
         [AllowAnonymous]
