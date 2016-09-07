@@ -23,10 +23,25 @@ namespace HelpDesk.Controllers
         }
 
         // GET: Users
-        public ActionResult Index(string sortBy = "LastName", bool descSort = false)
+        public ActionResult Index(string search = null, string sortBy = "LastName", bool descSort = false)
         {
+            ViewBag.search = search;
             ViewBag.sortBy = sortBy;
             ViewBag.descSort = descSort;
+
+            Expression<Func<User, bool>> filter = null;
+
+            if (search != null)
+            {
+                filter = u => u.FirstName.ToLower().Contains(search.ToLower()) ||
+                              u.LastName.ToLower().Contains(search.ToLower()) ||
+                              u.Email.ToLower().Contains(search.ToLower()) ||
+                              u.Phone.ToLower().Contains(search.ToLower()) ||
+                              u.MobilePhone.ToLower().Contains(search.ToLower()) ||
+                              u.Company.ToLower().Contains(search.ToLower()) ||
+                              u.Department.ToLower().Contains(search.ToLower());                
+            }
+
             Expression<Func<User, object>> propertySelector = null;
             switch (sortBy)
             {
@@ -63,7 +78,8 @@ namespace HelpDesk.Controllers
                 else
                     orderBy = x => x.OrderBy(propertySelector);
             }
-            return View(unitOfWork.UserRepository.GetAll(orderBy: orderBy));
+
+            return View(unitOfWork.UserRepository.GetAll(filter: filter, orderBy: orderBy));
         }
 
         // GET: Users/Details/5
