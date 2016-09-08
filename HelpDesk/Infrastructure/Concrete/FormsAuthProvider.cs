@@ -1,6 +1,6 @@
 ﻿using HelpDesk.DAL;
 using HelpDesk.Infrastructure.Abstract;
-using HelpDesk.Models;
+using HelpDesk.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

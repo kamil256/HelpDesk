@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using HelpDesk.DAL;
 using HelpDesk.Models;
+using HelpDesk.Entities;
 using static HelpDesk.Infrastructure.Utilities;
 using System.Linq.Expressions;
 using PagedList;
@@ -188,7 +189,7 @@ namespace HelpDesk.Controllers
             {
                 if (unitOfWork.UserRepository.GetAll(u => u.UserId != user.UserId && u.Email.ToLower() == user.Email.ToLower()).Count() == 0)
                 {
-                    unitOfWork.UserRepository.UpdateUserInfo(user);
+                    //unitOfWork.UserRepository.UpdateUserInfo(user);
                     unitOfWork.Save();
                     return RedirectToAction("Index");
                 }
@@ -213,9 +214,9 @@ namespace HelpDesk.Controllers
                 return HttpNotFound();
             }
 
-            return View(new EditPasswordViewModel
+            return View(new UsersChangePasswordViewModel
             {
-                UserId = user.UserId,
+                UserID = user.UserId,
                 FirstName = user.FirstName,
                 LastName = user.LastName
             });
@@ -226,15 +227,15 @@ namespace HelpDesk.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPassword([Bind(Include = "UserId,Password,ConfirmPassword")] EditPasswordViewModel user)
+        public ActionResult EditPassword([Bind(Include = "UserId,Password,ConfirmPassword")] UsersChangePasswordViewModel user)
         {
             if (ModelState.IsValid)
             {
                 User editedUser = new User();
-                editedUser.UserId = user.UserId;
+                editedUser.UserId = user.UserID;
                 editedUser.Salt = Guid.NewGuid().ToString();
-                editedUser.Password = HashPassword(user.Password, editedUser.Salt);
-                unitOfWork.UserRepository.UpdateUserPassword(editedUser);
+                //editedUser.Password = HashPassword(user.Password, editedUser.Salt);
+                //unitOfWork.UserRepository.UpdateUserPassword(editedUser);
                 unitOfWork.Save();
                 return RedirectToAction("Index");
             }

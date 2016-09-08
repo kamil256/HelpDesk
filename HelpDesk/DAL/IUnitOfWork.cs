@@ -1,4 +1,4 @@
-﻿using HelpDesk.Models;
+﻿using HelpDesk.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ namespace HelpDesk.DAL
 {
     public interface IUnitOfWork
     {
-        UserRepository UserRepository { get; }
+        GenericRepository<User> UserRepository { get; }
         GenericRepository<Ticket> TicketRepository { get; }
         GenericRepository<Category> CategoryRepository { get; }
         void Save();

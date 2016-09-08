@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using HelpDesk.Models;
+using HelpDesk.Entities;
 using System.Data.Entity;
 
 namespace HelpDesk.DAL
@@ -11,16 +11,16 @@ namespace HelpDesk.DAL
     {
         private HelpDeskContext context = new HelpDeskContext();
 
-        private UserRepository userRepository;
+        private GenericRepository<User> userRepository;
         private GenericRepository<Ticket> ticketRepository;
         private GenericRepository<Category> categoryRepository;
 
-        public UserRepository UserRepository
+        public GenericRepository<User> UserRepository
         {
             get
             {
                 if (userRepository == null)
-                    userRepository = new UserRepository(context);
+                    userRepository = new GenericRepository<User>(context);
                 return userRepository;
             }
         }

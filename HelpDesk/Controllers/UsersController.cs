@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using HelpDesk.DAL;
 using HelpDesk.Models;
+using HelpDesk.Entities;
 using static HelpDesk.Infrastructure.Utilities;
 using System.Linq.Expressions;
 using PagedList;
@@ -24,29 +25,29 @@ namespace HelpDesk.Controllers
             unitOfWork = new UnitOfWork();
         }
 
-        // GET: Users
-        public ActionResult Index(string search = null, string sortBy = "LastName", bool descSort = false, int page = 1)
+        public ActionResult Index([Bind(Include = "Search, SortBy,DescSort,Page")] UsersIndexViewModel model)
         {
-            ViewBag.search = search;
-            ViewBag.sortBy = sortBy;
-            ViewBag.descSort = descSort;
-            ViewBag.page = page;
+
+            //ViewBag.search = model.Search;
+            //ViewBag.sortBy = model.SortBy;
+            //ViewBag.descSort = model.DescSort;
+            //ViewBag.page = model.Page;
 
             Expression<Func<User, bool>> filter = null;
 
-            if (!string.IsNullOrWhiteSpace(search))
+            if (!string.IsNullOrWhiteSpace(model.Search))
             {
-                filter = u => u.FirstName.ToLower().Contains(search.ToLower()) ||
-                              u.LastName.ToLower().Contains(search.ToLower()) ||
-                              u.Email.ToLower().Contains(search.ToLower()) ||
-                              u.Phone.ToLower().Contains(search.ToLower()) ||
-                              u.MobilePhone.ToLower().Contains(search.ToLower()) ||
-                              u.Company.ToLower().Contains(search.ToLower()) ||
-                              u.Department.ToLower().Contains(search.ToLower());                
+                filter = u => u.FirstName.ToLower().Contains(model.Search.ToLower()) ||
+                              u.LastName.ToLower().Contains(model.Search.ToLower()) ||
+                              u.Email.ToLower().Contains(model.Search.ToLower()) ||
+                              u.Phone.ToLower().Contains(model.Search.ToLower()) ||
+                              u.MobilePhone.ToLower().Contains(model.Search.ToLower()) ||
+                              u.Company.ToLower().Contains(model.Search.ToLower()) ||
+                              u.Department.ToLower().Contains(model.Search.ToLower());                
             }
 
             Expression<Func<User, object>> propertySelector = null;
-            switch (sortBy)
+            switch (model.SortBy)
             {
                 case "FirstName":
                     propertySelector = u => u.FirstName;
@@ -76,16 +77,15 @@ namespace HelpDesk.Controllers
             Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
             if (propertySelector != null)
             {
-                if (descSort)
+                if (model.DescSort)
                     orderBy = x => x.OrderByDescending(propertySelector);
                 else
                     orderBy = x => x.OrderBy(propertySelector);
             }
-           
-            return View(unitOfWork.UserRepository.GetAll(filter: filter, orderBy: orderBy).ToPagedList(page, 2));
+            model.Users = unitOfWork.UserRepository.GetAll(filter: filter, orderBy: orderBy).ToPagedList(model.Page, 2);
+            return View(model);
         }
 
-        // GET: Users/Details/5
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -107,19 +107,28 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] User user)
+        public ActionResult Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersCreateViewModel user)
         {
-            ModelState.Remove("HashedPassword");
-            ModelState.Remove("Salt");
             if (ModelState.IsValid)
             {
                 if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
                     ModelState.AddModelError("Email", $"The email address is in use");
                 else
                 {
-                    user.Salt = Guid.NewGuid().ToString();
-                    user.HashedPassword = HashPassword(user.Password, user.Salt);
-                    unitOfWork.UserRepository.Insert(user);
+                    User newUser = new User
+                    {
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        Phone = user.Phone,
+                        MobilePhone = user.MobilePhone,
+                        Company = user.Company,
+                        Department = user.Department,
+                        Role = user.Role
+                    };
+                    newUser.Salt = Guid.NewGuid().ToString();
+                    newUser.HashedPassword = HashPassword(user.Password, newUser.Salt);
+                    unitOfWork.UserRepository.Insert(newUser);
                     unitOfWork.Save();
                     return RedirectToAction("Index");
                 }
@@ -127,93 +136,88 @@ namespace HelpDesk.Controllers
             return View(user);
         }
 
-        // GET: Users/Edit/5
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(int id = 0)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            User user = unitOfWork.UserRepository.GetById(id ?? 0);
+            User user = unitOfWork.UserRepository.GetById(id);
             if (user == null)
             {
                 return HttpNotFound();
             }
-            return View(user);
+            return View(new UsersEditUserViewModel
+            {
+                UserID = user.UserId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Phone = user.Phone,
+                MobilePhone = user.MobilePhone,
+                Company = user.Company,
+                Department = user.Department,
+                Role = user.Role
+            });
         }
 
-        // POST: Users/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "UserId,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Admin")] User user)
+        public ActionResult Edit([Bind(Include = "UserId,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] UsersEditUserViewModel user)
         {
             if (ModelState.IsValid)
             {
-                if (unitOfWork.UserRepository.GetAll(u => u.UserId != user.UserId && u.Email.ToLower() == user.Email.ToLower()).Count() == 0)
-                {
-                    unitOfWork.UserRepository.UpdateUserInfo(user);
-                    unitOfWork.Save();
-                    return RedirectToAction("Index");
-                }
+                if (unitOfWork.UserRepository.GetAll(u => u.UserId != user.UserID && u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
+                    ModelState.AddModelError("Email", $"The email address is in use");
                 else
                 {
-                    ModelState.AddModelError("", $"Email address {user.Email} exists in database");
+                    User editedUser = unitOfWork.UserRepository.GetById(user.UserID);
+                    editedUser.FirstName = user.FirstName;
+                    editedUser.LastName = user.LastName;
+                    editedUser.Email = user.Email;
+                    editedUser.Phone = user.Phone;
+                    editedUser.MobilePhone = user.MobilePhone;
+                    editedUser.Company = user.Company;
+                    editedUser.Department = user.Department;
+                    editedUser.Role = user.Role;
+                    unitOfWork.UserRepository.Update(editedUser);
+                    unitOfWork.Save();
+                    return RedirectToAction("Index");
                 }
             }
             return View(user);
         }
 
-        // GET: Users/Edit/5
-        public ActionResult EditPassword(int? id)
+        public ActionResult ChangePassword(int id = 0)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            User user = unitOfWork.UserRepository.GetById(id ?? 0);
+            User user = unitOfWork.UserRepository.GetById(id);
             if (user == null)
             {
                 return HttpNotFound();
             }
-
-            return View(new EditPasswordViewModel
+            return View(new UsersChangePasswordViewModel
             {
-                UserId = user.UserId,
+                UserID = user.UserId,
                 FirstName = user.FirstName,
                 LastName = user.LastName
             });
         }
 
-        // POST: Users/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPassword([Bind(Include = "UserId,Password,ConfirmPassword")] EditPasswordViewModel user)
+        public ActionResult ChangePassword([Bind(Include = "UserID,Password,ConfirmPassword")] UsersChangePasswordViewModel user)
         {
             if (ModelState.IsValid)
             {
-                User editedUser = new User();
-                editedUser.UserId = user.UserId;
+                User editedUser = unitOfWork.UserRepository.GetById(user.UserID);
                 editedUser.Salt = Guid.NewGuid().ToString();
-                editedUser.Password = HashPassword(user.Password, editedUser.Salt);
-                unitOfWork.UserRepository.UpdateUserPassword(editedUser);
+                editedUser.HashedPassword = HashPassword(user.Password, editedUser.Salt);
+                unitOfWork.UserRepository.Update(editedUser);
                 unitOfWork.Save();
                 return RedirectToAction("Index");
             }
             return View(user);
         }
 
-        // GET: Users/Delete/5
-        public ActionResult Delete(int? id)
+        public ActionResult Delete(int id = 0)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            User user = unitOfWork.UserRepository.GetById(id ?? 0);
+            User user = unitOfWork.UserRepository.GetById(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -221,8 +225,8 @@ namespace HelpDesk.Controllers
             return View(user);
         }
 
-        // POST: Users/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
+        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {

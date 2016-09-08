@@ -70,23 +70,23 @@ namespace HelpDesk.Controllers
 
         //
         // POST: /Account/Register
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public ActionResult Register(AddUserViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == model.Email.ToLower()) == null)
-                {
-                    var user = new User { Email = model.Email, Password = model.Password };
-                    user.Salt = Guid.NewGuid().ToString();
-                    user.Password = HashPassword(user.Password, user.Salt);
-                    unitOfWork.UserRepository.Insert(user);
-                    return Redirect(Url.Action("Index", "Home"));
-                }
-            }                
-            return View(model);
-        }
+        //[HttpPost]
+        //[AllowAnonymous]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Register(AddUserViewModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == model.Email.ToLower()) == null)
+        //        {
+        //            var user = new User { Email = model.Email, Password = model.Password };
+        //            user.Salt = Guid.NewGuid().ToString();
+        //            user.Password = HashPassword(user.Password, user.Salt);
+        //            unitOfWork.UserRepository.Insert(user);
+        //            return Redirect(Url.Action("Index", "Home"));
+        //        }
+        //    }                
+        //    return View(model);
+        //}
     }
 }

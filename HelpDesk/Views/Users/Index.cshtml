@@ -1,5 +1,5 @@
 ﻿@using PagedList.Mvc;
-@model PagedList.IPagedList<HelpDesk.Models.User>
+@model HelpDesk.Models.UsersIndexViewModel
 <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
@@ -12,64 +12,64 @@
     
     @using (Html.BeginForm("Index", "Users", FormMethod.Get))
     {
-        @Html.Hidden("sortBy", (string)@ViewBag.sortBy)
-        @Html.Hidden("descSort", (bool)@ViewBag.descSort)
+        @Html.Hidden("sortBy", Model.SortBy)
+        @Html.Hidden("descSort", Model.DescSort)
         <input type="submit" value="Search" class="btn btn-warning pull-right" />
         <span class="pull-right">&nbsp;</span>
-        @Html.TextBox("search", (string)ViewBag.search, new { @class = "form-control pull-right" })
+        @Html.TextBox("search", Model.Search, new { @class = "form-control pull-right" })
     }
 </div>
 <table class="table">
     <tr>
         <th>
-            @Html.SortableTableColumnHeader("First name", "FirstName", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
+            @Html.SortableTableColumnHeader("First name", "FirstName", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Last name", "LastName", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
+            @Html.SortableTableColumnHeader("Last name", "LastName", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Email", "Email", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
+            @Html.SortableTableColumnHeader("Email", "Email", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Phone", "Phone", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
+            @Html.SortableTableColumnHeader("Phone", "Phone", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Mobile phone", "MobilePhone", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
+            @Html.SortableTableColumnHeader("Mobile phone", "MobilePhone", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Company", "Company", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
+            @Html.SortableTableColumnHeader("Company", "Company", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Department", "Department", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
+            @Html.SortableTableColumnHeader("Department", "Department", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
         </th>
         <th>
-            @Html.SortableTableColumnHeader("Role", "Role", (string)ViewBag.sortBy, (bool)ViewBag.descSort, (string)ViewBag.search, (int)ViewBag.page)
+            @Html.SortableTableColumnHeader("Role", "Role", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
         </th>
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
+@foreach (var item in Model.Users) {
     <tr>
         <td>
-            @Html.MarkSearchedString(item.FirstName, (string)ViewBag.search)
+            @Html.MarkSearchedString(item.FirstName, Model.Search)
         </td>
         <td>
-            @Html.MarkSearchedString(item.LastName, (string)ViewBag.search)
+            @Html.MarkSearchedString(item.LastName, Model.Search)
         </td>
         <td>
-            @Html.MarkSearchedString(item.Email, (string)ViewBag.search)
+            @Html.MarkSearchedString(item.Email, Model.Search)
         </td>
         <td>
-            @Html.MarkSearchedString(item.Phone, (string)ViewBag.search)
+            @Html.MarkSearchedString(item.Phone, Model.Search)
         </td>
         <td>
-            @Html.MarkSearchedString(item.MobilePhone, (string)ViewBag.search)
+            @Html.MarkSearchedString(item.MobilePhone, Model.Search)
         </td>
         <td>
-            @Html.MarkSearchedString(item.Company, (string)ViewBag.search)
+            @Html.MarkSearchedString(item.Company, Model.Search)
         </td>
         <td>
-            @Html.MarkSearchedString(item.Department, (string)ViewBag.search)
+            @Html.MarkSearchedString(item.Department, Model.Search)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Role)
@@ -85,4 +85,4 @@
 </table>
 
 
-@Html.PagedListPager(Model, page => @Url.Action("Index", new { page = page, sortBy = (string)ViewBag.sortBy, descSort = (bool)ViewBag.descSort, search = (string)ViewBag.search }), PagedListRenderOptions.Classic)
+@Html.PagedListPager(Model.Users, page => @Url.Action("Index", new { Page = page, sortBy = Model.SortBy, descSort = Model.DescSort, search = Model.Search }), PagedListRenderOptions.Classic)

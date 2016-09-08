@@ -133,7 +133,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TicketsController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
-    <Compile Include="DAL\UserRepository.cs" />
     <Compile Include="DAL\GenericRepository.cs" />
     <Compile Include="DAL\HelpDeskContext.cs" />
     <Compile Include="DAL\IUnitOfWork.cs" />
@@ -167,11 +166,14 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
-    <Compile Include="Models\EditPasswordViewModel.cs" />
-    <Compile Include="Models\Category.cs" />
+    <Compile Include="Models\UsersChangePasswordViewModel.cs" />
+    <Compile Include="Entities\Category.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
-    <Compile Include="Models\Ticket.cs" />
-    <Compile Include="Models\User.cs" />
+    <Compile Include="Entities\Ticket.cs" />
+    <Compile Include="Entities\User.cs" />
+    <Compile Include="Models\UsersCreateViewModel.cs" />
+    <Compile Include="Models\UsersEditUserViewModel.cs" />
+    <Compile Include="Models\UsersIndexViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -188,7 +190,7 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Account\LogIn.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Users\EditPassword.cshtml" />
+    <Content Include="Views\Users\ChangePassword.cshtml" />
     <Content Include="Views\Tickets\Create.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -199,6 +201,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="DAL\Abstract\" />
+    <Folder Include="DAL\Concrete\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201609041930303_InitialCreate.resx">

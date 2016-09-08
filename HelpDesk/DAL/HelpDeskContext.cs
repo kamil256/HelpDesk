@@ -1,4 +1,4 @@
-﻿using HelpDesk.Models;
+﻿using HelpDesk.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
