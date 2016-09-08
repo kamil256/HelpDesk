@@ -157,12 +157,19 @@
     <Compile Include="Migrations\201609062107425_UserAdminToStringRole.Designer.cs">
       <DependentUpon>201609062107425_UserAdminToStringRole.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201609081842240_UniqueAndNotMappedModification.cs" />
+    <Compile Include="Migrations\201609081842240_UniqueAndNotMappedModification.Designer.cs">
+      <DependentUpon>201609081842240_UniqueAndNotMappedModification.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201609081924524_AddAdditionalHashedPasswordProperty.cs" />
+    <Compile Include="Migrations\201609081924524_AddAdditionalHashedPasswordProperty.Designer.cs">
+      <DependentUpon>201609081924524_AddAdditionalHashedPasswordProperty.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
     <Compile Include="Models\EditPasswordViewModel.cs" />
     <Compile Include="Models\Category.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
-    <Compile Include="Models\AddUserViewModel.cs" />
     <Compile Include="Models\Ticket.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -202,6 +209,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201609062107425_UserAdminToStringRole.resx">
       <DependentUpon>201609062107425_UserAdminToStringRole.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609081842240_UniqueAndNotMappedModification.resx">
+      <DependentUpon>201609081842240_UniqueAndNotMappedModification.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609081924524_AddAdditionalHashedPasswordProperty.resx">
+      <DependentUpon>201609081924524_AddAdditionalHashedPasswordProperty.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

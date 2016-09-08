@@ -100,44 +100,28 @@ namespace HelpDesk.Controllers
             return View(user);
         }
 
-        // GET: Users/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Users/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(AddUserViewModel user)
+        public ActionResult Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] User user)
         {
+            ModelState.Remove("HashedPassword");
+            ModelState.Remove("Salt");
             if (ModelState.IsValid)
             {
-                if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == user.Email.ToLower()).Count() == 0)
-                {
-                    User newUser = new User
-                    {
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Email = user.Email,
-                        Phone = user.Phone,
-                        MobilePhone = user.MobilePhone,
-                        Company = user.Company,
-                        Department = user.Department,
-                        Role = user.Role
-                    };
-
-                    newUser.Salt = Guid.NewGuid().ToString();
-                    newUser.Password = HashPassword(user.Password, newUser.Salt);
-                    unitOfWork.UserRepository.Insert(newUser);
-                    unitOfWork.Save();
-                    return RedirectToAction("Index");
-                }
+                if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
+                    ModelState.AddModelError("Email", $"The email address is in use");
                 else
                 {
-                    ModelState.AddModelError("", $"Email address {user.Email} exists in database");
+                    user.Salt = Guid.NewGuid().ToString();
+                    user.HashedPassword = HashPassword(user.Password, user.Salt);
+                    unitOfWork.UserRepository.Insert(user);
+                    unitOfWork.Save();
+                    return RedirectToAction("Index");
                 }
             }
             return View(user);

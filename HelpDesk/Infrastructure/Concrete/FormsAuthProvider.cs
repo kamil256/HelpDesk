@@ -22,7 +22,7 @@ namespace HelpDesk.Infrastructure.Concrete
         public bool Authenticate(string email, string password)
         {
             User user = unitOfWork.UserRepository.GetAll(filter: u => u.Email.ToLower() == email.ToLower()).SingleOrDefault();
-            if (user != null && HashPassword(password, user.Salt) == user.Password)
+            if (user != null && HashPassword(password, user.Salt) == user.HashedPassword)
             {
                 FormsAuthentication.SetAuthCookie(user.Email, false);
                 return true;
