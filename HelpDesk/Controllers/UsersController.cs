@@ -25,16 +25,9 @@ namespace HelpDesk.Controllers
             unitOfWork = new UnitOfWork();
         }
 
-        public ActionResult Index([Bind(Include = "Search, SortBy,DescSort,Page")] UsersIndexViewModel model)
+        public ActionResult Index([Bind(Include = "Search,SortBy,DescSort,Page")] UsersIndexViewModel model)
         {
-
-            //ViewBag.search = model.Search;
-            //ViewBag.sortBy = model.SortBy;
-            //ViewBag.descSort = model.DescSort;
-            //ViewBag.page = model.Page;
-
             Expression<Func<User, bool>> filter = null;
-
             if (!string.IsNullOrWhiteSpace(model.Search))
             {
                 filter = u => u.FirstName.ToLower().Contains(model.Search.ToLower()) ||
