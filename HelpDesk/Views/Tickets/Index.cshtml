@@ -1,0 +1,69 @@
+﻿@using PagedList.Mvc;
+@model HelpDesk.Models.TicketsIndexViewModel
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Tickets";
+}
+
+<h2>Users</h2>
+<div style="overflow:  auto; margin-bottom: 10px;">
+    @Html.ActionLink("Add New", "Create", "Tickets", null, new { @class = "btn btn-warning pull-left" })
+    
+    @using (Html.BeginForm("Index", "Tickets", FormMethod.Get))
+    {
+        @Html.Hidden("sortBy", Model.SortBy)
+        @Html.Hidden("descSort", Model.DescSort)
+        <input type="submit" value="Search" class="btn btn-warning pull-right" />
+        <span class="pull-right">&nbsp;</span>
+        @Html.TextBox("search", Model.Search, new { @class = "form-control pull-right" })
+    }
+</div>
+<table class="table">
+    <tr>
+        <th>
+            @Html.SortableTableColumnHeader("Creation date", "CreateDate", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+        </th>
+        <th>
+            @Html.SortableTableColumnHeader("Requestor", "Requestor", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+        </th>
+        <th>
+            @Html.SortableTableColumnHeader("Title", "Title", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+        </th>
+        <th>
+            @Html.SortableTableColumnHeader("Category", "Category", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+        </th>
+        <th>
+            @Html.SortableTableColumnHeader("Status", "Status", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model.Tickets) {
+    <tr>
+        <td>
+            @item.CreateDate.ToString()
+        </td>
+        <td>
+            @(item.Requestor.FirstName + " " + item.Requestor.LastName)
+        </td>
+        <td>
+            @Html.MarkSearchedString(item.Title, Model.Search)
+        </td>
+        <td>
+            @item.Category.Name
+        </td>
+        <td>
+            @item.status
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", "Tickets", new { id=item.TicketID }, new { @class = "btn btn-warning btn-sm" })
+            @Html.ActionLink("Delete", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
+        </td>
+    </tr>
+}
+
+</table>
+
+
+@Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new { Page = page, sortBy = Model.SortBy, descSort = Model.DescSort, search = Model.Search }), PagedListRenderOptions.Classic)

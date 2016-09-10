@@ -10,9 +10,9 @@ namespace HelpDesk.Entities
     {
         public int TicketID { get; set; }
         public int RequestorID { get; set; }
-        public int SolverID { get; set; }
+        public int? SolverID { get; set; }
         public DateTime CreateDate { get; set; }
-        public DateTime SolveOrCloseDate { get; set; }
+        public DateTime? SolveOrCloseDate { get; set; }
         public string status { get; set; }
         public int CategoryID { get; set; }
         public string Title { get; set; }

@@ -25,75 +25,61 @@ namespace HelpDesk.Controllers
             unitOfWork = new UnitOfWork();
         }
 
-        public string FindUsers(string search)
+        public JsonResult FindUsers(string search)
         {
-            string result = "";
-            foreach (var u in unitOfWork.UserRepository.GetAll(u => (u.FirstName + " " + u.LastName).ToLower().Contains(search.ToLower()) || u.Email.ToLower().Contains(search.ToLower())))
-            {
-                result += $"<option value={u.UserId}>{u.FirstName} {u.LastName} ({u.Email})</option>";
-            }
-            return result;
+            var result = from x in unitOfWork.UserRepository.GetAll
+                         (
+                              u => (u.FirstName + " " + u.LastName).ToLower().Contains(search.ToLower()) ||
+                              u.Email.ToLower().Contains(search.ToLower())
+                         )
+                         select new
+                         {
+                             FirstName = x.FirstName,
+                             LastName = x.LastName,
+                             Email = x.Email
+                         };
+            return Json(result);
         }
 
-        // GET: Users
-        public ActionResult Index(string search = null, string sortBy = "LastName", bool descSort = false, int page = 1)
+        public ActionResult Index([Bind(Include = "Search,SortBy,DescSort,Page")] TicketsIndexViewModel model)
         {
-            ViewBag.search = search;
-            ViewBag.sortBy = sortBy;
-            ViewBag.descSort = descSort;
-            ViewBag.page = page;
-
-            Expression<Func<User, bool>> filter = null;
-
-            if (!string.IsNullOrWhiteSpace(search))
+            Expression<Func<Ticket, bool>> filter = null;
+            if (!string.IsNullOrWhiteSpace(model.Search))
             {
-                filter = u => u.FirstName.ToLower().Contains(search.ToLower()) ||
-                              u.LastName.ToLower().Contains(search.ToLower()) ||
-                              u.Email.ToLower().Contains(search.ToLower()) ||
-                              u.Phone.ToLower().Contains(search.ToLower()) ||
-                              u.MobilePhone.ToLower().Contains(search.ToLower()) ||
-                              u.Company.ToLower().Contains(search.ToLower()) ||
-                              u.Department.ToLower().Contains(search.ToLower());                
+                filter = u => u.Title.ToLower().Contains(model.Search.ToLower()) ||
+                              u.Content.ToLower().Contains(model.Search.ToLower()) ||
+                              u.Solution.ToLower().Contains(model.Search.ToLower());
             }
 
-            Expression<Func<User, object>> propertySelector = null;
-            switch (sortBy)
+            Expression<Func<Ticket, object>> propertySelector = null;
+            switch (model.SortBy)
             {
-                case "FirstName":
-                    propertySelector = u => u.FirstName;
+                case "CreateDate":
+                    propertySelector = t => t.CreateDate.ToString();
                     break;
-                case "LastName":
-                    propertySelector = u => u.LastName;
+                case "Requestor":
+                    propertySelector = t => t.Requestor.FirstName;
                     break;
-                case "Email":
-                    propertySelector = u => u.Email;
+                case "Title":
+                    propertySelector = t => t.Title;
                     break;
-                case "Phone":
-                    propertySelector = u => u.Phone;
+                case "Category":
+                    propertySelector = t => t.Category.Name;
                     break;
-                case "MobilePhone":
-                    propertySelector = u => u.MobilePhone;
-                    break;
-                case "Company":
-                    propertySelector = u => u.Company;
-                    break;
-                case "Department":
-                    propertySelector = u => u.Department;
-                    break;
-                case "Role":
-                    propertySelector = u => u.Role;
+                case "Status":
+                    propertySelector = t => t.status;
                     break;
             }
-            Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
+            Func<IQueryable<Ticket>, IOrderedQueryable<Ticket>> orderBy = null;
             if (propertySelector != null)
             {
-                if (descSort)
+                if (model.DescSort)
                     orderBy = x => x.OrderByDescending(propertySelector);
                 else
                     orderBy = x => x.OrderBy(propertySelector);
             }
-           
-            return View(unitOfWork.UserRepository.GetAll(filter: filter, orderBy: orderBy).ToPagedList(page, 2));
+            model.Tickets = unitOfWork.TicketRepository.GetAll(filter: filter, orderBy: orderBy).ToPagedList(model.Page, 2);
+            return View(model);
         }
 
         // GET: Users/Details/5
@@ -111,56 +97,60 @@ namespace HelpDesk.Controllers
             return View(user);
         }
 
-        // GET: Users/Create
         public ActionResult Create()
         {
-            ViewBag.user = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
-            return View();
+            TicketsCreateViewModel model = new TicketsCreateViewModel();
+            User currentUser = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
+            model.UsersList = new SelectList(new[] 
+            {
+                new
+                {
+                    display = $"{currentUser.FirstName} {currentUser.LastName} ({currentUser.Email})",
+                    value = currentUser.Email
+                }
+            }, "value", "display", currentUser.Email);
+
+            List<Category> categories = unitOfWork.CategoryRepository.GetAll(orderBy: c => c.OrderBy(o => o.Name)).ToList();
+            categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
+            model.Categories = new SelectList(categories, "CategoryID", "Name", 0);
+            return View(model);
         }
 
-        // POST: Users/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "RequestorID")] Ticket ticket)
+        public ActionResult Create([Bind(Include = "Requestor,Category,Title,Content")] TicketsCreateViewModel model)
         {
             if (ModelState.IsValid)
             {
-                //if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == ticket.Email.ToLower()).Count() == 0)
-                //{
-                //    User newUser = new User
-                //    {
-                //        FirstName = ticket.FirstName,
-                //        LastName = ticket.LastName,
-                //        Email = ticket.Email,
-                //        Phone = ticket.Phone,
-                //        MobilePhone = ticket.MobilePhone,
-                //        Company = ticket.Company,
-                //        Department = ticket.Department,
-                //        Role = ticket.Role
-                //    };
-
-                //    newUser.Salt = Guid.NewGuid().ToString();
-                //    newUser.Password = HashPassword(ticket.Password, newUser.Salt);
-                return View(ticket);
-
-
-                ticket.CreateDate = DateTime.Now;
-                ticket.CategoryID = 1;
-                ticket.SolveOrCloseDate = DateTime.Now;
-                ticket.SolverID = 1;
-                
-                    unitOfWork.TicketRepository.Insert(ticket);
-                    unitOfWork.Save();
-                    return RedirectToAction("Index", "Home");
-                //}
-                //else
-                //{
-                //    ModelState.AddModelError("", $"Email address {ticket.Email} exists in database");
-                //}
+                Ticket ticket = new Ticket()
+                {
+                    Requestor = unitOfWork.UserRepository.GetAll(u => u.Email == model.Requestor).Single(),
+                    Category = unitOfWork.CategoryRepository.GetAll(c => c.CategoryID == model.Category).Single(),
+                    CreateDate = DateTime.Now,
+                    status = "New",
+                    Title = model.Title,
+                    Content = model.Content
+                };
+                unitOfWork.TicketRepository.Insert(ticket);
+                unitOfWork.Save();
+                return RedirectToAction("Index");
             }
-            return View(ticket);
+
+            User user = unitOfWork.UserRepository.GetAll(u => u.Email == model.Requestor).Single();
+            model.UsersList = new SelectList(new[]
+            {
+                new
+                {
+                    display = $"{user.FirstName} {user.LastName} ({user.Email})",
+                    value = user.Email
+                }
+            }, "value", "display", user.Email);
+
+            List<Category> categories = unitOfWork.CategoryRepository.GetAll(orderBy: c => c.OrderBy(o => o.Name)).ToList();
+            categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
+            model.Categories = new SelectList(categories, "CategoryID", "Name", model.Category);
+
+            return View(model);
         }
 
         // GET: Users/Edit/5

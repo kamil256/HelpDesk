@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - Help Desk</title>
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="~/Scripts/modernizr-2.6.2.js"></script>
@@ -21,11 +21,11 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="#">New user</a></li>
+                    <li class=@(ViewBag.Title == "New user" ? "active" : "")>@Html.ActionLink("New user", "Create", "Users")</li>
                     <li class=@(ViewBag.Title == "Users" ? "active" : "")>@Html.ActionLink("Users", "Index", "Users")</li>
-                    <li><a href="#">New request</a></li>
-                    <li><a href="#">Requests</a></li>
-                    <li><a href="#">Settings</a></li>                    
+                    <li class=@(ViewBag.Title == "New ticket" ? "active" : "")>@Html.ActionLink("New ticket", "Create", "Tickets")</li>
+                    <li class=@(ViewBag.Title == "Tickets" ? "active" : "")>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
+                    <li class=@(ViewBag.Title == "Settings" ? "active" : "")><a href="#">Settings</a></li>                    
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>

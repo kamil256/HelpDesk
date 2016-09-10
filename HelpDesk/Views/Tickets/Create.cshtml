@@ -1,8 +1,8 @@
-﻿@model HelpDesk.Models.Ticket
-@using HelpDesk.Models
+﻿@model HelpDesk.Models.TicketsCreateViewModel
+@using HelpDesk.Entities
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "New ticket";
 }
 
 <h2>Add new request</h2>
@@ -17,21 +17,42 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">
             <label class = "control-label col-md-2">Requestor</label>
-            @*@Html.Label("Requestor", "Requestor", htmlAttributes: new { @class = "control-label col-md-2" })*@
             <div class="col-md-10">
-                @*@Html.TextBox("Requestor", $"{((User)ViewBag.user).FirstName} {((User)ViewBag.user).LastName}", htmlAttributes: new { @class = "form-control pull-left", id = "searchedUser" })*@
-                <input value="@(((User)ViewBag.user).FirstName) @(((User)ViewBag.user).LastName)" id="searchedUser" class="form-control pull-left" />
+                <input value="" id="searchedUser" class="form-control pull-left" />
                 <span class="pull-left">&nbsp;</span>
                 <button id="findRequestor" class="btn btn-warning pull-left">Find</button>
-                @*@Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })*@
             </div>
         </div>
 
         <div class="form-group">
             @Html.Label(" ", " ", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownList("RequestorID", new SelectList(new[] { new { display = string.Format("{0} {1} ({2})", ((User)ViewBag.user).FirstName, ((User)ViewBag.user).LastName, ((User)ViewBag.user).Email), value = 1 } }, "value", "display"), new { @class = "form-control", id = "requestorsList" })
-                @*@Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })*@
+                @Html.DropDownList("Requestor", Model.UsersList, new { @class = "form-control", id = "requestorsList" })
+                @Html.ValidationMessageFor(model => model.Requestor, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Category, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("Category", Model.Categories, new { @class = "form-control", id = "requestorsList" })
+                @Html.ValidationMessageFor(model => model.Category, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+        <div class="form-group">
+            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Content, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Content, 10, 10, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
             </div>
         </div>
 
@@ -128,6 +149,21 @@
     $("#findRequestor").click(function(e)
         {
             e.preventDefault();
-            $.get('/Tickets/FindUsers?search=' + $("#searchedUser").val(), function(data) { $("#requestorsList").html(data); });
+            $.post("/Tickets/FindUsers", { search: $("#searchedUser").val() }, function(data)
+            {
+                if (data.length == 0)
+                {
+                    $("#requestorsList").html("<option value=''></option>");
+                }
+                else
+                {
+                    $("#requestorsList").html("");
+                    for (var i = 0; i < data.length; i++)
+                    {
+                        $("#requestorsList").append("<option value=" + data[i].Email + ">" + data[i].FirstName + " " + data[i].LastName + " (" + data[i].Email + ")</option>");
+                    }
+                }
+            }, "json");
+                
         });
 </script>

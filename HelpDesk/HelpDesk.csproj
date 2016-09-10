@@ -164,8 +164,17 @@
     <Compile Include="Migrations\201609081924524_AddAdditionalHashedPasswordProperty.Designer.cs">
       <DependentUpon>201609081924524_AddAdditionalHashedPasswordProperty.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201609101513528_ChangeSomeTicketPropertiesToNullable.cs" />
+    <Compile Include="Migrations\201609101513528_ChangeSomeTicketPropertiesToNullable.Designer.cs">
+      <DependentUpon>201609101513528_ChangeSomeTicketPropertiesToNullable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201609101529391_ChangeSolverIDToOptional.cs" />
+    <Compile Include="Migrations\201609101529391_ChangeSolverIDToOptional.Designer.cs">
+      <DependentUpon>201609101529391_ChangeSolverIDToOptional.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
+    <Compile Include="Models\TicketsCreateViewModel.cs" />
     <Compile Include="Models\UsersChangePasswordViewModel.cs" />
     <Compile Include="Entities\Category.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
@@ -173,6 +182,7 @@
     <Compile Include="Entities\User.cs" />
     <Compile Include="Models\UsersCreateViewModel.cs" />
     <Compile Include="Models\UsersEditUserViewModel.cs" />
+    <Compile Include="Models\TicketsIndexViewModel.cs" />
     <Compile Include="Models\UsersIndexViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -192,6 +202,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Users\ChangePassword.cshtml" />
     <Content Include="Views\Tickets\Create.cshtml" />
+    <Content Include="Views\Tickets\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -219,6 +230,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201609081924524_AddAdditionalHashedPasswordProperty.resx">
       <DependentUpon>201609081924524_AddAdditionalHashedPasswordProperty.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609101513528_ChangeSomeTicketPropertiesToNullable.resx">
+      <DependentUpon>201609101513528_ChangeSomeTicketPropertiesToNullable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609101529391_ChangeSolverIDToOptional.resx">
+      <DependentUpon>201609101529391_ChangeSolverIDToOptional.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

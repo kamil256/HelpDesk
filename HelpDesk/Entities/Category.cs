@@ -9,6 +9,7 @@ namespace HelpDesk.Entities
     {
         public int CategoryID { get; set; }
         public string Name { get; set; }
+        public int Order { get; set; }
 
         public virtual ICollection<Ticket> Tickets { get; set; }
     }

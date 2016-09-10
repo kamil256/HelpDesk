@@ -16,7 +16,7 @@ namespace HelpDesk.DAL
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Ticket>().HasRequired(t => t.Requestor).WithMany(u => u.CreatedTickets).HasForeignKey(t => t.RequestorID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<Ticket>().HasRequired(t => t.Solver).WithMany(u => u.SolvedTickets).HasForeignKey(t => t.SolverID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Ticket>().HasOptional(t => t.Solver).WithMany(u => u.SolvedTickets).HasForeignKey(t => t.SolverID).WillCascadeOnDelete(false);
         }
     }
 }
