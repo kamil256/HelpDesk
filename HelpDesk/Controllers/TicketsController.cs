@@ -110,7 +110,7 @@ namespace HelpDesk.Controllers
                 }
             }, "value", "display", currentUser.Email);
 
-            List<Category> categories = unitOfWork.CategoryRepository.GetAll(orderBy: c => c.OrderBy(o => o.Name)).ToList();
+            List<Category> categories = unitOfWork.CategoryRepository.GetAll(orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
             model.Categories = new SelectList(categories, "CategoryID", "Name", 0);
             return View(model);
@@ -146,7 +146,7 @@ namespace HelpDesk.Controllers
                 }
             }, "value", "display", user.Email);
 
-            List<Category> categories = unitOfWork.CategoryRepository.GetAll(orderBy: c => c.OrderBy(o => o.Name)).ToList();
+            List<Category> categories = unitOfWork.CategoryRepository.GetAll(orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
             model.Categories = new SelectList(categories, "CategoryID", "Name", model.Category);
 
