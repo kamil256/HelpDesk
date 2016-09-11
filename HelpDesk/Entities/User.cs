@@ -9,7 +9,7 @@ namespace HelpDesk.Entities
 {
     public class User
     {
-        public int UserId { get; set; }
+        public int UserID { get; set; }
 
         [Required]
         public string FirstName { get; set; }
@@ -35,6 +35,7 @@ namespace HelpDesk.Entities
         public string Role { get; set; }
 
         public virtual ICollection<Ticket> CreatedTickets { get; set; }
+        public virtual ICollection<Ticket> RequestedTickets { get; set; }
         public virtual ICollection<Ticket> SolvedTickets { get; set; }
     }
 }

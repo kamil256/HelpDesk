@@ -80,7 +80,14 @@
             @item.CreateDate.ToString()
         </td>
         <td>
-            @(item.Requestor.FirstName + " " + item.Requestor.LastName)
+            @if (item.Requestor != null)
+            {
+                @: @item.Requestor.FirstName @item.Requestor.LastName
+            }
+            else
+            {
+                @: Deleted user
+            }
         </td>
         <td>
             @Html.MarkSearchedString(item.Title, Model.Search)

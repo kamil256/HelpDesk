@@ -43,7 +43,7 @@ namespace HelpDesk.Migrations
                 "dbo.Users",
                 c => new
                     {
-                        UserId = c.Int(nullable: false, identity: true),
+                        UserID = c.Int(nullable: false, identity: true),
                         FirstName = c.String(),
                         LastName = c.String(),
                         Email = c.String(),
@@ -55,7 +55,7 @@ namespace HelpDesk.Migrations
                         Department = c.String(),
                         Role = c.String(),
                     })
-                .PrimaryKey(t => t.UserId);
+                .PrimaryKey(t => t.UserID);
             
         }
         

@@ -6,7 +6,7 @@ using System.Web;
 
 namespace HelpDesk.Models
 {
-    public class UsersEditUserViewModel
+    public class UsersEditViewModel
     {
         public int UserID { get; set; }
 

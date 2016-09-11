@@ -9,7 +9,8 @@ namespace HelpDesk.Entities
     public class Ticket
     {
         public int TicketID { get; set; }
-        public int RequestorID { get; set; }
+        public int? CreatorID { get; set; }
+        public int? RequestorID { get; set; }
         public int? SolverID { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime? SolveOrCloseDate { get; set; }
@@ -19,6 +20,7 @@ namespace HelpDesk.Entities
         public string Content { get; set; }
         public string Solution { get; set; }
 
+        public virtual User Creator { get; set; }
         public virtual User Requestor { get; set; }
         public virtual User Solver { get; set; }
         public virtual Category Category { get; set; }

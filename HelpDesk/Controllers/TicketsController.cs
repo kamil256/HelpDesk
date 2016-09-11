@@ -138,6 +138,7 @@ namespace HelpDesk.Controllers
             {
                 Ticket ticket = new Ticket()
                 {
+                    Creator = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
                     Requestor = unitOfWork.UserRepository.GetAll(u => u.Email == model.Requestor).Single(),
                     Category = unitOfWork.CategoryRepository.GetAll(c => c.CategoryID == model.Category).Single(),
                     CreateDate = DateTime.Now,
@@ -167,42 +168,107 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
-        // GET: Users/Edit/5
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(int id = 0)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            User user = unitOfWork.UserRepository.GetById(id ?? 0);
-            if (user == null)
+            Ticket ticket = unitOfWork.TicketRepository.GetById(id);
+            if (ticket == null)
             {
                 return HttpNotFound();
             }
-            return View(user);
+            TicketsEditViewModel model = new TicketsEditViewModel()
+            {
+                TicketID = ticket.TicketID,
+                Creator = ticket.Creator,
+                Solver = ticket.Solver,
+                CreateDate = ticket.CreateDate.ToShortDateString() + " " + ticket.CreateDate.ToShortTimeString(),
+                SolveOrCloseDate = ticket.SolveOrCloseDate != null ? ticket.SolveOrCloseDate?.ToShortDateString() + " " + ticket.SolveOrCloseDate?.ToShortTimeString() : null,
+                Requestor = ticket.Requestor?.Email,
+                Category = ticket.CategoryID,
+                Status = ticket.status,
+                Title = ticket.Title,
+                Content = ticket.Content,
+                Solution = ticket.Solution
+            };
+
+            User user = unitOfWork.UserRepository.GetAll(u => u.Email == model.Requestor).SingleOrDefault();
+            if (user != null)
+                model.UsersList = new SelectList(new[]
+                {
+                    new
+                    {
+                        display = $"{user.FirstName} {user.LastName} ({user.Email})",
+                        value = user.Email
+                    }
+                }, "value", "display", user.Email);
+            else
+                model.UsersList = new SelectList(new object[] { });
+            List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
+            categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
+            model.Categories = new SelectList(categories, "CategoryID", "Name", model.Category);
+            
+            return View(model);
         }
 
-        // POST: Users/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "UserId,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Admin")] User user)
+        public ActionResult Edit([Bind(Include = "TicketID,Requestor,Category,Status,Title,Content,Solution")] TicketsEditViewModel model)
         {
+            User requestor = unitOfWork.UserRepository.GetAll(u => u.Email == model.Requestor).SingleOrDefault();
+            User solver = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
+            Ticket ticket = unitOfWork.TicketRepository.GetById(model.TicketID);
+            if (ticket == null)
+            {
+                return HttpNotFound();
+            }
             if (ModelState.IsValid)
             {
-                if (unitOfWork.UserRepository.GetAll(u => u.UserId != user.UserId && u.Email.ToLower() == user.Email.ToLower()).Count() == 0)
-                {
-                    //unitOfWork.UserRepository.UpdateUserInfo(user);
-                    unitOfWork.Save();
-                    return RedirectToAction("Index");
-                }
+                ticket.RequestorID = requestor?.UserID;
+                
+                ticket.CategoryID = model.Category;
+
+                string previousStatus = ticket.status;
+                // If solver doesn't change status and status remains New, but he changes solution, 
+                // status changes to Solved
+                if (model.Status == "New" && model.Status == previousStatus &&
+                    !string.IsNullOrEmpty(model.Solution) && model.Solution != ticket.Solution)
+                    ticket.status = "Solved";
                 else
+                    ticket.status = model.Status;
+                if (ticket.status == "New")
                 {
-                    ModelState.AddModelError("", $"Email address {user.Email} exists in database");
+                    ticket.SolveOrCloseDate = null;
+                    ticket.SolverID = null;
                 }
+                if ((ticket.status == "Solved" && previousStatus != "Solved") ||
+                    (ticket.status == "Closed" && previousStatus != "Closed"))
+                {
+                    ticket.SolveOrCloseDate = DateTime.Now;
+                    ticket.SolverID = solver.UserID;
+                }
+                ticket.Title = model.Title;
+                ticket.Content = model.Content;
+                ticket.Solution = model.Solution;
+                unitOfWork.TicketRepository.Update(ticket);
+                unitOfWork.Save();
+                return RedirectToAction("Index");
             }
-            return View(user);
+            model.Creator = ticket.Creator;
+            model.Solver = ticket.Solver;
+            model.CreateDate = ticket.CreateDate.ToShortDateString() + " " + ticket.CreateDate.ToShortTimeString();
+            model.SolveOrCloseDate = ticket.SolveOrCloseDate != null ? ticket.SolveOrCloseDate?.ToShortDateString() + " " + ticket.SolveOrCloseDate?.ToShortTimeString() : null;
+            model.UsersList = new SelectList(new[]
+            {
+                new
+                {
+                    display = $"{requestor.FirstName} {requestor.LastName} ({requestor.Email})",
+                    value = requestor.Email
+                }
+            }, "value", "display", requestor.Email);
+
+            List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
+            categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
+            model.Categories = new SelectList(categories, "CategoryID", "Name", model.Category);
+            return View(model);
         }
 
         // GET: Users/Edit/5
@@ -220,7 +286,7 @@ namespace HelpDesk.Controllers
 
             return View(new UsersChangePasswordViewModel
             {
-                UserID = user.UserId,
+                UserID = user.UserID,
                 FirstName = user.FirstName,
                 LastName = user.LastName
             });
@@ -231,12 +297,12 @@ namespace HelpDesk.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPassword([Bind(Include = "UserId,Password,ConfirmPassword")] UsersChangePasswordViewModel user)
+        public ActionResult EditPassword([Bind(Include = "UserID,Password,ConfirmPassword")] UsersChangePasswordViewModel user)
         {
             if (ModelState.IsValid)
             {
                 User editedUser = new User();
-                editedUser.UserId = user.UserID;
+                editedUser.UserID = user.UserID;
                 editedUser.Salt = Guid.NewGuid().ToString();
                 //editedUser.Password = HashPassword(user.Password, editedUser.Salt);
                 //unitOfWork.UserRepository.UpdateUserPassword(editedUser);
@@ -246,27 +312,22 @@ namespace HelpDesk.Controllers
             return View(user);
         }
 
-        // GET: Users/Delete/5
-        public ActionResult Delete(int? id)
+        public ActionResult Delete(int id = 0)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            User user = unitOfWork.UserRepository.GetById(id ?? 0);
-            if (user == null)
+            Ticket ticket = unitOfWork.TicketRepository.GetById(id);
+            if (ticket == null)
             {
                 return HttpNotFound();
             }
-            return View(user);
+            return View(ticket);
         }
 
-        // POST: Users/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
+        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            unitOfWork.UserRepository.Delete(id);
+            unitOfWork.TicketRepository.Delete(id);
             unitOfWork.Save();
             return RedirectToAction("Index");
         }

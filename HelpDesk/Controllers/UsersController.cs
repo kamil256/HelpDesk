@@ -136,9 +136,9 @@ namespace HelpDesk.Controllers
             {
                 return HttpNotFound();
             }
-            return View(new UsersEditUserViewModel
+            return View(new UsersEditViewModel
             {
-                UserID = user.UserId,
+                UserID = user.UserID,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
@@ -152,11 +152,11 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "UserId,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] UsersEditUserViewModel user)
+        public ActionResult Edit([Bind(Include = "UserID,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel user)
         {
             if (ModelState.IsValid)
             {
-                if (unitOfWork.UserRepository.GetAll(u => u.UserId != user.UserID && u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
+                if (unitOfWork.UserRepository.GetAll(u => u.UserID != user.UserID && u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
                     ModelState.AddModelError("Email", $"The email address is in use");
                 else
                 {
@@ -186,7 +186,7 @@ namespace HelpDesk.Controllers
             }
             return View(new UsersChangePasswordViewModel
             {
-                UserID = user.UserId,
+                UserID = user.UserID,
                 FirstName = user.FirstName,
                 LastName = user.LastName
             });
@@ -223,6 +223,12 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
+            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).CreatedTickets)
+                ticket.Solver = null;
+            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).RequestedTickets)
+                ticket.Solver = null;
+            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).SolvedTickets)
+                ticket.Solver = null;
             unitOfWork.UserRepository.Delete(id);
             unitOfWork.Save();
             return RedirectToAction("Index");

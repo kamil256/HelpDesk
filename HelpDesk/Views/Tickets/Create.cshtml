@@ -147,7 +147,8 @@
 
 <script>
     $("#findRequestor").click(function(e)
-        {
+    {
+        
             e.preventDefault();
             $.post("/Tickets/FindUsers", { search: $("#searchedUser").val() }, function(data)
             {
