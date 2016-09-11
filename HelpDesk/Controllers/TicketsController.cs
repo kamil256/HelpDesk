@@ -41,16 +41,23 @@ namespace HelpDesk.Controllers
             return Json(result);
         }
 
-        public ActionResult Index([Bind(Include = "Search,SortBy,DescSort,Page")] TicketsIndexViewModel model)
+        public ActionResult Index([Bind(Include = "DateFrom,DateTo,Category,Status,Search,SortBy,DescSort,Page")] TicketsIndexViewModel model)
         {
-            Expression<Func<Ticket, bool>> filter = null;
+            List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
             if (!string.IsNullOrWhiteSpace(model.Search))
             {
-                filter = u => u.Title.ToLower().Contains(model.Search.ToLower()) ||
-                              u.Content.ToLower().Contains(model.Search.ToLower()) ||
-                              u.Solution.ToLower().Contains(model.Search.ToLower());
+                filters.Add(t => t.Title.ToLower().Contains(model.Search.ToLower()) ||
+                                 t.Content.ToLower().Contains(model.Search.ToLower()) ||
+                                 t.Solution.ToLower().Contains(model.Search.ToLower()));
             }
-
+            if (model.Category != 0)
+                filters.Add(t => t.CategoryID == model.Category);
+            if (model.Status != "All")
+                filters.Add(t => t.status == model.Status);
+            if (model.DateFrom != default(DateTime))
+                filters.Add(t => t.CreateDate >= model.DateFrom);
+            if (model.DateTo != default(DateTime))
+                filters.Add(t => t.CreateDate < DbFunctions.AddDays(model.DateTo, 1));
             Expression<Func<Ticket, object>> propertySelector = null;
             switch (model.SortBy)
             {
@@ -78,7 +85,14 @@ namespace HelpDesk.Controllers
                 else
                     orderBy = x => x.OrderBy(propertySelector);
             }
-            model.Tickets = unitOfWork.TicketRepository.GetAll(filter: filter, orderBy: orderBy).ToPagedList(model.Page, 2);
+            model.Tickets = unitOfWork.TicketRepository.GetAll(filters: filters, orderBy: orderBy).ToPagedList(model.Page, 2);
+
+            List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
+            categories.Insert(0, new Category() { CategoryID = 0, Name = "All" });
+            model.Categories = new SelectList(categories, "CategoryID", "Name", model.Category);
+
+            model.Statuses = new SelectList(new string[] { "All", "New", "Solved", "Closed" }, model.Status);
+
             return View(model);
         }
 
@@ -110,7 +124,7 @@ namespace HelpDesk.Controllers
                 }
             }, "value", "display", currentUser.Email);
 
-            List<Category> categories = unitOfWork.CategoryRepository.GetAll(orderBy: c => c.OrderBy(o => o.Order)).ToList();
+            List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
             model.Categories = new SelectList(categories, "CategoryID", "Name", 0);
             return View(model);
@@ -146,7 +160,7 @@ namespace HelpDesk.Controllers
                 }
             }, "value", "display", user.Email);
 
-            List<Category> categories = unitOfWork.CategoryRepository.GetAll(orderBy: c => c.OrderBy(o => o.Order)).ToList();
+            List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
             model.Categories = new SelectList(categories, "CategoryID", "Name", model.Category);
 

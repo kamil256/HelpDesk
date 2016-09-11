@@ -10,13 +10,48 @@
 <div style="overflow:  auto; margin-bottom: 10px;">
     @Html.ActionLink("Add New", "Create", "Tickets", null, new { @class = "btn btn-warning pull-left" })
     
-    @using (Html.BeginForm("Index", "Tickets", FormMethod.Get))
+    @using (Html.BeginForm("Index", "Tickets", FormMethod.Get, new { id="form" }))
     {
         @Html.Hidden("sortBy", Model.SortBy)
         @Html.Hidden("descSort", Model.DescSort)
         <input type="submit" value="Search" class="btn btn-warning pull-right" />
         <span class="pull-right">&nbsp;</span>
         @Html.TextBox("search", Model.Search, new { @class = "form-control pull-right" })
+        
+        <div class="form-group" style="clear: both">
+            <label for="Status" class="">Status</label>
+            @*<select name="Status" class="form-control" onchange="$('#form').submit()">
+                <option value="1">New</option>
+                <option value="2">Solved</option>
+                <option value="3">Closed</option>
+            </select>*@            
+            @Html.DropDownList("Status", Model.Statuses, new { @class="form-control", onchange="$('#form').submit()" })
+        </div>
+
+
+
+        <div class="form-group ">
+            <label for="Category" class="">Category</label>
+            @*<select name="Category" class="form-control" onchange="$('#form').submit()">
+                
+                <option value="1">PC</option>
+                <option value="2">Monitor</option>
+                <option value="3">Laptop</option>
+            </select>*@
+            @Html.DropDownList("Category", Model.Categories, new { @class = "form-control", onchange = "$('#form').submit()" })
+        </div>
+
+        <div class="form-group ">
+            <label for="DateFrom" class="">Date from</label>
+            <input type="date" name="DateFrom" value='@(Model.DateFrom.ToShortDateString() != "0001-01-01" ? Model.DateFrom.ToShortDateString() : "")' class="form-control" onchange="$('#form').submit()" />
+
+        </div>
+
+        <div class="form-group ">
+            <label for="DateTo" class="">Date to</label>
+            <input type="date" name="DateTo" value='@(Model.DateTo.ToShortDateString() != "0001-01-01" ? Model.DateTo.ToShortDateString() : "")' class="form-control" onchange="$('#form').submit()" />
+
+        </div>
     }
 </div>
 <table class="table">
@@ -66,4 +101,4 @@
 </table>
 
 
-@Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new { Page = page, sortBy = Model.SortBy, descSort = Model.DescSort, search = Model.Search }), PagedListRenderOptions.Classic)
+@Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new { Page = page, sortBy = Model.SortBy, descSort = Model.DescSort, search = Model.Search, status = Model.Status, Category = Model.Category, DateFrom = Model.DateFrom, DateTo = Model.DateTo }), PagedListRenderOptions.Classic)

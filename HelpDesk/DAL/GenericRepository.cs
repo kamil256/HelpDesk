@@ -20,9 +20,19 @@ namespace HelpDesk.DAL
 
         public IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
         {
-            IQueryable<T> query = dbSet;
+            List<Expression<Func<T, bool>>> filters = new List<Expression<Func<T, bool>>>();
             if (filter != null)
-                query = query.Where(filter);
+                filters.Add(filter);
+            return GetAll(filters, orderBy);
+        }
+
+        public IEnumerable<T> GetAll(List<Expression<Func<T, bool>>> filters = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
+        {
+            IQueryable<T> query = dbSet;
+            if (filters != null)
+                foreach (var filter in filters)
+                    if (filter != null)
+                        query = query.Where(filter);
             if (orderBy != null)
                 query = orderBy(query);
             return query.ToList();
