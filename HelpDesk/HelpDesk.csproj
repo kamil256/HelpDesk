@@ -255,6 +255,7 @@
     <Content Include="Views\Tickets\Delete.cshtml" />
     <Content Include="Views\Tickets\_FindRequestor.cshtml" />
     <Content Include="Views\Tickets\_DeleteTicket.cshtml" />
+    <Content Include="Views\Users\_DeleteUser.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -1,0 +1,62 @@
+﻿<p><b>Are you sure you want to delete user <span id="deleteUserName"></span>?</b></p>
+
+@using (Html.BeginForm("Delete", "Users"))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="userIDToDelete" name="id" />
+
+    <input type="submit" value="Yes" class="btn btn-warning" />
+    <input type="button" value="No" class="btn btn-warning" onclick="$('#deleteUserDialog').dialog('close');" />
+}
+
+<script>
+    $(document).ready(function()
+    {
+        $("#deleteUserDialog").dialog(
+        {
+            autoOpen: false,
+            modal: true,
+            resizable: false
+        });
+    });
+
+    $("#find").click(function(e)
+    {
+        $("#progress").show();
+        e.preventDefault();
+        $.post("/Tickets/FindUsers", { search: $("#searchedUser").val() }, function(data)
+        {
+            if (data.length == 0)
+            {
+                $("#requestorsList").html("<option value=''></option>");
+            }
+            else
+            {
+                $("#requestorsList").html("");
+                for (var i = 0; i < data.length; i++)
+                {
+                    $("#requestorsList").append("<option value=" + data[i].UserID + ">" + data[i].FirstName + " " + data[i].LastName + " (" + data[i].Email + ")</option>");
+                }
+            }
+            $("#progress").hide();
+        }, "json");
+
+    });
+
+    $("#dialogBtnOk").click(function()
+    {
+        if ($("#requestorsList").val() && $("#requestorsList").val() != "")
+        {
+            $("#RequestorID").val($("#requestorsList").val());
+            $("#requestorInp").val($("#requestorsList > option[value=" + $("#requestorsList").val() + "]").html());
+            $("#searchedUser").val("");
+            $("#requestorsList").val("");
+        }
+        $('#findRequestorDialog').dialog('close');
+    });
+
+    $("#dialogBtnCancel").click(function()
+    {
+        $('#findRequestorDialog').dialog('close');
+    });
+</script>

@@ -77,7 +77,7 @@
         <td>
             <a href='@Url.Action("Index", "Tickets")' class='btn btn-warning btn-sm'>Tickets <span class="badge">7</span></a>
             @Html.ActionLink("Edit", "Edit", "Users", new { id=item.UserID }, new { @class = "btn btn-warning btn-sm" })
-            @Html.ActionLink("Delete", "Delete", "Users", new { id = item.UserID }, new { @class = "btn btn-warning btn-sm" })
+            @Html.ActionLink("Delete", "Delete", "Users", new { id = item.UserID }, new { @class = "btn btn-warning btn-sm", onclick = "event.preventDefault(); $('#userIDToDelete').val('" + item.UserID + "'); $('#deleteUserName').text('" + item.FirstName + " " + item.LastName + "'); $('#deleteUserDialog').dialog('open');" })
         </td>
     </tr>
 }
@@ -86,3 +86,11 @@
 
 
 @Html.PagedListPager(Model.Users, page => @Url.Action("Index", new { Page = page, sortBy = Model.SortBy, descSort = Model.DescSort, search = Model.Search }), PagedListRenderOptions.Classic)
+
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+<div id="deleteUserDialog">
+    @Html.Partial("_DeleteUser")
+</div>
