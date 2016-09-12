@@ -100,7 +100,7 @@
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", "Tickets", new { id=item.TicketID }, new { @class = "btn btn-warning btn-sm" })
-            @Html.ActionLink("Delete", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
+            @Html.ActionLink("Delete", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick= "event.preventDefault(); $('#ticketIDToDelete').val('" + item.TicketID + "'); $('#deleteTicketTitle').text('" + item.Title + "'); $('#deleteTicketDialog').dialog('open');" })
         </td>
     </tr>
 }
@@ -109,3 +109,11 @@
 
 
 @Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new { Page = page, sortBy = Model.SortBy, descSort = Model.DescSort, search = Model.Search, status = Model.Status, Category = Model.Category, DateFrom = Model.DateFrom, DateTo = Model.DateTo }), PagedListRenderOptions.Classic)
+
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+<div id="deleteTicketDialog">
+    @Html.Partial("_DeleteTicket")
+</div>
