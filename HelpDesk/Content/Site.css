@@ -1,5 +1,5 @@
 ﻿body {
-    padding-top: 50px;
+    /*padding-top: 50px;*/
     padding-bottom: 20px;
 }
 
@@ -16,3 +16,6 @@ textarea {
     max-width: 280px;
 }
 
+.navbar {
+    border-radius: 0 !important;
+}

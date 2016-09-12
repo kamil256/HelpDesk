@@ -12,7 +12,7 @@ namespace HelpDesk.Models
     {
         public int TicketID { get; set; }
 
-        public SelectList UsersList { get; set; }
+        public User Requestor { get; set; }
         public SelectList Categories { get; set; }
 
         public User Creator { get; set; }
@@ -24,7 +24,7 @@ namespace HelpDesk.Models
         public string SolveOrCloseDate { get; set; }
 
         // Only required when creating new ticket, because requestor may have been removed
-        public string Requestor { get; set; }
+        public int? RequestorID { get; set; }
 
         [Required]
         public string Status { get; set; }

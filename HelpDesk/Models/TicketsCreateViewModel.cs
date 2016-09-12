@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HelpDesk.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,11 +10,11 @@ namespace HelpDesk.Models
 {
     public class TicketsCreateViewModel
     {
-        public SelectList UsersList { get; set; }
+        public User Requestor { get; set; }
         public SelectList Categories { get; set; }
 
         [Required]
-        public string Requestor { get; set; }
+        public int RequestorID { get; set; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Category field is required")]

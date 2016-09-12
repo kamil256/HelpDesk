@@ -16,7 +16,7 @@
         
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.HiddenFor(model => model.TicketID)
-
+        
         @if ((Model.Status == "Solved" || Model.Status == "Closed") && Model.SolveOrCloseDate != null)
         {
             <div class="form-group">
@@ -69,27 +69,28 @@
             </div>
         </div>
 
+        @Html.HiddenFor(model => model.RequestorID)
+
         <div class="form-group">
             <label class="control-label col-md-2">Requestor</label>
             <div class="col-md-10">
-                <input value="" id="searchedUser" class="form-control pull-left" />
+                @if (Model.Requestor != null)
+                {
+                    <input value="@Model.Requestor.FirstName @Model.Requestor.LastName (@Model.Requestor.Email)" id="requestorInp" class="form-control pull-left" disabled="disabled" />
+                }
+                else
+                {
+                    <input value="Deleted user" id="requestorInp" class="form-control pull-left" disabled="disabled" />
+                }
                 <span class="pull-left">&nbsp;</span>
-                <button id="findRequestor" class="btn btn-warning pull-left">Find</button>
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.Label(" ", " ", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("Requestor", Model.UsersList, new { @class = "form-control", id = "requestorsList" })
-                @Html.ValidationMessageFor(model => model.Requestor, "", new { @class = "text-danger" })
+                <button id="findRequestorBtn" class="btn btn-warning pull-left" onclick="event.preventDefault(); $('#findRequestorDialog').dialog('open');">Change</button>
             </div>
         </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.Category, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownList("Category", Model.Categories, new { @class = "form-control", id = "requestorsList" })
+                @Html.DropDownList("Category", Model.Categories, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.Category, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -97,7 +98,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownListFor(model => model.Status, new SelectList(new[] { "New", "Solved", "Closed" }), new { @class = "form-control", id = "requestorsList" })
+                @Html.DropDownListFor(model => model.Status, new SelectList(new[] { "New", "Solved", "Closed" }), new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.Category, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -138,30 +139,34 @@
     @Html.ActionLink("Back to List", "Index")
 </div>
 
-<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
 <script src="~/Scripts/jquery.validate.min.js"></script>
 <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
 
+<div id="findRequestorDialog">
+    @Html.Partial("_FindRequestor")
+</div>
+
 <script>
-    $("#findRequestor").click(function(e)
-    {
+    //$("#findRequestor").click(function(e)
+    //{
 
-            e.preventDefault();
-            $.post("/Tickets/FindUsers", { search: $("#searchedUser").val() }, function(data)
-            {
-                if (data.length == 0)
-                {
-                    $("#requestorsList").html("<option value=''></option>");
-                }
-                else
-                {
-                    $("#requestorsList").html("");
-                    for (var i = 0; i < data.length; i++)
-                    {
-                        $("#requestorsList").append("<option value=" + data[i].Email + ">" + data[i].FirstName + " " + data[i].LastName + " (" + data[i].Email + ")</option>");
-                    }
-                }
-            }, "json");
+    //        e.preventDefault();
+    //        $.post("/Tickets/FindUsers", { search: $("#searchedUser").val() }, function(data)
+    //        {
+    //            if (data.length == 0)
+    //            {
+    //                $("#requestorsList").html("<option value=''></option>");
+    //            }
+    //            else
+    //            {
+    //                $("#requestorsList").html("");
+    //                for (var i = 0; i < data.length; i++)
+    //                {
+    //                    $("#requestorsList").append("<option value=" + data[i].Email + ">" + data[i].FirstName + " " + data[i].LastName + " (" + data[i].Email + ")</option>");
+    //                }
+    //            }
+    //        }, "json");
 
-        });
+    //    });
 </script>

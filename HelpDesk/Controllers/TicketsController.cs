@@ -34,6 +34,7 @@ namespace HelpDesk.Controllers
                          )
                          select new
                          {
+                             UserID = x.UserID,
                              FirstName = x.FirstName,
                              LastName = x.LastName,
                              Email = x.Email
@@ -114,16 +115,8 @@ namespace HelpDesk.Controllers
         public ActionResult Create()
         {
             TicketsCreateViewModel model = new TicketsCreateViewModel();
-            User currentUser = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
-            model.UsersList = new SelectList(new[] 
-            {
-                new
-                {
-                    display = $"{currentUser.FirstName} {currentUser.LastName} ({currentUser.Email})",
-                    value = currentUser.Email
-                }
-            }, "value", "display", currentUser.Email);
-
+            model.Requestor = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
+            model.RequestorID = model.Requestor.UserID;
             List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
             model.Categories = new SelectList(categories, "CategoryID", "Name", 0);
@@ -132,14 +125,14 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Requestor,Category,Title,Content")] TicketsCreateViewModel model)
+        public ActionResult Create([Bind(Include = "RequestorID,Category,Title,Content")] TicketsCreateViewModel model)
         {
             if (ModelState.IsValid)
             {
                 Ticket ticket = new Ticket()
                 {
                     Creator = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
-                    Requestor = unitOfWork.UserRepository.GetAll(u => u.Email == model.Requestor).Single(),
+                    Requestor = unitOfWork.UserRepository.GetById(model.RequestorID),
                     Category = unitOfWork.CategoryRepository.GetAll(c => c.CategoryID == model.Category).Single(),
                     CreateDate = DateTime.Now,
                     status = "New",
@@ -151,15 +144,7 @@ namespace HelpDesk.Controllers
                 return RedirectToAction("Index");
             }
 
-            User user = unitOfWork.UserRepository.GetAll(u => u.Email == model.Requestor).Single();
-            model.UsersList = new SelectList(new[]
-            {
-                new
-                {
-                    display = $"{user.FirstName} {user.LastName} ({user.Email})",
-                    value = user.Email
-                }
-            }, "value", "display", user.Email);
+            model.Requestor = unitOfWork.UserRepository.GetById(model.RequestorID);
 
             List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
@@ -182,7 +167,8 @@ namespace HelpDesk.Controllers
                 Solver = ticket.Solver,
                 CreateDate = ticket.CreateDate.ToShortDateString() + " " + ticket.CreateDate.ToShortTimeString(),
                 SolveOrCloseDate = ticket.SolveOrCloseDate != null ? ticket.SolveOrCloseDate?.ToShortDateString() + " " + ticket.SolveOrCloseDate?.ToShortTimeString() : null,
-                Requestor = ticket.Requestor?.Email,
+                RequestorID = ticket.RequestorID,
+                Requestor = ticket.RequestorID != null ? unitOfWork.UserRepository.GetById(ticket.RequestorID ?? 0) : null,
                 Category = ticket.CategoryID,
                 Status = ticket.status,
                 Title = ticket.Title,
@@ -190,18 +176,6 @@ namespace HelpDesk.Controllers
                 Solution = ticket.Solution
             };
 
-            User user = unitOfWork.UserRepository.GetAll(u => u.Email == model.Requestor).SingleOrDefault();
-            if (user != null)
-                model.UsersList = new SelectList(new[]
-                {
-                    new
-                    {
-                        display = $"{user.FirstName} {user.LastName} ({user.Email})",
-                        value = user.Email
-                    }
-                }, "value", "display", user.Email);
-            else
-                model.UsersList = new SelectList(new object[] { });
             List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
             model.Categories = new SelectList(categories, "CategoryID", "Name", model.Category);
@@ -211,9 +185,9 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "TicketID,Requestor,Category,Status,Title,Content,Solution")] TicketsEditViewModel model)
+        public ActionResult Edit([Bind(Include = "TicketID,RequestorID,Category,Status,Title,Content,Solution")] TicketsEditViewModel model)
         {
-            User requestor = unitOfWork.UserRepository.GetAll(u => u.Email == model.Requestor).SingleOrDefault();
+            model.Requestor = unitOfWork.UserRepository.GetById(model.RequestorID ?? 0);
             User solver = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
             Ticket ticket = unitOfWork.TicketRepository.GetById(model.TicketID);
             if (ticket == null)
@@ -222,7 +196,7 @@ namespace HelpDesk.Controllers
             }
             if (ModelState.IsValid)
             {
-                ticket.RequestorID = requestor?.UserID;
+                ticket.RequestorID = model.RequestorID;
                 
                 ticket.CategoryID = model.Category;
 
@@ -256,14 +230,7 @@ namespace HelpDesk.Controllers
             model.Solver = ticket.Solver;
             model.CreateDate = ticket.CreateDate.ToShortDateString() + " " + ticket.CreateDate.ToShortTimeString();
             model.SolveOrCloseDate = ticket.SolveOrCloseDate != null ? ticket.SolveOrCloseDate?.ToShortDateString() + " " + ticket.SolveOrCloseDate?.ToShortTimeString() : null;
-            model.UsersList = new SelectList(new[]
-            {
-                new
-                {
-                    display = $"{requestor.FirstName} {requestor.LastName} ({requestor.Email})",
-                    value = requestor.Email
-                }
-            }, "value", "display", requestor.Email);
+            
 
             List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
