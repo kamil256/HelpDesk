@@ -88,6 +88,7 @@
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Save" class="btn btn-default" />
+                <input type="button" value="Delete" class="btn btn-default" onclick="event.preventDefault(); $('#userIDToDelete').val('@Model.UserID'); $('#deleteUserName').text('@Model.FirstName @Model.LastName'); $('#deleteUserDialog').dialog('open');" />
             </div>
         </div>
     </div>
@@ -100,3 +101,7 @@
 <script src="~/Scripts/jquery-1.12.4.min.js"></script>
 <script src="~/Scripts/jquery.validate.min.js"></script>
 <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+<div id="deleteUserDialog">
+    @Html.Partial("_DeleteUser")
+</div>
