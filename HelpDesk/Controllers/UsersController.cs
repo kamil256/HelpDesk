@@ -66,6 +66,9 @@ namespace HelpDesk.Controllers
                 case "Role":
                     propertySelector = u => u.Role;
                     break;
+                case "Tickets":
+                    propertySelector = u => u.RequestedTickets.Count.ToString();
+                    break;
             }
             Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
             if (propertySelector != null)
