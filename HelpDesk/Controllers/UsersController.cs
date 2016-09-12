@@ -146,7 +146,8 @@ namespace HelpDesk.Controllers
                 MobilePhone = user.MobilePhone,
                 Company = user.Company,
                 Department = user.Department,
-                Role = user.Role
+                Role = user.Role,
+                Tickets = user.RequestedTickets.OrderByDescending(t => t.CreateDate)
             });
         }
 
@@ -174,6 +175,7 @@ namespace HelpDesk.Controllers
                     return RedirectToAction("Index");
                 }
             }
+            user.Tickets = unitOfWork.UserRepository.GetById(user.UserID).RequestedTickets.OrderByDescending(t => t.CreateDate);
             return View(user);
         }
 

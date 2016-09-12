@@ -98,10 +98,68 @@
     @Html.ActionLink("Back to List", "Index")
 </div>
 
+<table class="table">
+    <tr>
+        <th>
+            Creation date
+        </th>
+        <th>
+            Requestor
+        </th>
+        <th>
+            Title
+        </th>
+        <th>
+            Category
+        </th>
+        <th>
+            Status
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Tickets)
+    {
+        <tr>
+            <td>
+                @item.CreateDate.ToString()
+            </td>
+            <td>
+                @if (item.Requestor != null)
+                {
+                    @: @item.Requestor.FirstName @item.Requestor.LastName
+            }
+                else
+                {
+                    @: Deleted user
+            }
+            </td>
+            <td>
+                @item.Title
+            </td>
+            <td>
+                @item.Category.Name
+            </td>
+            <td>
+                @item.status
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
+                @Html.ActionLink("Delete", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.preventDefault(); $('#ticketIDToDelete').val('" + item.TicketID + "'); $('#deleteTicketTitle').text('" + item.Title + "'); $('#deleteTicketDialog').dialog('open');" })
+            </td>
+        </tr>
+    }
+
+</table>
+
 <script src="~/Scripts/jquery-1.12.4.min.js"></script>
 <script src="~/Scripts/jquery.validate.min.js"></script>
 <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
 
 <div id="deleteUserDialog">
     @Html.Partial("_DeleteUser")
+</div>
+
+<div id="deleteTicketDialog">
+    @Html.Partial("_DeleteTicket")
 </div>

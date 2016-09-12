@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HelpDesk.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -38,5 +39,7 @@ namespace HelpDesk.Models
         public string Department { get; set; }
 
         public string Role { get; set; }
+
+        public IEnumerable<Ticket> Tickets { get; set; }
     }
 }
