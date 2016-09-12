@@ -130,6 +130,7 @@
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Save" class="btn btn-default" />
+                <input type="button" value="Delete" class="btn btn-default" onclick= "event.preventDefault(); $('#ticketIDToDelete').val('@Model.TicketID'); $('#deleteTicketTitle').text('@Model.Title'); $('#deleteTicketDialog').dialog('open');"/>
             </div>
         </div>
     </div>
@@ -145,6 +146,10 @@
 
 <div id="findRequestorDialog">
     @Html.Partial("_FindRequestor")
+</div>
+
+<div id="deleteTicketDialog">
+    @Html.Partial("_DeleteTicket")
 </div>
 
 <script>
