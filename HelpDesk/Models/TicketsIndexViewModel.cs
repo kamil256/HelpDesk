@@ -9,18 +9,19 @@ namespace HelpDesk.Models
 {
     public class TicketsIndexViewModel
     {
-        public DateTime DateFrom { get; set; }
-        public DateTime DateTo { get; set; }
-        public int Category { get; set; } = 0;
+        // Status values: New, In progress, Solved, Closed
         public string Status { get; set; } = "All";
+        public int AssignedTo { get; set; } = 0;
+        public int Category { get; set; } = 0;
         public string Search { get; set; }
         public string SortBy { get; set; } = "CreateDate";
         public bool DescSort { get; set; } = true;
         public int Page { get; set; } = 1;
-        public int AssignedToID { get; set; } = 0;
-        public SelectList AdminsList { get; set; }
-        public IPagedList<HelpDesk.Entities.Ticket> Tickets { get; set; }
-        public SelectList Categories { get; set; }
+
         public SelectList Statuses { get; set; }
+        public SelectList AdminsList { get; set; }
+        public SelectList Categories { get; set; }
+        
+        public IPagedList<HelpDesk.Entities.Ticket> Tickets { get; set; }
     }
 }

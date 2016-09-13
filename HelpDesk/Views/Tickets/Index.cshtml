@@ -5,124 +5,124 @@
 @{
     ViewBag.Title = "Tickets";
 }
+<div style="background-color: #F5EECD; padding: 20px 30px 30px; margin-bottom: 60px; overflow: auto;">
+    <div class="container">
+        <h1 style="text-align: center;  margin: 0; padding: 20px 0 10px;">List of tickets <span style="font-size: 0.5em; font-weight: bold; ">(@(Model.Page * 2 - 1) - @((Model.Page) * 2) of X)</span></h1>
+        <hr style="border-color: #E3D179; margin-top: 20px; margin-bottom: 30px; border-top-left-radius: 200px 1px; border-top-right-radius: 200px 1px;" />
 
-<h2>Users</h2>
-<div style="overflow:  auto; margin-bottom: 10px;">
-    @Html.ActionLink("Add New", "Create", "Tickets", null, new { @class = "btn btn-warning pull-left" })
-    
-    @using (Html.BeginForm("Index", "Tickets", FormMethod.Get, new { id="form" }))
-    {
-        @Html.Hidden("sortBy", Model.SortBy)
-        @Html.Hidden("descSort", Model.DescSort)
-        <input type="submit" value="Search" class="btn btn-warning pull-right" />
-        <span class="pull-right">&nbsp;</span>
-        @Html.TextBox("search", Model.Search, new { @class = "form-control pull-right" })
-        
-        <div class="form-group" style="clear: both">
-            <label for="Status" class="">Status</label>
-            @Html.DropDownList("Status", Model.Statuses, new { @class="form-control", onchange="$('#form').submit()" })
-        </div>
+        @*@Html.ActionLink("Add New", "Create", "Tickets", null, new { @class = "btn btn-warning pull-left" })*@
 
-        <div class="form-group" style="clear: both">
-            <label for="Status" class="">Assigned to</label>
-            @Html.DropDownList("AssignedToID", Model.AdminsList, new { @class = "form-control", onchange = "$('#form').submit()" })
-        </div>
+        @using (Html.BeginForm("Index", "Tickets", FormMethod.Get, new { id = "form" }))
+        {
+            @Html.Hidden("sortBy", Model.SortBy)
+            @Html.Hidden("descSort", Model.DescSort)
 
-        <div class="form-group ">
-            <label for="Category" class="">Category</label>
-            @*<select name="Category" class="form-control" onchange="$('#form').submit()">
-                
-                <option value="1">PC</option>
-                <option value="2">Monitor</option>
-                <option value="3">Laptop</option>
-            </select>*@
-            @Html.DropDownList("Category", Model.Categories, new { @class = "form-control", onchange = "$('#form').submit()" })
-        </div>
+            <input type="reset" value="Clear" class="btn btn-warning" style="margin-top: 25px; width: 71px; float: right;" />
 
-        <div class="form-group ">
-            <label for="DateFrom" class="">Date from</label>
-            <input type="date" name="DateFrom" value='@(Model.DateFrom.ToShortDateString() != "0001-01-01" ? Model.DateFrom.ToShortDateString() : "")' class="form-control" onchange="$('#form').submit()" />
+            <div class="form-group pull-right" style="width: 280px; margin-right: 7px;">
+                <label for="Category" class="">Category</label>
+                @Html.DropDownList("Category", Model.Categories, new { @class = "form-control", onchange = "$('#form').submit()" })
+            </div>
 
-        </div>
+            <div class="form-group pull-right" style="width: 280px; margin-right: 10px;">
+                <label for="Status" class="">Assigned to</label>
+                @Html.DropDownList("AssignedTo", Model.AdminsList, new { @class = "form-control", onchange = "$('#form').submit()" })
+            </div>
 
-        <div class="form-group ">
-            <label for="DateTo" class="">Date to</label>
-            <input type="date" name="DateTo" value='@(Model.DateTo.ToShortDateString() != "0001-01-01" ? Model.DateTo.ToShortDateString() : "")' class="form-control" onchange="$('#form').submit()" />
+            <div class="form-group pull-right" style="width: 280px; margin-right: 10px;">
+                <label for="Status" class="">Status</label>
+                @Html.DropDownList("Status", Model.Statuses, new { @class = "form-control", onchange = "$('#form').submit()" })
+            </div>
 
-        </div>
-    }
+            <input type="submit" value="Search" class="btn btn-warning pull-right" style="clear: both" />
+            @Html.TextBox("search", Model.Search, new { @class = "form-control pull-right", style = "margin-right: 7px;" })
+        }
+    </div>     
 </div>
-<table class="table">
-    <tr>
-        <th>
-            @Html.SortableTableColumnHeader("Creation date", "CreateDate", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Requestor", "Requestor", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Title", "Title", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Category", "Category", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Status", "Status", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Assigned to", "AssignedTo", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th></th>
-    </tr>
 
-@foreach (var item in Model.Tickets) {
-    <tr>
-        <td>
-            @item.CreateDate.ToString()
-        </td>
-        <td>
-            @if (item.RequestedBy != null)
-            {
-                @: @item.RequestedBy.FirstName @item.RequestedBy.LastName
-            }
-            else
-            {
-                @: Deleted user
-            }
-        </td>
-        <td>
-            @Html.MarkSearchedString(item.Title, Model.Search)
-        </td>
-        <td>
-            @item.Category.Name
-        </td>
-        <td>
-            @item.Status
-        </td>
-        <td>
-            @if (item.AssignedTo != null)
-            {
-                @: @item.AssignedTo.FirstName @item.AssignedTo.LastName
-            }
-            else
-            {
-                @: -
-            }
-        </td>
-        <td>
-            @Html.ActionLink("Assign", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
-            @Html.ActionLink("Solve", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
-            @Html.ActionLink("Close", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
-            @Html.ActionLink("Edit", "Edit", "Tickets", new { id=item.TicketID }, new { @class = "btn btn-warning btn-sm" })
-            @Html.ActionLink("Delete", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick= "event.preventDefault(); $('#ticketIDToDelete').val('" + item.TicketID + "'); $('#deleteTicketTitle').text('" + item.Title + "'); $('#deleteTicketDialog').dialog('open');" })
-        </td>
-    </tr>
-}
+<div class="container">
+    <table class="table">
+        <tr>
+            <th>
+                @Html.SortableTableColumnHeader("Created on", "CreatedOn", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+            </th>
+            <th>
+                @Html.SortableTableColumnHeader("Requested by", "RequestedBy", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+            </th>
+            <th>
+                @Html.SortableTableColumnHeader("Title", "Title", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+            </th>
+            <th>
+                @Html.SortableTableColumnHeader("Category", "Category", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+            </th>
+            <th>
+                @Html.SortableTableColumnHeader("Status", "Status", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+            </th>
+            <th>
+                @Html.SortableTableColumnHeader("Assigned to", "AssignedTo", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+            </th>
+            <th></th>
+        </tr>
 
-</table>
+        @foreach (var item in Model.Tickets)
+        {
+            <tr>
+                <td>
+                    @item.CreateDate.ToString()
+                </td>
+                <td>
+                    @if (item.RequestedBy != null)
+                    {
+                        @: @item.RequestedBy.FirstName @item.RequestedBy.LastName
+            }
+                    else
+                    {
+                        @: Deleted user
+            }
+                </td>
+                <td>
+                    @Html.MarkSearchedString(item.Title, Model.Search)
+                </td>
+                <td>
+                    @item.Category.Name
+                </td>
+                <td>
+                    @item.Status
+                </td>
+                <td>
+                    @if (item.AssignedTo != null)
+                    {
+                        @: @item.AssignedTo.FirstName @item.AssignedTo.LastName
+            }
+                    else
+                    {
+                        @: -
+            }
+                </td>
+                <td>
+                    @Html.ActionLink("Assign", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.preventDefault(); $('#TicketIDAssignPersonDialog').val('" + item.TicketID + "'); $('#AssignPersonDialog').dialog('open');" })
+                    @Html.ActionLink("Solve", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
+                    @Html.ActionLink("Close", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
+                    @Html.ActionLink("Edit", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
+                    @Html.ActionLink("Delete", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.preventDefault(); $('#ticketIDToDelete').val('" + item.TicketID + "'); $('#deleteTicketTitle').text('" + item.Title + "'); $('#deleteTicketDialog').dialog('open');" })
+                </td>
+            </tr>
+        }
+
+    </table>
 
 
-@Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new { Page = page, sortBy = Model.SortBy, descSort = Model.DescSort, search = Model.Search, status = Model.Status, Category = Model.Category, DateFrom = Model.DateFrom, DateTo = Model.DateTo }), PagedListRenderOptions.Classic)
+    @Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new
+    {
+        Page = page,
+        sortBy = Model.SortBy,
+        descSort = Model.DescSort,
+        search = Model.Search,
+        status = Model.Status,
+        Category = Model.Category
+    }), PagedListRenderOptions.Classic)
+
+</div>
 
 <script src="~/Scripts/jquery-1.12.4.min.js"></script>
 <script src="~/Scripts/jquery.validate.min.js"></script>
@@ -131,3 +131,45 @@
 <div id="deleteTicketDialog">
     @Html.Partial("_DeleteTicket")
 </div>
+
+<div id="AssignPersonDialog">
+    <input type="hidden" id="TicketIDAssignPersonDialog" />
+
+    <p><b>Assign person to ticket:</b></p>
+
+    <div class="form-group" style="overflow: auto">
+        @Html.DropDownList("dfsgdf", Model.AdminsList, new { @class = "form-control pull-left", id = "AdminsListAssignPersonDialog" })
+    </div>
+
+    <input id="BtnOkAssignPersonDialog" type="button" class="btn btn-warning" value="Ok" />
+    <input id="BtnCancelAssignPersonDialog" type="button" class="btn btn-warning" value="Cancel" />
+</div>
+
+    <script>
+        $(document).ready(function()
+        {
+            $("#AssignPersonDialog").dialog(
+            {
+                autoOpen: false,
+                modal: true,
+                resizable: false
+            });
+        });
+
+        $("#BtnOkAssignPersonDialog").click(function()
+        {
+            $.post("/Tickets/AssignPersonToTicket", { UserID: $("#AdminsListAssignPersonDialog").val(), TicketID: $("#TicketIDAssignPersonDialog").val() }, function(data)
+            {
+                if (data.success == true)
+                {
+                    document.location.reload()
+                }
+            }, "json");
+
+        });
+
+        $("#BtnCancelAssignPersonDialog").click(function()
+        {
+            $('#AssignPersonDialog').dialog('close');
+        });
+    </script>

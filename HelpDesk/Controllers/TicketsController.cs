@@ -42,64 +42,86 @@ namespace HelpDesk.Controllers
             return Json(result);
         }
 
-        public ActionResult Index([Bind(Include = "DateFrom,DateTo,Category,Status,AssignedToID,Search,SortBy,DescSort,Page")] TicketsIndexViewModel model)
+        public JsonResult AssignPersonToTicket(int UserID, int TicketID)
+        {
+            User user = unitOfWork.UserRepository.GetById(UserID);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(TicketID);
+            ticket.AssignedTo = user;
+            ticket.Status = "In progress";
+            unitOfWork.TicketRepository.Update(ticket);
+            unitOfWork.Save();
+            return Json(new { success = true });
+        }
+
+        public ActionResult Index([Bind(Include = "Status,AssignedTo,Category,Search,SortBy,DescSort,Page")] TicketsIndexViewModel model)
         {
             List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
+            if (model.Status != "All")
+                filters.Add(t => t.Status == model.Status);
+            if (model.AssignedTo != 0)
+                filters.Add(t => t.AssignedToID == model.AssignedTo);
+            if (model.Category != 0)
+                filters.Add(t => t.CategoryID == model.Category);
             if (!string.IsNullOrWhiteSpace(model.Search))
-            {
                 filters.Add(t => t.Title.ToLower().Contains(model.Search.ToLower()) ||
                                  t.Content.ToLower().Contains(model.Search.ToLower()) ||
                                  t.Solution.ToLower().Contains(model.Search.ToLower()));
-            }
-            if (model.Category != 0)
-                filters.Add(t => t.CategoryID == model.Category);
-            if (model.Status != "All")
-                filters.Add(t => t.Status == model.Status);
-            if (model.AssignedToID != 0)
-                filters.Add(t => t.AssignedToID == model.AssignedToID);
-            if (model.DateFrom != default(DateTime))
-                filters.Add(t => t.CreateDate >= model.DateFrom);
-            if (model.DateTo != default(DateTime))
-                filters.Add(t => t.CreateDate < DbFunctions.AddDays(model.DateTo, 1));
-            Expression<Func<Ticket, object>> propertySelector = null;
+            
+            Expression<Func<Ticket, object>> orderByPropertySelector = null;
             switch (model.SortBy)
             {
-                case "CreateDate":
-                    propertySelector = t => t.CreateDate.ToString();
+                case "CreatedOn":
+                    orderByPropertySelector = t => t.CreateDate.ToString();
                     break;
-                case "Requestor":
-                    propertySelector = t => t.RequestedBy.FirstName;
+                case "RequestedBy":
+                    orderByPropertySelector = t => t.RequestedBy.FirstName;
                     break;
                 case "Title":
-                    propertySelector = t => t.Title;
+                    orderByPropertySelector = t => t.Title;
                     break;
                 case "Category":
-                    propertySelector = t => t.Category.Name;
+                    orderByPropertySelector = t => t.Category.Name;
                     break;
                 case "Status":
-                    propertySelector = t => t.Status;
+                    orderByPropertySelector = t => t.Status;
                     break;
                 case "AssignedTo":
-                    propertySelector = t => t.AssignedTo.FirstName;
+                    orderByPropertySelector = t => t.AssignedTo.FirstName;
                     break;
             }
             Func<IQueryable<Ticket>, IOrderedQueryable<Ticket>> orderBy = null;
-            if (propertySelector != null)
+            if (orderByPropertySelector != null)
             {
                 if (model.DescSort)
-                    orderBy = x => x.OrderByDescending(propertySelector);
+                    orderBy = x => x.OrderByDescending(orderByPropertySelector);
                 else
-                    orderBy = x => x.OrderBy(propertySelector);
+                    orderBy = x => x.OrderBy(orderByPropertySelector);
             }
-            model.Tickets = unitOfWork.TicketRepository.GetAll(filters: filters, orderBy: orderBy).ToPagedList(model.Page, 2);
-
+            
             List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "All" });
-            model.Categories = new SelectList(categories, "CategoryID", "Name", model.Category);
+            model.Categories = new SelectList
+            (
+                items: categories, 
+                dataValueField: "CategoryID", 
+                dataTextField: "Name", 
+                selectedValue: model.Category
+            );
 
             model.Statuses = new SelectList(new string[] { "All", "New", "In progress", "Solved", "Closed" }, model.Status);
 
-            model.AdminsList = new SelectList(new[] { new { value = 0, name = "Everyone" } }.Concat(from p in unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", o => o.OrderBy(t => t.FirstName)) select new { value = p.UserID, name = $"{p.FirstName} {p.LastName}" }), "value", "name", model.AssignedToID);
+            var admins = (from u in unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName))
+                          select new { value = u.UserID, name = $"{u.FirstName} {u.LastName}" }).ToList();
+            admins.Insert(0, new { value = 0, name = "Anybody" });
+            model.AdminsList = new SelectList
+            (
+                items: admins, 
+                dataValueField: "value", 
+                dataTextField: "name", 
+                selectedValue: model.AssignedTo
+            );
+
+            model.Tickets = unitOfWork.TicketRepository.GetAll(filters: filters, orderBy: orderBy).ToPagedList(model.Page, 2);
             return View(model);
         }
 

@@ -260,6 +260,7 @@
     <Content Include="Views\Tickets\_FindRequestor.cshtml" />
     <Content Include="Views\Shared\_DeleteTicket.cshtml" />
     <Content Include="Views\Users\_DeleteUser.cshtml" />
+    <Content Include="Views\Tickets\_AssignPerson.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -1,0 +1,63 @@
+﻿<p><b>Assign person to ticket:</b></p>
+
+<div class="form-group" style="overflow: auto">
+    <select class="form-control pull-left" id="requestorsList">
+    </select>
+    <span class="pull-left">&nbsp;</span>
+    <img id="progress" src="http://i.stack.imgur.com/r6tWv.gif" class="pull-left"  style="display:none"/>
+</div>
+
+<input id="dialogBtnOk" type="button" class="btn btn-warning" value="Ok" />
+<input id="dialogBtnCancel" type="button" class="btn btn-warning" value="Cancel" />
+
+<script>
+    $(document).ready(function()
+    {
+        $("#findRequestorDialog").dialog(
+        {
+            autoOpen: false,
+            modal: true,
+            resizable: false
+        });
+    });
+
+    $("#find").click(function(e)
+    {
+        $("#progress").show();
+        e.preventDefault();
+        $.post("/Tickets/FindUsers", { search: $("#searchedUser").val() }, function(data)
+        {
+            if (data.length == 0)
+            {
+                $("#requestorsList").html("<option value=''></option>");
+            }
+            else
+            {
+                $("#requestorsList").html("");
+                for (var i = 0; i < data.length; i++)
+                {
+                    $("#requestorsList").append("<option value=" + data[i].UserID + ">" + data[i].FirstName + " " + data[i].LastName + " (" + data[i].Email + ")</option>");
+                }
+            }
+            $("#progress").hide();
+        }, "json");
+
+    });
+
+    $("#dialogBtnOk").click(function()
+    {
+        if ($("#requestorsList").val() && $("#requestorsList").val() != "")
+        {
+            $("#RequestorID").val($("#requestorsList").val());
+            $("#requestorInp").val($("#requestorsList > option[value=" + $("#requestorsList").val() + "]").html());
+            $("#searchedUser").val("");
+            $("#requestorsList").val("");
+        }
+        $('#findRequestorDialog').dialog('close');
+    });
+
+    $("#dialogBtnCancel").click(function()
+    {
+        $('#findRequestorDialog').dialog('close');
+    });
+</script>
