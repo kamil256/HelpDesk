@@ -42,7 +42,7 @@ namespace HelpDesk.Controllers
             return Json(result);
         }
 
-        public ActionResult Index([Bind(Include = "DateFrom,DateTo,Category,Status,Search,SortBy,DescSort,Page")] TicketsIndexViewModel model)
+        public ActionResult Index([Bind(Include = "DateFrom,DateTo,Category,Status,AssignedToID,Search,SortBy,DescSort,Page")] TicketsIndexViewModel model)
         {
             List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
             if (!string.IsNullOrWhiteSpace(model.Search))
@@ -54,7 +54,9 @@ namespace HelpDesk.Controllers
             if (model.Category != 0)
                 filters.Add(t => t.CategoryID == model.Category);
             if (model.Status != "All")
-                filters.Add(t => t.status == model.Status);
+                filters.Add(t => t.Status == model.Status);
+            if (model.AssignedToID != 0)
+                filters.Add(t => t.AssignedToID == model.AssignedToID);
             if (model.DateFrom != default(DateTime))
                 filters.Add(t => t.CreateDate >= model.DateFrom);
             if (model.DateTo != default(DateTime))
@@ -66,7 +68,7 @@ namespace HelpDesk.Controllers
                     propertySelector = t => t.CreateDate.ToString();
                     break;
                 case "Requestor":
-                    propertySelector = t => t.Requestor.FirstName;
+                    propertySelector = t => t.RequestedBy.FirstName;
                     break;
                 case "Title":
                     propertySelector = t => t.Title;
@@ -75,7 +77,10 @@ namespace HelpDesk.Controllers
                     propertySelector = t => t.Category.Name;
                     break;
                 case "Status":
-                    propertySelector = t => t.status;
+                    propertySelector = t => t.Status;
+                    break;
+                case "AssignedTo":
+                    propertySelector = t => t.AssignedTo.FirstName;
                     break;
             }
             Func<IQueryable<Ticket>, IOrderedQueryable<Ticket>> orderBy = null;
@@ -92,8 +97,9 @@ namespace HelpDesk.Controllers
             categories.Insert(0, new Category() { CategoryID = 0, Name = "All" });
             model.Categories = new SelectList(categories, "CategoryID", "Name", model.Category);
 
-            model.Statuses = new SelectList(new string[] { "All", "New", "Solved", "Closed" }, model.Status);
+            model.Statuses = new SelectList(new string[] { "All", "New", "In progress", "Solved", "Closed" }, model.Status);
 
+            model.AdminsList = new SelectList(new[] { new { value = 0, name = "Everyone" } }.Concat(from p in unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", o => o.OrderBy(t => t.FirstName)) select new { value = p.UserID, name = $"{p.FirstName} {p.LastName}" }), "value", "name", model.AssignedToID);
             return View(model);
         }
 
@@ -131,11 +137,11 @@ namespace HelpDesk.Controllers
             {
                 Ticket ticket = new Ticket()
                 {
-                    Creator = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
-                    Requestor = unitOfWork.UserRepository.GetById(model.RequestorID),
+                    CreatedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
+                    RequestedBy = unitOfWork.UserRepository.GetById(model.RequestorID),
                     Category = unitOfWork.CategoryRepository.GetAll(c => c.CategoryID == model.Category).Single(),
                     CreateDate = DateTime.Now,
-                    status = "New",
+                    Status = "New",
                     Title = model.Title,
                     Content = model.Content
                 };
@@ -163,14 +169,14 @@ namespace HelpDesk.Controllers
             TicketsEditViewModel model = new TicketsEditViewModel()
             {
                 TicketID = ticket.TicketID,
-                Creator = ticket.Creator,
-                Solver = ticket.Solver,
+                Creator = ticket.CreatedBy,
+                Solver = ticket.AssignedTo,
                 CreateDate = ticket.CreateDate.ToShortDateString() + " " + ticket.CreateDate.ToShortTimeString(),
-                SolveOrCloseDate = ticket.SolveOrCloseDate != null ? ticket.SolveOrCloseDate?.ToShortDateString() + " " + ticket.SolveOrCloseDate?.ToShortTimeString() : null,
-                RequestorID = ticket.RequestorID,
-                Requestor = ticket.RequestorID != null ? unitOfWork.UserRepository.GetById(ticket.RequestorID ?? 0) : null,
+                //SolveOrCloseDate = ticket.SolveOrCloseDate != null ? ticket.SolveOrCloseDate?.ToShortDateString() + " " + ticket.SolveOrCloseDate?.ToShortTimeString() : null,
+                RequestorID = ticket.RequestedByID,
+                Requestor = ticket.RequestedByID != null ? unitOfWork.UserRepository.GetById(ticket.RequestedByID ?? 0) : null,
                 Category = ticket.CategoryID,
-                Status = ticket.status,
+                Status = ticket.Status,
                 Title = ticket.Title,
                 Content = ticket.Content,
                 Solution = ticket.Solution
@@ -196,28 +202,28 @@ namespace HelpDesk.Controllers
             }
             if (ModelState.IsValid)
             {
-                ticket.RequestorID = model.RequestorID;
+                ticket.RequestedByID = model.RequestorID;
                 
                 ticket.CategoryID = model.Category;
 
-                string previousStatus = ticket.status;
+                string previousStatus = ticket.Status;
                 // If solver doesn't change status and status remains New, but he changes solution, 
                 // status changes to Solved
                 if (model.Status == "New" && model.Status == previousStatus &&
                     !string.IsNullOrEmpty(model.Solution) && model.Solution != ticket.Solution)
-                    ticket.status = "Solved";
+                    ticket.Status = "Solved";
                 else
-                    ticket.status = model.Status;
-                if (ticket.status == "New")
+                    ticket.Status = model.Status;
+                if (ticket.Status == "New")
                 {
-                    ticket.SolveOrCloseDate = null;
-                    ticket.SolverID = null;
+                    
+                    ticket.AssignedToID = null;
                 }
-                if ((ticket.status == "Solved" && previousStatus != "Solved") ||
-                    (ticket.status == "Closed" && previousStatus != "Closed"))
+                if ((ticket.Status == "Solved" && previousStatus != "Solved") ||
+                    (ticket.Status == "Closed" && previousStatus != "Closed"))
                 {
-                    ticket.SolveOrCloseDate = DateTime.Now;
-                    ticket.SolverID = solver.UserID;
+                    
+                    ticket.AssignedToID = solver.UserID;
                 }
                 ticket.Title = model.Title;
                 ticket.Content = model.Content;
@@ -226,10 +232,10 @@ namespace HelpDesk.Controllers
                 unitOfWork.Save();
                 return RedirectToAction("Index");
             }
-            model.Creator = ticket.Creator;
-            model.Solver = ticket.Solver;
+            model.Creator = ticket.CreatedBy;
+            model.Solver = ticket.AssignedTo;
             model.CreateDate = ticket.CreateDate.ToShortDateString() + " " + ticket.CreateDate.ToShortTimeString();
-            model.SolveOrCloseDate = ticket.SolveOrCloseDate != null ? ticket.SolveOrCloseDate?.ToShortDateString() + " " + ticket.SolveOrCloseDate?.ToShortTimeString() : null;
+            //model.SolveOrCloseDate = ticket.SolveOrCloseDate != null ? ticket.SolveOrCloseDate?.ToShortDateString() + " " + ticket.SolveOrCloseDate?.ToShortTimeString() : null;
             
 
             List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();

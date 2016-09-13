@@ -20,15 +20,13 @@
         
         <div class="form-group" style="clear: both">
             <label for="Status" class="">Status</label>
-            @*<select name="Status" class="form-control" onchange="$('#form').submit()">
-                <option value="1">New</option>
-                <option value="2">Solved</option>
-                <option value="3">Closed</option>
-            </select>*@            
             @Html.DropDownList("Status", Model.Statuses, new { @class="form-control", onchange="$('#form').submit()" })
         </div>
 
-
+        <div class="form-group" style="clear: both">
+            <label for="Status" class="">Assigned to</label>
+            @Html.DropDownList("AssignedToID", Model.AdminsList, new { @class = "form-control", onchange = "$('#form').submit()" })
+        </div>
 
         <div class="form-group ">
             <label for="Category" class="">Category</label>
@@ -71,6 +69,9 @@
         <th>
             @Html.SortableTableColumnHeader("Status", "Status", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
         </th>
+        <th>
+            @Html.SortableTableColumnHeader("Assigned to", "AssignedTo", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+        </th>
         <th></th>
     </tr>
 
@@ -80,9 +81,9 @@
             @item.CreateDate.ToString()
         </td>
         <td>
-            @if (item.Requestor != null)
+            @if (item.RequestedBy != null)
             {
-                @: @item.Requestor.FirstName @item.Requestor.LastName
+                @: @item.RequestedBy.FirstName @item.RequestedBy.LastName
             }
             else
             {
@@ -96,9 +97,22 @@
             @item.Category.Name
         </td>
         <td>
-            @item.status
+            @item.Status
         </td>
         <td>
+            @if (item.AssignedTo != null)
+            {
+                @: @item.AssignedTo.FirstName @item.AssignedTo.LastName
+            }
+            else
+            {
+                @: -
+            }
+        </td>
+        <td>
+            @Html.ActionLink("Assign", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
+            @Html.ActionLink("Solve", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
+            @Html.ActionLink("Close", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
             @Html.ActionLink("Edit", "Edit", "Tickets", new { id=item.TicketID }, new { @class = "btn btn-warning btn-sm" })
             @Html.ActionLink("Delete", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick= "event.preventDefault(); $('#ticketIDToDelete').val('" + item.TicketID + "'); $('#deleteTicketTitle').text('" + item.Title + "'); $('#deleteTicketDialog').dialog('open');" })
         </td>

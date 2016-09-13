@@ -220,6 +220,10 @@
     <Compile Include="Migrations\201609111753421_AddCreatorOfTickets.Designer.cs">
       <DependentUpon>201609111753421_AddCreatorOfTickets.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.cs" />
+    <Compile Include="Migrations\201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.Designer.cs">
+      <DependentUpon>201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
     <Compile Include="Models\TicketsCreateViewModel.cs" />
@@ -292,6 +296,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201609111753421_AddCreatorOfTickets.resx">
       <DependentUpon>201609111753421_AddCreatorOfTickets.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.resx">
+      <DependentUpon>201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

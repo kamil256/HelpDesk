@@ -17,6 +17,8 @@ namespace HelpDesk.Models
         public string SortBy { get; set; } = "CreateDate";
         public bool DescSort { get; set; } = true;
         public int Page { get; set; } = 1;
+        public int AssignedToID { get; set; } = 0;
+        public SelectList AdminsList { get; set; }
         public IPagedList<HelpDesk.Entities.Ticket> Tickets { get; set; }
         public SelectList Categories { get; set; }
         public SelectList Statuses { get; set; }

@@ -229,11 +229,11 @@ namespace HelpDesk.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).CreatedTickets)
-                ticket.Solver = null;
+                ticket.CreatedBy = null;
             foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).RequestedTickets)
-                ticket.Solver = null;
-            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).SolvedTickets)
-                ticket.Solver = null;
+                ticket.RequestedBy = null;
+            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).AssignedTickets)
+                ticket.AssignedTo = null;
             unitOfWork.UserRepository.Delete(id);
             unitOfWork.Save();
             return RedirectToAction("Index");

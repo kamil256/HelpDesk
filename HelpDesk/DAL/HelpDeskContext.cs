@@ -15,9 +15,9 @@ namespace HelpDesk.DAL
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Ticket>().HasOptional(t => t.Requestor).WithMany(u => u.CreatedTickets).HasForeignKey(t => t.CreatorID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<Ticket>().HasOptional(t => t.Requestor).WithMany(u => u.RequestedTickets).HasForeignKey(t => t.RequestorID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<Ticket>().HasOptional(t => t.Solver).WithMany(u => u.SolvedTickets).HasForeignKey(t => t.SolverID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Ticket>().HasOptional(t => t.CreatedBy).WithMany(u => u.CreatedTickets).HasForeignKey(t => t.CreatedByID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Ticket>().HasOptional(t => t.RequestedBy).WithMany(u => u.RequestedTickets).HasForeignKey(t => t.RequestedByID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Ticket>().HasOptional(t => t.AssignedTo).WithMany(u => u.AssignedTickets).HasForeignKey(t => t.AssignedToID).WillCascadeOnDelete(false);
         }
     }
 }
