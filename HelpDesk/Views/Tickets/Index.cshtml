@@ -167,11 +167,6 @@
                     <button id="btn-solve" class="btn btn-warning btn-sm" onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDSolveDialog').val('@item.TicketID'); $('#SolveDialog').dialog('open');">Solve</button>
                     <button id="btn-close" class="btn btn-warning btn-sm" onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDCloseDialog').val('@item.TicketID'); $('#CloseDialog').dialog('open');">Close</button>
                     <div class="btn-delete" onmouseout="this.style.backgroundColor='red'" onmouseover="this.style.backgroundColor='darkred'" onclick = "event.stopPropagation(); $('#ticketIDToDelete').val('@item.TicketID'); $('#deleteTicketTitle').text('@item.Title'); $('#deleteTicketDialog').dialog('open');">&times;</div>
-
-                    @*@Html.ActionLink("Assign", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDAssignPersonDialog').val('" + item.TicketID + "'); $('#AssignPersonDialog').dialog('open');" })
-                    @Html.ActionLink("Solve", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDSolveDialog').val('" + item.TicketID + "'); $('#SolveDialog').dialog('open');" })
-                    @Html.ActionLink("Close", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDCloseDialog').val('" + item.TicketID + "'); $('#CloseDialog').dialog('open');" })
-                    <div class="closeBtn" style="display: inline-block; background-color: red; color: white; border-radius: 6px; margin-left: 5px; width: 25px; height: 25px; line-height: 25px; text-align: center; font-weight: bold; font-size: 2em; vertical-align: middle;" onmouseover="this.style.backgroundColor='darkred'" onmouseout="this.style.backgroundColor='red'" onclick = "event.stopPropagation(); event.preventDefault(); $('#ticketIDToDelete').val('@item.TicketID'); $('#deleteTicketTitle').text('@item.Title'); $('#deleteTicketDialog').dialog('open');">&times;</div>*@
                 </td>
             </tr>
         }
