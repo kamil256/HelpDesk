@@ -53,7 +53,30 @@ namespace HelpDesk.Controllers
             return Json(new { success = true });
         }
 
-        public ActionResult Index([Bind(Include = "Status,AssignedTo,Category,Search,SortBy,DescSort,Page")] TicketsIndexViewModel model)
+        public JsonResult SolveTicket(int UserID, int TicketID, string Solution)
+        {
+            User user = unitOfWork.UserRepository.GetById(UserID);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(TicketID);
+            ticket.AssignedTo = user;
+            ticket.Status = "Solved";
+            ticket.Solution = Solution;
+            unitOfWork.TicketRepository.Update(ticket);
+            unitOfWork.Save();
+            return Json(new { success = true });
+        }
+
+        public JsonResult CloseTicket(int TicketID)
+        {
+            User user = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
+            Ticket ticket = unitOfWork.TicketRepository.GetById(TicketID);
+            ticket.AssignedTo = user;
+            ticket.Status = "Closed";
+            unitOfWork.TicketRepository.Update(ticket);
+            unitOfWork.Save();
+            return Json(new { success = true });
+        }
+
+        public ActionResult Index([Bind(Include = "Status,AssignedTo,Category,Search,AdvancedSearch,SortBy,DescSort,Page")] TicketsIndexViewModel model)
         {
             List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
             if (model.Status != "All")
@@ -63,9 +86,14 @@ namespace HelpDesk.Controllers
             if (model.Category != 0)
                 filters.Add(t => t.CategoryID == model.Category);
             if (!string.IsNullOrWhiteSpace(model.Search))
-                filters.Add(t => t.Title.ToLower().Contains(model.Search.ToLower()) ||
-                                 t.Content.ToLower().Contains(model.Search.ToLower()) ||
-                                 t.Solution.ToLower().Contains(model.Search.ToLower()));
+            {
+                if (model.AdvancedSearch)
+                    filters.Add(t => t.Title.ToLower().Contains(model.Search.ToLower()) ||
+                                     t.Content.ToLower().Contains(model.Search.ToLower()) ||
+                                     t.Solution.ToLower().Contains(model.Search.ToLower()));
+                else
+                    filters.Add(t => t.Title.ToLower().Contains(model.Search.ToLower()));
+            }
             
             Expression<Func<Ticket, object>> orderByPropertySelector = null;
             switch (model.SortBy)
@@ -97,28 +125,24 @@ namespace HelpDesk.Controllers
                 else
                     orderBy = x => x.OrderBy(orderByPropertySelector);
             }
-            
-            List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
-            categories.Insert(0, new Category() { CategoryID = 0, Name = "All" });
+
+            var admins = (from u in unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName))
+                          select new { Value = u.UserID, Text = $"{u.FirstName} {u.LastName}" }).ToList();
+            model.Admins = new SelectList
+            (
+                items: admins,
+                dataValueField: "Value",
+                dataTextField: "Text",
+                selectedValue: model.AssignedTo
+            );
+
+            var categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             model.Categories = new SelectList
             (
                 items: categories, 
                 dataValueField: "CategoryID", 
                 dataTextField: "Name", 
                 selectedValue: model.Category
-            );
-
-            model.Statuses = new SelectList(new string[] { "All", "New", "In progress", "Solved", "Closed" }, model.Status);
-
-            var admins = (from u in unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName))
-                          select new { value = u.UserID, name = $"{u.FirstName} {u.LastName}" }).ToList();
-            admins.Insert(0, new { value = 0, name = "Anybody" });
-            model.AdminsList = new SelectList
-            (
-                items: admins, 
-                dataValueField: "value", 
-                dataTextField: "name", 
-                selectedValue: model.AssignedTo
             );
 
             model.Tickets = unitOfWork.TicketRepository.GetAll(filters: filters, orderBy: orderBy).ToPagedList(model.Page, 2);

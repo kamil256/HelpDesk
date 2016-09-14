@@ -5,37 +5,113 @@
 @{
     ViewBag.Title = "Tickets";
 }
-<div style="background-color: #F5EECD; padding: 20px 30px 30px; margin-bottom: 60px; overflow: auto;">
+
+<style>
+    .full-width-container {
+        background-color: #F5EECD; 
+        padding: 30px 0;
+    }
+    .full-width-container h1 {
+        text-align: center; 
+        margin: 0;
+    }
+    .full-width-container hr {
+        border-color: #E3D179; 
+        margin-top: 20px; 
+        margin-bottom: 30px; 
+        border-top-left-radius: 200px 1px; 
+        border-top-right-radius: 200px 1px;
+    }
+    .full-width-container input[type=reset] {
+        margin-top: 25px;
+        width: 71px;
+    }
+    .full-width-container .filter-form-group {
+        width: 280px;
+        margin-right: 7px;
+    }
+    .full-width-container input[type=submit] {
+        clear: both;
+        margin-left: 7px;
+    }
+    .full-width-container p {
+        clear: both;
+        font-size: 0.8em;
+        width: 358px;
+    }
+    .full-width-container p > input {
+        vertical-align: text-bottom;
+    }
+    table {
+        margin-top: 60px;
+    }
+    tr:hover:not(:first-child) {
+        background-color: #F5EECD;
+        cursor: pointer;
+        outline: 1px solid #E3D179;
+    }
+    .btn-delete {
+        display: inline-block; 
+        background-color: red; 
+        color: white; 
+        border-radius: 6px; 
+        margin-left: 5px; 
+        width: 25px; 
+        height: 25px; 
+        line-height: 25px; 
+        text-align: center; 
+        font-weight: bold; 
+        font-size: 2em; 
+        vertical-align: middle; 
+    }
+</style>
+
+<div class="full-width-container">
     <div class="container">
-        <h1 style="text-align: center;  margin: 0; padding: 20px 0 10px;">List of tickets <span style="font-size: 0.5em; font-weight: bold; ">(@(Model.Page * 2 - 1) - @((Model.Page) * 2) of X)</span></h1>
-        <hr style="border-color: #E3D179; margin-top: 20px; margin-bottom: 30px; border-top-left-radius: 200px 1px; border-top-right-radius: 200px 1px;" />
+        <h1>List of tickets</h1>
+        <hr />
 
-        @*@Html.ActionLink("Add New", "Create", "Tickets", null, new { @class = "btn btn-warning pull-left" })*@
-
-        @using (Html.BeginForm("Index", "Tickets", FormMethod.Get, new { id = "form" }))
+        @using (Html.BeginForm("Index", "Tickets", FormMethod.Get, new { id = "filtering-form" }))
         {
-            @Html.Hidden("sortBy", Model.SortBy)
-            @Html.Hidden("descSort", Model.DescSort)
+            @Html.HiddenFor(model => model.SortBy)
+            @Html.HiddenFor(model => model.DescSort)
+            @Html.Hidden("Page", 1)
 
-            <input type="reset" value="Clear" class="btn btn-warning" style="margin-top: 25px; width: 71px; float: right;" />
+            <input type="reset" value="Clear" class="btn btn-warning pull-right" />
 
-            <div class="form-group pull-right" style="width: 280px; margin-right: 7px;">
-                <label for="Category" class="">Category</label>
-                @Html.DropDownList("Category", Model.Categories, new { @class = "form-control", onchange = "$('#form').submit()" })
+            <div class="filter-form-group form-group pull-right">
+                @Html.LabelFor(model => model.Category)
+                @Html.DropDownListFor(
+                     expression: model => model.Category,
+                     selectList: new SelectListItem[] { new SelectListItem { Value = "0", Text = "All" } }.Concat(Model.Categories),
+                     htmlAttributes: new { @class = "form-control" }
+                 )
             </div>
 
-            <div class="form-group pull-right" style="width: 280px; margin-right: 10px;">
-                <label for="Status" class="">Assigned to</label>
-                @Html.DropDownList("AssignedTo", Model.AdminsList, new { @class = "form-control", onchange = "$('#form').submit()" })
+            <div class="filter-form-group form-group pull-right">
+                @Html.LabelFor(model => model.AssignedTo)
+                @Html.DropDownListFor(
+                     expression: model => model.AssignedTo,
+                     selectList: new SelectListItem[] { new SelectListItem { Value = "0", Text = "Any" } }.Concat(Model.Admins),
+                     htmlAttributes: new { @class = "form-control" }
+                 )
             </div>
 
-            <div class="form-group pull-right" style="width: 280px; margin-right: 10px;">
-                <label for="Status" class="">Status</label>
-                @Html.DropDownList("Status", Model.Statuses, new { @class = "form-control", onchange = "$('#form').submit()" })
+            <div class="filter-form-group form-group pull-right">
+                @Html.LabelFor(model => model.Status)
+                @Html.DropDownListFor(
+                     expression: model => model.Status,
+                     selectList: new SelectList(new[] { "All", "New", "In progress", "Solved", "Closed" }),
+                     htmlAttributes: new { @class = "form-control" }
+                 )
             </div>
 
-            <input type="submit" value="Search" class="btn btn-warning pull-right" style="clear: both" />
-            @Html.TextBox("search", Model.Search, new { @class = "form-control pull-right", style = "margin-right: 7px;" })
+            <input type="submit" value="Search" class="btn btn-warning pull-right" />
+            @Html.TextBoxFor(model => model.Search, new { @class = "form-control pull-right" })
+            <p class="pull-right">
+                @Html.CheckBoxFor(model => model.AdvancedSearch)
+                Also search in content and solution
+            </p>            
         }
     </div>     
 </div>
@@ -44,41 +120,35 @@
     <table class="table">
         <tr>
             <th>
-                @Html.SortableTableColumnHeader("Created on", "CreatedOn", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+                @Html.SortableHeader("CreatedOn", "Created on")
             </th>
             <th>
-                @Html.SortableTableColumnHeader("Requested by", "RequestedBy", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+                @Html.SortableHeader("RequestedBy", "Requested by")
+            </th>
+            <th style="width: 25%">
+                @Html.SortableHeader("Title")
             </th>
             <th>
-                @Html.SortableTableColumnHeader("Title", "Title", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+                @Html.SortableHeader("Category")
             </th>
             <th>
-                @Html.SortableTableColumnHeader("Category", "Category", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+                @Html.SortableHeader("Status")
             </th>
             <th>
-                @Html.SortableTableColumnHeader("Status", "Status", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+                @Html.SortableHeader("AssignedTo", "Assigned to")
             </th>
-            <th>
-                @Html.SortableTableColumnHeader("Assigned to", "AssignedTo", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
+            <th style="width: 240px">
             </th>
-            <th></th>
         </tr>
 
-        @foreach (var item in Model.Tickets)
+        @foreach(var item in Model.Tickets)
         {
-            <tr>
+            <tr onclick='document.location.href="@Url.Action("Edit", new { id = item.TicketID })"'>
                 <td>
                     @item.CreateDate.ToString()
                 </td>
                 <td>
-                    @if (item.RequestedBy != null)
-                    {
-                        @: @item.RequestedBy.FirstName @item.RequestedBy.LastName
-            }
-                    else
-                    {
-                        @: Deleted user
-            }
+                    @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {@item.RequestedBy.LastName}" : "-")
                 </td>
                 <td>
                     @Html.MarkSearchedString(item.Title, Model.Search)
@@ -90,43 +160,58 @@
                     @item.Status
                 </td>
                 <td>
-                    @if (item.AssignedTo != null)
-                    {
-                        @: @item.AssignedTo.FirstName @item.AssignedTo.LastName
-            }
-                    else
-                    {
-                        @: -
-            }
+                    @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
                 </td>
                 <td>
-                    @Html.ActionLink("Assign", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.preventDefault(); $('#TicketIDAssignPersonDialog').val('" + item.TicketID + "'); $('#AssignPersonDialog').dialog('open');" })
-                    @Html.ActionLink("Solve", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
-                    @Html.ActionLink("Close", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
-                    @Html.ActionLink("Edit", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
-                    @Html.ActionLink("Delete", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.preventDefault(); $('#ticketIDToDelete').val('" + item.TicketID + "'); $('#deleteTicketTitle').text('" + item.Title + "'); $('#deleteTicketDialog').dialog('open');" })
+                    <button id="btn-assign" class="btn btn-warning btn-sm" onclick = "event.stopPropagation(); $('#TicketIDAssignPersonDialog').val('@item.TicketID'); $('#AssignPersonDialog').dialog('open');">Assign</button>
+                    <button id="btn-solve" class="btn btn-warning btn-sm" onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDSolveDialog').val('@item.TicketID'); $('#SolveDialog').dialog('open');">Solve</button>
+                    <button id="btn-close" class="btn btn-warning btn-sm" onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDCloseDialog').val('@item.TicketID'); $('#CloseDialog').dialog('open');">Close</button>
+                    <div class="btn-delete" onmouseout="this.style.backgroundColor='red'" onmouseover="this.style.backgroundColor='darkred'" onclick = "event.stopPropagation(); $('#ticketIDToDelete').val('@item.TicketID'); $('#deleteTicketTitle').text('@item.Title'); $('#deleteTicketDialog').dialog('open');">&times;</div>
+
+                    @*@Html.ActionLink("Assign", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDAssignPersonDialog').val('" + item.TicketID + "'); $('#AssignPersonDialog').dialog('open');" })
+                    @Html.ActionLink("Solve", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDSolveDialog').val('" + item.TicketID + "'); $('#SolveDialog').dialog('open');" })
+                    @Html.ActionLink("Close", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDCloseDialog').val('" + item.TicketID + "'); $('#CloseDialog').dialog('open');" })
+                    <div class="closeBtn" style="display: inline-block; background-color: red; color: white; border-radius: 6px; margin-left: 5px; width: 25px; height: 25px; line-height: 25px; text-align: center; font-weight: bold; font-size: 2em; vertical-align: middle;" onmouseover="this.style.backgroundColor='darkred'" onmouseout="this.style.backgroundColor='red'" onclick = "event.stopPropagation(); event.preventDefault(); $('#ticketIDToDelete').val('@item.TicketID'); $('#deleteTicketTitle').text('@item.Title'); $('#deleteTicketDialog').dialog('open');">&times;</div>*@
                 </td>
             </tr>
         }
-
     </table>
-
 
     @Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new
     {
         Page = page,
-        sortBy = Model.SortBy,
-        descSort = Model.DescSort,
-        search = Model.Search,
-        status = Model.Status,
-        Category = Model.Category
+        SortBy = Model.SortBy,
+        DescSort = Model.DescSort,
+        Search = Model.Search,
+        Status = Model.Status,
+        Category = Model.Category,
+        AssignedTo = Model.AssignedTo,
+        AdvancedSearch = Model.AdvancedSearch
     }), PagedListRenderOptions.Classic)
 
 </div>
 
-<script src="~/Scripts/jquery-1.12.4.min.js"></script>
-<script src="~/Scripts/jquery.validate.min.js"></script>
-<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    $(document).ready(function()
+    {
+        $("#Status").change(function() { $("#filtering-form").submit(); });
+        $("#AssignedTo").change(function() { $("#filtering-form").submit(); });
+        $("#Category").change(function() { $("#filtering-form").submit(); });
+    });
+
+    function sort(value)
+    {
+        if ($("#SortBy").val() == value)
+        {
+            $("#DescSort").val($("#DescSort").val().toLowerCase() == "true" ? "false" : "true");
+        }
+        else
+        {
+            $("#SortBy").val(value);
+        }
+        $("#filtering-form").submit();
+    }
+</script>
 
 <div id="deleteTicketDialog">
     @Html.Partial("_DeleteTicket")
@@ -138,7 +223,7 @@
     <p><b>Assign person to ticket:</b></p>
 
     <div class="form-group" style="overflow: auto">
-        @Html.DropDownList("dfsgdf", Model.AdminsList, new { @class = "form-control pull-left", id = "AdminsListAssignPersonDialog" })
+        @Html.DropDownList("dfsgdf", Model.Admins, new { @class = "form-control pull-left", id = "AdminsListAssignPersonDialog" })
     </div>
 
     <input id="BtnOkAssignPersonDialog" type="button" class="btn btn-warning" value="Ok" />
@@ -158,6 +243,7 @@
 
         $("#BtnOkAssignPersonDialog").click(function()
         {
+            alert($("#TicketIDAssignPersonDialog").val());
             $.post("/Tickets/AssignPersonToTicket", { UserID: $("#AdminsListAssignPersonDialog").val(), TicketID: $("#TicketIDAssignPersonDialog").val() }, function(data)
             {
                 if (data.success == true)
@@ -173,3 +259,98 @@
             $('#AssignPersonDialog').dialog('close');
         });
     </script>
+
+
+
+
+<div id="SolveDialog">
+    <input type="hidden" id="TicketIDSolveDialog" />
+
+    <p><b>Solve ticket:</b></p>
+
+    <div class="form-group" style="overflow: auto">
+        <label class = "control-label">User</label>
+        @Html.DropDownList("dfsgdf", Model.Admins, new { @class = "form-control pull-left", id = "AdminsListSolveDialog" })
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">Solution</label>
+        <textarea rows="10" cols="10" id="SolutionSolveDialog" class = "form-control"></textarea>
+    </div>
+
+    <input id="BtnOkSolveDialog" type="button" class="btn btn-warning" value="Ok" />
+    <input id="BtnCancelSolveDialog" type="button" class="btn btn-warning" value="Cancel" />
+</div>
+
+<script>
+        $(document).ready(function()
+        {
+            $("#SolveDialog").dialog(
+            {
+                autoOpen: false,
+                modal: true,
+                resizable: false
+            });
+        });
+
+        $("#BtnOkSolveDialog").click(function()
+        {
+            $.post("/Tickets/SolveTicket", { UserID: $("#AdminsListSolveDialog").val(), TicketID: $("#TicketIDSolveDialog").val(), Solution: $("#SolutionSolveDialog").val() }, function(data)
+            {
+                if (data.success == true)
+                {
+                    document.location.reload()
+                }
+            }, "json");
+
+        });
+
+        $("#BtnCancelSolveDialog").click(function()
+        {
+            $('#SolveDialog').dialog('close');
+        });
+</script>
+
+
+
+
+
+<div id="CloseDialog">
+    <input type="hidden" id="TicketIDCloseDialog" />
+
+    <p><b>Close ticket:</b></p>
+
+    
+
+    <input id="BtnOkCloseDialog" type="button" class="btn btn-warning" value="Ok" />
+    <input id="BtnCancelCloseDialog" type="button" class="btn btn-warning" value="Cancel" />
+</div>
+
+<script>
+        $(document).ready(function()
+        {
+            $("#CloseDialog").dialog(
+            {
+                autoOpen: false,
+                modal: true,
+                resizable: false
+            });
+        });
+
+        $("#BtnOkCloseDialog").click(function()
+        {
+            $.post("/Tickets/CloseTicket", { TicketID: $("#TicketIDCloseDialog").val() }, function(data)
+            {
+                if (data.success == true)
+                {
+                    document.location.reload()
+                }
+            }, "json");
+
+        });
+
+        $("#BtnCancelCloseDialog").click(function()
+        {
+            $('#CloseDialog').dialog('close');
+        });
+</script>

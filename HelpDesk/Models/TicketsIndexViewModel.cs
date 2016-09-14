@@ -1,6 +1,8 @@
-﻿using PagedList;
+﻿using HelpDesk.Entities;
+using PagedList;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -11,15 +13,18 @@ namespace HelpDesk.Models
     {
         // Status values: New, In progress, Solved, Closed
         public string Status { get; set; } = "All";
+
+        [DisplayName("Assigned to")]
         public int AssignedTo { get; set; } = 0;
         public int Category { get; set; } = 0;
         public string Search { get; set; }
-        public string SortBy { get; set; } = "CreateDate";
+        public bool AdvancedSearch { get; set; }
+        public string SortBy { get; set; } = "CreatedOn";
         public bool DescSort { get; set; } = true;
         public int Page { get; set; } = 1;
 
         public SelectList Statuses { get; set; }
-        public SelectList AdminsList { get; set; }
+        public SelectList Admins { get; set; }
         public SelectList Categories { get; set; }
         
         public IPagedList<HelpDesk.Entities.Ticket> Tickets { get; set; }

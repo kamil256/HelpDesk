@@ -25,6 +25,21 @@ namespace HelpDesk
             return new MvcHtmlString(a.ToString());
         }
 
+        public static MvcHtmlString SortableHeader(this HtmlHelper htmlHelper, string property, string display = null)
+        {
+            if (display == null)
+                display = property;
+            Models.TicketsIndexViewModel model = htmlHelper.ViewData.Model as Models.TicketsIndexViewModel;
+            TagBuilder span = new TagBuilder("span");
+            span.MergeAttribute("onclick", $"sort('{property}')");
+            span.MergeAttribute("style", "cursor: pointer; text-decoration: underline;");
+            if (model.SortBy == property)
+                span.InnerHtml = display + " " + (model.DescSort ? "\u25BC" : "\u25B2");
+            else
+                span.InnerHtml = display;
+            return new MvcHtmlString(span.ToString());
+        }
+
         public static MvcHtmlString MarkSearchedString(this HtmlHelper htmlHelper, string text, string search)
         {
             string marked = text;
