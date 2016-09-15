@@ -80,10 +80,10 @@
                 }
                 else
                 {
-                    <input value="Deleted user" id="requestorInp" class="form-control pull-left" disabled="disabled" />
+                    <input value="-" id="requestorInp" class="form-control pull-left" disabled="disabled" />
                 }
                 <span class="pull-left">&nbsp;</span>
-                <button id="findRequestorBtn" class="btn btn-warning pull-left" onclick="event.preventDefault(); $('#findRequestorDialog').dialog('open');">Change</button>
+                <button id="find-requestor-btn" class="btn btn-warning pull-left">Change</button>
             </div>
         </div>
 
@@ -130,7 +130,7 @@
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Save" class="btn btn-default" />
-                <input type="button" value="Delete" class="btn btn-default" onclick= "event.preventDefault(); $('#ticketIDToDelete').val('@Model.TicketID'); $('#deleteTicketTitle').text('@Model.Title'); $('#deleteTicketDialog').dialog('open');"/>
+                <input data-ticket-id="@Model.TicketID" data-ticket-title="@Model.Title" type="button" value="Delete" class="btn-delete btn btn-default" />
             </div>
         </div>
     </div>
@@ -140,38 +140,6 @@
     @Html.ActionLink("Back to List", "Index")
 </div>
 
-<script src="~/Scripts/jquery-1.12.4.min.js"></script>
-<script src="~/Scripts/jquery.validate.min.js"></script>
-<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
 
-<div id="findRequestorDialog">
-    @Html.Partial("_FindRequestor")
-</div>
-
-<div id="deleteTicketDialog">
-    @Html.Partial("_DeleteTicket")
-</div>
-
-<script>
-    //$("#findRequestor").click(function(e)
-    //{
-
-    //        e.preventDefault();
-    //        $.post("/Tickets/FindUsers", { search: $("#searchedUser").val() }, function(data)
-    //        {
-    //            if (data.length == 0)
-    //            {
-    //                $("#requestorsList").html("<option value=''></option>");
-    //            }
-    //            else
-    //            {
-    //                $("#requestorsList").html("");
-    //                for (var i = 0; i < data.length; i++)
-    //                {
-    //                    $("#requestorsList").append("<option value=" + data[i].Email + ">" + data[i].FirstName + " " + data[i].LastName + " (" + data[i].Email + ")</option>");
-    //                }
-    //            }
-    //        }, "json");
-
-    //    });
-</script>
+@Html.Partial("_FindRequestorPartial")
+@Html.Partial("_DeleteTicketPartial")
