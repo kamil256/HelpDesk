@@ -1,0 +1,74 @@
+﻿<div id="FindAssignedToDialog">
+    <p><b>Find user by name or email:</b></p>
+
+    <div class="form-group" style="overflow: auto">
+        <input value="" id="FindAssignedToInput" class="form-control pull-left" />
+        <span class="pull-left">&nbsp;</span>
+        <button id="find2" class="btn btn-warning pull-left">Find</button>
+    </div>
+
+    <div class="form-group" style="overflow: auto">
+        <select class="form-control pull-left" id="assignedToList"></select>
+        <span class="pull-left">&nbsp;</span>
+        <img id="progress-image2" src="http://i.stack.imgur.com/r6tWv.gif" class="pull-left" style="display:none" />
+    </div>
+
+    <input id="FindAssignedToBtnOk" type="button" class="btn btn-warning" value="Ok" />
+    <input id="FindAssignedToBtnCancel" type="button" class="btn btn-warning" value="Cancel" />
+
+</div>
+<script>
+    $(document).ready(function()
+    {
+        $("#FindAssignedToDialog").dialog(
+        {
+            autoOpen: false,
+            modal: true,
+            resizable: false
+        });        
+
+        $("#find-assigned-to-btn").click(function(e)
+        {
+            e.preventDefault();
+            $('#FindAssignedToDialog').dialog('open');
+        });
+
+        $("#find2").click(function(e)
+        {
+            $("#progress-image2").show();
+            $.post("/Tickets/FindUsers", { search: $("#FindAssignedToInput").val() }, function(data)
+            {
+                if (data.length == 0)
+                {
+                    $("#assignedToList").html("<option value=''></option>");
+                }
+                else
+                {
+                    $("#assignedToList").html("");
+                    for (var i = 0; i < data.length; i++)
+                    {
+                        $("#assignedToList").append("<option value=" + data[i].UserID + ">" + data[i].FirstName + " " + data[i].LastName + " (" + data[i].Email + ")</option>");
+                    }
+                }
+                $("#progress-image2").hide();
+            }, "json");
+        });
+
+        $("#FindAssignedToBtnOk").click(function()
+        {
+            if ($("#assignedToList").val() && $("#assignedToList").val() != "")
+            {
+                $("#AssignedToID").val($("#assignedToList").val());
+                $("#assignedToInp").val($("#assignedToList > option[value=" + $("#assignedToList").val() + "]").html());
+                $("#FindAssignedToInput").val("");
+                $("#assignedToList").val("");
+            }
+            $('#FindAssignedToDialog').dialog('close');
+        });
+
+        $("#FindAssignedToBtnCancel").click(function()
+        {
+            $('#FindAssignedToDialog').dialog('close');
+        });
+    });
+</script>

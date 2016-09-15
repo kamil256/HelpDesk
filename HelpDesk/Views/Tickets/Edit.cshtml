@@ -17,42 +17,13 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.HiddenFor(model => model.TicketID)
         
-        @if ((Model.Status == "Solved" || Model.Status == "Closed") && Model.SolveOrCloseDate != null)
-        {
-            <div class="form-group">
-                <label class="control-label col-md-2"></label>
-                <div class="col-md-10">
-                    <p class="form-control-static">
-                        @switch (Model.Status)
-                        {
-                            case "Solved":
-                                @: Solved by
-                                break;
-                            case "Closed":
-                                @: Closed by
-                                break;
-                        }
-                        @if (Model.Solver != null)
-                        {
-                            <a href='@Url.Action("Edit", "Users", new { id = Model.Solver.UserID })'>@Model.Solver.FirstName @Model.Solver.LastName (@Model.Solver.Email)</a>
-                        }
-                        else
-                        {
-                            <span>deleted user</span>
-                        }
-                        on @Model.SolveOrCloseDate
-                    </p>
-                </div>
-            </div>
-        }
-
         <div class="form-group">
             <label class="control-label col-md-2">Created by</label>
             <div class="col-md-10">
                 <p class="form-control-static">
-                    @if (Model.Creator != null)
+                    @if (Model.CreatedBy != null)
                     {
-                        <a href='@Url.Action("Edit", "Users", new { id = Model.Creator.UserID })'>@Model.Creator.FirstName @Model.Creator.LastName (@Model.Creator.Email)</a>
+                        <a href='@Url.Action("Edit", "Users", new { id = Model.CreatedBy.UserID })'>@Model.CreatedBy.FirstName @Model.CreatedBy.LastName (@Model.CreatedBy.Email)</a>
                     }
                     else
                     {
@@ -65,18 +36,18 @@
         <div class="form-group">
             <label class="control-label col-md-2">Creation date</label>
             <div class="col-md-10">
-                <p class="form-control-static">@Model.CreateDate</p>
+                <p class="form-control-static">@Model.CreatedOn</p>
             </div>
         </div>
 
-        @Html.HiddenFor(model => model.RequestorID)
+        @Html.HiddenFor(model => model.RequestedByID)
 
         <div class="form-group">
             <label class="control-label col-md-2">Requestor</label>
             <div class="col-md-10">
-                @if (Model.Requestor != null)
+                @if (Model.RequestedBy != null)
                 {
-                    <input value="@Model.Requestor.FirstName @Model.Requestor.LastName (@Model.Requestor.Email)" id="requestorInp" class="form-control pull-left" disabled="disabled" />
+                    <input value="@Model.RequestedBy.FirstName @Model.RequestedBy.LastName (@Model.RequestedBy.Email)" id="requestorInp" class="form-control pull-left" disabled="disabled" />
                 }
                 else
                 {
@@ -87,21 +58,41 @@
             </div>
         </div>
 
+        @Html.HiddenFor(model => model.AssignedToID)
+
         <div class="form-group">
-            @Html.LabelFor(model => model.Category, htmlAttributes: new { @class = "control-label col-md-2" })
+            <label class="control-label col-md-2">Assigned to</label>
             <div class="col-md-10">
-                @Html.DropDownList("Category", Model.Categories, new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.Category, "", new { @class = "text-danger" })
+                @if (Model.AssignedTo != null)
+                {
+                    <input value="@Model.AssignedTo.FirstName @Model.AssignedTo.LastName (@Model.AssignedTo.Email)" id="assignedToInp" class="form-control pull-left" disabled="disabled" />
+                }
+                else
+                {
+                    <input value="-" id="assignedToInp" class="form-control pull-left" disabled="disabled" />
+                }
+                <span class="pull-left">&nbsp;</span>
+                <button id="find-assigned-to-btn" class="btn btn-warning pull-left">Change</button>
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.StatusID, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownListFor(model => model.Status, new SelectList(new[] { "New", "Solved", "Closed" }), new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.Category, "", new { @class = "text-danger" })
+                @Html.DropDownListFor(model => model.StatusID, new SelectList(new[] { "New", "In progress", "Solved", "Closed" }), new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.StatusID, "", new { @class = "text-danger" })
             </div>
         </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CategoryID, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("CategoryID", Model.Categories, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        
 
         <div class="form-group">
             @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
@@ -142,4 +133,5 @@
 
 
 @Html.Partial("_FindRequestorPartial")
+@Html.Partial("_FindAssignedToPartial")
 @Html.Partial("_DeleteTicketPartial")

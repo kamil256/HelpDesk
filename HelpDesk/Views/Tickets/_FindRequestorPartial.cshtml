@@ -29,6 +29,14 @@
 
         $("#find-requestor-btn").click(function(e)
         {
+            e.preventDefault();
+            $('#FindRequestorDialog').dialog('open');
+        });
+
+        $("#find").click(function(e)
+        {
+            e.preventDefault();
+            $('#FindRequestorDialog').dialog('open');
             $("#progress-image").show();
             $.post("/Tickets/FindUsers", { search: $("#FindRequestorInput").val() }, function(data)
             {
@@ -53,17 +61,17 @@
         {
             if ($("#requestorsList").val() && $("#requestorsList").val() != "")
             {
-                $("#RequestorID").val($("#requestorsList").val());
+                $("#RequestedByID").val($("#requestorsList").val());
                 $("#requestorInp").val($("#requestorsList > option[value=" + $("#requestorsList").val() + "]").html());
-                $("#searchedUser").val("");
+                $("#FindRequestorInput").val("");
                 $("#requestorsList").val("");
             }
-            $('#findRequestorDialog').dialog('close');
+            $('#FindRequestorDialog').dialog('close');
         });
 
         $("#FindRequestorBtnCancel").click(function()
         {
-            $('#findRequestorDialog').dialog('close');
+            $('#FindRequestorDialog').dialog('close');
         });
     });
 </script>
