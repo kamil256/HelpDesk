@@ -1,0 +1,54 @@
+﻿@model SelectList
+
+<div id="SolveDialog">
+    <p><b>Solve ticket:</b></p>
+
+    <div class="form-group" style="overflow: auto">
+        <label class="control-label">User</label>
+        @Html.DropDownList("noname", @Model, new { @class = "form-control pull-left", id = "SolveAdminsList" })
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">Solution</label>
+        <textarea id="Solution" rows="10" cols="10" class="form-control"></textarea>
+    </div>
+
+    <input id="SolveBtnOk" type="button" class="btn btn-warning" value="Ok" />
+    <input id="SolveBtnCancel" type="button" class="btn btn-warning" value="Cancel" />
+</div>
+
+<script>
+    $(document).ready(function()
+    {
+        $("#SolveDialog").dialog(
+        {
+            autoOpen: false,
+            modal: true,
+            resizable: false
+        });
+
+        $(".btn-solve").click(function(e)
+        {
+            event.stopPropagation();
+            var ticketID = e.target.getAttribute("data-ticket-id");
+            $('#SolveDialog').dialog('open');            
+
+            $("#SolveBtnOk").click(function()
+            {
+                $.post("/Tickets/SolveTicket", { UserID: $("#SolveAdminsList").val(), TicketID: ticketID, Solution: $("#Solution").val() }, function(data)
+                {
+                    if (data.success == true)
+                    {
+                        document.location.reload()
+                    }
+                }, "json");
+
+            });
+
+            $("#SolveBtnCancel").click(function()
+            {
+                $('#SolveDialog').dialog('close');
+            });
+        });
+    });
+</script>

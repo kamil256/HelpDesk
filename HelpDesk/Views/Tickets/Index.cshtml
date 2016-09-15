@@ -163,10 +163,10 @@
                     @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
                 </td>
                 <td>
-                    <button id="btn-assign" class="btn btn-warning btn-sm" onclick = "event.stopPropagation(); $('#TicketIDAssignPersonDialog').val('@item.TicketID'); $('#AssignPersonDialog').dialog('open');">Assign</button>
-                    <button id="btn-solve" class="btn btn-warning btn-sm" onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDSolveDialog').val('@item.TicketID'); $('#SolveDialog').dialog('open');">Solve</button>
-                    <button id="btn-close" class="btn btn-warning btn-sm" onclick = "event.stopPropagation(); event.preventDefault(); $('#TicketIDCloseDialog').val('@item.TicketID'); $('#CloseDialog').dialog('open');">Close</button>
-                    <div class="btn-delete" onmouseout="this.style.backgroundColor='red'" onmouseover="this.style.backgroundColor='darkred'" onclick = "event.stopPropagation(); $('#ticketIDToDelete').val('@item.TicketID'); $('#deleteTicketTitle').text('@item.Title'); $('#deleteTicketDialog').dialog('open');">&times;</div>
+                    <button class="btn-assign btn btn-warning btn-sm" data-ticket-id="@item.TicketID">Assign</button>
+                    <button class="btn-solve btn btn-warning btn-sm" data-ticket-id="@item.TicketID">Solve</button>
+                    <button class="btn-close btn btn-warning btn-sm" data-ticket-id="@item.TicketID">Close</button>
+                    <div class="btn-delete" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">&times;</div>
                 </td>
             </tr>
         }
@@ -186,6 +186,12 @@
 
 </div>
 
+@Html.Partial("_AssignPersonPartial", Model.Admins)
+@Html.Partial("_SolveTicketPartial", Model.Admins)
+@Html.Partial("_CloseTicketPartial")
+@Html.Partial("_DeleteTicketPartial")
+
+
 <script>
     $(document).ready(function()
     {
@@ -203,149 +209,8 @@
         else
         {
             $("#SortBy").val(value);
+            $("#DescSort").val("true");
         }
         $("#filtering-form").submit();
     }
-</script>
-
-<div id="deleteTicketDialog">
-    @Html.Partial("_DeleteTicket")
-</div>
-
-<div id="AssignPersonDialog">
-    <input type="hidden" id="TicketIDAssignPersonDialog" />
-
-    <p><b>Assign person to ticket:</b></p>
-
-    <div class="form-group" style="overflow: auto">
-        @Html.DropDownList("dfsgdf", Model.Admins, new { @class = "form-control pull-left", id = "AdminsListAssignPersonDialog" })
-    </div>
-
-    <input id="BtnOkAssignPersonDialog" type="button" class="btn btn-warning" value="Ok" />
-    <input id="BtnCancelAssignPersonDialog" type="button" class="btn btn-warning" value="Cancel" />
-</div>
-
-    <script>
-        $(document).ready(function()
-        {
-            $("#AssignPersonDialog").dialog(
-            {
-                autoOpen: false,
-                modal: true,
-                resizable: false
-            });
-        });
-
-        $("#BtnOkAssignPersonDialog").click(function()
-        {
-            alert($("#TicketIDAssignPersonDialog").val());
-            $.post("/Tickets/AssignPersonToTicket", { UserID: $("#AdminsListAssignPersonDialog").val(), TicketID: $("#TicketIDAssignPersonDialog").val() }, function(data)
-            {
-                if (data.success == true)
-                {
-                    document.location.reload()
-                }
-            }, "json");
-
-        });
-
-        $("#BtnCancelAssignPersonDialog").click(function()
-        {
-            $('#AssignPersonDialog').dialog('close');
-        });
-    </script>
-
-
-
-
-<div id="SolveDialog">
-    <input type="hidden" id="TicketIDSolveDialog" />
-
-    <p><b>Solve ticket:</b></p>
-
-    <div class="form-group" style="overflow: auto">
-        <label class = "control-label">User</label>
-        @Html.DropDownList("dfsgdf", Model.Admins, new { @class = "form-control pull-left", id = "AdminsListSolveDialog" })
-    </div>
-
-    <div class="form-group">
-        <label class="control-label">Solution</label>
-        <textarea rows="10" cols="10" id="SolutionSolveDialog" class = "form-control"></textarea>
-    </div>
-
-    <input id="BtnOkSolveDialog" type="button" class="btn btn-warning" value="Ok" />
-    <input id="BtnCancelSolveDialog" type="button" class="btn btn-warning" value="Cancel" />
-</div>
-
-<script>
-        $(document).ready(function()
-        {
-            $("#SolveDialog").dialog(
-            {
-                autoOpen: false,
-                modal: true,
-                resizable: false
-            });
-        });
-
-        $("#BtnOkSolveDialog").click(function()
-        {
-            $.post("/Tickets/SolveTicket", { UserID: $("#AdminsListSolveDialog").val(), TicketID: $("#TicketIDSolveDialog").val(), Solution: $("#SolutionSolveDialog").val() }, function(data)
-            {
-                if (data.success == true)
-                {
-                    document.location.reload()
-                }
-            }, "json");
-
-        });
-
-        $("#BtnCancelSolveDialog").click(function()
-        {
-            $('#SolveDialog').dialog('close');
-        });
-</script>
-
-
-
-
-
-<div id="CloseDialog">
-    <input type="hidden" id="TicketIDCloseDialog" />
-
-    <p><b>Close ticket:</b></p>
-
-    
-
-    <input id="BtnOkCloseDialog" type="button" class="btn btn-warning" value="Ok" />
-    <input id="BtnCancelCloseDialog" type="button" class="btn btn-warning" value="Cancel" />
-</div>
-
-<script>
-        $(document).ready(function()
-        {
-            $("#CloseDialog").dialog(
-            {
-                autoOpen: false,
-                modal: true,
-                resizable: false
-            });
-        });
-
-        $("#BtnOkCloseDialog").click(function()
-        {
-            $.post("/Tickets/CloseTicket", { TicketID: $("#TicketIDCloseDialog").val() }, function(data)
-            {
-                if (data.success == true)
-                {
-                    document.location.reload()
-                }
-            }, "json");
-
-        });
-
-        $("#BtnCancelCloseDialog").click(function()
-        {
-            $('#CloseDialog').dialog('close');
-        });
 </script>

@@ -1,0 +1,42 @@
+﻿<div id="CloseDialog">
+    <p><b>Close ticket:</b></p>
+
+    <input id="CloseBtnOk" type="button" class="btn btn-warning" value="Ok" />
+    <input id="CloseBtnCancel" type="button" class="btn btn-warning" value="Cancel" />
+</div>
+
+<script>
+        $(document).ready(function()
+        {
+            $("#CloseDialog").dialog(
+            {
+                autoOpen: false,
+                modal: true,
+                resizable: false
+            });
+
+            $(".btn-close").click(function(e)
+            {
+                event.stopPropagation();
+                var ticketID = e.target.getAttribute("data-ticket-id");
+                $('#CloseDialog').dialog('open');
+
+                $("#CloseBtnOk").click(function()
+                {
+                    $.post("/Tickets/CloseTicket", { TicketID: ticketID }, function(data)
+                    {
+                        if (data.success == true)
+                        {
+                            document.location.reload()
+                        }
+                    }, "json");
+
+                });
+
+                $("#CloseBtnCancel").click(function()
+                {
+                    $('#CloseDialog').dialog('close');
+                });
+            });
+        });
+</script>

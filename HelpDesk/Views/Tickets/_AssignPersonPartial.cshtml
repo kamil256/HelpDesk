@@ -1,0 +1,48 @@
+﻿@model SelectList
+
+<div id="AssignDialog">
+
+    <p><b>Assign person to ticket:</b></p>
+
+    <div class="form-group" style="overflow: auto">
+        @Html.DropDownList("noname", Model, new { @class = "form-control pull-left", id = "AssignAdminsList" })
+    </div>
+
+    <input id="AssignBtnOk" type="button" class="btn btn-warning" value="Ok" />
+    <input id="AssignBtnCancel" type="button" class="btn btn-warning" value="Cancel" />
+</div>
+
+<script>
+    $(document).ready(function()
+    {
+        $("#AssignDialog").dialog(
+        {
+            autoOpen: false,
+            modal: true,
+            resizable: false
+        });
+
+        $(".btn-assign").click(function(e)
+        {
+            event.stopPropagation();
+            var ticketID = e.target.getAttribute("data-ticket-id");
+            $('#AssignDialog').dialog('open');
+
+            $("#AssignBtnOk").click(function()
+            {
+                $.post("/Tickets/AssignPersonToTicket", { UserID: $("#AssignAdminsList").val(), TicketID: ticketID }, function(data)
+                {
+                    if (data.success == true)
+                    {
+                        document.location.reload()
+                    }
+                }, "json");
+            });
+
+            $("#AssignBtnCancel").click(function()
+            {
+                $('#AssignDialog').dialog('close');
+            });
+        });
+    });
+</script>

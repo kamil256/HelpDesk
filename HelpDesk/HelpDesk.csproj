@@ -258,9 +258,11 @@
     <Content Include="Views\Tickets\Edit.cshtml" />
     <Content Include="Views\Tickets\Delete.cshtml" />
     <Content Include="Views\Tickets\_FindRequestor.cshtml" />
-    <Content Include="Views\Shared\_DeleteTicket.cshtml" />
+    <Content Include="Views\Tickets\_DeleteTicketPartial.cshtml" />
     <Content Include="Views\Users\_DeleteUser.cshtml" />
-    <Content Include="Views\Tickets\_AssignPerson.cshtml" />
+    <Content Include="Views\Tickets\_AssignPersonPartial.cshtml" />
+    <Content Include="Views\Tickets\_SolveTicketPartial.cshtml" />
+    <Content Include="Views\Tickets\_CloseTicketPartial.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
