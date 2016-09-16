@@ -78,6 +78,7 @@
 
         @using (Html.BeginForm("Index", "Tickets", FormMethod.Get, new { id = "filtering-form" }))
         {
+            @Html.HiddenFor(model => model.Page)
             @Html.HiddenFor(model => model.SortBy)
             @Html.HiddenFor(model => model.DescSort)
 
@@ -113,7 +114,7 @@
                 <div class="form-group">
                     @Html.LabelFor(model => model.Search, new { @class = "control-label" })
                     @Html.TextBoxFor(model => model.Search, new { @class = "form-control" })
-                    <button type="submit" class="btn btn-default">
+                    <button id="search-btn" type="submit" class="btn btn-default">
                         <span class="glyphicon glyphicon-search"></span>
                     </button> 
                     <div class="checkbox">
@@ -205,9 +206,11 @@
 <script>
     $(document).ready(function()
     {
-        $("#Status").change(function() { $("#filtering-form").submit(); });
-        $("#AssignedTo").change(function() { $("#filtering-form").submit(); });
-        $("#Category").change(function() { $("#filtering-form").submit(); });
+        $("#Status").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#AssignedTo").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#Category").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#search-btn").click(function() { $("#Page").val("1"); });
+        
     });
 
     function sort(value)
