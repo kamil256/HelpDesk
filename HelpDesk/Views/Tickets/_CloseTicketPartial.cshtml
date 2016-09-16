@@ -1,42 +1,35 @@
-﻿<div id="CloseDialog">
-    <p><b>Close ticket:</b></p>
-
-    <input id="CloseBtnOk" type="button" class="btn btn-warning" value="Ok" />
-    <input id="CloseBtnCancel" type="button" class="btn btn-warning" value="Cancel" />
+﻿<div id="CloseDialog" class="dialog">
+    <h4>Close ticket <i id="CloseTicketTitle"></i></h4>
+    @using (Html.BeginForm("CloseTicket", "Tickets", new { returnUrl = Request.Url.ToString() }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Hidden("CloseTicketID")
+        <input type="submit" class="btn" value="Ok" />
+        <input id="CloseBtnCancel" type="button" class="btn" value="Cancel" />
+    }
 </div>
 
 <script>
-        $(document).ready(function()
+    $(document).ready(function()
+    {
+        $("#CloseDialog").dialog(
         {
-            $("#CloseDialog").dialog(
-            {
-                autoOpen: false,
-                modal: true,
-                resizable: false
-            });
-
-            $(".btn-close").click(function(e)
-            {
-                event.stopPropagation();
-                var ticketID = e.target.getAttribute("data-ticket-id");
-                $('#CloseDialog').dialog('open');
-
-                $("#CloseBtnOk").click(function()
-                {
-                    $.post("/Tickets/CloseTicket", { TicketID: ticketID }, function(data)
-                    {
-                        if (data.success == true)
-                        {
-                            document.location.reload()
-                        }
-                    }, "json");
-
-                });
-
-                $("#CloseBtnCancel").click(function()
-                {
-                    $('#CloseDialog').dialog('close');
-                });
-            });
+            autoOpen: false,
+            modal: true,
+            resizable: false
         });
+
+        $("#CloseBtnCancel").click(function()
+        {
+            $('#CloseDialog').dialog('close');
+        });
+
+        $(".btn-close").click(function(e)
+        {
+            event.stopPropagation();
+            $("#CloseTicketID").val(e.target.getAttribute("data-ticket-id"));
+            $("#CloseTicketTitle").text(e.target.getAttribute("data-ticket-title"));
+            $('#CloseDialog').dialog('open');
+        });
+    });
 </script>

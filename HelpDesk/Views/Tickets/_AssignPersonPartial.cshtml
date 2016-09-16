@@ -1,16 +1,17 @@
 ﻿@model SelectList
 
 <div id="AssignDialog" class="dialog">    
-    <h4>Assign person to ticket</h4>
+    <h4>Assign user to ticket <i id="AssignTicketTitle"></i></h4>
     @using (Html.BeginForm("AssignPersonToTicket", "Tickets", new { returnUrl = Request.Url.ToString() }))
     {
-        @Html.Hidden("TicketID")
+        @Html.AntiForgeryToken()
+        @Html.Hidden("AssignTicketID")
         <div class="form-group">
-            <label>Person</label>
-            @Html.DropDownList("UserID", Model, new { @class = "form-control", id = "AssignAdminsList" })
+            <label class="control-label">User</label>
+            @Html.DropDownList("AssignUserID", Model, new { @class = "form-control" })
         </div>
 
-        <input id="AssignBtnOk" type="submit" class="btn " value="Ok" />
+        <input type="submit" class="btn" value="Ok" />
         <input id="AssignBtnCancel" type="button" class="btn" value="Cancel" />
     }
 </div>
@@ -33,7 +34,8 @@
         $(".btn-assign").click(function(e)
         {
             event.stopPropagation();
-            $("#TicketID").val(e.target.getAttribute("data-ticket-id"));
+            $("#AssignTicketID").val(e.target.getAttribute("data-ticket-id"));
+            $("#AssignTicketTitle").text(e.target.getAttribute("data-ticket-title"));
             $('#AssignDialog').dialog('open');
         });
     });

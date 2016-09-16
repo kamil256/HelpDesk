@@ -42,21 +42,12 @@ namespace HelpDesk.Controllers
             return Json(result);
         }
 
-        //public JsonResult AssignPersonToTicket(int UserID, int TicketID)
-        //{
-        //    User user = unitOfWork.UserRepository.GetById(UserID);
-        //    Ticket ticket = unitOfWork.TicketRepository.GetById(TicketID);
-        //    ticket.AssignedTo = user;
-        //    ticket.Status = "In progress";
-        //    unitOfWork.TicketRepository.Update(ticket);
-        //    unitOfWork.Save();
-        //    return Json(new { success = true });
-        //}
-
-        public RedirectResult AssignPersonToTicket(int userID, int ticketID, string returnUrl)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public RedirectResult AssignPersonToTicket(int assignUserID, int assignTicketID, string returnUrl)
         {
-            User user = unitOfWork.UserRepository.GetById(userID);
-            Ticket ticket = unitOfWork.TicketRepository.GetById(ticketID);
+            User user = unitOfWork.UserRepository.GetById(assignUserID);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(assignTicketID);
             ticket.AssignedTo = user;
             ticket.Status = "In progress";
             unitOfWork.TicketRepository.Update(ticket);
@@ -64,27 +55,31 @@ namespace HelpDesk.Controllers
             return Redirect(returnUrl);
         }
 
-        public JsonResult SolveTicket(int UserID, int TicketID, string Solution)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public RedirectResult SolveTicket(int solveUserID, int solveTicketID, string solution, string returnUrl)
         {
-            User user = unitOfWork.UserRepository.GetById(UserID);
-            Ticket ticket = unitOfWork.TicketRepository.GetById(TicketID);
+            User user = unitOfWork.UserRepository.GetById(solveUserID);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(solveTicketID);
             ticket.AssignedTo = user;
             ticket.Status = "Solved";
-            ticket.Solution = Solution;
+            ticket.Solution = solution;
             unitOfWork.TicketRepository.Update(ticket);
             unitOfWork.Save();
-            return Json(new { success = true });
+            return Redirect(returnUrl);
         }
 
-        public JsonResult CloseTicket(int TicketID)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public RedirectResult CloseTicket(int closeTicketID, string returnUrl)
         {
             User user = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
-            Ticket ticket = unitOfWork.TicketRepository.GetById(TicketID);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(closeTicketID);
             ticket.AssignedTo = user;
             ticket.Status = "Closed";
             unitOfWork.TicketRepository.Update(ticket);
             unitOfWork.Save();
-            return Json(new { success = true });
+            return Redirect(returnUrl);
         }
 
         public ActionResult Index([Bind(Include = "Status,AssignedTo,Category,Search,AdvancedSearch,SortBy,DescSort,Page")] TicketsIndexViewModel model)

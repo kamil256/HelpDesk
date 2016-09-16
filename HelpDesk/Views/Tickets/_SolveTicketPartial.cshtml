@@ -1,20 +1,24 @@
 ﻿@model SelectList
 
-<div id="SolveDialog">
-    <p><b>Solve ticket:</b></p>
+<div id="SolveDialog" class="dialog">
+    <h4>Solve ticket <i id="SolveTicketTitle"></i></h4>
+    @using (Html.BeginForm("SolveTicket", "Tickets", new { returnUrl = Request.Url.ToString() }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Hidden("SolveTicketID")
+        <div class="form-group">
+            <label class="control-label">Solving user</label>
+            @Html.DropDownList("SolveUserID", Model, new { @class = "form-control" })
+        </div>
 
-    <div class="form-group" style="overflow: auto">
-        <label class="control-label">User</label>
-        @Html.DropDownList("noname", @Model, new { @class = "form-control pull-left", id = "SolveAdminsList" })
-    </div>
+        <div class="form-group">
+            <label class="control-label">Solution</label>
+            @Html.TextArea("Solution", "", 7, 10, new { @class = "form-control" })
+        </div>
 
-    <div class="form-group">
-        <label class="control-label">Solution</label>
-        <textarea id="Solution" rows="10" cols="10" class="form-control"></textarea>
-    </div>
-
-    <input id="SolveBtnOk" type="button" class="btn btn-warning" value="Ok" />
-    <input id="SolveBtnCancel" type="button" class="btn btn-warning" value="Cancel" />
+        <input type="submit" class="btn" value="Ok" />
+        <input id="SolveBtnCancel" type="button" class="btn" value="Cancel" />
+    }
 </div>
 
 <script>
@@ -27,28 +31,17 @@
             resizable: false
         });
 
+        $("#SolveBtnCancel").click(function()
+        {
+            $('#SolveDialog').dialog('close');
+        });
+
         $(".btn-solve").click(function(e)
         {
             event.stopPropagation();
-            var ticketID = e.target.getAttribute("data-ticket-id");
+            $("#SolveTicketID").val(e.target.getAttribute("data-ticket-id"));
+            $("#SolveTicketTitle").text(e.target.getAttribute("data-ticket-title"));
             $('#SolveDialog').dialog('open');            
-
-            $("#SolveBtnOk").click(function()
-            {
-                $.post("/Tickets/SolveTicket", { UserID: $("#SolveAdminsList").val(), TicketID: ticketID, Solution: $("#Solution").val() }, function(data)
-                {
-                    if (data.success == true)
-                    {
-                        document.location.reload()
-                    }
-                }, "json");
-
-            });
-
-            $("#SolveBtnCancel").click(function()
-            {
-                $('#SolveDialog').dialog('close');
-            });
         });
     });
 </script>

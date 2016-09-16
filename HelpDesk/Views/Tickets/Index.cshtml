@@ -80,10 +80,10 @@
         {
             @Html.HiddenFor(model => model.SortBy)
             @Html.HiddenFor(model => model.DescSort)
-                        
+
             <div>
                 <div class="form-group">
-                    @Html.LabelFor(model => model.AssignedTo)
+                    @Html.LabelFor(model => model.AssignedTo, new { @class = "control-label" })
                     @Html.DropDownListFor(
                             expression: model => model.AssignedTo,
                             selectList: new SelectListItem[] { new SelectListItem { Value = "0", Text = "Any" } }.Concat(Model.Admins),
@@ -91,7 +91,7 @@
                         )
                 </div>
                 <div class="form-group">
-                    @Html.LabelFor(model => model.Category)
+                    @Html.LabelFor(model => model.Category, new { @class = "control-label" })
                     @Html.DropDownListFor(
                             expression: model => model.Category,
                             selectList: new SelectListItem[] { new SelectListItem { Value = "0", Text = "All" } }.Concat(Model.Categories),
@@ -101,7 +101,7 @@
             </div>
             <div>
                 <div class="form-group">
-                    @Html.LabelFor(model => model.Status)
+                    @Html.LabelFor(model => model.Status, new { @class = "control-label" })
                     @Html.DropDownListFor(
                             expression: model => model.Status,
                             selectList: new SelectList(new[] { "All", "New", "In progress", "Solved", "Closed" }),
@@ -109,13 +109,13 @@
                         )
                 </div>
                 <div class="form-group">
-                    <label>Search</label>
+                    @Html.LabelFor(model => model.Search, new { @class = "control-label" })
                     @Html.TextBoxFor(model => model.Search, new { @class = "form-control" })
                     <button type="submit" class="btn btn-default">
                         <span class="glyphicon glyphicon-search"></span>
                     </button> 
                     <div class="checkbox">
-                        <label>
+                        <label class="control-label">
                             @Html.CheckBoxFor(model => model.AdvancedSearch)
                             Also search in content and solution
                         </label>
@@ -173,9 +173,9 @@
                     @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
                 </td>
                 <td>
-                    <button class="btn-assign btn btn-sm" data-ticket-id="@item.TicketID">Assign</button>
-                    <button class="btn-solve btn btn-sm" data-ticket-id="@item.TicketID">Solve</button>
-                    <button class="btn-close btn btn-sm" data-ticket-id="@item.TicketID">Close</button>
+                    <button class="btn-assign btn btn-sm" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Assign</button>
+                    <button class="btn-solve btn btn-sm" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Solve</button>
+                    <button class="btn-close btn btn-sm" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Close</button>
                 </td>
             </tr>
         }
