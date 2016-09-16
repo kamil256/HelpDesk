@@ -15,7 +15,7 @@ namespace HelpDesk.Models
         public string Status { get; set; } = "All";
 
         [DisplayName("Assigned to")]
-        public int AssignedTo { get; set; } = 0;
+        public int? AssignedTo { get; set; }
         public int Category { get; set; } = 0;
         public string Search { get; set; }
         public bool AdvancedSearch { get; set; }
@@ -24,7 +24,7 @@ namespace HelpDesk.Models
         public int Page { get; set; } = 1;
 
         public SelectList Statuses { get; set; }
-        public SelectList Admins { get; set; }
+        public IEnumerable<User> Admins { get; set; }
         public SelectList Categories { get; set; }
         
         public IPagedList<HelpDesk.Entities.Ticket> Tickets { get; set; }

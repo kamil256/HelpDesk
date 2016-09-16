@@ -87,7 +87,7 @@ namespace HelpDesk.Controllers
             List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
             if (model.Status != "All")
                 filters.Add(t => t.Status == model.Status);
-            if (model.AssignedTo != 0)
+            if (model.AssignedTo != null)
                 filters.Add(t => t.AssignedToID == model.AssignedTo);
             if (model.Category != 0)
                 filters.Add(t => t.CategoryID == model.Category);
@@ -132,15 +132,16 @@ namespace HelpDesk.Controllers
                     orderBy = x => x.OrderBy(orderByPropertySelector);
             }
 
-            var admins = (from u in unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName))
-                          select new { Value = u.UserID, Text = $"{u.FirstName} {u.LastName}" }).ToList();
-            model.Admins = new SelectList
-            (
-                items: admins,
-                dataValueField: "Value",
-                dataTextField: "Text",
-                selectedValue: model.AssignedTo
-            );
+            //var admins = (from u in unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName))
+            //              select new { Value = u.UserID, Text = $"{u.FirstName} {u.LastName}" }).ToList();
+            //model.Admins = new SelectList
+            //(
+            //    items: admins,
+            //    dataValueField: "Value",
+            //    dataTextField: "Text",
+            //    selectedValue: model.AssignedTo
+            //);
+            model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
 
             var categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             model.Categories = new SelectList

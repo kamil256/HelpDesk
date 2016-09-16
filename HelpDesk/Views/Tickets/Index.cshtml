@@ -86,7 +86,8 @@
                     @Html.LabelFor(model => model.AssignedTo, new { @class = "control-label" })
                     @Html.DropDownListFor(
                             expression: model => model.AssignedTo,
-                            selectList: new SelectListItem[] { new SelectListItem { Value = "0", Text = "Any" } }.Concat(Model.Admins),
+                            selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.UserID, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name", Model.AssignedTo),
+                            optionLabel: "All",
                             htmlAttributes: new { @class = "form-control" }
                         )
                 </div>
