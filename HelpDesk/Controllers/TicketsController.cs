@@ -89,7 +89,7 @@ namespace HelpDesk.Controllers
                 filters.Add(t => t.Status == model.Status);
             if (model.AssignedTo != null)
                 filters.Add(t => t.AssignedToID == model.AssignedTo);
-            if (model.Category != 0)
+            if (model.Category != null)
                 filters.Add(t => t.CategoryID == model.Category);
             if (!string.IsNullOrWhiteSpace(model.Search))
             {
@@ -143,14 +143,15 @@ namespace HelpDesk.Controllers
             //);
             model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
 
-            var categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
-            model.Categories = new SelectList
-            (
-                items: categories, 
-                dataValueField: "CategoryID", 
-                dataTextField: "Name", 
-                selectedValue: model.Category
-            );
+            //var categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
+            //model.Categories = new SelectList
+            //(
+            //    items: categories, 
+            //    dataValueField: "CategoryID", 
+            //    dataTextField: "Name", 
+            //    selectedValue: model.Category
+            //);
+            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
 
             model.Tickets = unitOfWork.TicketRepository.GetAll(filters: filters, orderBy: orderBy).ToPagedList(model.Page, 2);
             return View(model);

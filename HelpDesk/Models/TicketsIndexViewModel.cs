@@ -16,7 +16,7 @@ namespace HelpDesk.Models
 
         [DisplayName("Assigned to")]
         public int? AssignedTo { get; set; }
-        public int Category { get; set; } = 0;
+        public int? Category { get; set; }
         public string Search { get; set; }
         public bool AdvancedSearch { get; set; }
         public string SortBy { get; set; } = "CreatedOn";
@@ -25,7 +25,7 @@ namespace HelpDesk.Models
 
         public SelectList Statuses { get; set; }
         public IEnumerable<User> Admins { get; set; }
-        public SelectList Categories { get; set; }
+        public IEnumerable<Category> Categories { get; set; }
         
         public IPagedList<HelpDesk.Entities.Ticket> Tickets { get; set; }
     }

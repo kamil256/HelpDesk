@@ -95,7 +95,8 @@
                     @Html.LabelFor(model => model.Category, new { @class = "control-label" })
                     @Html.DropDownListFor(
                             expression: model => model.Category,
-                            selectList: new SelectListItem[] { new SelectListItem { Value = "0", Text = "All" } }.Concat(Model.Categories),
+                            selectList: new SelectList(Model.Categories, "CategoryID", "Name", Model.Category),
+                            optionLabel: "All",
                             htmlAttributes: new { @class = "form-control" }
                         )
                 </div>
