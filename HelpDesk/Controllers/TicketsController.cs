@@ -313,12 +313,20 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public RedirectResult AssignPersonToTicket(int assignUserID, int assignTicketID, string returnUrl)
         {
-            User user = unitOfWork.UserRepository.GetById(assignUserID);
-            Ticket ticket = unitOfWork.TicketRepository.GetById(assignTicketID);
-            ticket.AssignedTo = user;
-            ticket.Status = "In progress";
-            unitOfWork.TicketRepository.Update(ticket);
-            unitOfWork.Save();
+            try
+            {
+                User user = unitOfWork.UserRepository.GetById(assignUserID);
+                Ticket ticket = unitOfWork.TicketRepository.GetById(assignTicketID);
+                ticket.AssignedTo = user;
+                ticket.Status = "In progress";
+                unitOfWork.TicketRepository.Update(ticket);
+                unitOfWork.Save();
+                TempData["Success"] = "Successfully assigned user to ticket!";
+            }
+            catch
+            {
+                TempData["Fail"] = "Cannot assign user to ticket. Try again!";
+            }
             return Redirect(returnUrl);
         }
 
@@ -326,13 +334,21 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public RedirectResult SolveTicket(int solveUserID, int solveTicketID, string solution, string returnUrl)
         {
-            User user = unitOfWork.UserRepository.GetById(solveUserID);
-            Ticket ticket = unitOfWork.TicketRepository.GetById(solveTicketID);
-            ticket.AssignedTo = user;
-            ticket.Status = "Solved";
-            ticket.Solution = solution;
-            unitOfWork.TicketRepository.Update(ticket);
-            unitOfWork.Save();
+            try
+            { 
+                User user = unitOfWork.UserRepository.GetById(solveUserID);
+                Ticket ticket = unitOfWork.TicketRepository.GetById(solveTicketID);
+                ticket.AssignedTo = user;
+                ticket.Status = "Solved";
+                ticket.Solution = solution;
+                unitOfWork.TicketRepository.Update(ticket);
+                unitOfWork.Save();
+                TempData["Success"] = "Successfully solved ticket!";
+            }
+            catch
+            {
+                TempData["Fail"] = "Cannot solve ticket. Try again!";
+            }
             return Redirect(returnUrl);
         }
 
@@ -340,12 +356,20 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public RedirectResult CloseTicket(int closeTicketID, string returnUrl)
         {
-            User user = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
-            Ticket ticket = unitOfWork.TicketRepository.GetById(closeTicketID);
-            ticket.AssignedTo = user;
-            ticket.Status = "Closed";
-            unitOfWork.TicketRepository.Update(ticket);
-            unitOfWork.Save();
+            try
+            { 
+                User user = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
+                Ticket ticket = unitOfWork.TicketRepository.GetById(closeTicketID);
+                ticket.AssignedTo = user;
+                ticket.Status = "Closed";
+                unitOfWork.TicketRepository.Update(ticket);
+                unitOfWork.Save();
+                TempData["Success"] = "Successfully closed ticket!";
+            }
+            catch
+            {
+                TempData["Fail"] = "Cannot close ticket. Try again!";
+            }
             return Redirect(returnUrl);
         }
     }
