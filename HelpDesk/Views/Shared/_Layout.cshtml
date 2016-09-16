@@ -20,7 +20,6 @@
             background: black !important;
             opacity: .60 !important;
         }
-
         .ui-dialog {
             width: 410px !important;
             padding: 20px;
@@ -30,9 +29,26 @@
             box-shadow: 0 0 10px #777;
             border-radius: 5px;
         }
-
         .ui-dialog-titlebar {
             display: none !important;
+        }
+        .dialog {
+            display: none;
+        }
+        .dialog > h4 {
+            text-align: center;
+            margin: 0 0 20px 0;
+        }
+        .dialog .form-control {
+            max-width: 100%;
+        }
+        .dialog input {
+            background-color: #428bca; 
+            border-color: #428bca; 
+            color: white;
+        }
+        .dialog input:hover {
+            color: white;
         }
     </style>
 </head>

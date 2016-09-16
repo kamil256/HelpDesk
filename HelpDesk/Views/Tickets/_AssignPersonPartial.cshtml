@@ -1,15 +1,18 @@
 ﻿@model SelectList
 
-<div id="AssignDialog">
+<div id="AssignDialog" class="dialog">    
+    <h4>Assign person to ticket</h4>
+    @using (Html.BeginForm("AssignPersonToTicket", "Tickets", new { returnUrl = Request.Url.ToString() }))
+    {
+        @Html.Hidden("TicketID")
+        <div class="form-group">
+            <label>Person</label>
+            @Html.DropDownList("UserID", Model, new { @class = "form-control", id = "AssignAdminsList" })
+        </div>
 
-    <p><b>Assign person to ticket:</b></p>
-
-    <div class="form-group" style="overflow: auto">
-        @Html.DropDownList("noname", Model, new { @class = "form-control pull-left", id = "AssignAdminsList" })
-    </div>
-
-    <input id="AssignBtnOk" type="button" class="btn btn-warning" value="Ok" />
-    <input id="AssignBtnCancel" type="button" class="btn btn-warning" value="Cancel" />
+        <input id="AssignBtnOk" type="submit" class="btn " value="Ok" />
+        <input id="AssignBtnCancel" type="button" class="btn" value="Cancel" />
+    }
 </div>
 
 <script>
@@ -22,27 +25,16 @@
             resizable: false
         });
 
+        $("#AssignBtnCancel").click(function()
+        {
+            $('#AssignDialog').dialog('close');
+        });
+
         $(".btn-assign").click(function(e)
         {
             event.stopPropagation();
-            var ticketID = e.target.getAttribute("data-ticket-id");
+            $("#TicketID").val(e.target.getAttribute("data-ticket-id"));
             $('#AssignDialog').dialog('open');
-
-            $("#AssignBtnOk").click(function()
-            {
-                $.post("/Tickets/AssignPersonToTicket", { UserID: $("#AssignAdminsList").val(), TicketID: ticketID }, function(data)
-                {
-                    if (data.success == true)
-                    {
-                        document.location.reload()
-                    }
-                }, "json");
-            });
-
-            $("#AssignBtnCancel").click(function()
-            {
-                $('#AssignDialog').dialog('close');
-            });
         });
     });
 </script>

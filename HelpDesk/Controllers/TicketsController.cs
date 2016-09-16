@@ -42,15 +42,26 @@ namespace HelpDesk.Controllers
             return Json(result);
         }
 
-        public JsonResult AssignPersonToTicket(int UserID, int TicketID)
+        //public JsonResult AssignPersonToTicket(int UserID, int TicketID)
+        //{
+        //    User user = unitOfWork.UserRepository.GetById(UserID);
+        //    Ticket ticket = unitOfWork.TicketRepository.GetById(TicketID);
+        //    ticket.AssignedTo = user;
+        //    ticket.Status = "In progress";
+        //    unitOfWork.TicketRepository.Update(ticket);
+        //    unitOfWork.Save();
+        //    return Json(new { success = true });
+        //}
+
+        public RedirectResult AssignPersonToTicket(int userID, int ticketID, string returnUrl)
         {
-            User user = unitOfWork.UserRepository.GetById(UserID);
-            Ticket ticket = unitOfWork.TicketRepository.GetById(TicketID);
+            User user = unitOfWork.UserRepository.GetById(userID);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(ticketID);
             ticket.AssignedTo = user;
             ticket.Status = "In progress";
             unitOfWork.TicketRepository.Update(ticket);
             unitOfWork.Save();
-            return Json(new { success = true });
+            return Redirect(returnUrl);
         }
 
         public JsonResult SolveTicket(int UserID, int TicketID, string Solution)

@@ -66,6 +66,7 @@
     .table .btn {
         background-color: #428bca; 
         border-color: #428bca; 
+        color: white;
         /* #89c402 #EA3819 */
     }
 </style>
@@ -172,9 +173,9 @@
                     @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
                 </td>
                 <td>
-                    <button class="btn-assign btn btn-warning btn-sm" data-ticket-id="@item.TicketID">Assign</button>
-                    <button class="btn-solve btn btn-info btn-sm" data-ticket-id="@item.TicketID">Solve</button>
-                    <button class="btn-close btn btn-warning btn-sm" data-ticket-id="@item.TicketID">Close</button>
+                    <button class="btn-assign btn btn-sm" data-ticket-id="@item.TicketID">Assign</button>
+                    <button class="btn-solve btn btn-sm" data-ticket-id="@item.TicketID">Solve</button>
+                    <button class="btn-close btn btn-sm" data-ticket-id="@item.TicketID">Close</button>
                 </td>
             </tr>
         }
