@@ -168,7 +168,7 @@ namespace HelpDesk.Controllers
         {
             TicketsCreateViewModel model = new TicketsCreateViewModel();
             model.Requestor = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
-            model.RequestorID = model.Requestor.UserID;
+            model.RequestedByID = model.Requestor.UserID;
             List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
             model.Categories = new SelectList(categories, "CategoryID", "Name", 0);
@@ -177,15 +177,15 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "RequestorID,Category,Title,Content")] TicketsCreateViewModel model)
+        public ActionResult Create([Bind(Include = "RequestedByID,CategoryID,Title,Content")] TicketsCreateViewModel model)
         {
             if (ModelState.IsValid)
             {
                 Ticket ticket = new Ticket()
                 {
                     CreatedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
-                    RequestedBy = unitOfWork.UserRepository.GetById(model.RequestorID),
-                    Category = unitOfWork.CategoryRepository.GetAll(c => c.CategoryID == model.Category).Single(),
+                    RequestedBy = unitOfWork.UserRepository.GetById(model.RequestedByID),
+                    Category = unitOfWork.CategoryRepository.GetAll(c => c.CategoryID == model.CategoryID).Single(),
                     CreateDate = DateTime.Now,
                     Status = "New",
                     Title = model.Title,
@@ -196,11 +196,11 @@ namespace HelpDesk.Controllers
                 return RedirectToAction("Index");
             }
 
-            model.Requestor = unitOfWork.UserRepository.GetById(model.RequestorID);
+            model.Requestor = unitOfWork.UserRepository.GetById(model.RequestedByID);
 
             List<Category> categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
             categories.Insert(0, new Category() { CategoryID = 0, Name = "-" });
-            model.Categories = new SelectList(categories, "CategoryID", "Name", model.Category);
+            model.Categories = new SelectList(categories, "CategoryID", "Name", model.CategoryID);
 
             return View(model);
         }

@@ -14,11 +14,11 @@ namespace HelpDesk.Models
         public SelectList Categories { get; set; }
 
         [Required]
-        public int RequestorID { get; set; }
+        public int RequestedByID { get; set; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Category field is required")]
-        public int Category { get; set; }
+        public int CategoryID { get; set; }
 
         [Required]
         public string Title { get; set; }
