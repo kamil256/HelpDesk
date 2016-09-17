@@ -7,75 +7,7 @@
 }
 
 <style>
-    header {
-        background-color: #00ABEC; 
-        color: white;
-        padding: 30px 0;
-        margin-bottom: 40px;
-    }
-    header > .container {
-        text-align: center;
-    }
-    header h1 {
-        color: white;
-        text-align: center; 
-        margin: 0;
-    }
-    header hr {
-        border-color: #3F95C4; 
-        margin: 20px 0 30px; 
-        border-top-left-radius: 200px 1px; 
-        border-top-right-radius: 200px 1px;
-    }
-    #filtering-form div {
-        display: inline-block;
-        vertical-align: top;
-    }
-    #filtering-form .form-group {
-        vertical-align: top;
-        text-align: left;
-        width: 270px;
-    }
-    #filtering-form .form-group:last-child {
-        position: relative;
-    }
-    #filtering-form .form-group:last-child > input {
-        padding-right: 40px;
-    }
-    #filtering-form .form-group:last-child > button {
-        position: absolute; 
-        right: 0; 
-        top: 25px; 
-        border-top-left-radius: 0; 
-        border-bottom-left-radius: 0;
-    }
-    #filtering-form .checkbox {
-        margin: 0;
-    }
-    .table tr:hover:not(:first-child) {
-        background-color: #F5EECD;
-        cursor: pointer;
-        outline: 1px solid #E3D179;
-    }
-    .table .title-header {
-        width: 25%;
-    }
-    .table .buttons-header {
-        width: 200px;
-    }
-    .table .btn {
-        background-color: #428bca; 
-        border-color: #428bca; 
-        color: white;
-        /* #89c402 #EA3819 */
-    }
-    .alert {
-        display: inline-block; 
-        position: absolute; 
-        top: 70px; 
-        right: 20px; 
-        z-index: 1001;
-    }
+    
 </style>
 
 @if (TempData["Success"] != null)
@@ -134,7 +66,7 @@
                             htmlAttributes: new { @class = "form-control" }
                         )
                 </div>
-                <div class="form-group">
+                <div class="form-group input-with-button">
                     @Html.LabelFor(model => model.Search, new { @class = "control-label" })
                     @Html.TextBoxFor(model => model.Search, new { @class = "form-control" })
                     <button id="search-btn" type="submit" class="btn btn-default">
