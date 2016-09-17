@@ -25,15 +25,15 @@ namespace HelpDesk.Controllers
             unitOfWork = new UnitOfWork();
         }
 
-        public ActionResult Index([Bind(Include = "Status,AssignedTo,Category,Search,AdvancedSearch,SortBy,DescSort,Page")] TicketsIndexViewModel model)
+        public ActionResult Index([Bind(Include = "Status,AssignedToID,CategoryID,Search,AdvancedSearch,SortBy,DescSort,Page")] TicketsIndexViewModel model)
         {
             List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
             if (model.Status != "All")
                 filters.Add(t => t.Status == model.Status);
-            if (model.AssignedTo != null)
-                filters.Add(t => t.AssignedToID == model.AssignedTo);
-            if (model.Category != null)
-                filters.Add(t => t.CategoryID == model.Category);
+            if (model.AssignedToID != null)
+                filters.Add(t => t.AssignedToID == model.AssignedToID);
+            if (model.CategoryID != null)
+                filters.Add(t => t.CategoryID == model.CategoryID);
             if (!string.IsNullOrWhiteSpace(model.Search))
             {
                 if (model.AdvancedSearch)
