@@ -109,23 +109,29 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "RequestedByID,CategoryID,Title,Content")] TicketsCreateViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                Ticket ticket = new Ticket()
+                if (ModelState.IsValid)
                 {
-                    CreatedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
-                    RequestedByID = model.RequestedByID,
-                    CreateDate = DateTime.Now,
-                    Status = "New",
-                    CategoryID = model.CategoryID ?? 0,
-                    Title = model.Title,
-                    Content = model.Content
-                };
-                unitOfWork.TicketRepository.Insert(ticket);
-                unitOfWork.Save();
-                return RedirectToAction("Index");
+                    Ticket ticket = new Ticket()
+                    {
+                        CreatedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
+                        RequestedByID = model.RequestedByID,
+                        CreateDate = DateTime.Now,
+                        Status = "New",
+                        CategoryID = model.CategoryID ?? 0,
+                        Title = model.Title,
+                        Content = model.Content
+                    };
+                    unitOfWork.TicketRepository.Insert(ticket);
+                    unitOfWork.Save();
+                    return RedirectToAction("Index");
+                }
             }
-
+            catch
+            {
+                ModelState.AddModelError("", "Cannot create ticket. Try again!");
+            }
             model.RequestedBy = unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
             model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
 
