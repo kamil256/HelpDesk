@@ -153,72 +153,78 @@
 </header>
 
 <section class="container">
-    <table class="table">
-        <tr>
-            <th>
-                @Html.SortableHeader("CreatedOn", "Created on")
-            </th>
-            <th>
-                @Html.SortableHeader("RequestedBy", "Requested by")
-            </th>
-            <th class="title-header">
-                @Html.SortableHeader("Title")
-            </th>
-            <th>
-                @Html.SortableHeader("Category")
-            </th>
-            <th>
-                @Html.SortableHeader("Status")
-            </th>
-            <th>
-                @Html.SortableHeader("AssignedTo", "Assigned to")
-            </th>
-            <th class="buttons-header">
-            </th>
-        </tr>
-
-        @foreach(var item in Model.Tickets)
-        {
-            <tr onclick='document.location.href="@Url.Action("Edit", new { id = item.TicketID })"'>
-                <td>
-                    @item.CreateDate.ToString()
-                </td>
-                <td>
-                    @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {@item.RequestedBy.LastName}" : "-")
-                </td>
-                <td>
-                    @Html.MarkSearchedString(item.Title, Model.Search)
-                </td>
-                <td>
-                    @item.Category.Name
-                </td>
-                <td>
-                    @item.Status
-                </td>
-                <td>
-                    @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
-                </td>
-                <td>
-                    <button class="btn-assign btn btn-sm" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Assign</button>
-                    <button class="btn-solve btn btn-sm" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Solve</button>
-                    <button class="btn-close btn btn-sm" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Close</button>
-                </td>
+    @if (Model.Tickets.Count() == 0)
+    {
+        <h1>No tickets found...</h1>
+    }
+    else
+    {
+        <table class="table">
+            <tr>
+                <th>
+                    @Html.SortableHeader("CreatedOn", "Created on")
+                </th>
+                <th>
+                    @Html.SortableHeader("RequestedBy", "Requested by")
+                </th>
+                <th class="title-header">
+                    @Html.SortableHeader("Title")
+                </th>
+                <th>
+                    @Html.SortableHeader("Category")
+                </th>
+                <th>
+                    @Html.SortableHeader("Status")
+                </th>
+                <th>
+                    @Html.SortableHeader("AssignedTo", "Assigned to")
+                </th>
+                <th class="buttons-header">
+                </th>
             </tr>
-        }
-    </table>
 
-    @Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new
-{
-    Page = page,
-    SortBy = Model.SortBy,
-    DescSort = Model.DescSort,
-    Search = Model.Search,
-    Status = Model.Status,
-    Category = Model.CategoryID,
-    AssignedTo = Model.AssignedToID,
-    AdvancedSearch = Model.AdvancedSearch
-}), PagedListRenderOptions.Classic)
+            @foreach (var item in Model.Tickets)
+            {
+                <tr onclick='document.location.href="@Url.Action("Edit", new { id = item.TicketID })"'>
+                    <td>
+                        @item.CreateDate.ToString()
+                    </td>
+                    <td>
+                        @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {@item.RequestedBy.LastName}" : "-")
+                    </td>
+                    <td>
+                        @Html.MarkSearchedString(item.Title, Model.Search)
+                    </td>
+                    <td>
+                        @item.Category.Name
+                    </td>
+                    <td>
+                        @item.Status
+                    </td>
+                    <td>
+                        @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
+                    </td>
+                    <td>
+                        <button class="btn-assign btn btn-sm" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Assign</button>
+                        <button class="btn-solve btn btn-sm" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Solve</button>
+                        <button class="btn-close btn btn-sm" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Close</button>
+                    </td>
+                </tr>
+            }
+        </table>
 
+        @Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new
+        {
+            Page = page,
+            SortBy = Model.SortBy,
+            DescSort = Model.DescSort,
+            Search = Model.Search,
+            Status = Model.Status,
+            Category = Model.CategoryID,
+            AssignedTo = Model.AssignedToID,
+            AdvancedSearch = Model.AdvancedSearch
+        }), PagedListRenderOptions.Classic)
+    }
 </section>
 
 @Html.Partial("_AssignPersonPartial", Model.Admins)
