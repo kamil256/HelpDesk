@@ -119,16 +119,16 @@
             {
                 <tr onclick='document.location.href="@Url.Action("Edit", new { id = item.TicketID })"'>
                     <td>
-                        @item.CreateDate.ToString()
+                        @item.CreatedOn.ToString()
                     </td>
                     <td>
-                        @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {@item.RequestedBy.LastName}" : "-")
+                        @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {item.RequestedBy.LastName}" : "-")
                     </td>
                     <td>
                         @Html.MarkSearchedString(item.Title, Model.Search)
                     </td>
                     <td>
-                        @item.Category.Name
+                        @(item.Category != null ? item.Category.Name : "-")
                     </td>
                     <td>
                         @item.Status

@@ -224,6 +224,10 @@
     <Compile Include="Migrations\201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.Designer.cs">
       <DependentUpon>201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201609172202067_MakeCategoryIDNullable.cs" />
+    <Compile Include="Migrations\201609172202067_MakeCategoryIDNullable.Designer.cs">
+      <DependentUpon>201609172202067_MakeCategoryIDNullable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
     <Compile Include="Models\TicketsCreateViewModel.cs" />
@@ -263,7 +267,6 @@
     <Content Include="Views\Tickets\_AssignPersonPartial.cshtml" />
     <Content Include="Views\Tickets\_SolveTicketPartial.cshtml" />
     <Content Include="Views\Tickets\_CloseTicketPartial.cshtml" />
-    <Content Include="Views\Tickets\_FindAssignedToPartial.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -303,6 +306,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.resx">
       <DependentUpon>201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609172202067_MakeCategoryIDNullable.resx">
+      <DependentUpon>201609172202067_MakeCategoryIDNullable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

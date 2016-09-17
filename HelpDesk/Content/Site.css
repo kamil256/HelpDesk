@@ -1,7 +1,71 @@
-﻿body {
-    /*padding-top: 50px;*/
-    padding-bottom: 20px;
+﻿/* ----- navbar ----- */
+
+.navbar {
+    border-radius: 0;
+    margin-bottom: 0;
 }
+
+ /* ----- header ----- */ 
+
+header {
+    background-color: #00ABEC; 
+    color: white;
+    margin-bottom: 40px;
+    text-align: center;
+}
+header h1 {
+    margin: 30px 0;
+    text-align: center; 
+}
+
+/* ----- search button ----- */
+
+.form-group > div.col-md-8 {
+    padding-right: 0;
+}
+.input-with-button {
+    position: relative;
+    padding-right: 0;
+}
+.input-with-button .btn-search {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* ----- blue button ----- */
+
+.btn-blue {
+    background-color: #428bca; 
+    border-color: #428bca; 
+}
+.btn-blue, .btn-blue:hover, .btn-blue:focus {
+    color: white;
+}
+
+/* ----- dialog ----- */
+
+.dialog {
+    display: none;
+    text-align: center;
+}
+.dialog > h4 {
+    margin: 0 0 20px 0;
+}
+.dialog > h4 > i {
+    color: orange;
+}
+.dialog > label {
+    text-align: left;
+}
+
+
+/*body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}*/
 
 /* Set padding to keep content from hitting the edges */
 .body-content {
@@ -10,32 +74,17 @@
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
-input,
+/*input,
 select,
 textarea {
     max-width: 280px;
-}
+}*/
 
-.navbar {
-    border-radius: 0 !important;
-    margin-bottom: 0 !important;
-}
 
-header {
-    background-color: #00ABEC; 
-    color: white;
-    padding: 30px 0 0 0;
-    margin-bottom: 40px;
-}
-header > .container {
-    text-align: center;
-}
-header h1 {
-    color: white;
-    text-align: center; 
-    margin: 0;
-}
-header hr {
+
+
+
+/*header hr {
     border-color: #3F95C4; 
     margin: 20px 0 30px; 
     border-top-left-radius: 200px 1px; 
@@ -83,13 +132,13 @@ header hr {
 .table .btn {
     background-color: #428bca; 
     border-color: #428bca; 
-    color: white;
+    color: white;*/
     /* #89c402 #EA3819 */
-}
+/*}
 .alert {
     display: inline-block; 
     position: absolute; 
     top: 70px; 
     right: 20px; 
     z-index: 1001;
-}
+}*/

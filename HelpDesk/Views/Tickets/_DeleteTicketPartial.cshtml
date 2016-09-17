@@ -1,48 +1,35 @@
-﻿<div id="DeleteDialog">
-    <p><b>Are you sure you want to delete ticket <span id="DeleteTicketTitle"></span>?</b></p>
+﻿<div id="delete-ticket-dialog" class="dialog">
+    <h4>Are you sure you want to delete ticket <i id="delete-ticket-title"></i>?</h4>
 
     @using (Html.BeginForm("Delete", "Tickets"))
     {
         @Html.AntiForgeryToken()
-        <input type="hidden" id="DeleteTicketID" name="id" />
-        <input type="submit" value="Yes" class="btn btn-warning" />
-        <input id="DeleteBtnNo" type="button" value="No" class="btn btn-warning" onclick="$('#deleteTicketDialog').dialog('close');" />
+        <input type="hidden" id="delete-ticket-id" name="id" />
+        <input type="submit" value="Yes" class="btn btn-blue" />
+        <input type="button" value="No" class="btn btn-blue" id="delete-ticket-btn-no" />
     }
 </div>
 
 <script>
     $(document).ready(function()
     {
-        $("#DeleteDialog").dialog(
+        $("#delete-ticket-dialog").dialog(
         {
             autoOpen: false,
             modal: true,
             resizable: false
         });
 
-        $(".btn-delete").mouseover(function(e)
-        {
-            e.target.style.backgroundColor = 'darkred';
-        });
-
-        $(".btn-delete").mouseout(function(e)
-        {
-            e.target.style.backgroundColor='red';
-        });
-
         $(".btn-delete").click(function(e)
         {
-            event.stopPropagation();
-            var ticketID = e.target.getAttribute("data-ticket-id");
-            var ticketTitle = e.target.getAttribute("data-ticket-title");
-            $('#DeleteTicketID').val(ticketID);
-            $('#DeleteTicketTitle').text(ticketTitle);
-            $('#DeleteDialog').dialog('open');
+            $('#delete-ticket-dialog').dialog('open');
+            $('#delete-ticket-id').val(e.target.getAttribute("data-ticket-id"));
+            $('#delete-ticket-title').text(e.target.getAttribute("data-ticket-title"));
+        });
 
-            $("#DeleteBtnNo").click(function()
-            {
-                $('#DeleteDialog').dialog('close');
-            });
+        $("#delete-ticket-btn-no").click(function()
+        {
+            $('#delete-ticket-dialog').dialog('close');
         });
     });
 </script>

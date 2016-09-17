@@ -150,7 +150,7 @@ namespace HelpDesk.Controllers
                 Company = user.Company,
                 Department = user.Department,
                 Role = user.Role,
-                Tickets = user.RequestedTickets.OrderByDescending(t => t.CreateDate)
+                Tickets = user.RequestedTickets.OrderByDescending(t => t.CreatedOn)
             });
         }
 
@@ -178,7 +178,7 @@ namespace HelpDesk.Controllers
                     return RedirectToAction("Index");
                 }
             }
-            user.Tickets = unitOfWork.UserRepository.GetById(user.UserID).RequestedTickets.OrderByDescending(t => t.CreateDate);
+            user.Tickets = unitOfWork.UserRepository.GetById(user.UserID).RequestedTickets.OrderByDescending(t => t.CreatedOn);
             return View(user);
         }
 

@@ -1,94 +1,77 @@
-﻿<style>
-.dialog input-with-button {
-    position:relative;
-}
-.dialog input-with-button input {
-    padding-right: 40px;
-}
-.dialog .input-with-button button {
-    position: absolute;
-    right: 0;
-    top: 25px;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-}
-</style>
+﻿<div id="change-requestor-dialog" class="dialog">
+    <h4>Change requestor of ticket <i id="change-requestor-title"></i></h4>
 
-<div id="FindRequestorDialog" class="dialog">
-    <h4>Find requestor to ticket <i id="FindRequestorTitle"></i></h4>
-
-    <div class="form-group input-with-button">
+    <div class="form-group">
         <label>Find user by name of email</label>
-        <input value="" id="FindRequestorInput" class="form-control" />
-        <button id="find" class="btn btn-warning">
-            <span class="glyphicon glyphicon-search"></span>
-        </button>
+        <div class="input-with-button">
+            <input id="search-requestor-inp" class="form-control" />
+            <button id="search-requestor-btn" class="btn btn-default btn-search">
+                <span class="glyphicon glyphicon-search"></span>
+            </button>
+        </div>
     </div>
 
-    <div class="form-group" style="overflow: auto">
-        <label>Choose user</label>
-        <select class="form-control" id="requestorsList"></select>
-        <img id="progress-image" src="http://i.stack.imgur.com/r6tWv.gif" class="pull-left" style="display: none" />
+    <div class="form-group">
+        <label>Select user</label>
+        <select class="form-control" id="change-requestor-sel">
+            <option value="">-</option>
+        </select>
+        <img id="change-requestor-img" src="http://i.stack.imgur.com/r6tWv.gif" style="display: none" />
     </div>
 
-    <input id="FindRequestorBtnOk" type="button" class="btn btn-warning" value="Ok" />
-    <input id="FindRequestorBtnCancel" type="button" class="btn btn-warning" value="Cancel" />
-
+    <input id="change-requestor-btn-ok" type="button" class="btn btn-blue" value="Ok" />
+    <input id="change-requestor-btn-cancel" type="button" class="btn btn-blue" value="Cancel" />
 </div>
+
 <script>
     $(document).ready(function()
     {
-        $("#FindRequestorDialog").dialog(
+        $("#change-requestor-dialog").dialog(
         {
             autoOpen: false,
             modal: true,
             resizable: false
         });        
 
-        $("#find-requestor-btn").click(function(e)
+        $("#change-requestor-btn").click(function(e)
         {
-            e.preventDefault();
-            $('#FindRequestorDialog').dialog('open');
+            $('#change-requestor-dialog').dialog('open');
+            $('#change-requestor-title').text(e.target.getAttribute("data-ticket-title"));
         });
 
-        $("#find").click(function(e)
+        $("#search-requestor-btn").click(function(e)
         {
-            $('#FindRequestorDialog').dialog('open');
-            $("#progress-image").show();
-            $.post("/Tickets/FindUsers", { search: $("#FindRequestorInput").val() }, function(data)
+            var searchString = $("#search-requestor-inp").val();
+            if (searchString && searchString.length > 0)
             {
-                if (data.length == 0)
+                $("#progress-image").show();
+                $.post("/Tickets/FindUsers", { search: searchString }, function(data)
                 {
-                    $("#requestorsList").html("<option></option>");
-                }
-                else
-                {
-                    $("#requestorsList").html("");
-                    for (var i = 0; i < data.length; i++)
+                    $("#change-requestor-sel").html("<option value=''>-</option>");
+                    if (data.length > 0)
                     {
-                        $("#requestorsList").append("<option value=" + data[i].UserID + ">" + data[i].FirstName + " " + data[i].LastName + " (" + data[i].Email + ")</option>");
+                        for (var i = 0; i < data.length; i++)
+                        {
+                            $("#change-requestor-sel").append("<option value=" + data[i].UserID + ">" + data[i].FirstName + " " + data[i].LastName + " (" + data[i].Email + ")</option>");
+                        }
                     }
-                }
-                $("#progress-image").hide();
-            }, "json");
-
-        });
-
-        $("#FindRequestorBtnOk").click(function()
-        {
-            if ($("#requestorsList").val() && $("#requestorsList").val() != "")
-            {
-                $("#RequestedByID").val($("#requestorsList").val());
-                $("#requestorInp").val($("#requestorsList > option[value=" + $("#requestorsList").val() + "]").html());
-                $("#FindRequestorInput").val("");
-                $("#requestorsList").val("");
+                    $("#progress-image").hide();
+                }, "json");
             }
-            $('#FindRequestorDialog').dialog('close');
         });
 
-        $("#FindRequestorBtnCancel").click(function()
+        $("#change-requestor-btn-ok").click(function()
         {
-            $('#FindRequestorDialog').dialog('close');
+            $("#RequestedByID").val($("#change-requestor-sel").val());
+            $("#change-requestor-inp").val($("#change-requestor-sel > option[value='" + $("#change-requestor-sel").val() + "']").html());
+            $("#search-requestor-inp").val("");
+            $("#change-requestor-sel").html("<option value=''>-</option>");
+            $('#change-requestor-dialog').dialog('close');
+        });
+
+        $("#change-requestor-btn-cancel").click(function()
+        {
+            $('#change-requestor-dialog').dialog('close');
         });
     });
 </script>

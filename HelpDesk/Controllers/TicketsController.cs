@@ -48,7 +48,7 @@ namespace HelpDesk.Controllers
             switch (model.SortBy)
             {
                 case "CreatedOn":
-                    orderByPropertySelector = t => t.CreateDate.ToString();
+                    orderByPropertySelector = t => t.CreatedOn.ToString();
                     break;
                 case "RequestedBy":
                     orderByPropertySelector = t => t.RequestedBy.FirstName;
@@ -117,7 +117,7 @@ namespace HelpDesk.Controllers
                     {
                         CreatedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
                         RequestedByID = model.RequestedByID,
-                        CreateDate = DateTime.Now,
+                        CreatedOn = DateTime.Now,
                         Status = "New",
                         CategoryID = model.CategoryID ?? 0,
                         Title = model.Title,
@@ -148,34 +148,27 @@ namespace HelpDesk.Controllers
             TicketsEditViewModel model = new TicketsEditViewModel()
             {
                 TicketID = ticket.TicketID,
-                CreatedBy = ticket.CreatedBy,
                 RequestedByID = ticket.RequestedByID,
-                RequestedBy = ticket.RequestedBy,
                 AssignedToID = ticket.AssignedToID,
-                AssignedTo = ticket.AssignedTo,
-                CreatedOn = ticket.CreateDate.ToShortDateString() + " " + ticket.CreateDate.ToShortTimeString(),
-                StatusID = ticket.Status,
+                Status = ticket.Status,
                 CategoryID = ticket.CategoryID,
                 Title = ticket.Title,
                 Content = ticket.Content,
-                Solution = ticket.Solution
+                Solution = ticket.Solution,
+                CreatedBy = ticket.CreatedBy,
+                CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss"),
+                RequestedBy = ticket.RequestedBy,                
+                AssignedTo = ticket.AssignedTo
             };
 
-            var categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
-            model.Categories = new SelectList
-            (
-                items: categories,
-                dataValueField: "CategoryID",
-                dataTextField: "Name",
-                selectedValue: model.CategoryID
-            );
-
+            model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
+            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "TicketID,RequestedByID,AssignedToID,StatusID,CategoryID,Title,Content,Solution")] TicketsEditViewModel model)
+        public ActionResult Edit([Bind(Include = "TicketID,RequestedByID,AssignedToID,Status,CategoryID,Title,Content,Solution")] TicketsEditViewModel model)
         {
             Ticket ticket = unitOfWork.TicketRepository.GetById(model.TicketID);
             if (ticket == null)
@@ -185,49 +178,31 @@ namespace HelpDesk.Controllers
 
             model.RequestedBy = unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
             model.AssignedTo = unitOfWork.UserRepository.GetById(model.AssignedToID ?? 0);
-                        
-            if (ModelState.IsValid)
+            try
             {
-                string previousStatus = ticket.Status;
-                int? previousAssignedToID = ticket.AssignedToID;
-                ticket.RequestedByID = model.RequestedByID;
-                ticket.AssignedToID = model.AssignedToID;       
-                // If solver doesn't change status and status remains New or In progress, but he changes solution, 
-                // status changes to Solved
-                if ((model.StatusID == "New" || model.StatusID == "In progress") && model.StatusID == previousStatus &&
-                    !string.IsNullOrEmpty(model.Solution) && model.Solution != ticket.Solution)
-                    ticket.Status = "Solved";
-                else
-                    ticket.Status = model.StatusID;
-                if (((ticket.Status == "In progress" && previousStatus != "In progress") ||
-                     (ticket.Status == "Solved" && previousStatus != "Solved") ||
-                     (ticket.Status == "Closed" && previousStatus != "Closed")) &&
-                     model.AssignedToID == null)
+                if (ModelState.IsValid)
                 {
-                    
-                    ticket.AssignedToID = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single().UserID;
+                    ticket.RequestedByID = model.RequestedByID;
+                    ticket.AssignedToID = model.AssignedToID;
+                    ticket.Status = model.Status;
+                    ticket.CategoryID = model.CategoryID;
+                    ticket.Title = model.Title;
+                    ticket.Content = model.Content;
+                    ticket.Solution = model.Solution;
+                    unitOfWork.TicketRepository.Update(ticket);
+                    unitOfWork.Save();
+                    return RedirectToAction("Index");
                 }
-                if (previousAssignedToID == null && model.AssignedToID != null)
-                    ticket.Status = "In progress";
-                ticket.CategoryID = model.CategoryID;
-                ticket.Title = model.Title;
-                ticket.Content = model.Content;
-                ticket.Solution = model.Solution;
-                unitOfWork.TicketRepository.Update(ticket);
-                unitOfWork.Save();
-                return RedirectToAction("Index");
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Cannot edit ticket. Try again!");
             }
             model.CreatedBy = ticket.CreatedBy;
-            model.CreatedOn = ticket.CreateDate.ToShortDateString() + " " + ticket.CreateDate.ToShortTimeString();
+            model.CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss");
 
-            var categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order)).ToList();
-            model.Categories = new SelectList
-            (
-                items: categories,
-                dataValueField: "CategoryID",
-                dataTextField: "Name",
-                selectedValue: model.CategoryID
-            );
+            model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
+            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
 
             return View(model);
         }

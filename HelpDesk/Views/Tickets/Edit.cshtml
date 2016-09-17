@@ -4,48 +4,23 @@
     ViewBag.Title = "Edit";
 }
 
-<style>
-    .full-width-container {
-        background-color: #F5EECD; 
-        padding: 30px 0;
-        margin-bottom: 40px;
-    }
-    .full-width-container h1 {
-        text-align: center; 
-        margin: 0;
-    }
-    .full-width-container hr {
-        border-color: #E3D179; 
-        margin-top: 20px; 
-        margin-bottom: 0; 
-        border-top-left-radius: 200px 1px; 
-        border-top-right-radius: 200px 1px;
-    }
-    .wide {
-        width: 75%;
-        max-width: 75%;
-    }
-</style>
-
-<div class="full-width-container">
+<header>
     <div class="container">
         <h1>Edit ticket</h1>
-        <hr />
     </div>
-</div>
+</header>
+
 <div class="container">
     @using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()
-
         <div class="form-horizontal">
-
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             @Html.HiddenFor(model => model.TicketID)
 
             <div class="form-group">
-                <label class="control-label col-md-2">Created by</label>
-                <div class="col-md-10">
+                @Html.LabelFor(model => model.CreatedBy, new { @class = "control-label col-md-2" })
+                <div class="col-md-8">
                     <p class="form-control-static">
                         @if (Model.CreatedBy != null)
                         {
@@ -55,110 +30,87 @@
                         {
                             <span>Deleted user</span>
                         }
+                        on @Model.CreatedOn
                     </p>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="control-label col-md-2">Creation date</label>
-                <div class="col-md-10">
-                    <p class="form-control-static">@Model.CreatedOn</p>
-                </div>
-            </div>
-
-            @Html.HiddenFor(model => model.RequestedByID)
-
-            <div class="form-group">
-                <label class="control-label col-md-2">Requestor</label>
-                <div class="col-md-10">
-                    @if (Model.RequestedBy != null)
-                {
-                        <input value="@Model.RequestedBy.FirstName @Model.RequestedBy.LastName (@Model.RequestedBy.Email)" id="requestorInp" class="form-control pull-left wide" disabled="disabled" />
-                    }
-                    else
-                    {
-                        <input value="-" id="requestorInp" class="form-control pull-left wide" disabled="disabled" />
-                    }
-                    <span class="pull-left">&nbsp;</span>
-                    <button id="find-requestor-btn" class="btn btn-warning pull-left">Change</button>
-                </div>
-            </div>
-
-            @Html.HiddenFor(model => model.AssignedToID)
-
-            <div class="form-group">
-                <label class="control-label col-md-2">Assigned to</label>
-                <div class="col-md-10">
-                    @if (Model.AssignedTo != null)
-                {
-                        <input value="@Model.AssignedTo.FirstName @Model.AssignedTo.LastName (@Model.AssignedTo.Email)" id="assignedToInp" class="form-control pull-left wide" disabled="disabled" />
-                    }
-                    else
-                    {
-                        <input value="-" id="assignedToInp" class="form-control pull-left wide" disabled="disabled" />
-                    }
-                    <span class="pull-left">&nbsp;</span>
-                    <button id="find-assigned-to-btn" class="btn btn-warning pull-left">Change</button>
+                @Html.LabelFor(model => model.RequestedByID, new { @class = "control-label col-md-2" })
+                <div class="col-md-8 input-with-button">
+                    @Html.HiddenFor(model => model.RequestedByID)
+                    <input id="change-requestor-inp" value='@(Model.RequestedBy != null ? $"{Model.RequestedBy.FirstName} {Model.RequestedBy.LastName} ({Model.RequestedBy.Email})" : "-")' class="form-control" disabled="disabled" />
+                    <button id="change-requestor-btn" type="button" class="btn btn-default btn-search" data-ticket-title="@Model.Title">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.StatusID, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.DropDownListFor(model => model.StatusID, new SelectList(new[] { "New", "In progress", "Solved", "Closed" }), new { @class = "form-control wide" })
-                    @Html.ValidationMessageFor(model => model.StatusID, "", new { @class = "text-danger" })
+                @Html.LabelFor(model => model.AssignedToID, new { @class = "control-label col-md-2" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(
+                        expression: model => model.AssignedToID,
+                        selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.UserID, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name"),
+                        optionLabel: "-",
+                        htmlAttributes: new { @class = "form-control" }
+                    )
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.CategoryID, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.DropDownList("CategoryID", Model.Categories, new { @class = "form-control wide" })
+                @Html.LabelFor(model => model.Status, new { @class = "control-label col-md-2" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.Status, new SelectList(new[] { "New", "In progress", "Solved", "Closed" }), new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            
+            <div class="form-group">
+                @Html.LabelFor(model => model.CategoryID, new { @class = "control-label col-md-2" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(
+                        expression: model => model.CategoryID,
+                        selectList: new SelectList(Model.Categories.Select(c => new { CategoryID = c.CategoryID, Name = c.Name }), "CategoryID", "Name"),
+                        optionLabel: "-",
+                        htmlAttributes: new { @class = "form-control" })
                     @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
                 </div>
             </div>
 
-
-
             <div class="form-group">
-                @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control wide" } })
+                @Html.LabelFor(model => model.Title, new { @class = "control-label col-md-2" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.Title, new { @class = "form-control" })
                     @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.Content, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.TextAreaFor(model => model.Content, 7, 10, new { @class = "form-control wide" })
+                @Html.LabelFor(model => model.Content, new { @class = "control-label col-md-2" })
+                <div class="col-md-8">
+                    @Html.TextAreaFor(model => model.Content, 7, 10, new { @class = "form-control" })
                     @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.Solution, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.TextAreaFor(model => model.Solution, 7, 10, new { @class = "form-control wide" })
+                @Html.LabelFor(model => model.Solution, new { @class = "control-label col-md-2" })
+                <div class="col-md-8">
+                    @Html.TextAreaFor(model => model.Solution, 7, 10, new { @class = "form-control" })
                     @Html.ValidationMessageFor(model => model.Solution, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Save" class="btn btn-default" />
-                    <button data-ticket-id="@Model.TicketID" data-ticket-title="@Model.Title" type="button" class="btn-delete btn btn-default">Delete</button>
+                    <input type="submit" value="Save" class="btn btn-blue" />
+                    <button data-ticket-id="@Model.TicketID" data-ticket-title="@Model.Title" type="button" class="btn btn-blue btn-delete">Delete</button>
                 </div>
             </div>
         </div>
     }
 </div>
 
-    <div>
-        @Html.ActionLink("Back to List", "Index")
-    </div>
-
-
-    @Html.Partial("_FindRequestorPartial")
-    @Html.Partial("_FindAssignedToPartial")
-    @Html.Partial("_DeleteTicketPartial")
+@Html.Partial("_FindRequestorPartial")
+@Html.Partial("_DeleteTicketPartial")

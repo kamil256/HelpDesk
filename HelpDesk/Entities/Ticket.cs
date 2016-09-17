@@ -13,11 +13,11 @@ namespace HelpDesk.Entities
         public int? CreatedByID { get; set; }
         public int? RequestedByID { get; set; }
         public int? AssignedToID { get; set; }
-        public DateTime CreateDate { get; set; }
+        public DateTime CreatedOn { get; set; }
 
         [Required]
         public string Status { get; set; }
-        public int CategoryID { get; set; }
+        public int? CategoryID { get; set; }
 
         [Required]
         public string Title { get; set; }
