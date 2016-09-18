@@ -89,30 +89,30 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersCreateViewModel user)
+        public ActionResult Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersCreateViewModel model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
+                    if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == model.Email.ToLower()).Count() > 0)
                         ModelState.AddModelError("Email", $"The email address is in use");
                     else
                     {
-                        User newUser = new User
+                        User user = new User
                         {
-                            FirstName = user.FirstName,
-                            LastName = user.LastName,
-                            Email = user.Email,
-                            Phone = user.Phone,
-                            MobilePhone = user.MobilePhone,
-                            Company = user.Company,
-                            Department = user.Department,
-                            Role = user.Role
+                            FirstName = model.FirstName,
+                            LastName = model.LastName,
+                            Email = model.Email,
+                            Phone = model.Phone,
+                            MobilePhone = model.MobilePhone,
+                            Company = model.Company,
+                            Department = model.Department,
+                            Role = model.Role
                         };
-                        newUser.Salt = Guid.NewGuid().ToString();
-                        newUser.HashedPassword = HashPassword(user.Password, newUser.Salt);
-                        unitOfWork.UserRepository.Insert(newUser);
+                        user.Salt = Guid.NewGuid().ToString();
+                        user.HashedPassword = HashPassword(model.Password, user.Salt);
+                        unitOfWork.UserRepository.Insert(user);
                         unitOfWork.Save();
                         TempData["Success"] = "Successfully added new user!";
                         return RedirectToAction("Index");
@@ -123,12 +123,13 @@ namespace HelpDesk.Controllers
             {
                 ModelState.AddModelError("", "Cannot create user. Try again!");
             }
-            return View(user);
+            return View(model);
         }
 
         public ActionResult Edit(int id = 0)
         {
-            User user = unitOfWork.UserRepository.GetById(id);
+            //User user = unitOfWork.UserRepository.GetById(id);
+            User user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == id, includeProperties: "CreatedTickets").SingleOrDefault();
             if (user == null)
             {
                 return HttpNotFound();
@@ -144,36 +145,54 @@ namespace HelpDesk.Controllers
                 Company = user.Company,
                 Department = user.Department,
                 Role = user.Role,
-                Tickets = user.RequestedTickets.OrderByDescending(t => t.CreatedOn)
+                Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn)
             });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "UserID,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel user)
+        public ActionResult Edit([Bind(Include = "UserID,FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel model)
         {
-            if (ModelState.IsValid)
+            User user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == model.UserID, includeProperties: "CreatedTickets").SingleOrDefault();
+            if (user == null)
             {
-                if (unitOfWork.UserRepository.GetAll(u => u.UserID != user.UserID && u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
-                    ModelState.AddModelError("Email", $"The email address is in use");
-                else
+                return HttpNotFound();
+            }
+            try
+            { 
+                if (ModelState.IsValid)
                 {
-                    User editedUser = unitOfWork.UserRepository.GetById(user.UserID);
-                    editedUser.FirstName = user.FirstName;
-                    editedUser.LastName = user.LastName;
-                    editedUser.Email = user.Email;
-                    editedUser.Phone = user.Phone;
-                    editedUser.MobilePhone = user.MobilePhone;
-                    editedUser.Company = user.Company;
-                    editedUser.Department = user.Department;
-                    editedUser.Role = user.Role;
-                    unitOfWork.UserRepository.Update(editedUser);
-                    unitOfWork.Save();
-                    return RedirectToAction("Index");
+                    if (unitOfWork.UserRepository.GetAll(u => u.UserID != model.UserID && u.Email.ToLower() == model.Email.ToLower()).Count() > 0)
+                        ModelState.AddModelError("Email", $"The email address is in use");
+                    else
+                    {
+                        user.FirstName = model.FirstName;
+                        user.LastName = model.LastName;
+                        user.Email = model.Email;
+                        if (model.Password != null)
+                        {
+                            user.Salt = Guid.NewGuid().ToString();
+                            user.HashedPassword = HashPassword(model.Password, user.Salt);
+                        }
+                        user.Phone = model.Phone;
+                        user.MobilePhone = model.MobilePhone;
+                        user.Company = model.Company;
+                        user.Department = model.Department;
+                        user.Role = model.Role;
+                        unitOfWork.UserRepository.Update(user);
+                        unitOfWork.Save();
+                        TempData["Success"] = "Successfully edited user!";
+                        return RedirectToAction("Index");
+                    }
                 }
             }
-            user.Tickets = unitOfWork.UserRepository.GetById(user.UserID).RequestedTickets.OrderByDescending(t => t.CreatedOn);
-            return View(user);
+            catch
+            {
+                ModelState.AddModelError("", "Cannot edit user. Try again!");
+            }
+            model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
+
+            return View(model);
         }
 
         public ActionResult ChangePassword(int id = 0)
@@ -207,29 +226,22 @@ namespace HelpDesk.Controllers
             return View(user);
         }
 
-        public ActionResult Delete(int id = 0)
-        {
-            User user = unitOfWork.UserRepository.GetById(id);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-            return View(user);
-        }
-
         [HttpPost]
-        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult Delete(int id)
         {
-            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).CreatedTickets)
-                ticket.CreatedBy = null;
-            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).RequestedTickets)
-                ticket.RequestedBy = null;
-            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).AssignedTickets)
-                ticket.AssignedTo = null;
-            unitOfWork.UserRepository.Delete(id);
-            unitOfWork.Save();
+            try
+            {
+                // Must be eager loading to load tickets and set null to their User type properties
+                User user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == id, includeProperties: "CreatedTickets,RequestedTickets,AssignedTickets").SingleOrDefault();
+                unitOfWork.UserRepository.Delete(user);
+                unitOfWork.Save();
+                TempData["Success"] = "Successfully deleted user!";
+            }
+            catch
+            {
+                TempData["Fail"] = "Cannot delete user. Try again!";
+            }
             return RedirectToAction("Index");
         }
     }

@@ -83,7 +83,7 @@
 <section class="container">
     @if (Model.Tickets.Count() == 0)
     {
-        <h1>No tickets found...</h1>
+        <h3>No tickets found...</h3>
     }
     else
     {
@@ -107,7 +107,7 @@
                 <th class="hidden-xs hidden-sm">
                     @Html.SortableHeader("AssignedTo", "Assigned to")
                 </th>
-                <th>
+                <th class="btn-col">
                 </th>
             </tr>
 

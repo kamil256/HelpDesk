@@ -1,7 +1,7 @@
 ﻿@model HelpDesk.Models.TicketsEditViewModel
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "Edit ticket";
 }
 
 <header>
@@ -105,7 +105,7 @@
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
                     <input type="submit" value="Save" class="btn btn-blue" />
-                    <button data-ticket-id="@Model.TicketID" data-ticket-title="@Model.Title" type="button" class="btn btn-blue btn-delete">Delete</button>
+                    <button data-ticket-id="@Model.TicketID" data-ticket-title="@Model.Title" type="button" class="btn btn-blue delete-ticket-btn">Delete</button>
                 </div>
             </div>
         </div>

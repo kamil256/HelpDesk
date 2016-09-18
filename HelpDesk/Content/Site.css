@@ -90,25 +90,30 @@ header hr {
     margin: 0;
 }
 
-/* ----- index table ----- */
+/* ----- list of users and tickets table ----- */
 
+.table th, .table td {
+    border-color: #AAA !important;
+}
 .table tr:hover:not(:first-child) {
     background-color: #F5EECD;
     cursor: pointer;
     outline: 1px solid #E3D179;
 }
 .table td {
-    vertical-align: middle !important;
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+    vertical-align: text-top !important;
 }
 .table .btn {
     width: 60px;
     margin-bottom: 4px;
 }
-.table th:last-child {
+.table .btn-col {
     width: 204px;
 }
 @media (max-width: 1199px) {
-    .table th:last-child {
+    .table .btn-col {
         width: 76px;
     }
 }
@@ -129,4 +134,17 @@ header hr {
 }
 .status-closed {
     background-color: #555;
+}
+
+/* ----- content ----- */
+
+section > hr {
+    border-color: #3F95C4; 
+    margin: 30px 0; 
+    border-top-left-radius: 200px 1px; 
+    border-top-right-radius: 200px 1px;
+}
+section > h3 {
+    text-align: center;
+    margin-bottom: 20px;
 }

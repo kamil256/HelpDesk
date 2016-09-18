@@ -5,6 +5,7 @@
     {
         @Html.AntiForgeryToken()
         <input type="hidden" id="delete-ticket-id" name="id" />
+
         <div class="button-group">
             <input type="submit" value="Yes" class="btn btn-blue" />
             <input type="button" value="No" class="btn btn-blue" id="delete-ticket-btn-no" />
@@ -22,7 +23,7 @@
             resizable: false
         });
 
-        $(".btn-delete").click(function(e)
+        $(".delete-ticket-btn").click(function(e)
         {
             $('#delete-ticket-dialog').dialog('open');
             $('#delete-ticket-id').val(e.target.getAttribute("data-ticket-id"));

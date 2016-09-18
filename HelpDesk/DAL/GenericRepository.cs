@@ -18,15 +18,15 @@ namespace HelpDesk.DAL
             this.dbSet = context.Set<T>();
         }
 
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
+        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includeProperties = "")
         {
             List<Expression<Func<T, bool>>> filters = new List<Expression<Func<T, bool>>>();
             if (filter != null)
                 filters.Add(filter);
-            return GetAll(filters, orderBy);
+            return GetAll(filters, orderBy, includeProperties);
         }
 
-        public IEnumerable<T> GetAll(List<Expression<Func<T, bool>>> filters = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
+        public virtual IEnumerable<T> GetAll(List<Expression<Func<T, bool>>> filters = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includeProperties = "")
         {
             IQueryable<T> query = dbSet;
             if (filters != null)
@@ -35,31 +35,33 @@ namespace HelpDesk.DAL
                         query = query.Where(filter);
             if (orderBy != null)
                 query = orderBy(query);
+            foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                query = query.Include(includeProperty);
             return query.ToList();
         }
 
-        public T GetById(int id)
+        public virtual T GetById(int id)
         {
             return dbSet.Find(id);
         }
 
-        public void Insert(T entity)
+        public virtual void Insert(T entity)
         {
             dbSet.Add(entity);
         }
 
-        public void Update(T entity)
+        public virtual void Update(T entity)
         {
             dbSet.Attach(entity);
             context.Entry(entity).State = EntityState.Modified;
         }
 
-        public void Delete(int id)
+        public virtual void Delete(int id)
         {
             Delete(dbSet.Find(id));
         }
 
-        public void Delete(T entity)
+        public virtual void Delete(T entity)
         {
             if (context.Entry(entity).State == EntityState.Deleted)
                 dbSet.Attach(entity);

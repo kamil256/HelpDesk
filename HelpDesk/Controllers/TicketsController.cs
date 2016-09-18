@@ -236,23 +236,20 @@ namespace HelpDesk.Controllers
             return View(user);
         }
 
-        public ActionResult Delete(int id = 0)
-        {
-            Ticket ticket = unitOfWork.TicketRepository.GetById(id);
-            if (ticket == null)
-            {
-                return HttpNotFound();
-            }
-            return View(ticket);
-        }
-
         [HttpPost]
-        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult Delete(int id)
         {
-            unitOfWork.TicketRepository.Delete(id);
-            unitOfWork.Save();
+            try
+            { 
+                unitOfWork.TicketRepository.Delete(id);
+                unitOfWork.Save();
+                TempData["Success"] = "Successfully deleted ticket!";
+            }
+            catch
+            {
+                TempData["Fail"] = "Cannot delete ticket. Try again!";
+            }
             return RedirectToAction("Index");
         }
 
