@@ -1,4 +1,5 @@
 ﻿using HelpDesk.DAL;
+using HelpDesk.Entities;
 using HelpDesk.Infrastructure.Abstract;
 using HelpDesk.Infrastructure.Concrete;
 using HelpDesk.Models;
@@ -8,11 +9,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 using static HelpDesk.Infrastructure.Utilities;
 
 namespace HelpDesk.Controllers
 {
-    [Authorize]
     public class AccountController : Controller
     {
         private IUnitOfWork unitOfWork;
@@ -24,7 +25,6 @@ namespace HelpDesk.Controllers
             this.authProvider = new FormsAuthProvider(unitOfWork);//authProvider;
         }
 
-        [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
             AccountLoginViewModel model = new AccountLoginViewModel { ReturnUrl = returnUrl };
@@ -32,7 +32,6 @@ namespace HelpDesk.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public ActionResult Login(AccountLoginViewModel model)
         {
@@ -47,7 +46,6 @@ namespace HelpDesk.Controllers
                 return RedirectToAction("Index", "Home");
         }
 
-        [AllowAnonymous]
         public ActionResult LogOff()
         {
             authProvider.LogOut();
