@@ -132,6 +132,7 @@ namespace HelpDesk.Controllers
             {
                 ModelState.AddModelError("", "Cannot create ticket. Try again!");
             }
+
             model.RequestedBy = unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
             model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
 

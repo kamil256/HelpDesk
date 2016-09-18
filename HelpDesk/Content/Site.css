@@ -49,18 +49,17 @@ header h1 {
 
 .dialog {
     display: none;
-    text-align: center;
 }
 .dialog > h4 {
     margin: 0 0 20px 0;
+    text-align: center;
 }
 .dialog > h4 > i {
     color: orange;
 }
-.dialog > label {
-    text-align: left;
+.dialog .button-group {
+    text-align: center;
 }
-
 
 /*body {
     padding-top: 50px;

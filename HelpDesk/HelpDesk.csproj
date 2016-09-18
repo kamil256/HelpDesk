@@ -261,7 +261,7 @@
     <Content Include="Views\Tickets\Index.cshtml" />
     <Content Include="Views\Tickets\Edit.cshtml" />
     <Content Include="Views\Tickets\Delete.cshtml" />
-    <Content Include="Views\Tickets\_FindRequestorPartial.cshtml" />
+    <Content Include="Views\Tickets\_ChangeRequestorPartial.cshtml" />
     <Content Include="Views\Tickets\_DeleteTicketPartial.cshtml" />
     <Content Include="Views\Users\_DeleteUser.cshtml" />
     <Content Include="Views\Tickets\_AssignPersonPartial.cshtml" />

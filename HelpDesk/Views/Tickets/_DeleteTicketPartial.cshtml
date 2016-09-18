@@ -5,10 +5,12 @@
     {
         @Html.AntiForgeryToken()
         <input type="hidden" id="delete-ticket-id" name="id" />
-        <input type="submit" value="Yes" class="btn btn-blue" />
-        <input type="button" value="No" class="btn btn-blue" id="delete-ticket-btn-no" />
+        <div class="button-group">
+            <input type="submit" value="Yes" class="btn btn-blue" />
+            <input type="button" value="No" class="btn btn-blue" id="delete-ticket-btn-no" />
+        </div>
     }
-</div>
+</div>  
 
 <script>
     $(document).ready(function()
