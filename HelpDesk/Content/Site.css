@@ -61,6 +61,16 @@ header h1 {
     text-align: center;
 }
 
+/* ----- success and fail messages ----- */
+
+.alert {
+    display: inline-block; 
+    position: absolute; 
+    right: 20px;
+    top: 70px; 
+    z-index: 1001;
+}
+
 /*body {
     padding-top: 50px;
     padding-bottom: 20px;

@@ -125,6 +125,7 @@ namespace HelpDesk.Controllers
                     };
                     unitOfWork.TicketRepository.Insert(ticket);
                     unitOfWork.Save();
+                    TempData["Success"] = "Successfully added new ticket!";
                     return RedirectToAction("Index");
                 }
             }
@@ -192,6 +193,7 @@ namespace HelpDesk.Controllers
                     ticket.Solution = model.Solution;
                     unitOfWork.TicketRepository.Update(ticket);
                     unitOfWork.Save();
+                    TempData["Success"] = "Successfully edited ticket!";
                     return RedirectToAction("Index");
                 }
             }
