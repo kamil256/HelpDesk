@@ -128,8 +128,12 @@ namespace HelpDesk.Controllers
 
         public ActionResult Edit(int id = 0)
         {
-            //User user = unitOfWork.UserRepository.GetById(id);
-            User user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == id, includeProperties: "CreatedTickets").SingleOrDefault();
+            User user;
+            if (id == 0)
+                user = unitOfWork.UserRepository.GetAll(filter: u => u.Email == User.Identity.Name, includeProperties: "CreatedTickets").SingleOrDefault();
+            else
+                user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == id, includeProperties: "CreatedTickets").SingleOrDefault();
+
             if (user == null)
             {
                 return HttpNotFound();
