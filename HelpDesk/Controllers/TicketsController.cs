@@ -81,21 +81,6 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
-        // GET: Users/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            User user = unitOfWork.UserRepository.GetById(id ?? 0);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-            return View(user);
-        }
-
         public ActionResult Create()
         {
             TicketsCreateViewModel model = new TicketsCreateViewModel();
@@ -290,7 +275,7 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public RedirectResult AssignPersonToTicket(int assignUserID, int assignTicketID, string returnUrl)
+        public RedirectResult AssignUserToTicket(int assignUserID, int assignTicketID, string returnUrl)
         {
             try
             {

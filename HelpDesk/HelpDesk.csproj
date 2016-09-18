@@ -264,7 +264,7 @@
     <Content Include="Views\Tickets\_ChangeRequestorPartial.cshtml" />
     <Content Include="Views\Tickets\_DeleteTicketPartial.cshtml" />
     <Content Include="Views\Users\_DeleteUser.cshtml" />
-    <Content Include="Views\Tickets\_AssignPersonPartial.cshtml" />
+    <Content Include="Views\Tickets\_AssignUserPartial.cshtml" />
     <Content Include="Views\Tickets\_SolveTicketPartial.cshtml" />
     <Content Include="Views\Tickets\_CloseTicketPartial.cshtml" />
     <None Include="Web.Debug.config">

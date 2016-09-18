@@ -1,35 +1,38 @@
-﻿<div id="CloseDialog" class="dialog">
-    <h4>Close ticket <i id="CloseTicketTitle"></i></h4>
+﻿<div id="close-ticket-dialog" class="dialog">
+    <h4>Close ticket <i id="close-ticket-title"></i></h4>
     @using (Html.BeginForm("CloseTicket", "Tickets", new { returnUrl = Request.Url.ToString() }))
     {
         @Html.AntiForgeryToken()
         @Html.Hidden("CloseTicketID")
-        <input type="submit" class="btn" value="Ok" />
-        <input id="CloseBtnCancel" type="button" class="btn" value="Cancel" />
+
+        <div class="button-group">
+            <input type="submit" class="btn-blue" value="Ok" />
+            <input id="close-ticket-btn-cancel" type="button" class="btn-blue" value="Cancel" />
+        </div>
     }
 </div>
 
 <script>
     $(document).ready(function()
     {
-        $("#CloseDialog").dialog(
+        $("#close-ticket-dialog").dialog(
         {
             autoOpen: false,
             modal: true,
             resizable: false
         });
 
-        $("#CloseBtnCancel").click(function()
+        $("#close-ticket-btn-cancel").click(function()
         {
-            $('#CloseDialog').dialog('close');
+            $('#close-ticket-dialog').dialog('close');
         });
 
-        $(".btn-close").click(function(e)
+        $(".close-ticket-btn").click(function(e)
         {
             event.stopPropagation();
             $("#CloseTicketID").val(e.target.getAttribute("data-ticket-id"));
-            $("#CloseTicketTitle").text(e.target.getAttribute("data-ticket-title"));
-            $('#CloseDialog').dialog('open');
+            $("#close-ticket-title").text(e.target.getAttribute("data-ticket-title"));
+            $('#close-ticket-dialog').dialog('open');
         });
     });
 </script>

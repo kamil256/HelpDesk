@@ -11,13 +11,12 @@ namespace HelpDesk.Models
 {
     public class TicketsIndexViewModel
     {
-        public string Status { get; set; } = "All";
-
         [DisplayName("Assigned to")]
         public int? AssignedToID { get; set; }
 
         [DisplayName("Category")]
         public int? CategoryID { get; set; }
+        public string Status { get; set; } = "All";
         public string Search { get; set; }
         public bool AdvancedSearch { get; set; }
         public string SortBy { get; set; } = "CreatedOn";

@@ -1,4 +1,10 @@
-﻿/* ----- navbar ----- */
+﻿/* ----- body ----- */
+
+.body-content {
+    background-color: #F0F0F0;
+}
+
+/* ----- navbar ----- */
 
 .navbar {
     border-radius: 0;
@@ -11,21 +17,28 @@ header {
     background-color: #00ABEC; 
     color: white;
     margin-bottom: 40px;
-    text-align: center;
+    padding: 30px 0;
 }
 header h1 {
-    margin: 30px 0;
+    margin: 0;
     text-align: center; 
+}
+header hr {
+    border-color: #3F95C4; 
+    margin: 20px 0 30px; 
+    border-top-left-radius: 200px 1px; 
+    border-top-right-radius: 200px 1px;
 }
 
 /* ----- search button ----- */
 
 .form-group > div.col-md-8 {
     padding-right: 0;
+    margin-right: 15px;
 }
 .input-with-button {
     position: relative;
-    padding-right: 0;
+    padding-right: 35px;
 }
 .input-with-button .btn-search {
     border-bottom-left-radius: 0;
@@ -71,83 +84,49 @@ header h1 {
     z-index: 1001;
 }
 
-/*body {
-    padding-top: 50px;
-    padding-bottom: 20px;
-}*/
+/* ----- filtering form ----- */
 
-/* Set padding to keep content from hitting the edges */
-.body-content {
-    /*padding-left: 15px;
-    padding-right: 15px;*/
-}
-
-/* Set width on the form input elements since they're 100% wide by default */
-/*input,
-select,
-textarea {
-    max-width: 280px;
-}*/
-
-
-
-
-
-/*header hr {
-    border-color: #3F95C4; 
-    margin: 20px 0 30px; 
-    border-top-left-radius: 200px 1px; 
-    border-top-right-radius: 200px 1px;
-}
-#filtering-form {
-    margin-bottom: 30px;
-}
-#filtering-form div {
-    display: inline-block;
-    vertical-align: top;
-}
-#filtering-form .form-group {
-    vertical-align: top;
-    text-align: left;
-    width: 270px;
-}
-#filtering-form .form-group:last-child {
-    position: relative;
-}
-#filtering-form .input-with-button input {
-    padding-right: 40px;
-}
-#filtering-form .input-with-button button {
-    position: absolute; 
-    right: 0; 
-    top: 25px; 
-    border-top-left-radius: 0; 
-    border-bottom-left-radius: 0;
-}
-#filtering-form .checkbox {
+#filtering-form .input-with-button + .checkbox {
     margin: 0;
 }
+
+/* ----- index table ----- */
+
 .table tr:hover:not(:first-child) {
     background-color: #F5EECD;
     cursor: pointer;
     outline: 1px solid #E3D179;
 }
-.table .title-header {
-    width: 25%;
-}
-.table .buttons-header {
-    width: 200px;
+.table td {
+    vertical-align: middle !important;
 }
 .table .btn {
-    background-color: #428bca; 
-    border-color: #428bca; 
-    color: white;*/
-    /* #89c402 #EA3819 */
-/*}
-.alert {
-    display: inline-block; 
-    position: absolute; 
-    top: 70px; 
-    right: 20px; 
-    z-index: 1001;
-}*/
+    width: 60px;
+    margin-bottom: 4px;
+}
+.table th:last-child {
+    width: 204px;
+}
+@media (max-width: 1199px) {
+    .table th:last-child {
+        width: 76px;
+    }
+}
+.status {
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    padding: 10px;
+}
+.status-new {
+    background-color: orangered;
+}
+.status-in-progress {
+    background-color: dodgerblue;
+}
+.status-solved {
+    background-color: forestgreen;
+}
+.status-closed {
+    background-color: #555;
+}

@@ -1,8 +1,8 @@
 ﻿@using HelpDesk.Entities
 @model IEnumerable<User>
 
-<div id="SolveDialog" class="dialog">
-    <h4>Solve ticket <i id="SolveTicketTitle"></i></h4>
+<div id="solve-ticket-dialog" class="dialog">
+    <h4>Solve ticket <i id="solve-ticket-title"></i></h4>
     @using (Html.BeginForm("SolveTicket", "Tickets", new { returnUrl = Request.Url.ToString() }))
     {
         @Html.AntiForgeryToken()
@@ -21,32 +21,34 @@
             @Html.TextArea("Solution", "", 7, 10, new { @class = "form-control" })
         </div>
 
-        <input type="submit" class="btn" value="Ok" />
-        <input id="SolveBtnCancel" type="button" class="btn" value="Cancel" />
+        <div class="button-group">
+            <input type="submit" class="btn btn-blue" value="Ok" />
+            <input id="solve-ticket-btn-cancel" type="button" class="btn btn-blue" value="Cancel" />
+        </div>
     }
 </div>
 
 <script>
     $(document).ready(function()
     {
-        $("#SolveDialog").dialog(
+        $("#solve-ticket-dialog").dialog(
         {
             autoOpen: false,
             modal: true,
             resizable: false
         });
 
-        $("#SolveBtnCancel").click(function()
+        $("#solve-ticket-btn-cancel").click(function()
         {
-            $('#SolveDialog').dialog('close');
+            $('#solve-ticket-dialog').dialog('close');
         });
 
-        $(".btn-solve").click(function(e)
+        $(".solve-ticket-btn").click(function(e)
         {
             event.stopPropagation();
             $("#SolveTicketID").val(e.target.getAttribute("data-ticket-id"));
-            $("#SolveTicketTitle").text(e.target.getAttribute("data-ticket-title"));
-            $('#SolveDialog').dialog('open');            
+            $("#solve-ticket-title").text(e.target.getAttribute("data-ticket-title"));
+            $('#solve-ticket-dialog').dialog('open');            
         });
     });
 </script>
