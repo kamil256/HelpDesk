@@ -39,61 +39,47 @@ namespace HelpDesk.Controllers
                               u.Department.ToLower().Contains(model.Search.ToLower());                
             }
 
-            Expression<Func<User, object>> propertySelector = null;
+            Expression<Func<User, object>> orderByPropertySelector = null;
             switch (model.SortBy)
             {
                 case "FirstName":
-                    propertySelector = u => u.FirstName;
+                    orderByPropertySelector = u => u.FirstName;
                     break;
                 case "LastName":
-                    propertySelector = u => u.LastName;
+                    orderByPropertySelector = u => u.LastName;
                     break;
                 case "Email":
-                    propertySelector = u => u.Email;
+                    orderByPropertySelector = u => u.Email;
                     break;
                 case "Phone":
-                    propertySelector = u => u.Phone;
+                    orderByPropertySelector = u => u.Phone;
                     break;
                 case "MobilePhone":
-                    propertySelector = u => u.MobilePhone;
+                    orderByPropertySelector = u => u.MobilePhone;
                     break;
                 case "Company":
-                    propertySelector = u => u.Company;
+                    orderByPropertySelector = u => u.Company;
                     break;
                 case "Department":
-                    propertySelector = u => u.Department;
+                    orderByPropertySelector = u => u.Department;
                     break;
                 case "Role":
-                    propertySelector = u => u.Role;
+                    orderByPropertySelector = u => u.Role;
                     break;
                 case "Tickets":
-                    propertySelector = u => u.RequestedTickets.Count.ToString();
+                    orderByPropertySelector = u => u.RequestedTickets.Count.ToString();
                     break;
             }
             Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
-            if (propertySelector != null)
+            if (orderByPropertySelector != null)
             {
                 if (model.DescSort)
-                    orderBy = x => x.OrderByDescending(propertySelector);
+                    orderBy = x => x.OrderByDescending(orderByPropertySelector);
                 else
-                    orderBy = x => x.OrderBy(propertySelector);
+                    orderBy = x => x.OrderBy(orderByPropertySelector);
             }
             model.Users = unitOfWork.UserRepository.GetAll(filter: filter, orderBy: orderBy).ToPagedList(model.Page, 2);
             return View(model);
-        }
-
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            User user = unitOfWork.UserRepository.GetById(id ?? 0);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-            return View(user);
         }
 
         public ActionResult Create()
@@ -105,29 +91,37 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersCreateViewModel user)
         {
-            if (ModelState.IsValid)
+            try
             {
-                if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
-                    ModelState.AddModelError("Email", $"The email address is in use");
-                else
+                if (ModelState.IsValid)
                 {
-                    User newUser = new User
+                    if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
+                        ModelState.AddModelError("Email", $"The email address is in use");
+                    else
                     {
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Email = user.Email,
-                        Phone = user.Phone,
-                        MobilePhone = user.MobilePhone,
-                        Company = user.Company,
-                        Department = user.Department,
-                        Role = user.Role
-                    };
-                    newUser.Salt = Guid.NewGuid().ToString();
-                    newUser.HashedPassword = HashPassword(user.Password, newUser.Salt);
-                    unitOfWork.UserRepository.Insert(newUser);
-                    unitOfWork.Save();
-                    return RedirectToAction("Index");
+                        User newUser = new User
+                        {
+                            FirstName = user.FirstName,
+                            LastName = user.LastName,
+                            Email = user.Email,
+                            Phone = user.Phone,
+                            MobilePhone = user.MobilePhone,
+                            Company = user.Company,
+                            Department = user.Department,
+                            Role = user.Role
+                        };
+                        newUser.Salt = Guid.NewGuid().ToString();
+                        newUser.HashedPassword = HashPassword(user.Password, newUser.Salt);
+                        unitOfWork.UserRepository.Insert(newUser);
+                        unitOfWork.Save();
+                        TempData["Success"] = "Successfully added new user!";
+                        return RedirectToAction("Index");
+                    }
                 }
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Cannot create user. Try again!");
             }
             return View(user);
         }

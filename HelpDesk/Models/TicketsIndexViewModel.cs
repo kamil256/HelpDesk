@@ -9,7 +9,7 @@ using System.Web.Mvc;
 
 namespace HelpDesk.Models
 {
-    public class TicketsIndexViewModel
+    public class TicketsIndexViewModel: ISortableViewModel
     {
         [DisplayName("Assigned to")]
         public int? AssignedToID { get; set; }
