@@ -24,29 +24,25 @@ namespace HelpDesk.Controllers
             this.authProvider = new FormsAuthProvider(unitOfWork);//authProvider;
         }
 
-        //
-        // GET: /Account/Login
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
-            ViewBag.ReturnUrl = returnUrl;
-            return View();
+            AccountLoginViewModel model = new AccountLoginViewModel { ReturnUrl = returnUrl };
+            return View(model);
         }
 
-        //
-        // POST: /Account/Login
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(LoginViewModel model, string returnUrl)
+        public ActionResult Login(AccountLoginViewModel model)
         {
-            ViewBag.ReturnUrl = returnUrl;
             if (!ModelState.IsValid || !authProvider.Authenticate(model.Email, model.Password))
             {
+                ModelState.AddModelError("", "Incorrect email or password");
                 return View(model);
             }
-            if (returnUrl != null)
-                return Redirect(returnUrl);
+            if (model.ReturnUrl != null)
+                return Redirect(model.ReturnUrl);
             else
                 return RedirectToAction("Index", "Home");
         }
@@ -57,36 +53,5 @@ namespace HelpDesk.Controllers
             authProvider.LogOut();
             return RedirectToAction("Index", "Home");
         }
-
-
-
-        //
-        // GET: /Account/Register
-        [AllowAnonymous]
-        public ActionResult Register()
-        {
-            return View();
-        }
-
-        //
-        // POST: /Account/Register
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Register(AddUserViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == model.Email.ToLower()) == null)
-        //        {
-        //            var user = new User { Email = model.Email, Password = model.Password };
-        //            user.Salt = Guid.NewGuid().ToString();
-        //            user.Password = HashPassword(user.Password, user.Salt);
-        //            unitOfWork.UserRepository.Insert(user);
-        //            return Redirect(Url.Action("Index", "Home"));
-        //        }
-        //    }                
-        //    return View(model);
-        //}
     }
 }

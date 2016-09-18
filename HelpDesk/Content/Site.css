@@ -1,7 +1,26 @@
-﻿/* ----- body ----- */
+﻿/* ----- document ----- */
 
-.body-content {
+html {
+    height: 100%;
+}
+body {
     background-color: #F0F0F0;
+}
+
+/* ----- login window ----- */
+.login-window h3 {
+    margin: 0;
+    padding: 150px 0 20px;
+    text-align: center;        
+}
+.login-window > div {
+    background-color: white;
+    border: 1px solid #BBB;
+    border-radius: 10px;
+    box-shadow: #777 0 0 10px;
+    margin: 0 auto;        
+    padding: 20px;
+    width: 350px;
 }
 
 /* ----- navbar ----- */
@@ -147,4 +166,62 @@ section > hr {
 section > h3 {
     text-align: center;
     margin-bottom: 20px;
+}
+
+/* ----- footer ----- */
+
+body {
+    min-height: 100%;
+    position: relative;
+    padding-bottom: 91px;
+}
+footer {
+    background-color: #222;
+    color: #EEE;
+    font-weight: bold;
+    padding: 15px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+.footer-content {
+    display: table;
+    margin: 0 auto;
+}
+.footer-group {
+    display: inline-block;
+    margin-right: 20px;
+}
+.footer-element {
+    display: inline-block;
+    font-size: 1.1em;
+    padding: 3px;
+    vertical-align: middle;
+}
+@media (max-width: 1000px) {    
+    body {
+        padding-bottom: 168px;
+    }
+    .footer-group {
+        display: block;
+    }
+}
+footer .glyphicon {
+    background-color: #555;
+    border-radius: 24px;
+    padding: 10px;
+}
+footer .designer {
+    color: #888;
+    font: 12px 'Courier New';
+    margin: 0;
+    text-align: right;
+}
+
+/* ----- validation ----- */
+
+.validation-summary-errors > ul {
+    list-style-type: none;
+
 }

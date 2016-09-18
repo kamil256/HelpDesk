@@ -235,7 +235,7 @@
     <Compile Include="Models\TicketsEditViewModel.cs" />
     <Compile Include="Models\UsersChangePasswordViewModel.cs" />
     <Compile Include="Entities\Category.cs" />
-    <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\AccountLoginViewModel.cs" />
     <Compile Include="Entities\Ticket.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Models\UsersCreateViewModel.cs" />
@@ -254,7 +254,7 @@
     <Content Include="Views\Users\Edit.cshtml" />
     <Content Include="Views\Users\Index.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\Account\LogIn.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Users\ChangePassword.cshtml" />
     <Content Include="Views\Tickets\Create.cshtml" />
@@ -267,6 +267,8 @@
     <Content Include="Views\Tickets\_AssignUserPartial.cshtml" />
     <Content Include="Views\Tickets\_SolveTicketPartial.cshtml" />
     <Content Include="Views\Tickets\_CloseTicketPartial.cshtml" />
+    <Content Include="Views\Shared\_LoginLayout.cshtml" />
+    <Content Include="Views\Shared\_FooterPartial.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

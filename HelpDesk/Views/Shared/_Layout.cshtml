@@ -59,12 +59,8 @@
         </div>
     </div>
 
-    <div class="body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>    
+    @RenderBody()
+        
+    @Html.Partial("_FooterPartial")  
 </body>
 </html>
