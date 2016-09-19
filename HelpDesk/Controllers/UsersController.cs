@@ -39,61 +39,47 @@ namespace HelpDesk.Controllers
                               u.Department.ToLower().Contains(model.Search.ToLower());                
             }
 
-            Expression<Func<User, object>> propertySelector = null;
+            Expression<Func<User, object>> orderByPropertySelector = null;
             switch (model.SortBy)
             {
                 case "FirstName":
-                    propertySelector = u => u.FirstName;
+                    orderByPropertySelector = u => u.FirstName;
                     break;
                 case "LastName":
-                    propertySelector = u => u.LastName;
+                    orderByPropertySelector = u => u.LastName;
                     break;
                 case "Email":
-                    propertySelector = u => u.Email;
+                    orderByPropertySelector = u => u.Email;
                     break;
                 case "Phone":
-                    propertySelector = u => u.Phone;
+                    orderByPropertySelector = u => u.Phone;
                     break;
                 case "MobilePhone":
-                    propertySelector = u => u.MobilePhone;
+                    orderByPropertySelector = u => u.MobilePhone;
                     break;
                 case "Company":
-                    propertySelector = u => u.Company;
+                    orderByPropertySelector = u => u.Company;
                     break;
                 case "Department":
-                    propertySelector = u => u.Department;
+                    orderByPropertySelector = u => u.Department;
                     break;
                 case "Role":
-                    propertySelector = u => u.Role;
+                    orderByPropertySelector = u => u.Role;
                     break;
                 case "Tickets":
-                    propertySelector = u => u.RequestedTickets.Count.ToString();
+                    orderByPropertySelector = u => u.RequestedTickets.Count.ToString();
                     break;
             }
             Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
-            if (propertySelector != null)
+            if (orderByPropertySelector != null)
             {
                 if (model.DescSort)
-                    orderBy = x => x.OrderByDescending(propertySelector);
+                    orderBy = x => x.OrderByDescending(orderByPropertySelector);
                 else
-                    orderBy = x => x.OrderBy(propertySelector);
+                    orderBy = x => x.OrderBy(orderByPropertySelector);
             }
             model.Users = unitOfWork.UserRepository.GetAll(filter: filter, orderBy: orderBy).ToPagedList(model.Page, 2);
             return View(model);
-        }
-
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            User user = unitOfWork.UserRepository.GetById(id ?? 0);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-            return View(user);
         }
 
         public ActionResult Create()
@@ -103,38 +89,51 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersCreateViewModel user)
+        public ActionResult Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersCreateViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
-                    ModelState.AddModelError("Email", $"The email address is in use");
-                else
+                if (ModelState.IsValid)
                 {
-                    User newUser = new User
+                    if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == model.Email.ToLower()).Count() > 0)
+                        ModelState.AddModelError("Email", $"The email address is in use");
+                    else
                     {
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Email = user.Email,
-                        Phone = user.Phone,
-                        MobilePhone = user.MobilePhone,
-                        Company = user.Company,
-                        Department = user.Department,
-                        Role = user.Role
-                    };
-                    newUser.Salt = Guid.NewGuid().ToString();
-                    newUser.HashedPassword = HashPassword(user.Password, newUser.Salt);
-                    unitOfWork.UserRepository.Insert(newUser);
-                    unitOfWork.Save();
-                    return RedirectToAction("Index");
+                        User user = new User
+                        {
+                            FirstName = model.FirstName,
+                            LastName = model.LastName,
+                            Email = model.Email,
+                            Phone = model.Phone,
+                            MobilePhone = model.MobilePhone,
+                            Company = model.Company,
+                            Department = model.Department,
+                            Role = model.Role
+                        };
+                        user.Salt = Guid.NewGuid().ToString();
+                        user.HashedPassword = HashPassword(model.Password, user.Salt);
+                        unitOfWork.UserRepository.Insert(user);
+                        unitOfWork.Save();
+                        TempData["Success"] = "Successfully added new user!";
+                        return RedirectToAction("Index");
+                    }
                 }
             }
-            return View(user);
+            catch
+            {
+                ModelState.AddModelError("", "Cannot create user. Try again!");
+            }
+            return View(model);
         }
 
         public ActionResult Edit(int id = 0)
         {
-            User user = unitOfWork.UserRepository.GetById(id); 
+            User user;
+            if (id == 0)
+                user = unitOfWork.UserRepository.GetAll(filter: u => u.Email == User.Identity.Name, includeProperties: "CreatedTickets").SingleOrDefault();
+            else
+                user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == id, includeProperties: "CreatedTickets").SingleOrDefault();
+
             if (user == null)
             {
                 return HttpNotFound();
@@ -150,36 +149,54 @@ namespace HelpDesk.Controllers
                 Company = user.Company,
                 Department = user.Department,
                 Role = user.Role,
-                Tickets = user.RequestedTickets.OrderByDescending(t => t.CreateDate)
+                Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn)
             });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "UserID,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel user)
+        public ActionResult Edit([Bind(Include = "UserID,FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel model)
         {
-            if (ModelState.IsValid)
+            User user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == model.UserID, includeProperties: "CreatedTickets").SingleOrDefault();
+            if (user == null)
             {
-                if (unitOfWork.UserRepository.GetAll(u => u.UserID != user.UserID && u.Email.ToLower() == user.Email.ToLower()).Count() > 0)
-                    ModelState.AddModelError("Email", $"The email address is in use");
-                else
+                return HttpNotFound();
+            }
+            try
+            { 
+                if (ModelState.IsValid)
                 {
-                    User editedUser = unitOfWork.UserRepository.GetById(user.UserID);
-                    editedUser.FirstName = user.FirstName;
-                    editedUser.LastName = user.LastName;
-                    editedUser.Email = user.Email;
-                    editedUser.Phone = user.Phone;
-                    editedUser.MobilePhone = user.MobilePhone;
-                    editedUser.Company = user.Company;
-                    editedUser.Department = user.Department;
-                    editedUser.Role = user.Role;
-                    unitOfWork.UserRepository.Update(editedUser);
-                    unitOfWork.Save();
-                    return RedirectToAction("Index");
+                    if (unitOfWork.UserRepository.GetAll(u => u.UserID != model.UserID && u.Email.ToLower() == model.Email.ToLower()).Count() > 0)
+                        ModelState.AddModelError("Email", $"The email address is in use");
+                    else
+                    {
+                        user.FirstName = model.FirstName;
+                        user.LastName = model.LastName;
+                        user.Email = model.Email;
+                        if (model.Password != null)
+                        {
+                            user.Salt = Guid.NewGuid().ToString();
+                            user.HashedPassword = HashPassword(model.Password, user.Salt);
+                        }
+                        user.Phone = model.Phone;
+                        user.MobilePhone = model.MobilePhone;
+                        user.Company = model.Company;
+                        user.Department = model.Department;
+                        user.Role = model.Role;
+                        unitOfWork.UserRepository.Update(user);
+                        unitOfWork.Save();
+                        TempData["Success"] = "Successfully edited user!";
+                        return RedirectToAction("Index");
+                    }
                 }
             }
-            user.Tickets = unitOfWork.UserRepository.GetById(user.UserID).RequestedTickets.OrderByDescending(t => t.CreateDate);
-            return View(user);
+            catch
+            {
+                ModelState.AddModelError("", "Cannot edit user. Try again!");
+            }
+            model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
+
+            return View(model);
         }
 
         public ActionResult ChangePassword(int id = 0)
@@ -213,29 +230,22 @@ namespace HelpDesk.Controllers
             return View(user);
         }
 
-        public ActionResult Delete(int id = 0)
-        {
-            User user = unitOfWork.UserRepository.GetById(id);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-            return View(user);
-        }
-
         [HttpPost]
-        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult Delete(int id)
         {
-            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).CreatedTickets)
-                ticket.CreatedBy = null;
-            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).RequestedTickets)
-                ticket.RequestedBy = null;
-            foreach (Ticket ticket in unitOfWork.UserRepository.GetById(id).AssignedTickets)
-                ticket.AssignedTo = null;
-            unitOfWork.UserRepository.Delete(id);
-            unitOfWork.Save();
+            try
+            {
+                // Must be eager loading to load tickets and set null to their User type properties
+                User user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == id, includeProperties: "CreatedTickets,RequestedTickets,AssignedTickets").SingleOrDefault();
+                unitOfWork.UserRepository.Delete(user);
+                unitOfWork.Save();
+                TempData["Success"] = "Successfully deleted user!";
+            }
+            catch
+            {
+                TempData["Fail"] = "Cannot delete user. Try again!";
+            }
             return RedirectToAction("Index");
         }
     }

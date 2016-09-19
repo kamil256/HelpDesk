@@ -1,165 +1,195 @@
 ﻿@model HelpDesk.Models.UsersEditViewModel
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "Edit user";
 }
 
-<h2>Modify information for @Model.FirstName @Model.LastName</h2>
-
-<br />
-<ul class="nav nav-tabs">
-    <li class="active"><a href="@Url.Action("Edit", "Users", new { id = Model.UserID })">Modify</a></li>
-    <li><a href="@Url.Action("ChangePassword", "Users", new { id = Model.UserID })">Change password</a></li>
-</ul>
-
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal" style="border-left: 1px solid rgb(221, 221, 221); padding-top: 30px; padding-left: 10px;">
-        
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.UserID)
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Phone, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.MobilePhone, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.MobilePhone, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.MobilePhone, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Company, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Company, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Company, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Department, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Department, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Department, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Role, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.Role, new SelectList(new[] { "User", "Admin" }), new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-default" />
-                <input type="button" value="Delete" class="btn btn-default" onclick="event.preventDefault(); $('#userIDToDelete').val('@Model.UserID'); $('#deleteUserName').text('@Model.FirstName @Model.LastName'); $('#deleteUserDialog').dialog('open');" />
-            </div>
-        </div>
+<header>
+    <div class="container">
+        <h1>Edit user</h1>
     </div>
-}
+</header>
 
-<div>
-    @Html.ActionLink("Back to List", "Index")
-</div>
-
-<table class="table">
-    <tr>
-        <th>
-            Creation date
-        </th>
-        <th>
-            Requestor
-        </th>
-        <th>
-            Title
-        </th>
-        <th>
-            Category
-        </th>
-        <th>
-            Status
-        </th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model.Tickets)
+<section class="container">
+    @using (Html.BeginForm())
     {
-        <tr>
-            <td>
-                @item.CreateDate.ToString()
-            </td>
-            <td>
-                @if (item.Requestor != null)
-                {
-                    @: @item.Requestor.FirstName @item.Requestor.LastName
-            }
-                else
-                {
-                    @: Deleted user
-            }
-            </td>
-            <td>
-                @item.Title
-            </td>
-            <td>
-                @item.Category.Name
-            </td>
-            <td>
-                @item.status
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm" })
-                @Html.ActionLink("Delete", "Delete", "Tickets", new { id = item.TicketID }, new { @class = "btn btn-warning btn-sm", onclick = "event.preventDefault(); $('#ticketIDToDelete').val('" + item.TicketID + "'); $('#deleteTicketTitle').text('" + item.Title + "'); $('#deleteTicketDialog').dialog('open');" })
-            </td>
-        </tr>
+        @Html.AntiForgeryToken()
+        <div class="form-horizontal">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            
+            @Html.HiddenFor(model => model.UserID)
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.FirstName, new { @class = "control-label col-md-offset-1 col-md-2" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.LastName, new { @class = "control-label col-md-offset-1 col-md-2" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(model => model.LastName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Email, new { @class = "control-label col-md-offset-1 col-md-2" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Password, new { @class = "control-label col-md-offset-1 col-md-2" })
+                <div class="col-md-6">
+                    @Html.PasswordFor(model => model.Password, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.ConfirmPassword, new { @class = "control-label col-md-offset-1 col-md-2" })
+                <div class="col-md-6">
+                    @Html.PasswordFor(model => model.ConfirmPassword, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.ConfirmPassword, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Phone, new { @class = "control-label col-md-offset-1 col-md-2" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(model => model.Phone, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.MobilePhone, new { @class = "control-label col-md-offset-1 col-md-2" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(model => model.MobilePhone, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.MobilePhone, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Company, new { @class = "control-label col-md-offset-1 col-md-2" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(model => model.Company, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Company, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Department, new { @class = "control-label col-md-offset-1 col-md-2" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(model => model.Department, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Department, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Role, new { @class = "control-label col-md-offset-1 col-md-2" })
+                <div class="col-md-6">
+                    @Html.DropDownListFor(model => model.Role, new SelectList(new[] { "User", "Admin" }), new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-3 col-md-6">
+                    <input type="submit" value="Save" class="btn btn-blue" />
+                    <button data-user-id="@Model.UserID" data-user-name="@Model.FirstName @Model.LastName" type="button" value="Delete" class="btn btn-blue delete-user-btn">Delete</button>
+                </div>
+            </div>
+        </div>
     }
 
-</table>
+    <hr />
 
-<script src="~/Scripts/jquery-1.12.4.min.js"></script>
-<script src="~/Scripts/jquery.validate.min.js"></script>
-<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    @if (Model.Tickets.Count() == 0)
+    {
+        <h3>No tickets found...</h3>
+    }
+    else
+    {
+        <h3>List of tickets:</h3>
 
-<div id="deleteUserDialog">
-    @Html.Partial("_DeleteUser")
-</div>
+        <table class="table">
+            <tr>
+                <th>
+                    Created on
+                </th>
+                <th>
+                    Requested by
+                </th>
+                <th>
+                    Title
+                </th>
+                <th>
+                    Category
+                </th>
+                <th>
+                    Status
+                </th>
+            </tr>
 
-<div id="deleteTicketDialog">
-    @Html.Partial("_DeleteTicket")
-</div>
+            @foreach (var item in Model.Tickets)
+            {
+                <tr onclick='document.location.href="@Url.Action("Edit", "Tickets", new { id = item.TicketID })"'>
+                    <td>
+                        @item.CreatedOn.ToString()
+                    </td>
+                    <td>
+                       @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {item.RequestedBy.LastName}" : "-")
+                    </td>
+                    <td>
+                        @item.Title
+                    </td>
+                    <td>
+                        @(item.Category != null ? item.Category.Name : "-")
+                    </td>
+                    <td>
+                        <span class="status">@item.Status</span>
+                    </td>
+                </tr>
+            }
+
+        </table>
+    }
+</section>
+
+@Html.Partial("_DeleteUserPartial")
+
+<script>
+    $(document).ready(function()
+    {
+        $("#Status").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#AssignedToID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#CategoryID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#search-btn").click(function() { $("#Page").val("1"); });
+
+        var statuses = document.getElementsByClassName("status");
+        for (var i = 0; i < statuses.length; i++)
+        {
+            switch (statuses[i].innerHTML)
+            {
+                case "New":
+                    statuses[i].className += " status-new";
+                    break;
+                case "In progress":
+                    statuses[i].className += " status-in-progress";
+                    break;
+                case "Solved":
+                    statuses[i].className += " status-solved";
+                    break;
+                case "Closed":
+                    statuses[i].className += " status-closed";
+                    break;
+            }
+        }
+    });
+</script>

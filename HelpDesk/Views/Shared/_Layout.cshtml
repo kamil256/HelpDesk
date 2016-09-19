@@ -4,9 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Help Desk</title>
-    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+    
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     
     <script src="~/Scripts/modernizr-2.6.2.js"></script>
     <script src="~/Scripts/jquery-1.12.4.min.js"></script>
@@ -20,7 +21,6 @@
             background: black !important;
             opacity: .60 !important;
         }
-
         .ui-dialog {
             width: 410px !important;
             padding: 20px;
@@ -30,7 +30,6 @@
             box-shadow: 0 0 10px #777;
             border-radius: 5px;
         }
-
         .ui-dialog-titlebar {
             display: none !important;
         }
@@ -60,12 +59,8 @@
         </div>
     </div>
 
-    <div class="acontainer body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>    
+    @RenderBody()
+        
+    @Html.Partial("_FooterPartial")  
 </body>
 </html>

@@ -6,206 +6,187 @@
     ViewBag.Title = "Tickets";
 }
 
-<style>
-    .full-width-container {
-        background-color: #F5EECD; 
-        padding: 30px 0;
-    }
-    .full-width-container h1 {
-        text-align: center; 
-        margin: 0;
-    }
-    .full-width-container hr {
-        border-color: #E3D179; 
-        margin-top: 20px; 
-        margin-bottom: 30px; 
-        border-top-left-radius: 200px 1px; 
-        border-top-right-radius: 200px 1px;
-    }
-    .full-width-container input[type=reset] {
-        margin-top: 25px;
-        width: 71px;
-    }
-    .full-width-container .filter-form-group {
-        width: 270px;
-    }
-    .full-width-container input[type=submit] {
-        clear: both;
-        margin-left: 7px;
-    }
-    .full-width-container p {
-        clear: both;
-        font-size: 0.8em;
-    }
-    .full-width-container p > input {
-        vertical-align: text-bottom;
-    }
-    table {
-        margin-top: 40px;
-    }
-    tr:hover:not(:first-child) {
-        background-color: #F5EECD;
-        cursor: pointer;
-        outline: 1px solid #E3D179;
-    }
-    .btn-delete {
-        display: inline-block; 
-        background-color: red; 
-        color: white; 
-        border-radius: 6px; 
-        margin-left: 5px; 
-        width: 25px; 
-        height: 25px; 
-        line-height: 25px; 
-        text-align: center; 
-        font-weight: bold; 
-        font-size: 2em; 
-        vertical-align: middle; 
-    }
-</style>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @(TempData["Success"])
+    </div>
+}
 
-<div class="full-width-container">
+@if (TempData["Fail"] != null)
+{
+    <div class="alert alert-danger">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @(TempData["Fail"])
+    </div>
+}
+
+<header>
     <div class="container">
         <h1>List of tickets</h1>
         <hr />
 
         @using (Html.BeginForm("Index", "Tickets", FormMethod.Get, new { id = "filtering-form" }))
         {
+            @Html.HiddenFor(model => model.Page)
             @Html.HiddenFor(model => model.SortBy)
             @Html.HiddenFor(model => model.DescSort)
-            @Html.Hidden("Page", 1)
 
-            <div style="text-align: center;">
-                <div style="display: inline-block;">
-                    <div style="display: inline-block; vertical-align: top;">
-                        <div class="filter-form-group form-group" style="display: inline-block; vertical-align: top; text-align: left;">
-                            @Html.LabelFor(model => model.Category)
-                            @Html.DropDownListFor(
-                                 expression: model => model.Category,
-                                 selectList: new SelectListItem[] { new SelectListItem { Value = "0", Text = "All" } }.Concat(Model.Categories),
-                                 htmlAttributes: new { @class = "form-control" }
-                             )
-                        </div>
-
-                        <div class="filter-form-group form-group" style="display: inline-block; vertical-align: top; text-align: left;">
-                            @Html.LabelFor(model => model.AssignedTo)
-                            @Html.DropDownListFor(
-                                 expression: model => model.AssignedTo,
-                                 selectList: new SelectListItem[] { new SelectListItem { Value = "0", Text = "Any" } }.Concat(Model.Admins),
-                                 htmlAttributes: new { @class = "form-control" }
-                             )
-                        </div>
+            <div class="row">
+                <div class="form-group col-sm-6 col-md-3">
+                    @Html.LabelFor(model => model.AssignedToID, new { @class = "control-label" })
+                    @Html.DropDownListFor(
+                            expression: model => model.AssignedToID,
+                            selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.UserID, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name"),
+                            optionLabel: "All",
+                            htmlAttributes: new { @class = "form-control" }
+                        )
+                </div>
+                <div class="form-group col-sm-6 col-md-3">
+                    @Html.LabelFor(model => model.CategoryID, new { @class = "control-label" })
+                    @Html.DropDownListFor(
+                            expression: model => model.CategoryID,
+                            selectList: new SelectList(Model.Categories, "CategoryID", "Name"),
+                            optionLabel: "All",
+                            htmlAttributes: new { @class = "form-control" }
+                        )
+                </div>
+                <div class="form-group col-sm-6 col-md-3">
+                    @Html.LabelFor(model => model.Status, new { @class = "control-label" })
+                    @Html.DropDownListFor(
+                            expression: model => model.Status,
+                            selectList: new SelectList(new[] { "All", "New", "In progress", "Solved", "Closed" }),
+                            htmlAttributes: new { @class = "form-control" }
+                        )
+                </div>
+                <div class="form-group col-sm-6 col-md-3">
+                    @Html.LabelFor(model => model.Search, new { @class = "control-label" })
+                    <div class="input-with-button">
+                        @Html.TextBoxFor(model => model.Search, new { @class = "form-control" })
+                        <button id="search-btn" type="submit" class="btn btn-default btn-search">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
                     </div>
-                    <div style="display: inline-block; vertical-align: top;">
-                        <div class="filter-form-group form-group" style="display: inline-block; vertical-align: top; text-align: left;">
-                            @Html.LabelFor(model => model.Status)
-                            @Html.DropDownListFor(
-                                 expression: model => model.Status,
-                                 selectList: new SelectList(new[] { "All", "New", "In progress", "Solved", "Closed" }),
-                                 htmlAttributes: new { @class = "form-control" }
-                             )
-                        </div>
-
-                        <div class="filter-form-group form-group" style="position: relative; display: inline-block; vertical-align: top; text-align: left;">
-                            <label>Search</label>
-                            @Html.TextBoxFor(model => model.Search, new { @class = "form-control", style="padding-right: 40px;" })
-                            <button type="submit" class="btn btn-default" style="position: absolute; right: 0; top: 25px; border-top-left-radius: 0; border-bottom-left-radius: 0;"><span class="glyphicon glyphicon-search"></span></button> 
-                            
+                    <div class="checkbox">
+                        <label class="control-label">
                             @Html.CheckBoxFor(model => model.AdvancedSearch)
                             Also search in content and solution
-                            
-                        </div>
+                        </label>
                     </div>
                 </div>
-            </div>
-        }
-                        
-     </div>            
-                        
-</div>
+            </div>        
+        }                        
+     </div>                                    
+</header>
 
-<div class="container">
-    <table class="table">
-        <tr>
-            <th>
-                @Html.SortableHeader("CreatedOn", "Created on")
-            </th>
-            <th>
-                @Html.SortableHeader("RequestedBy", "Requested by")
-            </th>
-            <th style="width: 25%">
-                @Html.SortableHeader("Title")
-            </th>
-            <th>
-                @Html.SortableHeader("Category")
-            </th>
-            <th>
-                @Html.SortableHeader("Status")
-            </th>
-            <th>
-                @Html.SortableHeader("AssignedTo", "Assigned to")
-            </th>
-            <th style="width: 240px">
-            </th>
-        </tr>
-
-        @foreach(var item in Model.Tickets)
-        {
-            <tr onclick='document.location.href="@Url.Action("Edit", new { id = item.TicketID })"'>
-                <td>
-                    @item.CreateDate.ToString()
-                </td>
-                <td>
-                    @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {@item.RequestedBy.LastName}" : "-")
-                </td>
-                <td>
-                    @Html.MarkSearchedString(item.Title, Model.Search)
-                </td>
-                <td>
-                    @item.Category.Name
-                </td>
-                <td>
-                    @item.Status
-                </td>
-                <td>
-                    @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
-                </td>
-                <td>
-                    <button class="btn-assign btn btn-warning btn-sm" data-ticket-id="@item.TicketID">Assign</button>
-                    <button class="btn-solve btn btn-warning btn-sm" data-ticket-id="@item.TicketID">Solve</button>
-                    <button class="btn-close btn btn-warning btn-sm" data-ticket-id="@item.TicketID">Close</button>
-                    <div class="btn-delete" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">&times;</div>
-                </td>
-            </tr>
-        }
-    </table>
-
-    @Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new
+<section class="container">
+    @if (Model.Tickets.Count() == 0)
     {
-        Page = page,
-        SortBy = Model.SortBy,
-        DescSort = Model.DescSort,
-        Search = Model.Search,
-        Status = Model.Status,
-        Category = Model.Category,
-        AssignedTo = Model.AssignedTo,
-        AdvancedSearch = Model.AdvancedSearch
-    }), PagedListRenderOptions.Classic)
+        <h3>No tickets found...</h3>
+    }
+    else
+    {
+        <table class="table">
+            <tr>
+                <th>
+                    @Html.SortableHeader("CreatedOn", "Created on")
+                </th>
+                <th class="hidden-xs hidden-sm">
+                    @Html.SortableHeader("RequestedBy", "Requested by")
+                </th>
+                <th class="title-header">
+                    @Html.SortableHeader("Title")
+                </th>
+                <th class="hidden-xs hidden-sm">
+                    @Html.SortableHeader("Category")
+                </th>
+                <th>
+                    @Html.SortableHeader("Status")
+                </th>
+                <th class="hidden-xs hidden-sm">
+                    @Html.SortableHeader("AssignedTo", "Assigned to")
+                </th>
+                <th class="btn-col">
+                </th>
+            </tr>
 
-</div>
+            @foreach (var item in Model.Tickets)
+            {
+                <tr onclick='document.location.href="@Url.Action("Edit", new { id = item.TicketID })"'>
+                    <td>
+                        @item.CreatedOn.ToString()
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                        @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {item.RequestedBy.LastName}" : "-")
+                    </td>
+                    <td>
+                        @Html.MarkSearchedString(item.Title, Model.Search)
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                        @(item.Category != null ? item.Category.Name : "-")
+                    </td>
+                    <td>
+                        <span class="status">@item.Status</span>
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                        @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
+                    </td>
+                    <td>
+                        <button class="assign-user-btn btn btn-sm btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Assign</button>
+                        <button class="solve-ticket-btn btn btn-sm btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Solve</button>
+                        <button class="close-ticket-btn btn btn-sm btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Close</button>
+                    </td>
+                </tr>
+            }
+        </table>
 
-@Html.Partial("_AssignPersonPartial", Model.Admins)
+        @Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new
+        {
+            Page = page,
+            SortBy = Model.SortBy,
+            DescSort = Model.DescSort,
+            Search = Model.Search,
+            Status = Model.Status,
+            Category = Model.CategoryID,
+            AssignedTo = Model.AssignedToID,
+            AdvancedSearch = Model.AdvancedSearch
+        }), PagedListRenderOptions.Classic)
+    }
+</section>
+
+@Html.Partial("_AssignUserPartial", Model.Admins)
 @Html.Partial("_SolveTicketPartial", Model.Admins)
 @Html.Partial("_CloseTicketPartial")
-@Html.Partial("_DeleteTicketPartial")
 
 
 <script>
     $(document).ready(function()
     {
-        $("#Status").change(function() { $("#filtering-form").submit(); });
-        $("#AssignedTo").change(function() { $("#filtering-form").submit(); });
-        $("#Category").change(function() { $("#filtering-form").submit(); });
+        $("#Status").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#AssignedToID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#CategoryID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#search-btn").click(function() { $("#Page").val("1"); });
+        
+        var statuses = document.getElementsByClassName("status");
+        for (var i = 0; i < statuses.length; i++)
+        {
+            switch (statuses[i].innerHTML)
+            {
+                case "New":
+                    statuses[i].className += " status-new";
+                    break;
+                case "In progress":
+                    statuses[i].className += " status-in-progress";
+                    break;
+                case "Solved":
+                    statuses[i].className += " status-solved";
+                    break;
+                case "Closed":
+                    statuses[i].className += " status-closed";
+                    break;
+            }
+        }
     });
 
     function sort(value)

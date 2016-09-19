@@ -6,7 +6,7 @@ using System.Web;
 
 namespace HelpDesk.Models
 {
-    public class LoginViewModel
+    public class AccountLoginViewModel
     {
         [Required]
         [Display(Name = "Email")]
@@ -17,5 +17,7 @@ namespace HelpDesk.Models
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
+
+        public string ReturnUrl { get; set; }
     }
 }

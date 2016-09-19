@@ -224,13 +224,18 @@
     <Compile Include="Migrations\201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.Designer.cs">
       <DependentUpon>201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201609172202067_MakeCategoryIDNullable.cs" />
+    <Compile Include="Migrations\201609172202067_MakeCategoryIDNullable.Designer.cs">
+      <DependentUpon>201609172202067_MakeCategoryIDNullable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
+    <Compile Include="Models\ISortableViewModel.cs" />
     <Compile Include="Models\TicketsCreateViewModel.cs" />
     <Compile Include="Models\TicketsEditViewModel.cs" />
     <Compile Include="Models\UsersChangePasswordViewModel.cs" />
     <Compile Include="Entities\Category.cs" />
-    <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\AccountLoginViewModel.cs" />
     <Compile Include="Entities\Ticket.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Models\UsersCreateViewModel.cs" />
@@ -246,24 +251,24 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Users\Create.cshtml" />
     <Content Include="Views\Users\Delete.cshtml" />
-    <Content Include="Views\Users\Details.cshtml" />
     <Content Include="Views\Users\Edit.cshtml" />
     <Content Include="Views\Users\Index.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\Account\LogIn.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Users\ChangePassword.cshtml" />
     <Content Include="Views\Tickets\Create.cshtml" />
     <Content Include="Views\Tickets\Index.cshtml" />
     <Content Include="Views\Tickets\Edit.cshtml" />
     <Content Include="Views\Tickets\Delete.cshtml" />
-    <Content Include="Views\Tickets\_FindRequestorPartial.cshtml" />
+    <Content Include="Views\Tickets\_ChangeRequestorPartial.cshtml" />
     <Content Include="Views\Tickets\_DeleteTicketPartial.cshtml" />
-    <Content Include="Views\Users\_DeleteUser.cshtml" />
-    <Content Include="Views\Tickets\_AssignPersonPartial.cshtml" />
+    <Content Include="Views\Users\_DeleteUserPartial.cshtml" />
+    <Content Include="Views\Tickets\_AssignUserPartial.cshtml" />
     <Content Include="Views\Tickets\_SolveTicketPartial.cshtml" />
     <Content Include="Views\Tickets\_CloseTicketPartial.cshtml" />
-    <Content Include="Views\Tickets\_FindAssignedToPartial.cshtml" />
+    <Content Include="Views\Shared\_LoginLayout.cshtml" />
+    <Content Include="Views\Shared\_FooterPartial.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -303,6 +308,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.resx">
       <DependentUpon>201609131838313_ChangeSolverToAssignedPersonAndRemoveSolveOrCloseDate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609172202067_MakeCategoryIDNullable.resx">
+      <DependentUpon>201609172202067_MakeCategoryIDNullable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

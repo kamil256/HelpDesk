@@ -1,90 +1,70 @@
 ﻿@model HelpDesk.Models.TicketsCreateViewModel
-@using HelpDesk.Entities
 
 @{
     ViewBag.Title = "New ticket";
 }
 
-<style>
-    .full-width-container {
-        background-color: #F5EECD;
-        padding: 30px 0;
-        margin-bottom: 40px;
-    }
-
-        .full-width-container h1 {
-            text-align: center;
-            margin: 0;
-        }
-
-        .full-width-container hr {
-            border-color: #E3D179;
-            margin-top: 20px;
-            margin-bottom: 0;
-            border-top-left-radius: 200px 1px;
-            border-top-right-radius: 200px 1px;
-        }
-
-    .wide {
-        width: 75%;
-        max-width: 75%;
-    }
-</style>
-
-<div class="full-width-container">
+<header>
     <div class="container">
         <h1>Add new ticket</h1>
-        <hr />        
     </div>
-</div>
-<div class="container">
-    @using (Html.BeginForm(@*"Create", "Tickets", FormMethod.Get*@))
+</header>
+
+<section class="container">
+    @using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()
-
         <div class="form-horizontal">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.HiddenFor(model => model.RequestedByID)
+            
             <div class="form-group">
-                <label class="control-label col-md-2">Requestor</label>
-                <div class="col-md-10">
-                    <input value="@Model.Requestor.FirstName @Model.Requestor.LastName (@Model.Requestor.Email)" id="requestorInp" class="form-control pull-left wide" disabled="disabled" />
-                    <span class="pull-left">&nbsp;</span>
-                    <button id="find-requestor-btn" class="btn btn-warning pull-left" onclick="event.preventDefault(); $('#findRequestorDialog').dialog('open');">Change</button>
+                @Html.LabelFor(model => model.RequestedByID, new { @class = "control-label col-md-2" })
+                <div class="col-md-8 input-with-button">
+                    @Html.HiddenFor(model => model.RequestedByID)
+                    <input id="change-requestor-inp" value='@(Model.RequestedBy != null ? $"{Model.RequestedBy.FirstName} {Model.RequestedBy.LastName} ({Model.RequestedBy.Email})" : "-")' class="form-control" disabled="disabled" />
+                    <button id="change-requestor-btn" type="button" class="btn btn-default btn-search" data-ticket-title="new">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                    @Html.ValidationMessageFor(model => model.RequestedByID, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.CategoryID, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.DropDownList("CategoryID", Model.Categories, new { @class = "form-control wide", id = "arequestorsList" })
+                @Html.LabelFor(model => model.CategoryID, new { @class = "control-label col-md-2" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(
+                        expression: model => model.CategoryID,
+                        selectList: new SelectList(Model.Categories.Select(c => new { CategoryID = c.CategoryID, Name = c.Name }), "CategoryID", "Name"),
+                        optionLabel: "-",
+                        htmlAttributes: new { @class = "form-control" }
+                    )
                     @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
                 </div>
             </div>
 
-            <div class="form-group">
-                @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control wide" } })
+            <div class="form-group wide-form-group">
+                @Html.LabelFor(model => model.Title, new { @class = "control-label col-md-2" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.Title, new { @class = "form-control" })
                     @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
                 </div>
             </div>
 
-            <div class="form-group">
-                @Html.LabelFor(model => model.Content, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.TextAreaFor(model => model.Content, 10, 10, new { @class = "form-control wide" })
+            <div class="form-group wide-form-group">
+                @Html.LabelFor(model => model.Content, new { @class = "control-label col-md-2" })
+                <div class="col-md-8">
+                    @Html.TextAreaFor(model => model.Content, 7, 10, new { @class = "form-control" })
                     @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Create" class="btn btn-warning" />
+                    <input type="submit" value="Create" class="btn btn-blue" />
                 </div>
             </div>
         </div>
     }
-</div>
+</section>
 
-@Html.Partial("_FindRequestorPartial")
+@Html.Partial("_ChangeRequestorPartial")

@@ -1,6 +1,7 @@
 ﻿using HelpDesk.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
@@ -12,30 +13,31 @@ namespace HelpDesk.Models
     {
         public int TicketID { get; set; }
 
-        public User CreatedBy { get; set; }
-
-        // Only required when creating new ticket, because requestor may have been removed
+        [DisplayName("Requested by")]
         public int? RequestedByID { get; set; }
-        public User RequestedBy { get; set; }
 
+        [DisplayName("Assigned to")]
         public int? AssignedToID { get; set; }
-        public User AssignedTo { get; set; }
-
-        public string CreatedOn { get; set; }
-
+        
         [Required]
-        public string StatusID { get; set; }
+        public string Status { get; set; }
 
-        [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Category field is required")]
-        public int CategoryID { get; set; }
-        public SelectList Categories { get; set; }
-
+        [DisplayName("Category")]
+        public int? CategoryID { get; set; }
+        
         [Required]
         public string Title { get; set; }
 
         [Required]
         public string Content { get; set; }
         public string Solution { get; set; }
+
+        [DisplayName("Created by")]
+        public User CreatedBy { get; set; }
+        public string CreatedOn { get; set; }
+        public User RequestedBy { get; set; }
+        public User AssignedTo { get; set; }
+        public IEnumerable<User> Admins { get; set; }
+        public IEnumerable<Category> Categories { get; set; }
     }
 }

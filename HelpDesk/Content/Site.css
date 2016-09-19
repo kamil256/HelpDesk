@@ -1,22 +1,227 @@
-﻿body {
-    /*padding-top: 50px;*/
-    padding-bottom: 20px;
+﻿/* ----- document ----- */
+
+html {
+    height: 100%;
+}
+body {
+    background-color: #F0F0F0;
 }
 
-/* Set padding to keep content from hitting the edges */
-.body-content {
-    /*padding-left: 15px;
-    padding-right: 15px;*/
+/* ----- login window ----- */
+.login-window h3 {
+    margin: 0;
+    padding: 150px 0 20px;
+    text-align: center;        
+}
+.login-window > div {
+    background-color: white;
+    border: 1px solid #BBB;
+    border-radius: 10px;
+    box-shadow: #777 0 0 10px;
+    margin: 0 auto;        
+    padding: 20px;
+    width: 350px;
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
-input,
-select,
-textarea {
-    max-width: 280px;
-}
+/* ----- navbar ----- */
 
 .navbar {
-    border-radius: 0 !important;
-    margin-bottom: 0 !important;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+ /* ----- header ----- */ 
+
+header {
+    background-color: #00ABEC; 
+    color: white;
+    margin-bottom: 40px;
+    padding: 30px 0;
+}
+header h1 {
+    margin: 0;
+    text-align: center; 
+}
+header hr {
+    border-color: #3F95C4; 
+    margin: 20px 0 30px; 
+    border-top-left-radius: 200px 1px; 
+    border-top-right-radius: 200px 1px;
+}
+
+/* ----- search button ----- */
+
+.form-group > div.col-md-8 {
+    padding-right: 0;
+    margin-right: 15px;
+}
+.input-with-button {
+    position: relative;
+    padding-right: 35px;
+}
+.input-with-button .btn-search {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* ----- blue button ----- */
+
+.btn-blue {
+    background-color: #428bca; 
+    border-color: #428bca; 
+}
+.btn-blue, .btn-blue:hover, .btn-blue:focus {
+    color: white;
+}
+
+/* ----- dialog ----- */
+
+.dialog {
+    display: none;
+}
+.dialog > h4 {
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+.dialog > h4 > i {
+    color: orange;
+}
+.dialog .button-group {
+    text-align: center;
+}
+
+/* ----- success and fail messages ----- */
+
+.alert {
+    display: inline-block; 
+    position: absolute; 
+    right: 20px;
+    top: 70px; 
+    z-index: 1001;
+}
+
+/* ----- filtering form ----- */
+
+#filtering-form .input-with-button + .checkbox {
+    margin: 0;
+}
+
+/* ----- list of users and tickets table ----- */
+
+.table th, .table td {
+    border-color: #AAA !important;
+}
+.table tr:hover:not(:first-child) {
+    background-color: #F5EECD;
+    cursor: pointer;
+    outline: 1px solid #E3D179;
+}
+.table td {
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+    vertical-align: text-top !important;
+}
+.table .btn {
+    width: 60px;
+    margin-bottom: 4px;
+}
+.table .btn-col {
+    width: 204px;
+}
+@media (max-width: 1199px) {
+    .table .btn-col {
+        width: 76px;
+    }
+}
+.status {
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    padding: 10px;
+}
+.status-new {
+    background-color: orangered;
+}
+.status-in-progress {
+    background-color: dodgerblue;
+}
+.status-solved {
+    background-color: forestgreen;
+}
+.status-closed {
+    background-color: #555;
+}
+
+/* ----- content ----- */
+
+section > hr {
+    border-color: #3F95C4; 
+    margin: 30px 0; 
+    border-top-left-radius: 200px 1px; 
+    border-top-right-radius: 200px 1px;
+}
+section > h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* ----- footer ----- */
+
+body {
+    min-height: 100%;
+    position: relative;
+    padding-bottom: 91px;
+}
+footer {
+    background-color: #222;
+    color: #EEE;
+    font-weight: bold;
+    padding: 15px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+.footer-content {
+    display: table;
+    margin: 0 auto;
+}
+.footer-group {
+    display: inline-block;
+    margin-right: 20px;
+}
+.footer-element {
+    display: inline-block;
+    font-size: 1.1em;
+    padding: 3px;
+    vertical-align: middle;
+}
+@media (max-width: 1000px) {    
+    body {
+        padding-bottom: 168px;
+    }
+    .footer-group {
+        display: block;
+    }
+}
+footer .glyphicon {
+    background-color: #555;
+    border-radius: 24px;
+    padding: 10px;
+}
+footer .designer {
+    color: #888;
+    font: 12px 'Courier New';
+    margin: 0;
+    text-align: right;
+}
+
+/* ----- validation ----- */
+
+.validation-summary-errors > ul {
+    list-style-type: none;
+
 }

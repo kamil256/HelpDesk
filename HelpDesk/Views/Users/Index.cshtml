@@ -6,97 +6,147 @@
     ViewBag.Title = "Users";
 }
 
-<h2>Users</h2>
-<div style="overflow:  auto; margin-bottom: 10px;">
-    @Html.ActionLink("Add New", "Create", "Users", null, new { @class = "btn btn-warning pull-left" })
-    
-    @using (Html.BeginForm("Index", "Users", FormMethod.Get))
-    {
-        @Html.Hidden("sortBy", Model.SortBy)
-        @Html.Hidden("descSort", Model.DescSort)
-        <input type="submit" value="Search" class="btn btn-warning pull-right" />
-        <span class="pull-right">&nbsp;</span>
-        @Html.TextBox("search", Model.Search, new { @class = "form-control pull-right" })
-    }
-</div>
-<table class="table">
-    <tr>
-        <th>
-            @Html.SortableTableColumnHeader("First name", "FirstName", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Last name", "LastName", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Email", "Email", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Phone", "Phone", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Mobile phone", "MobilePhone", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Company", "Company", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Department", "Department", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Role", "Role", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th>
-            @Html.SortableTableColumnHeader("Tickets", "Tickets", Model.SortBy, Model.DescSort, Model.Search, Model.Page)
-        </th>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model.Users) {
-    <tr>
-        <td>
-            @Html.MarkSearchedString(item.FirstName, Model.Search)
-        </td>
-        <td>
-            @Html.MarkSearchedString(item.LastName, Model.Search)
-        </td>
-        <td>
-            @Html.MarkSearchedString(item.Email, Model.Search)
-        </td>
-        <td>
-            @Html.MarkSearchedString(item.Phone, Model.Search)
-        </td>
-        <td>
-            @Html.MarkSearchedString(item.MobilePhone, Model.Search)
-        </td>
-        <td>
-            @Html.MarkSearchedString(item.Company, Model.Search)
-        </td>
-        <td>
-            @Html.MarkSearchedString(item.Department, Model.Search)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Role)
-        </td>
-        <td style="text-align: center">
-            @item.RequestedTickets.Count
-        </td>
-        <td>
-            @*<a href='@Url.Action("Index", "Tickets")' class='btn btn-warning btn-sm'>Tickets <span class="badge">7</span></a>*@
-            @Html.ActionLink("Edit", "Edit", "Users", new { id=item.UserID }, new { @class = "btn btn-warning btn-sm" })
-            @Html.ActionLink("Delete", "Delete", "Users", new { id = item.UserID }, new { @class = "btn btn-warning btn-sm", onclick = "event.preventDefault(); $('#userIDToDelete').val('" + item.UserID + "'); $('#deleteUserName').text('" + item.FirstName + " " + item.LastName + "'); $('#deleteUserDialog').dialog('open');" })
-        </td>
-    </tr>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @(TempData["Success"])
+    </div>
 }
 
-</table>
+@if (TempData["Fail"] != null)
+{
+    <div class="alert alert-danger">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @(TempData["Fail"])
+    </div>
+}
 
+<header>
+    <div class="container">
+        <h1>List of users</h1>
+        <hr />
 
-@Html.PagedListPager(Model.Users, page => @Url.Action("Index", new { Page = page, sortBy = Model.SortBy, descSort = Model.DescSort, search = Model.Search }), PagedListRenderOptions.Classic)
+        @using (Html.BeginForm("Index", "Users", FormMethod.Get, new { id = "filtering-form" }))
+        {
+            @Html.HiddenFor(model => model.Page)
+            @Html.HiddenFor(model => model.SortBy)
+            @Html.HiddenFor(model => model.DescSort)
 
-<script src="~/Scripts/jquery-1.12.4.min.js"></script>
-<script src="~/Scripts/jquery.validate.min.js"></script>
-<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+            <div class="row">
+                <div class="form-group col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+                    @Html.LabelFor(model => model.Search, new { @class = "control-label" })
+                    <div class="input-with-button">
+                        @Html.TextBoxFor(model => model.Search, new { @class = "form-control" })
+                        <button id="search-btn" type="submit" class="btn btn-default btn-search">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</header>
 
-<div id="deleteUserDialog">
-    @Html.Partial("_DeleteUser")
-</div>
+<section class="container">
+    @if (Model.Users.Count() == 0)
+    {
+        <h1>No users found...</h1>
+    }
+    else
+    {
+        <table class="table">
+            <tr>
+                <th>
+                    @Html.SortableHeader("FirstName", "First name")
+                </th>
+                <th>
+                    @Html.SortableHeader("LastName", "Last name")
+                </th>
+                <th>
+                    @Html.SortableHeader("Email")
+                </th>
+                <th class="hidden-xs hidden-sm">
+                    @Html.SortableHeader("Phone")
+                </th>
+                <th class="hidden-xs hidden-sm">
+                    @Html.SortableHeader("MobilePhone", "Mobile phone")
+                </th>
+                <th class="hidden-xs hidden-sm">
+                    @Html.SortableHeader("Company")
+                </th>
+                <th class="hidden-xs hidden-sm">
+                    @Html.SortableHeader("Department")
+                </th>
+                <th>
+                    @Html.SortableHeader("Role")
+                </th>
+                <th>
+                    @Html.SortableHeader("Tickets")
+                </th>
+            </tr>
+
+            @foreach (var item in Model.Users)
+            {
+                <tr onclick='document.location.href="@Url.Action("Edit", new { id = item.UserID })"'>
+                    <td>
+                        @Html.MarkSearchedString(item.FirstName, Model.Search)
+                    </td>
+                    <td>
+                        @Html.MarkSearchedString(item.LastName, Model.Search)
+                    </td>
+                    <td>
+                        @Html.MarkSearchedString(item.Email, Model.Search)
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                        @Html.MarkSearchedString(item.Phone, Model.Search)
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                        @Html.MarkSearchedString(item.MobilePhone, Model.Search)
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                        @Html.MarkSearchedString(item.Company, Model.Search)
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                        @Html.MarkSearchedString(item.Department, Model.Search)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Role)
+                    </td>
+                    <td>
+                        @item.CreatedTickets.Count
+                    </td>
+                </tr>
+            }
+        </table>
+
+        @Html.PagedListPager(Model.Users, page => @Url.Action("Index", new
+       {
+           Page = page,
+           sortBy = Model.SortBy,
+           descSort = Model.DescSort,
+           search = Model.Search
+       }), PagedListRenderOptions.Classic)
+    }    
+</section>
+
+<script>
+    $(document).ready(function()
+    {
+        $("#search-btn").click(function() { $("#Page").val("1"); });
+    });
+
+    function sort(value)
+    {
+        if ($("#SortBy").val() == value)
+        {
+            $("#DescSort").val($("#DescSort").val().toLowerCase() == "true" ? "false" : "true");
+        }
+        else
+        {
+            $("#SortBy").val(value);
+            $("#DescSort").val("false");
+        }
+        $("#filtering-form").submit();
+    }
+</script>
