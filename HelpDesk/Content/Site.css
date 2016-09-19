@@ -214,8 +214,9 @@ footer .glyphicon {
 }
 footer .designer {
     color: #888;
-    font: 12px 'Courier New';
+    font: 11px 'Courier New';
     margin: 0;
+    margin-right: 10px;
     text-align: right;
 }
 

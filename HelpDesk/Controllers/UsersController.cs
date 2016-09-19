@@ -38,47 +38,39 @@ namespace HelpDesk.Controllers
                               u.Company.ToLower().Contains(model.Search.ToLower()) ||
                               u.Department.ToLower().Contains(model.Search.ToLower());                
             }
-
-            Expression<Func<User, object>> orderByPropertySelector = null;
+            Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
             switch (model.SortBy)
             {
                 case "FirstName":
-                    orderByPropertySelector = u => u.FirstName;
+                    orderBy = q => model.DescSort ? q.OrderByDescending(u => u.FirstName) : q.OrderBy(u => u.FirstName);
                     break;
                 case "LastName":
-                    orderByPropertySelector = u => u.LastName;
+                    orderBy = q => model.DescSort ? q.OrderByDescending(u => u.LastName) : q.OrderBy(u => u.LastName);
                     break;
                 case "Email":
-                    orderByPropertySelector = u => u.Email;
+                    orderBy = q => model.DescSort ? q.OrderByDescending(u => u.Email) : q.OrderBy(u => u.Email);
                     break;
                 case "Phone":
-                    orderByPropertySelector = u => u.Phone;
+                    orderBy = q => model.DescSort ? q.OrderByDescending(u => u.Phone) : q.OrderBy(u => u.Phone);
                     break;
                 case "MobilePhone":
-                    orderByPropertySelector = u => u.MobilePhone;
+                    orderBy = q => model.DescSort ? q.OrderByDescending(u => u.MobilePhone) : q.OrderBy(u => u.MobilePhone);
                     break;
                 case "Company":
-                    orderByPropertySelector = u => u.Company;
+                    orderBy = q => model.DescSort ? q.OrderByDescending(u => u.Company) : q.OrderBy(u => u.Company);
                     break;
                 case "Department":
-                    orderByPropertySelector = u => u.Department;
+                    orderBy = q => model.DescSort ? q.OrderByDescending(u => u.Department) : q.OrderBy(u => u.Department);
                     break;
                 case "Role":
-                    orderByPropertySelector = u => u.Role;
+                    orderBy = q => model.DescSort ? q.OrderByDescending(u => u.Role) : q.OrderBy(u => u.Role);
                     break;
                 case "Tickets":
-                    orderByPropertySelector = u => u.RequestedTickets.Count.ToString();
+                    orderBy = q => model.DescSort ? q.OrderByDescending(u => u.CreatedTickets.Count) : q.OrderBy(u => u.CreatedTickets.Count);
                     break;
             }
-            Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
-            if (orderByPropertySelector != null)
-            {
-                if (model.DescSort)
-                    orderBy = x => x.OrderByDescending(orderByPropertySelector);
-                else
-                    orderBy = x => x.OrderBy(orderByPropertySelector);
-            }
-            model.Users = unitOfWork.UserRepository.GetAll(filter: filter, orderBy: orderBy).ToPagedList(model.Page, 2);
+
+            model.Users = unitOfWork.UserRepository.GetAll(filter: filter, orderBy: orderBy).ToPagedList(model.Page, 5);
             return View(model);
         }
 
