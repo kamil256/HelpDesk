@@ -134,7 +134,7 @@ namespace HelpDesk.Controllers
 
         public ActionResult Edit(int id = 0)
         {
-            User user = unitOfWork.UserRepository.GetById(id);
+            User user = unitOfWork.UserRepository.GetById(id); 
             if (user == null)
             {
                 return HttpNotFound();
