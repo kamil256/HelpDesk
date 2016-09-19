@@ -52,7 +52,7 @@
                     <li class=@(ViewBag.Title == "Users" ? "active" : "")>@Html.ActionLink("Users", "Index", "Users")</li>
                     <li class=@(ViewBag.Title == "New ticket" ? "active" : "")>@Html.ActionLink("New ticket", "Create", "Tickets")</li>
                     <li class=@(ViewBag.Title == "Tickets" ? "active" : "")>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
-                    <li class=@(ViewBag.Title == "Settings" ? "active" : "")><a href="#">Settings</a></li>                    
+                    <li class=@(ViewBag.Title == "Settings" ? "active" : "")>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>

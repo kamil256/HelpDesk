@@ -81,7 +81,7 @@
                 <th>
                     @Html.SortableHeader("Role")
                 </th>
-                <th>
+                <th class="ticket-col">
                     @Html.SortableHeader("Tickets")
                 </th>
             </tr>
@@ -113,7 +113,7 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Role)
                     </td>
-                    <td>
+                    <td class="ticket-col">
                         @item.CreatedTickets.Count
                     </td>
                 </tr>

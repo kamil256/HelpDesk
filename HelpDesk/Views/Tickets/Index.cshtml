@@ -90,27 +90,28 @@
     }
     else
     {
-        <table class="table">
+        <table class="table" style="afont-size:14px;">
             <tr>
-                <th>
+                <th style="min-width: 150px;">
                     @Html.SortableHeader("CreatedOn", "Created on")
                 </th>
-                <th class="hidden-xs hidden-sm">
+                <th class="hidden-xs hidden-sm" style="min-width: 150px;">
                     @Html.SortableHeader("RequestedBy", "Requested by")
                 </th>
-                <th class="title-header">
+                <th class="title-header" style="width: 100%">
                     @Html.SortableHeader("Title")
                 </th>
-                <th class="hidden-xs hidden-sm">
+                <th class="hidden-xs hidden-sm" style="min-width: 150px;">
                     @Html.SortableHeader("Category")
                 </th>
-                <th>
+                <th style="min-width: 100px;">
                     @Html.SortableHeader("Status")
                 </th>
-                <th class="hidden-xs hidden-sm">
+                <th class="hidden-xs hidden-sm hidden-md hidden-lg" style="min-width: 150px;">
                     @Html.SortableHeader("AssignedTo", "Assigned to")
                 </th>
-                <th class="btn-col">
+                <th class="btn-col" style="text-align: center">
+                    Quick actions
                 </th>
             </tr>
             
@@ -130,15 +131,15 @@
                         @(item.Category != null ? item.Category.Name : "-")
                     </td>
                     <td>
-                        <span class="status">@item.Status</span>
+                        <span class="status" style="white-space: nowrap;">@item.Status</span>
                     </td>
-                    <td class="hidden-xs hidden-sm">
+                    <td class="hidden-xs hidden-sm hidden-md hidden-lg">
                         @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
                     </td>
                     <td>
-                        <button class="assign-user-btn btn btn-sm btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Assign</button>
-                        <button class="solve-ticket-btn btn btn-sm btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Solve</button>
-                        <button class="close-ticket-btn btn btn-sm btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Close</button>
+                        <button class="assign-user-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Assign</button>
+                        <button class="solve-ticket-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Solve</button>
+                        <button class="close-ticket-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Close</button>
                     </td>
                 </tr>
             }

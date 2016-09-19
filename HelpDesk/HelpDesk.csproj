@@ -175,6 +175,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\SettingsController.cs" />
     <Compile Include="Controllers\TicketsController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="DAL\GenericRepository.cs" />
@@ -231,6 +232,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
     <Compile Include="Models\ISortableViewModel.cs" />
+    <Compile Include="Models\SettingsIndexViewModel.cs" />
     <Compile Include="Models\TicketsCreateViewModel.cs" />
     <Compile Include="Models\TicketsEditViewModel.cs" />
     <Compile Include="Models\UsersChangePasswordViewModel.cs" />
@@ -269,6 +271,7 @@
     <Content Include="Views\Tickets\_CloseTicketPartial.cshtml" />
     <Content Include="Views\Shared\_LoginLayout.cshtml" />
     <Content Include="Views\Shared\_FooterPartial.cshtml" />
+    <Content Include="Views\Settings\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

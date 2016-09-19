@@ -10,7 +10,7 @@ body {
 /* ----- login window ----- */
 .login-window h3 {
     margin: 0;
-    padding: 150px 0 20px;
+    padding: 90px 0 20px;
     text-align: center;        
 }
 .login-window > div {
@@ -71,7 +71,7 @@ header hr {
 
 .btn-blue {
     background-color: #428bca; 
-    border-color: #428bca; 
+    border-color: #2D5F8A/*#428bca*/; 
 }
 .btn-blue, .btn-blue:hover, .btn-blue:focus {
     color: white;
@@ -87,7 +87,7 @@ header hr {
     text-align: center;
 }
 .dialog > h4 > i {
-    color: orange;
+    color: #666;
 }
 .dialog .button-group {
     text-align: center;
@@ -112,7 +112,17 @@ header hr {
 /* ----- list of users and tickets table ----- */
 
 .table th, .table td {
-    border-color: #AAA !important;
+    /*border-color: #AAA !important;*/
+}
+.table th {
+    background-color: #4694D7;
+    color: white;
+}
+.table tr:nth-child(2n+1) {
+    background-color: #EAEAEA;
+}
+.table tr:nth-child(2n) {
+    background-color: #E6E6E6;
 }
 .table tr:hover:not(:first-child) {
     background-color: #F5EECD;
@@ -120,23 +130,26 @@ header hr {
     outline: 1px solid #E3D179;
 }
 .table td {
-    padding-top: 15px !important;
-    padding-bottom: 15px !important;
-    vertical-align: text-top !important;
+    /*padding-top: 15px !important;
+    padding-bottom: 15px !important;*/
+    vertical-align: middle/*text-top*/ !important;
 }
 .table .btn {
     width: 60px;
-    margin-bottom: 4px;
+    /*margin-bottom: 4px;*/
 }
 .table .btn-col {
-    width: 204px;
+    min-width: 204px;
+}
+.table .ticket-col {
+    text-align: center;
 }
 @media (max-width: 1199px) {
     .table .btn-col {
         width: 76px;
     }
 }
-.status {
+/*.status {
     color: white;
     border-radius: 5px;
     font-weight: bold;
@@ -153,17 +166,34 @@ header hr {
 }
 .status-closed {
     background-color: #555;
+}*/
+.status {
+    /*border-radius: 5px;*/
+    font-weight: bold;
+    /*padding: 10px;*/
+}
+.status-new {
+    color: orangered;
+}
+.status-in-progress {
+    color: dodgerblue;
+}
+.status-solved {
+    color: forestgreen;
+}
+.status-closed {
+    color: #555;
 }
 
 /* ----- content ----- */
 
 section > hr {
-    border-color: #3F95C4; 
+    border-color: #D0D0D0/*#3F95C4*/; 
     margin: 30px 0; 
     border-top-left-radius: 200px 1px; 
     border-top-right-radius: 200px 1px;
 }
-section > h3 {
+section > h4 {
     text-align: center;
     margin-bottom: 20px;
 }

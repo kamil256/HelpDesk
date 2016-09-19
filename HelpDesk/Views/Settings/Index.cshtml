@@ -1,0 +1,130 @@
+﻿@model HelpDesk.Models.SettingsIndexViewModel
+
+@{
+    ViewBag.Title = "Settings";
+}
+
+<style>
+
+.outer {
+    position: relative;
+    height: 34px;
+}
+
+.category {
+    background-color: greenyellow;
+    border: 2px solid black; 
+    border-radius: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 5px;
+    height: 34px;
+    width: 200px;
+}
+
+.behind {
+    background-color: white;
+    border: 2px dashed black;
+    border-radius: 10px;
+    height: 34px;
+    width: 200px;    
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+</style>
+
+@for (int i = 0; i < Model.Categories.Count(); i++)
+{
+    <div class="outer">
+        <div class="behind"></div>
+        <div name="category" class="category" id="@i" onmousedown="mousedown(event)" ondragend="dragend(event)" draggable="true" ondragenter="dragenter(event)" ondragleave="dragleave(event)" ondragstart="drag(event)" ondrop="drop(event)" ondragover="dragover(event)">@Model.Categories[i].Name</div>
+    </div>
+}
+
+<script>
+    var dragEl;
+    var X, Y;
+    var elX, elY;
+
+    function drag(e)
+    {
+        document.getElementsByClassName("behind")[2].style.zIndex = "1";
+        //e.target.style.zIndex = "-1";
+        //alert(srcId);
+    }
+
+    function mousedown(e)
+    {
+        elX = X;
+        elY = Y;
+        dragEl = e.target;
+    }
+
+    $(document).mousemove(function(e)
+    {
+        X = e.pageX;
+        Y = e.pageY;
+        if (dragEl)
+        {
+            //console.log("fasfd");
+            //dragEl.left = X;
+            //dragEl.top = Y;
+        }
+    });
+
+    function drop(e)
+    {
+        e.preventDefault();
+        var srcId = e.dataTransfer.getData("text");
+        var srcEl = document.getElementById(srcId);
+        var dstId = e.target.id;
+        var dstEl = document.getElementById(dstId);
+        var tmpEl = dstEl.innerHTML;
+        dstEl.innerHTML = srcEl.innerHTML;
+        srcEl.innerHTML = tmpEl;
+    }
+
+    function dragover(e)
+    {
+        e.preventDefault();
+        //console.log("srcId = " + srcId);
+        //var dstId = e.target.id;
+        ////console.log("dstId = " + dstId);
+        //if (srcId != dstId)
+        //{
+        //    //console.log("ok");
+        //    var tmpEl = document.getElementById("temp");
+        //    if (!tmpEl)
+        //    {
+        //        e.target.outerHTML += "<div id='temp' style='height: 34px; width=1px;'>d</div>";
+        //        console.log("over");
+        //    }
+        //}
+    }
+
+    function dragenter(e)
+    {
+        e.preventDefault();
+        //e.target.outerHTML = "<div id='temp' style='height: 34px'></div>" + e.target.outerHTML;
+    }
+
+    function dragend(e)
+    {
+        e.preventDefault();
+        //ovrId = 0;
+        //var categories = document.getElementsByName("category");
+        //for (var i = 0; i < categories.length; i++)
+        //    categories[i].style.marginTop = "0";
+    }
+
+    function dragleave(e)
+    {
+        e.preventDefault();
+        //var dstId = e.target.id;
+        //if (srcId != dstId)
+        //    e.target.style.marginTop = "0";
+    }
+</script>
