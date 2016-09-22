@@ -13,7 +13,7 @@ namespace HelpDesk.Models
     {
         [Required]
         [DisplayName("Requested by")]
-        public int? RequestedByID { get; set; }
+        public string RequestedByID { get; set; }
 
         [Required]
         [DisplayName("Category")]
@@ -25,7 +25,7 @@ namespace HelpDesk.Models
         [Required]
         public string Content { get; set; }
 
-        public User RequestedBy { get; set; }
+        public AppUser RequestedBy { get; set; }
         public IEnumerable<Category> Categories { get; set; }
     }
 }

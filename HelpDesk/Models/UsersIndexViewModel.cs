@@ -13,6 +13,6 @@ namespace HelpDesk.Models
         public bool DescSort { get; set; } = false;
         public int Page { get; set; } = 1;
 
-        public IPagedList<HelpDesk.Entities.User> Users { get; set; }
+        public IPagedList<HelpDesk.Entities.AppUser> Users { get; set; }
     }
 }

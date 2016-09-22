@@ -1,4 +1,8 @@
 ﻿@using PagedList.Mvc;
+@using Microsoft.AspNet.Identity.Owin;
+@using HelpDesk.DAL;
+@using Microsoft.AspNet.Identity;
+
 @model HelpDesk.Models.UsersIndexViewModel
 <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
@@ -88,7 +92,7 @@
 
             @foreach (var item in Model.Users)
             {
-                <tr onclick='document.location.href="@Url.Action("Edit", new { id = item.UserID })"'>
+                <tr onclick='document.location.href="@Url.Action("Edit", new { id = item.Id })"'>
                     <td>
                         @Html.MarkSearchedString(item.FirstName, Model.Search)
                     </td>
@@ -111,7 +115,7 @@
                         @Html.MarkSearchedString(item.Department, Model.Search)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Role)
+                        @Html.DisplayFor(modelItem => HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>().GetRoles(item.Id)[0])
                     </td>
                     <td class="ticket-col">
                         @item.CreatedTickets.Count

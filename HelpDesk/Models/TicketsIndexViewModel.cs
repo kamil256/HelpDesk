@@ -12,7 +12,7 @@ namespace HelpDesk.Models
     public class TicketsIndexViewModel: ISortableViewModel
     {
         [DisplayName("Assigned to")]
-        public int? AssignedToID { get; set; }
+        public string AssignedToID { get; set; }
 
         [DisplayName("Category")]
         public int? CategoryID { get; set; }
@@ -23,7 +23,7 @@ namespace HelpDesk.Models
         public bool DescSort { get; set; } = true;
         public int Page { get; set; } = 1;
 
-        public IEnumerable<User> Admins { get; set; }
+        public IEnumerable<User2> Admins { get; set; }
         public IEnumerable<Category> Categories { get; set; }
         
         public IPagedList<HelpDesk.Entities.Ticket> Tickets { get; set; }

@@ -3,6 +3,7 @@ using HelpDesk.Entities;
 using HelpDesk.Infrastructure.Abstract;
 using HelpDesk.Infrastructure.Concrete;
 using HelpDesk.Models;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -35,6 +36,7 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(AccountLoginViewModel model)
         {
+
             if (!ModelState.IsValid || !authProvider.Authenticate(model.Email, model.Password))
             {
                 ModelState.AddModelError("", "Incorrect email or password");

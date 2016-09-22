@@ -10,9 +10,9 @@ namespace HelpDesk.Entities
     public class Ticket
     {
         public int TicketID { get; set; }
-        public int? CreatedByID { get; set; }
-        public int? RequestedByID { get; set; }
-        public int? AssignedToID { get; set; }
+        public string CreatedByID { get; set; }
+        public string RequestedByID { get; set; }
+        public string AssignedToID { get; set; }
         public DateTime CreatedOn { get; set; }
 
         [Required]
@@ -26,9 +26,9 @@ namespace HelpDesk.Entities
         public string Content { get; set; }
         public string Solution { get; set; }
 
-        public virtual User CreatedBy { get; set; }
-        public virtual User RequestedBy { get; set; }
-        public virtual User AssignedTo { get; set; }
+        public virtual AppUser CreatedBy { get; set; }
+        public virtual AppUser RequestedBy { get; set; }
+        public virtual AppUser AssignedTo { get; set; }
         public virtual Category Category { get; set; }
     }
 }

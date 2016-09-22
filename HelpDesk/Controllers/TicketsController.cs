@@ -51,7 +51,7 @@ namespace HelpDesk.Controllers
                     orderBy = q => model.DescSort ? q.OrderByDescending(t => t.CreatedOn) : q.OrderBy(t => t.CreatedOn);
                     break;
                 case "RequestedBy":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.RequestedBy.FirstName) : q.OrderBy(t => t.RequestedBy.FirstName);
+                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.RequestedBy.UserName) : q.OrderBy(t => t.RequestedBy.UserName);
                     break;
                 case "Title":
                     orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Title) : q.OrderBy(t => t.Title);
@@ -63,11 +63,11 @@ namespace HelpDesk.Controllers
                     orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Status) : q.OrderBy(t => t.Status);
                     break;
                 case "AssignedTo":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.AssignedTo.FirstName) : q.OrderBy(t => t.AssignedTo.FirstName);
+                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.AssignedTo.UserName) : q.OrderBy(t => t.AssignedTo.UserName);
                     break;
             }
 
-            model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
+            //model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
             model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
             model.Tickets = unitOfWork.TicketRepository.GetAll(filters: filters, orderBy: orderBy).ToPagedList(model.Page, 5);
             return View(model);
@@ -76,8 +76,8 @@ namespace HelpDesk.Controllers
         public ActionResult Create()
         {
             TicketsCreateViewModel model = new TicketsCreateViewModel();
-            model.RequestedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
-            model.RequestedByID = model.RequestedBy.UserID;
+            //model.RequestedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
+            //model.RequestedByID = model.RequestedBy.UserID;
             model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
             return View(model);
         }
@@ -92,7 +92,7 @@ namespace HelpDesk.Controllers
                 {
                     Ticket ticket = new Ticket()
                     {
-                        CreatedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
+                        //CreatedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
                         RequestedByID = model.RequestedByID,
                         CreatedOn = DateTime.Now,
                         Status = "New",
@@ -111,7 +111,7 @@ namespace HelpDesk.Controllers
                 ModelState.AddModelError("", "Cannot create ticket. Try again!");
             }
 
-            model.RequestedBy = unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
+            //model.RequestedBy = unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
             model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
 
             return View(model);
@@ -127,20 +127,20 @@ namespace HelpDesk.Controllers
             TicketsEditViewModel model = new TicketsEditViewModel()
             {
                 TicketID = ticket.TicketID,
-                RequestedByID = ticket.RequestedByID,
-                AssignedToID = ticket.AssignedToID,
+                //RequestedByID = ticket.RequestedByID,
+                //AssignedToID = ticket.AssignedToID,
                 Status = ticket.Status,
                 CategoryID = ticket.CategoryID,
                 Title = ticket.Title,
                 Content = ticket.Content,
                 Solution = ticket.Solution,
-                CreatedBy = ticket.CreatedBy,
+                //CreatedBy = ticket.CreatedBy,
                 CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss"),
-                RequestedBy = ticket.RequestedBy,                
-                AssignedTo = ticket.AssignedTo
+                //RequestedBy = ticket.RequestedBy,                
+               // AssignedTo = ticket.AssignedTo
             };
 
-            model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
+            //model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
             model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
             return View(model);
         }
@@ -155,14 +155,14 @@ namespace HelpDesk.Controllers
                 return HttpNotFound();
             }
 
-            model.RequestedBy = unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
-            model.AssignedTo = unitOfWork.UserRepository.GetById(model.AssignedToID ?? 0);
+            //model.RequestedBy = unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
+            //model.AssignedTo = unitOfWork.UserRepository.GetById(model.AssignedToID ?? 0);
             try
             {
                 if (ModelState.IsValid)
                 {
-                    ticket.RequestedByID = model.RequestedByID;
-                    ticket.AssignedToID = model.AssignedToID;
+                    //ticket.RequestedByID = model.RequestedByID;
+                    //ticket.AssignedToID = model.AssignedToID;
                     ticket.Status = model.Status;
                     ticket.CategoryID = model.CategoryID;
                     ticket.Title = model.Title;
@@ -178,10 +178,10 @@ namespace HelpDesk.Controllers
             {
                 ModelState.AddModelError("", "Cannot edit ticket. Try again!");
             }
-            model.CreatedBy = ticket.CreatedBy;
+            //model.CreatedBy = ticket.CreatedBy;
             model.CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss");
 
-            model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
+            //model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
             model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
 
             return View(model);
@@ -190,22 +190,23 @@ namespace HelpDesk.Controllers
         // GET: Users/Edit/5
         public ActionResult EditPassword(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            User user = unitOfWork.UserRepository.GetById(id ?? 0);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
+            //if (id == null)
+            //{
+            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            //}
+            ////User2 user = unitOfWork.UserRepository.GetById(id ?? 0);
+            //if (user == null)
+            //{
+            //    return HttpNotFound();
+            //}
 
-            return View(new UsersChangePasswordViewModel
-            {
-                UserID = user.UserID,
-                FirstName = user.FirstName,
-                LastName = user.LastName
-            });
+            //return View(new UsersChangePasswordViewModel
+            //{
+            //    UserID = user.UserID,
+            //    FirstName = user.FirstName,
+            //    LastName = user.LastName
+            //});
+            return null;
         }
 
         // POST: Users/Edit/5
@@ -217,7 +218,7 @@ namespace HelpDesk.Controllers
         {
             if (ModelState.IsValid)
             {
-                User editedUser = new User();
+                User2 editedUser = new User2();
                 editedUser.UserID = user.UserID;
                 editedUser.Salt = Guid.NewGuid().ToString();
                 //editedUser.Password = HashPassword(user.Password, editedUser.Salt);
@@ -254,7 +255,7 @@ namespace HelpDesk.Controllers
                          )
                          select new
                          {
-                             UserID = x.UserID,
+                             //UserID = x.UserID,
                              FirstName = x.FirstName,
                              LastName = x.LastName,
                              Email = x.Email
@@ -268,9 +269,9 @@ namespace HelpDesk.Controllers
         {
             try
             {
-                User user = unitOfWork.UserRepository.GetById(assignUserID);
+                //User2 user = unitOfWork.UserRepository.GetById(assignUserID);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(assignTicketID);
-                ticket.AssignedTo = user;
+                //ticket.AssignedTo = user;
                 ticket.Status = "In progress";
                 unitOfWork.TicketRepository.Update(ticket);
                 unitOfWork.Save();
@@ -289,9 +290,9 @@ namespace HelpDesk.Controllers
         {
             try
             { 
-                User user = unitOfWork.UserRepository.GetById(solveUserID);
+                //User2 user = unitOfWork.UserRepository.GetById(solveUserID);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(solveTicketID);
-                ticket.AssignedTo = user;
+                //ticket.AssignedTo = user;
                 ticket.Status = "Solved";
                 ticket.Solution = solution;
                 unitOfWork.TicketRepository.Update(ticket);
@@ -311,9 +312,9 @@ namespace HelpDesk.Controllers
         {
             try
             { 
-                User user = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
+                //User2 user = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
                 Ticket ticket = unitOfWork.TicketRepository.GetById(closeTicketID);
-                ticket.AssignedTo = user;
+                //ticket.AssignedTo = user;
                 ticket.Status = "Closed";
                 unitOfWork.TicketRepository.Update(ticket);
                 unitOfWork.Save();
