@@ -3,10 +3,13 @@ using HelpDesk.Entities;
 using HelpDesk.Infrastructure.Abstract;
 using HelpDesk.Infrastructure.Concrete;
 using HelpDesk.Models;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -34,23 +37,29 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(AccountLoginViewModel model)
+        public async Task<ActionResult> Login(AccountLoginViewModel model)
         {
-
-            if (!ModelState.IsValid || !authProvider.Authenticate(model.Email, model.Password))
+            if (ModelState.IsValid)
             {
-                ModelState.AddModelError("", "Incorrect email or password");
-                return View(model);
+                AppUserManager userManager = HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+                IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
+                AppUser user = await userManager.FindAsync(model.Email, model.Password);
+                if (user == null)
+                    ModelState.AddModelError("", "Incorrect email or password");
+                else
+                {
+                    AuthManager.SignOut();
+                    AuthManager.SignIn(await userManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
+                    return Redirect(model.ReturnUrl ?? "/");
+                }
             }
-            if (model.ReturnUrl != null)
-                return Redirect(model.ReturnUrl);
-            else
-                return RedirectToAction("Index", "Home");
+            return View(model);
         }
 
         public ActionResult LogOff()
         {
-            authProvider.LogOut();
+            IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
+            AuthManager.SignOut();
             return RedirectToAction("Index", "Home");
         }
     }

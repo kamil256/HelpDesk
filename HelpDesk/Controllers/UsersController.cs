@@ -19,7 +19,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace HelpDesk.Controllers
 {
-    //[Authorize]
+    [Authorize(Roles = "Admin")]
     public class UsersController : Controller
     {
         private IUnitOfWork unitOfWork;
@@ -44,6 +44,7 @@ namespace HelpDesk.Controllers
                               u.Company.ToLower().Contains(model.Search.ToLower()) ||
                               u.Department.ToLower().Contains(model.Search.ToLower());                
             }
+
             Func<IQueryable<AppUser>, IOrderedQueryable<AppUser>> orderBy = null;
             switch (model.SortBy)
             {
@@ -75,7 +76,8 @@ namespace HelpDesk.Controllers
                     orderBy = q => model.DescSort ? q.OrderByDescending(u => u.CreatedTickets.Count) : q.OrderBy(u => u.CreatedTickets.Count);
                     break;                    
             }
-            IQueryable<AppUser> query = HttpContext.GetOwinContext().GetUserManager<AppUserManager>().Users;
+
+            IQueryable<AppUser> query = UserManager.Users;
             if (filter != null)
                 query = query.Where(filter);
             if (orderBy != null)
@@ -93,65 +95,44 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersCreateViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                AppUser user = new AppUser
+                if (ModelState.IsValid)
                 {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Phone = model.Phone,
-                    MobilePhone = model.MobilePhone,
-                    Company = model.Company,
-                    Department = model.Department
-                };
-                IdentityResult result = await HttpContext.GetOwinContext().GetUserManager<AppUserManager>().CreateAsync(user, model.Password);
-                HttpContext.GetOwinContext().GetUserManager<AppUserManager>().AddToRole(user.Id, model.Role);
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    //AddErrorsFromResult(result);
+                    AppUser user = new AppUser
+                    {
+                        UserName = model.Email,
+                        Email = model.Email,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        Phone = model.Phone,
+                        MobilePhone = model.MobilePhone,
+                        Company = model.Company,
+                        Department = model.Department
+                    };
+                    AppRole role = HttpContext.GetOwinContext().GetUserManager<AppRoleManager>().FindByName(model.Role);
+                    if (role == null)
+                        HttpContext.GetOwinContext().GetUserManager<AppRoleManager>().Create(new AppRole { Name = model.Role });
+
+                    IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
+                    {
+                        UserManager.AddToRole(user.Id, model.Role);
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        foreach (string error in result.Errors)
+                            ModelState.AddModelError("", error);
+
+                    }
                 }
             }
+            catch
+            {
+                ModelState.AddModelError("", "Cannot add new user. Try again!");
+            }
             return View(model);
-
-            //try
-            //{
-            //    if (ModelState.IsValid)
-            //    {
-            //        if (unitOfWork.UserRepository.GetAll(u => u.Email.ToLower() == model.Email.ToLower()).Count() > 0)
-            //            ModelState.AddModelError("Email", $"The email address is in use");
-            //        else
-            //        {
-            //            User2 user = new User2
-            //            {
-            //                FirstName = model.FirstName,
-            //                LastName = model.LastName,
-            //                Email = model.Email,
-            //                Phone = model.Phone,
-            //                MobilePhone = model.MobilePhone,
-            //                Company = model.Company,
-            //                Department = model.Department,
-            //                Role = model.Role
-            //            };
-            //            user.Salt = Guid.NewGuid().ToString();
-            //            user.HashedPassword = HashPassword(model.Password, user.Salt);
-            //            unitOfWork.UserRepository.Insert(user);
-            //            unitOfWork.Save();
-            //            TempData["Success"] = "Successfully added new user!";
-            //            return RedirectToAction("Index");
-            //        }
-            //    }
-            //}
-            //catch
-            //{
-            //    ModelState.AddModelError("", "Cannot create user. Try again!");
-            //}
-            //return View(model);
         }
 
         public ActionResult Edit(int id = 0)
@@ -277,6 +258,14 @@ namespace HelpDesk.Controllers
             //    TempData["Fail"] = "Cannot delete user. Try again!";
             //}
             return RedirectToAction("Index");
+        }
+
+        private AppUserManager UserManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+            }
         }
     }
 }
