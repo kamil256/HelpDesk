@@ -9,7 +9,7 @@ namespace HelpDesk.Models
 {
     public class UsersEditViewModel
     {
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         [Required]
         [Display(Name = "First name")]

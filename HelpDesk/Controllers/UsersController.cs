@@ -77,7 +77,7 @@ namespace HelpDesk.Controllers
                     break;                    
             }
 
-            IQueryable<AppUser> query = UserManager.Users;
+            IQueryable<AppUser> query = userManager.Users;
             if (filter != null)
                 query = query.Where(filter);
             if (orderBy != null)
@@ -114,10 +114,10 @@ namespace HelpDesk.Controllers
                     if (role == null)
                         HttpContext.GetOwinContext().GetUserManager<AppRoleManager>().Create(new AppRole { Name = model.Role });
 
-                    IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+                    IdentityResult result = await userManager.CreateAsync(user, model.Password);
                     if (result.Succeeded)
                     {
-                        UserManager.AddToRole(user.Id, model.Role);
+                        userManager.AddToRole(user.Id, model.Role);
                         return RedirectToAction("Index");
                     }
                     else
@@ -135,77 +135,91 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
-        public ActionResult Edit(int id = 0)
+        public async Task<ActionResult> Edit(string id)
         {
-            User2 user;
-            //if (id == 0)
-            //    user = unitOfWork.UserRepository.GetAll(filter: u => u.Email == User.Identity.Name, includeProperties: "CreatedTickets").SingleOrDefault();
-            //else
-            //    user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == id, includeProperties: "CreatedTickets").SingleOrDefault();
-
-            //if (user == null)
-            //{
-            //    return HttpNotFound();
-            //}
-            //return View(new UsersEditViewModel
-            //{
-            //    UserID = user.UserID,
-            //    FirstName = user.FirstName,
-            //    LastName = user.LastName,
-            //    Email = user.Email,
-            //    Phone = user.Phone,
-            //    MobilePhone = user.MobilePhone,
-            //    Company = user.Company,
-            //    Department = user.Department,
-            //    Role = user.Role,
-            //    Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn)
-            //});
-            return null;
+            try
+            {
+                AppUser user = await userManager.FindByIdAsync(id);
+                if (user == null)
+                {
+                    return HttpNotFound();
+                }
+                UsersEditViewModel model = new UsersEditViewModel
+                {
+                    UserID = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    MobilePhone = user.MobilePhone,
+                    Company = user.Company,
+                    Department = user.Department,
+                    Role = (await userManager.GetRolesAsync(user.Id))[0],
+                    Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn)
+                };
+                return View(model);
+            }
+            catch
+            {
+                TempData["Fail"] = "Cannot get user's info. Try again!";
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "UserID,FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel model)
+        public async Task<ActionResult> Edit([Bind(Include = "UserID,FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel model)
         {
-            //User2 user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == model.UserID, includeProperties: "CreatedTickets").SingleOrDefault();
-            //if (user == null)
-            //{
-            //    return HttpNotFound();
-            //}
-            //try
-            //{ 
-            //    if (ModelState.IsValid)
-            //    {
-            //        if (unitOfWork.UserRepository.GetAll(u => u.UserID != model.UserID && u.Email.ToLower() == model.Email.ToLower()).Count() > 0)
-            //            ModelState.AddModelError("Email", $"The email address is in use");
-            //        else
-            //        {
-            //            user.FirstName = model.FirstName;
-            //            user.LastName = model.LastName;
-            //            user.Email = model.Email;
-            //            if (model.Password != null)
-            //            {
-            //                user.Salt = Guid.NewGuid().ToString();
-            //                user.HashedPassword = HashPassword(model.Password, user.Salt);
-            //            }
-            //            user.Phone = model.Phone;
-            //            user.MobilePhone = model.MobilePhone;
-            //            user.Company = model.Company;
-            //            user.Department = model.Department;
-            //            user.Role = model.Role;
-            //            unitOfWork.UserRepository.Update(user);
-            //            unitOfWork.Save();
-            //            TempData["Success"] = "Successfully edited user!";
-            //            return RedirectToAction("Index");
-            //        }
-            //    }
-            //}
-            //catch
-            //{
-            //    ModelState.AddModelError("", "Cannot edit user. Try again!");
-            //}
-            //model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
+            AppUser user = null;
+            try
+            { 
+                user = await userManager.FindByIdAsync(model.UserID);
+                if (user == null)
+                {
+                    return HttpNotFound();
+                }
+                if (ModelState.IsValid)
+                {
+                    if (model.Password != null)
+                    {
+                        IdentityResult validatePasswordResult = await userManager.PasswordValidator.ValidateAsync(model.Password);
+                        if (validatePasswordResult.Succeeded)
+                            user.PasswordHash = userManager.PasswordHasher.HashPassword(model.Password);
+                        else
+                        {
+                            foreach (string error in validatePasswordResult.Errors)
+                                ModelState.AddModelError("", error);
+                            throw new Exception();
+                        }
+                    }
+                    user.FirstName = model.FirstName;
+                    user.LastName = model.LastName;
+                    user.UserName = model.Email;
+                    user.Email = model.Email;
 
+                    
+
+                    user.Phone = model.Phone;
+                    user.MobilePhone = model.MobilePhone;
+                    user.Company = model.Company;
+                    user.Department = model.Department;
+                    // change user role
+                    IdentityResult updateUserResult = await userManager.UpdateAsync(user);
+                    if (updateUserResult.Succeeded)
+                    {
+                        TempData["Success"] = "Successfully edited user!";
+                        return RedirectToAction("Index");
+                    }
+                    else
+                        foreach (string error in updateUserResult.Errors)
+                            ModelState.AddModelError("", error);
+                }
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Cannot edit user. Try again!");
+            }
+            model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
             return View(model);
         }
 
@@ -260,11 +274,19 @@ namespace HelpDesk.Controllers
             return RedirectToAction("Index");
         }
 
-        private AppUserManager UserManager
+        private AppUserManager userManager
         {
             get
             {
                 return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+            }
+        }
+
+        private AppRoleManager roleManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
             }
         }
     }
