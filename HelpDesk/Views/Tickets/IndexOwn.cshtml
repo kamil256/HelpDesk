@@ -1,0 +1,160 @@
+﻿@using PagedList.Mvc;
+@model HelpDesk.Models.TicketsIndexOwnViewModel
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Tickets";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @(TempData["Success"])
+    </div>
+}
+
+@if (TempData["Fail"] != null)
+{
+    <div class="alert alert-danger">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @(TempData["Fail"])
+    </div>
+}
+
+<header>
+    <div class="container">
+        <h1>List of tickets</h1>
+
+        @using (Html.BeginForm("IndexOwn", "Tickets", FormMethod.Get, new { id = "filtering-form" }))
+        {
+            @Html.HiddenFor(model => model.Page)
+            @Html.HiddenFor(model => model.SortBy)
+            @Html.HiddenFor(model => model.DescSort)
+
+            <div class="row">
+                <div class="form-group col-sm-offset-6 col-sm-6 col-md-offset-9 col-md-3">
+                    @Html.LabelFor(model => model.Search, new { @class = "control-label" })
+                    <div class="input-with-button">
+                        @Html.TextBoxFor(model => model.Search, new { @class = "form-control" })
+                        <button id="search-btn" type="submit" class="btn btn-default btn-search">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </div>
+                    <div class="checkbox">
+                        <label class="control-label">
+                            @Html.CheckBoxFor(model => model.AdvancedSearch)
+                            Also search in content and solution
+                        </label>
+                    </div>
+                </div>
+            </div>
+        }                        
+     </div>                                    
+</header>
+
+<section class="container">
+    @if (Model.Tickets.Count() == 0)
+    {
+        <h3>No tickets found...</h3>
+    }
+    else
+    {
+        <table class="table" style="afont-size:14px;">
+            <tr>
+                <th style="min-width: 150px;">
+                    @Html.SortableHeader("CreatedOn", "Created on")
+                </th>
+                <th class="hidden-xs hidden-sm" style="min-width: 150px;">
+                    @Html.SortableHeader("RequestedBy", "Requested by")
+                </th>
+                <th class="title-header" style="width: 100%">
+                    @Html.SortableHeader("Title")
+                </th>
+                <th class="hidden-xs hidden-sm" style="min-width: 150px;">
+                    @Html.SortableHeader("Category")
+                </th>
+                <th style="min-width: 100px;">
+                    @Html.SortableHeader("Status")
+                </th>
+                <th class="hidden-xs hidden-sm hidden-md hidden-lg" style="min-width: 150px;">
+                    @Html.SortableHeader("AssignedTo", "Assigned to")
+                </th>
+            </tr>
+            
+            @foreach (var item in Model.Tickets)
+            {
+                <tr onclick='document.location.href="@Url.Action("EditOwn", new { id = item.TicketID })"'>
+                    <td>
+                        @item.CreatedOn.ToString()
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                        @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {item.RequestedBy.LastName}" : "-")
+                    </td>
+                    <td>
+                        @Html.MarkSearchedString(item.Title, Model.Search)
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                        @(item.Category != null ? item.Category.Name : "-")
+                    </td>
+                    <td>
+                        <span class="status" style="white-space: nowrap;">@item.Status</span>
+                    </td>
+                    <td class="hidden-xs hidden-sm hidden-md hidden-lg">
+                        @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
+                    </td>
+                </tr>
+            }
+        </table>
+
+        @Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new
+        {
+            Page = page,
+            SortBy = Model.SortBy,
+            DescSort = Model.DescSort,
+            Search = Model.Search,
+            AdvancedSearch = Model.AdvancedSearch
+        }), PagedListRenderOptions.Classic)
+    }
+</section>
+
+<script>
+    $(document).ready(function()
+    {
+        $("#search-btn").click(function() { $("#Page").val("1"); });
+        
+        var statuses = document.getElementsByClassName("status");
+        for (var i = 0; i < statuses.length; i++)
+        {
+            switch (statuses[i].innerHTML)
+            {
+                case "New":
+                    statuses[i].className += " status-new";
+                    break;
+                case "In progress":
+                    statuses[i].className += " status-in-progress";
+                    break;
+                case "Solved":
+                    statuses[i].className += " status-solved";
+                    break;
+                case "Closed":
+                    statuses[i].className += " status-closed";
+                    break;
+            }
+        }
+    });
+
+    function sort(value)
+    {
+        if ($("#SortBy").val() == value)
+        {
+            $("#DescSort").val($("#DescSort").val().toLowerCase() == "true" ? "false" : "true");
+        }
+        else
+        {
+            $("#SortBy").val(value);
+            $("#DescSort").val("true");
+        }
+        $("#filtering-form").submit();
+    }
+</script>

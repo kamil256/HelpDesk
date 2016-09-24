@@ -14,10 +14,11 @@ using System.Linq.Expressions;
 using PagedList;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNet.Identity;
 
 namespace HelpDesk.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class TicketsController : Controller
     {
         private IUnitOfWork unitOfWork;
@@ -86,6 +87,54 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
+        [OverrideAuthorization]
+        public ActionResult IndexOwn([Bind(Include = "Search,SortBy,DescSort,Page")] TicketsIndexOwnViewModel model)
+        {
+            Expression<Func<Ticket, bool>> filter = null;
+            if (!string.IsNullOrWhiteSpace(model.Search))
+            {
+                if (model.AdvancedSearch)
+                    filter = t => t.Title.ToLower().Contains(model.Search.ToLower()) ||
+                                  t.Content.ToLower().Contains(model.Search.ToLower()) ||
+                                  t.Solution.ToLower().Contains(model.Search.ToLower());
+                else
+                    filter = t => t.Title.ToLower().Contains(model.Search.ToLower());
+            }
+
+            Func<IQueryable<Ticket>, IOrderedQueryable<Ticket>> orderBy = null;
+            switch (model.SortBy)
+            {
+                case "CreatedOn":
+                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.CreatedOn) : q.OrderBy(t => t.CreatedOn);
+                    break;
+                case "RequestedBy":
+                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.RequestedBy.UserName) : q.OrderBy(t => t.RequestedBy.UserName);
+                    break;
+                case "Title":
+                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Title) : q.OrderBy(t => t.Title);
+                    break;
+                case "Category":
+                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Category.Name) : q.OrderBy(t => t.Category.Name);
+                    break;
+                case "Status":
+                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Status) : q.OrderBy(t => t.Status);
+                    break;
+                case "AssignedTo":
+                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.AssignedTo.UserName) : q.OrderBy(t => t.AssignedTo.UserName);
+                    break;
+            }
+
+            IQueryable<Ticket> query = context.Tickets;
+            if (filter != null)
+                query = query.Where(filter);
+            if (orderBy != null)
+                query = orderBy(query);
+            model.Tickets = query.ToPagedList(model.Page, 5);
+
+            return View(model);
+        }
+
+        [OverrideAuthorization]
         public async Task<ActionResult> Create()
         {
             TicketsCreateViewModel model = new TicketsCreateViewModel();
@@ -99,6 +148,7 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [OverrideAuthorization]
         public async Task<ActionResult> Create([Bind(Include = "RequestedByID,CategoryID,Title,Content")] TicketsCreateViewModel model)
         {
             try
@@ -121,7 +171,11 @@ namespace HelpDesk.Controllers
                     //unitOfWork.TicketRepository.Insert(ticket);
                     //unitOfWork.Save();
                     TempData["Success"] = "Successfully added new ticket!";
-                    return RedirectToAction("Index");
+                    AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
+                    if (await userManager.IsInRoleAsync(user.Id, "Admin"))
+                        return RedirectToAction("Index");
+                    else
+                        return RedirectToAction("IndexOwn");
                 }
             }
             catch
@@ -213,10 +267,94 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
+        [OverrideAuthorization]
+        public async Task<ActionResult> EditOwn(int? id)
+        {
+            Ticket ticket = await context.Tickets.FindAsync(id);
+            AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
+            if (ticket == null)
+            {
+                return HttpNotFound();
+            }
+            if (ticket.CreatedByID != user.Id)
+                return RedirectToAction("IndexOwn");            
+            TicketsEditOwnViewModel model = new TicketsEditOwnViewModel
+            {
+                TicketID = ticket.TicketID,
+                RequestedByID = ticket.RequestedByID,
+                Status = ticket.Status,
+                CategoryID = ticket.CategoryID,
+                Title = ticket.Title,
+                Content = ticket.Content,
+                Solution = ticket.Solution,
+                CreatedBy = ticket.CreatedBy,
+                CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss"),
+                RequestedBy = ticket.RequestedBy,
+                AssignedTo = ticket.AssignedTo
+            };
+
+            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
+            return View(model);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id)
+        [OverrideAuthorization]
+        public async Task<ActionResult> EditOwn([Bind(Include = "TicketID,RequestedByID,CategoryID,Title,Content")] TicketsEditOwnViewModel model)
         {
+            Ticket ticket = await context.Tickets.FindAsync(model.TicketID);
+            AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
+            if (ticket == null)
+            {
+                return HttpNotFound();
+            }
+            if (ticket.CreatedByID != user.Id)
+                return RedirectToAction("IndexOwn");
+
+            model.RequestedBy = await userManager.FindByIdAsync(model.RequestedByID);//unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
+            model.AssignedTo = ticket.AssignedTo;//unitOfWork.UserRepository.GetById(model.AssignedToID ?? 0);
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    ticket.RequestedByID = model.RequestedByID;
+                    ticket.CategoryID = model.CategoryID;
+                    ticket.Title = model.Title;
+                    ticket.Content = model.Content;
+                    context.Tickets.Attach(ticket);
+                    context.Entry(ticket).State = EntityState.Modified;
+                    await context.SaveChangesAsync();
+                    //unitOfWork.TicketRepository.Update(ticket);
+                    //unitOfWork.Save();
+                    TempData["Success"] = "Successfully edited ticket!";
+                    return RedirectToAction("IndexOwn");
+                }
+            }
+            catch (DuplicateNameException)
+            {
+                ModelState.AddModelError("", "Cannot edit ticket. Try again!");
+            }
+            model.CreatedBy = ticket.CreatedBy;
+            model.CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss");
+
+            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [OverrideAuthorization]
+        public async Task<ActionResult> Delete(int id)
+        {
+            Ticket ticket = await context.Tickets.FindAsync(id);
+            AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
+            if (ticket == null)
+            {
+                return HttpNotFound();
+            }
+            if (!(await userManager.IsInRoleAsync(user.Id, "Admin")) && ticket.CreatedByID != user.Id)
+                return RedirectToAction("IndexOwn");
             try
             { 
                 unitOfWork.TicketRepository.Delete(id);
@@ -230,6 +368,7 @@ namespace HelpDesk.Controllers
             return RedirectToAction("Index");
         }
 
+        [OverrideAuthorization]
         public JsonResult FindUsers(string search)
         {
             var result = from x in userManager.Users.Where//unitOfWork.UserRepository.GetAll
@@ -325,6 +464,11 @@ namespace HelpDesk.Controllers
             {
                 return HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
             }
+        }
+
+        private async Task<AppUser> getCurrentUser()
+        {
+            return await userManager.FindByEmailAsync(User.Identity.Name);            
         }
     }
 }

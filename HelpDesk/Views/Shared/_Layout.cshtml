@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@{ 
+    string currentUserId = User.Identity.GetUserId();
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    bool isCurrentUserAdmin = userManager.IsInRole(currentUserId, "Admin");
+}
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -48,11 +54,14 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li class=@(ViewBag.Title == "New user" ? "active" : "")>@Html.ActionLink("New user", "Create", "Users")</li>
-                    <li class=@(ViewBag.Title == "Users" ? "active" : "")>@Html.ActionLink("Users", "Index", "Users")</li>
-                    <li class=@(ViewBag.Title == "New ticket" ? "active" : "")>@Html.ActionLink("New ticket", "Create", "Tickets")</li>
-                    <li class=@(ViewBag.Title == "Tickets" ? "active" : "")>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
-                    <li class=@(ViewBag.Title == "Settings" ? "active" : "")>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
+                    @if (isCurrentUserAdmin)
+                    {
+                        <li class='@(ViewBag.Title == "New user" ? "active" : null)'>@Html.ActionLink("New user", "Create", "Users")</li>
+                        <li class='@(ViewBag.Title == "Users" ? "active" : null)'>@Html.ActionLink("Users", "Index", "Users")</li>
+                    }
+                    <li class='@(ViewBag.Title == "New ticket" ? "active" : null)'>@Html.ActionLink("New ticket", "Create", "Tickets")</li>
+                    <li class='@(ViewBag.Title == "Tickets" ? "active" : null)'>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
+                    <li class='@(ViewBag.Title == "Settings" ? "active" : null)'>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>
