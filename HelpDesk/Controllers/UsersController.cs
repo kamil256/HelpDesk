@@ -16,6 +16,7 @@ using Microsoft.AspNet.Identity;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.Owin.Security;
 
 namespace HelpDesk.Controllers
 {
@@ -175,6 +176,11 @@ namespace HelpDesk.Controllers
                 AppUser user = await userManager.FindByIdAsync(model.UserID);
                 if (user == null)
                     return HttpNotFound();
+
+                bool editingOwnAccount = false;
+                if (user.Email == User.Identity.Name)
+                    editingOwnAccount = true;
+
                 if (ModelState.IsValid)
                 {
                     user.FirstName = model.FirstName;
@@ -207,6 +213,12 @@ namespace HelpDesk.Controllers
                             userManager.RemoveFromRoles(user.Id, userManager.GetRoles(user.Id).ToArray<string>());
                             userManager.AddToRole(user.Id, model.Role);
 
+                            if (editingOwnAccount)
+                            {
+                                IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
+                                AuthManager.SignOut();
+                                AuthManager.SignIn(await userManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
+                            }
                             TempData["Success"] = "Successfully edited user!";
                             return RedirectToAction("Index");
                         }
@@ -234,9 +246,23 @@ namespace HelpDesk.Controllers
                 AppUser user = await userManager.FindByIdAsync(id);
                 if (user == null)
                     return HttpNotFound();
+
+                bool deletingOwnAccount = false;
+                if (user.Email == User.Identity.Name)
+                    deletingOwnAccount = true;
+
                 IdentityResult userDeletionResult = await userManager.DeleteAsync(user);
+
                 if (userDeletionResult.Succeeded)
-                    TempData["Success"] = "Successfully deleted user!";
+                {
+                    if (deletingOwnAccount)
+                    {
+                        IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
+                        AuthManager.SignOut();
+                    }
+                    else
+                        TempData["Success"] = "Successfully deleted user!";
+                }
                 else
                     TempData["Fail"] = "Cannot delete user. Try again!";
             }
