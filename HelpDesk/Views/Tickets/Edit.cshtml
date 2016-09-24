@@ -24,7 +24,7 @@
                     <p class="form-control-static">
                         @if (Model.CreatedBy != null)
                         {
-                            <a href='@Url.Action("Edit", "Users", new { id = Model.CreatedBy.UserID })'>@Model.CreatedBy.FirstName @Model.CreatedBy.LastName (@Model.CreatedBy.Email)</a>
+                            <a href='@Url.Action("Edit", "Users", new { id = Model.CreatedBy.Id })'>@Model.CreatedBy.FirstName @Model.CreatedBy.LastName (@Model.CreatedBy.Email)</a>
                         }
                         else
                         {
@@ -51,7 +51,7 @@
                 <div class="col-md-8">
                     @Html.DropDownListFor(
                         expression: model => model.AssignedToID,
-                        selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.UserID, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name"),
+                        selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name"),
                         optionLabel: "-",
                         htmlAttributes: new { @class = "form-control" }
                     )

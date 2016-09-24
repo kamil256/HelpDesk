@@ -14,10 +14,10 @@ namespace HelpDesk.Models
         public int TicketID { get; set; }
 
         [DisplayName("Requested by")]
-        public int? RequestedByID { get; set; }
+        public string RequestedByID { get; set; }
 
         [DisplayName("Assigned to")]
-        public int? AssignedToID { get; set; }
+        public string AssignedToID { get; set; }
         
         [Required]
         public string Status { get; set; }
@@ -33,11 +33,11 @@ namespace HelpDesk.Models
         public string Solution { get; set; }
 
         [DisplayName("Created by")]
-        public User2 CreatedBy { get; set; }
+        public AppUser CreatedBy { get; set; }
         public string CreatedOn { get; set; }
-        public User2 RequestedBy { get; set; }
-        public User2 AssignedTo { get; set; }
-        public IEnumerable<User2> Admins { get; set; }
+        public AppUser RequestedBy { get; set; }
+        public AppUser AssignedTo { get; set; }
+        public IEnumerable<AppUser> Admins { get; set; }
         public IEnumerable<Category> Categories { get; set; }
     }
 }

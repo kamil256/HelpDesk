@@ -237,19 +237,106 @@ namespace HelpDesk.Controllers
             }
         }
 
+        [OverrideAuthorization]
+        public async Task<ActionResult> EditSelf()
+        {
+            try
+            {
+                AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
+                if (user == null)
+                {
+                    return HttpNotFound();
+                }
+                UsersEditSelfViewModel model = new UsersEditSelfViewModel
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    MobilePhone = user.MobilePhone,
+                    Company = user.Company,
+                    Department = user.Department
+                };
+                return View(model);
+            }
+            catch
+            {
+                TempData["Fail"] = "Cannot get user's info. Try again!";
+                return RedirectToAction("Index");
+            }
+        }
+        [OverrideAuthorization]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> EditSelf([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department")] UsersEditSelfViewModel model)
+        {
+            try
+            {
+                AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
+                if (user == null)
+                    return HttpNotFound();
+
+                if (ModelState.IsValid)
+                {
+                    user.FirstName = model.FirstName;
+                    user.LastName = model.LastName;
+                    user.UserName = model.Email;
+                    user.Email = model.Email;
+                    user.Phone = model.Phone;
+                    user.MobilePhone = model.MobilePhone;
+                    user.Company = model.Company;
+                    user.Department = model.Department;
+
+                    IdentityResult passwordValidationResult = null;
+                    if (model.Password != null)
+                    {
+                        passwordValidationResult = await userManager.PasswordValidator.ValidateAsync(model.Password);
+                        if (passwordValidationResult.Succeeded)
+                            user.PasswordHash = userManager.PasswordHasher.HashPassword(model.Password);
+                        else
+                            foreach (string error in passwordValidationResult.Errors)
+                                ModelState.AddModelError("", error);
+                    }
+                    if (model.Password == null || passwordValidationResult.Succeeded)
+                    {
+                        IdentityResult userUpdateResult = await userManager.UpdateAsync(user);
+                        if (userUpdateResult.Succeeded)
+                        {
+                            IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
+                            AuthManager.SignOut();
+                            AuthManager.SignIn(await userManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
+                            
+                            TempData["Success"] = "Successfully edited user!";
+                            return RedirectToAction("Index", "Home");
+                        }
+                        else
+                            foreach (string error in userUpdateResult.Errors)
+                                ModelState.AddModelError("", error);
+                    }
+                }
+                return View(model);
+            }
+            catch
+            {
+                TempData["Fail"] = "Cannot edit user. Try again!";
+                return RedirectToAction("Index");
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(string id)
         {
             try
             {
-                AppUser user = await userManager.FindByIdAsync(id);
+                AppUser user = await userManager.Users.Include(u => u.CreatedTickets)
+                                                      .Include(u => u.RequestedTickets)
+                                                      .Include(u => u.AssignedTickets)
+                                                      .SingleOrDefaultAsync(u => u.Id == id);
                 if (user == null)
                     return HttpNotFound();
 
-                bool deletingOwnAccount = false;
-                if (user.Email == User.Identity.Name)
-                    deletingOwnAccount = true;
+                bool deletingOwnAccount = user.Email == User.Identity.Name;
 
                 IdentityResult userDeletionResult = await userManager.DeleteAsync(user);
 

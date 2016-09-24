@@ -1,5 +1,5 @@
 ﻿@using HelpDesk.Entities
-@model IEnumerable<User>
+@model IEnumerable<AppUser>
 
 <div id="solve-ticket-dialog" class="dialog">
     <h4>Solve ticket <i id="solve-ticket-title"></i></h4>
@@ -11,7 +11,7 @@
             <label class="control-label">Solving user</label>
             @Html.DropDownList(
                    name: "SolveUserID", 
-                   selectList: new SelectList(Model.Select(u => new { UserID = u.UserID, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name", Model.Single(u => u.Email == User.Identity.Name).UserID), 
+                   selectList: new SelectList(Model.Select(u => new { UserID = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name", Model.Single(u => u.Email == User.Identity.Name).Id), 
                    htmlAttributes: new { @class = "form-control" }
             )
         </div>

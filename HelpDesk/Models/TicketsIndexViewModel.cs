@@ -23,7 +23,7 @@ namespace HelpDesk.Models
         public bool DescSort { get; set; } = true;
         public int Page { get; set; } = 1;
 
-        public IEnumerable<User2> Admins { get; set; }
+        public IEnumerable<AppUser> Admins { get; set; }
         public IEnumerable<Category> Categories { get; set; }
         
         public IPagedList<HelpDesk.Entities.Ticket> Tickets { get; set; }

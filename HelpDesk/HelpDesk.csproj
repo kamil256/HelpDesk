@@ -250,6 +250,7 @@
     <Compile Include="Entities\Ticket.cs" />
     <Compile Include="Entities\User2.cs" />
     <Compile Include="Models\UsersCreateViewModel.cs" />
+    <Compile Include="Models\UsersEditSelfViewModel.cs" />
     <Compile Include="Models\UsersEditViewModel.cs" />
     <Compile Include="Models\TicketsIndexViewModel.cs" />
     <Compile Include="Models\UsersIndexViewModel.cs" />
@@ -281,6 +282,7 @@
     <Content Include="Views\Shared\_LoginLayout.cshtml" />
     <Content Include="Views\Shared\_FooterPartial.cshtml" />
     <Content Include="Views\Settings\Index.cshtml" />
+    <Content Include="Views\Users\EditSelf.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
