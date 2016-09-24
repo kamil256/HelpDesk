@@ -170,107 +170,80 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit([Bind(Include = "UserID,FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel model)
         {
-            AppUser user = null;
             try
-            { 
-                user = await userManager.FindByIdAsync(model.UserID);
+            {
+                AppUser user = await userManager.FindByIdAsync(model.UserID);
                 if (user == null)
-                {
                     return HttpNotFound();
-                }
                 if (ModelState.IsValid)
                 {
-                    if (model.Password != null)
-                    {
-                        IdentityResult validatePasswordResult = await userManager.PasswordValidator.ValidateAsync(model.Password);
-                        if (validatePasswordResult.Succeeded)
-                            user.PasswordHash = userManager.PasswordHasher.HashPassword(model.Password);
-                        else
-                        {
-                            foreach (string error in validatePasswordResult.Errors)
-                                ModelState.AddModelError("", error);
-                            throw new Exception();
-                        }
-                    }
                     user.FirstName = model.FirstName;
                     user.LastName = model.LastName;
                     user.UserName = model.Email;
                     user.Email = model.Email;
-
-                    
-
                     user.Phone = model.Phone;
                     user.MobilePhone = model.MobilePhone;
                     user.Company = model.Company;
                     user.Department = model.Department;
-                    // change user role
-                    IdentityResult updateUserResult = await userManager.UpdateAsync(user);
-                    if (updateUserResult.Succeeded)
+
+                    IdentityResult passwordValidationResult = null;
+                    if (model.Password != null)
                     {
-                        TempData["Success"] = "Successfully edited user!";
-                        return RedirectToAction("Index");
+                        passwordValidationResult = await userManager.PasswordValidator.ValidateAsync(model.Password);
+                        if (passwordValidationResult.Succeeded)
+                            user.PasswordHash = userManager.PasswordHasher.HashPassword(model.Password);
+                        else
+                            foreach (string error in passwordValidationResult.Errors)
+                                ModelState.AddModelError("", error);
                     }
-                    else
-                        foreach (string error in updateUserResult.Errors)
-                            ModelState.AddModelError("", error);
+                    if (model.Password == null || passwordValidationResult.Succeeded)
+                    {
+                        IdentityResult userUpdateResult = await userManager.UpdateAsync(user);
+                        if (userUpdateResult.Succeeded)
+                        {
+                            AppRole role = roleManager.FindByName(model.Role);
+                            if (role == null)
+                                roleManager.Create(new AppRole { Name = model.Role });
+                            userManager.RemoveFromRoles(user.Id, userManager.GetRoles(user.Id).ToArray<string>());
+                            userManager.AddToRole(user.Id, model.Role);
+
+                            TempData["Success"] = "Successfully edited user!";
+                            return RedirectToAction("Index");
+                        }
+                        else
+                            foreach (string error in userUpdateResult.Errors)
+                                ModelState.AddModelError("", error);
+                    }
                 }
+                model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
+                return View(model);
             }
             catch
             {
-                ModelState.AddModelError("", "Cannot edit user. Try again!");
+                TempData["Fail"] = "Cannot edit user. Try again!";
+                return RedirectToAction("Index");
             }
-            model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
-            return View(model);
-        }
-
-        public ActionResult ChangePassword(int id = 0)
-        {
-            //User2 user = unitOfWork.UserRepository.GetById(id);
-            //if (user == null)
-            //{
-            //    return HttpNotFound();
-            //}
-            //return View(new UsersChangePasswordViewModel
-            //{
-            //    UserID = user.UserID,
-            //    FirstName = user.FirstName,
-            //    LastName = user.LastName
-            //});
-            return null;
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ChangePassword([Bind(Include = "UserID,Password,ConfirmPassword")] UsersChangePasswordViewModel user)
+        public async Task<ActionResult> Delete(string id)
         {
-            //if (ModelState.IsValid)
-            //{
-            //    User2 editedUser = unitOfWork.UserRepository.GetById(user.UserID);
-            //    editedUser.Salt = Guid.NewGuid().ToString();
-            //    editedUser.HashedPassword = HashPassword(user.Password, editedUser.Salt);
-            //    unitOfWork.UserRepository.Update(editedUser);
-            //    unitOfWork.Save();
-            //    return RedirectToAction("Index");
-            //}
-            return View(user);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id)
-        {
-            //try
-            //{
-            //    // Must be eager loading to load tickets and set null to their User type properties
-            //    User2 user = unitOfWork.UserRepository.GetAll(filter: u => u.UserID == id, includeProperties: "CreatedTickets,RequestedTickets,AssignedTickets").SingleOrDefault();
-            //    unitOfWork.UserRepository.Delete(user);
-            //    unitOfWork.Save();
-            //    TempData["Success"] = "Successfully deleted user!";
-            //}
-            //catch
-            //{
-            //    TempData["Fail"] = "Cannot delete user. Try again!";
-            //}
+            try
+            {
+                AppUser user = await userManager.FindByIdAsync(id);
+                if (user == null)
+                    return HttpNotFound();
+                IdentityResult userDeletionResult = await userManager.DeleteAsync(user);
+                if (userDeletionResult.Succeeded)
+                    TempData["Success"] = "Successfully deleted user!";
+                else
+                    TempData["Fail"] = "Cannot delete user. Try again!";
+            }
+            catch
+            {
+                TempData["Fail"] = "Cannot delete user. Try again!";
+            }
             return RedirectToAction("Index");
         }
 
