@@ -4,6 +4,16 @@
     ViewBag.Title = "Edit user";
 }
 
+@{
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    string currentUserId = User.Identity.GetUserId();
+    bool? isCurrentUserAdmin = null;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
+}
+
 <header>
     <div class="container">
         <h1>Edit user</h1>
@@ -94,7 +104,7 @@
             <div class="form-group">
                 @Html.LabelFor(model => model.Role, new { @class = "control-label col-md-offset-1 col-md-2" })
                 <div class="col-md-6">
-                    @Html.DropDownListFor(model => model.Role, new SelectList(new[] { "User", "Admin" }), new { @class = "form-control" })
+                    @Html.DropDownListFor(model => model.Role, new SelectList(new[] { "User", "Admin" }), new { @class = "form-control", disabled = isCurrentUserAdmin == true ? null : "disabled" })
                     @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -102,63 +112,69 @@
             <div class="form-group">
                 <div class="col-md-offset-3 col-md-6">
                     <input type="submit" value="Save" class="btn btn-blue" />
-                    <button data-user-id="@Model.UserID" data-user-name="@Model.FirstName @Model.LastName" type="button" value="Delete" class="btn btn-blue delete-user-btn">Delete</button>
+                    @if (isCurrentUserAdmin == true)
+                    {
+                        <button data-user-id="@Model.UserID" data-user-name="@Model.FirstName @Model.LastName" type="button" value="Delete" class="btn btn-blue delete-user-btn">Delete</button>
+                    }
                 </div>
             </div>
         </div>
     }
 
-    <hr />
-
-    @if (Model.Tickets.Count() == 0)
+    @if (isCurrentUserAdmin == true)
     {
-        <h5>No tickets found...</h5>
-    }
-    else
-    {
-        <h4>Created tickets:</h4>
+        <hr />
 
-        <table class="table">
-            <tr>
-                <th>
-                    Created on
-                </th>
-                <th>
-                    Requested by
-                </th>
-                <th>
-                    Title
-                </th>
-                <th>
-                    Category
-                </th>
-                <th>
-                    Status
-                </th>
-            </tr>
+        if (Model.Tickets.Count() == 0)
+        {
+            <h5>No tickets found...</h5>
+        }
+        else
+        {
+            <h4>Created tickets:</h4>
 
-            @foreach (var item in Model.Tickets)
-            {
-                <tr onclick='document.location.href="@Url.Action("Edit", "Tickets", new { id = item.TicketID })"'>
-                    <td>
-                        @item.CreatedOn.ToString()
-                    </td>
-                    <td>
-                       @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {item.RequestedBy.LastName}" : "-")
-                    </td>
-                    <td>
-                        @item.Title
-                    </td>
-                    <td>
-                        @(item.Category != null ? item.Category.Name : "-")
-                    </td>
-                    <td>
-                        <span class="status">@item.Status</span>
-                    </td>
+            <table class="table">
+                <tr>
+                    <th>
+                        Created on
+                    </th>
+                    <th>
+                        Requested by
+                    </th>
+                    <th>
+                        Title
+                    </th>
+                    <th>
+                        Category
+                    </th>
+                    <th>
+                        Status
+                    </th>
                 </tr>
-            }
 
-        </table>
+                @foreach (var item in Model.Tickets)
+                {
+                    <tr onclick='document.location.href="@Url.Action("Edit", "Tickets", new { id = item.TicketID })"'>
+                        <td>
+                            @item.CreatedOn.ToString()
+                        </td>
+                        <td>
+                           @(item.RequestedBy != null ? $"{item.RequestedBy.FirstName} {item.RequestedBy.LastName}" : "-")
+                        </td>
+                        <td>
+                            @item.Title
+                        </td>
+                        <td>
+                            @(item.Category != null ? item.Category.Name : "-")
+                        </td>
+                        <td>
+                            <span class="status">@item.Status</span>
+                        </td>
+                    </tr>
+                }
+
+            </table>
+        }
     }
 </section>
 

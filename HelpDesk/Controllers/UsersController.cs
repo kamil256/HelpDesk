@@ -136,15 +136,18 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
+        [OverrideAuthorization]
         public async Task<ActionResult> Edit(string id)
         {
             try
             {
-                AppUser user = await userManager.FindByIdAsync(id);
+                AppUser user;
+                if (await isCurrentUserAdmin())
+                    user = await userManager.FindByIdAsync(id);
+                else
+                    user = await getCurrentUser();
                 if (user == null)
-                {
-                    return HttpNotFound();
-                }
+                    throw new Exception($"User id {id} doesn't exist");
                 UsersEditViewModel model = new UsersEditViewModel
                 {
                     UserID = user.Id,
@@ -162,24 +165,31 @@ namespace HelpDesk.Controllers
             }
             catch
             {
-                TempData["Fail"] = "Cannot get user's info. Try again!";
-                return RedirectToAction("Index");
+                TempData["Fail"] = "Poblem with editing user. Try again!";
+                return RedirectToAction("Index", "Home");
             }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [OverrideAuthorization]
         public async Task<ActionResult> Edit([Bind(Include = "UserID,FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel model)
         {
+            AppUser user;
             try
             {
-                AppUser user = await userManager.FindByIdAsync(model.UserID);
-                if (user == null)
-                    return HttpNotFound();
+                if (await isCurrentUserAdmin())
+                    user = await userManager.FindByIdAsync(model.UserID);
+                else
+                {
+                    user = await getCurrentUser();
+                    ModelState.Remove("Role");
+                }
 
-                bool editingOwnAccount = false;
-                if (user.Email == User.Identity.Name)
-                    editingOwnAccount = true;
+                if (user == null)
+                    throw new Exception($"User id {model.UserID} doesn't exist");
+
+                bool editingLoggedInUser = user.Email == User.Identity.Name;
 
                 if (ModelState.IsValid)
                 {
@@ -207,105 +217,21 @@ namespace HelpDesk.Controllers
                         IdentityResult userUpdateResult = await userManager.UpdateAsync(user);
                         if (userUpdateResult.Succeeded)
                         {
-                            AppRole role = roleManager.FindByName(model.Role);
-                            if (role == null)
-                                roleManager.Create(new AppRole { Name = model.Role });
-                            userManager.RemoveFromRoles(user.Id, userManager.GetRoles(user.Id).ToArray<string>());
-                            userManager.AddToRole(user.Id, model.Role);
+                            if (await isCurrentUserAdmin())
+                            {
+                                AppRole role = roleManager.FindByName(model.Role);
+                                if (role == null)
+                                    roleManager.Create(new AppRole { Name = model.Role });
+                                userManager.RemoveFromRoles(user.Id, userManager.GetRoles(user.Id).ToArray<string>());
+                                userManager.AddToRole(user.Id, model.Role);
+                            }
 
-                            if (editingOwnAccount)
+                            if (editingLoggedInUser)
                             {
                                 IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
                                 AuthManager.SignOut();
                                 AuthManager.SignIn(await userManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
                             }
-                            TempData["Success"] = "Successfully edited user!";
-                            return RedirectToAction("Index");
-                        }
-                        else
-                            foreach (string error in userUpdateResult.Errors)
-                                ModelState.AddModelError("", error);
-                    }
-                }
-                model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
-                return View(model);
-            }
-            catch
-            {
-                TempData["Fail"] = "Cannot edit user. Try again!";
-                return RedirectToAction("Index");
-            }
-        }
-
-        [OverrideAuthorization]
-        public async Task<ActionResult> EditSelf()
-        {
-            try
-            {
-                AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
-                if (user == null)
-                {
-                    return HttpNotFound();
-                }
-                UsersEditSelfViewModel model = new UsersEditSelfViewModel
-                {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    Phone = user.Phone,
-                    MobilePhone = user.MobilePhone,
-                    Company = user.Company,
-                    Department = user.Department
-                };
-                return View(model);
-            }
-            catch
-            {
-                TempData["Fail"] = "Cannot get user's info. Try again!";
-                return RedirectToAction("Index");
-            }
-        }
-        [OverrideAuthorization]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditSelf([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department")] UsersEditSelfViewModel model)
-        {
-            try
-            {
-                AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
-                if (user == null)
-                    return HttpNotFound();
-
-                if (ModelState.IsValid)
-                {
-                    user.FirstName = model.FirstName;
-                    user.LastName = model.LastName;
-                    user.UserName = model.Email;
-                    user.Email = model.Email;
-                    user.Phone = model.Phone;
-                    user.MobilePhone = model.MobilePhone;
-                    user.Company = model.Company;
-                    user.Department = model.Department;
-
-                    IdentityResult passwordValidationResult = null;
-                    if (model.Password != null)
-                    {
-                        passwordValidationResult = await userManager.PasswordValidator.ValidateAsync(model.Password);
-                        if (passwordValidationResult.Succeeded)
-                            user.PasswordHash = userManager.PasswordHasher.HashPassword(model.Password);
-                        else
-                            foreach (string error in passwordValidationResult.Errors)
-                                ModelState.AddModelError("", error);
-                    }
-                    if (model.Password == null || passwordValidationResult.Succeeded)
-                    {
-                        IdentityResult userUpdateResult = await userManager.UpdateAsync(user);
-                        if (userUpdateResult.Succeeded)
-                        {
-                            IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
-                            AuthManager.SignOut();
-                            AuthManager.SignIn(await userManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
-                            
                             TempData["Success"] = "Successfully edited user!";
                             return RedirectToAction("Index", "Home");
                         }
@@ -314,13 +240,14 @@ namespace HelpDesk.Controllers
                                 ModelState.AddModelError("", error);
                     }
                 }
-                return View(model);
             }
             catch
             {
-                TempData["Fail"] = "Cannot edit user. Try again!";
-                return RedirectToAction("Index");
+                TempData["Fail"] = "Poblem with editing user. Try again!";
+                return RedirectToAction("Index", "Home");
             }
+            model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
+            return View(model);
         }
 
         [HttpPost]
@@ -374,6 +301,16 @@ namespace HelpDesk.Controllers
             {
                 return HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
             }
+        }
+
+        private async Task<AppUser> getCurrentUser()
+        {
+            return await userManager.FindByEmailAsync(User.Identity.Name);
+        }
+
+        private async Task<bool> isCurrentUserAdmin()
+        {
+            return await userManager.IsInRoleAsync((await getCurrentUser()).Id, "Admin");
         }
     }
 }

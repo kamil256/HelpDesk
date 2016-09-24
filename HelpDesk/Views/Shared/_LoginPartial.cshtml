@@ -1,13 +1,14 @@
-﻿@using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+﻿@{
+    string currentUserId = User.Identity.GetUserId();
+}
+
+@using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
 {
     @Html.AntiForgeryToken()
 
     <ul class="nav navbar-nav navbar-right">
         <li>
-            @if (User.Identity.IsAuthenticated)
-            {
-                @Html.ActionLink(User.Identity.Name, "EditSelf", "Users")
-            }
+            @Html.ActionLink(User.Identity.Name, "Edit", "Users", new { id = currentUserId }, null)
         </li>
         <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
     </ul>

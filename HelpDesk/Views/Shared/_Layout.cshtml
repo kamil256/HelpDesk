@@ -1,7 +1,11 @@
 ﻿@{ 
-    string currentUserId = User.Identity.GetUserId();
     AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
-    bool isCurrentUserAdmin = userManager.IsInRole(currentUserId, "Admin");
+    string currentUserId = User.Identity.GetUserId();
+    bool? isCurrentUserAdmin = null;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
 }
 
 <!DOCTYPE html>
@@ -42,30 +46,33 @@
     </style>
 </head>
 <body>
-    <div class="navbar navbar-inverse @*navbar-fixed-top*@">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.ActionLink("Help Desk", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+    <div class="navbar navbar-inverse">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    @Html.ActionLink("Help Desk", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        @if (isCurrentUserAdmin == true)
+                        {
+                            <li class='@(ViewBag.Title == "New user" ? "active" : null)'>@Html.ActionLink("New user", "Create", "Users")</li>
+                            <li class='@(ViewBag.Title == "Users" ? "active" : null)'>@Html.ActionLink("Users", "Index", "Users")</li>
+                        }
+                        <li class='@(ViewBag.Title == "New ticket" ? "active" : null)'>@Html.ActionLink("New ticket", "Create", "Tickets")</li>
+                        <li class='@(ViewBag.Title == "Tickets" ? "active" : null)'>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
+                        <li class='@(ViewBag.Title == "Settings" ? "active" : null)'>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
+                    </ul>
+                    @Html.Partial("_LoginPartial")
+                </div>
             </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    @if (isCurrentUserAdmin)
-                    {
-                        <li class='@(ViewBag.Title == "New user" ? "active" : null)'>@Html.ActionLink("New user", "Create", "Users")</li>
-                        <li class='@(ViewBag.Title == "Users" ? "active" : null)'>@Html.ActionLink("Users", "Index", "Users")</li>
-                    }
-                    <li class='@(ViewBag.Title == "New ticket" ? "active" : null)'>@Html.ActionLink("New ticket", "Create", "Tickets")</li>
-                    <li class='@(ViewBag.Title == "Tickets" ? "active" : null)'>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
-                    <li class='@(ViewBag.Title == "Settings" ? "active" : null)'>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
-                </ul>
-                @Html.Partial("_LoginPartial")
-            </div>
-        </div>
+        }
     </div>
 
     @RenderBody()

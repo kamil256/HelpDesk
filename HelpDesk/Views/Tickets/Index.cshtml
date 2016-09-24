@@ -1,5 +1,16 @@
 ﻿@using PagedList.Mvc;
 @model HelpDesk.Models.TicketsIndexViewModel
+
+@{
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    string currentUserId = User.Identity.GetUserId();
+    bool? isCurrentUserAdmin = null;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
+}
+
 <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{

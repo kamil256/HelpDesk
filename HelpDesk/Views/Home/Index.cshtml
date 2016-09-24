@@ -1,3 +1,19 @@
 ﻿@{
     ViewBag.Title = "Index";
 }
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @(TempData["Success"])
+    </div>
+}
+
+@if (TempData["Fail"] != null)
+{
+    <div class="alert alert-danger">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @(TempData["Fail"])
+    </div>
+}
