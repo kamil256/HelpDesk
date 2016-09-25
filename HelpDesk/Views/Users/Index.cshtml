@@ -118,7 +118,7 @@
                         @Html.DisplayFor(modelItem => HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>().GetRoles(item.Id)[0])
                     </td>
                     <td class="ticket-col">
-                        @item.RequestedTickets.Count
+                        @item.CreatedTickets.Count
                     </td>
                 </tr>
             }

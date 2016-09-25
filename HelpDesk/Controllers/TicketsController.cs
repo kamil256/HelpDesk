@@ -34,10 +34,10 @@ namespace HelpDesk.Controllers
         public async Task<ActionResult> Index([Bind(Include = "Status,AssignedToID,CategoryID,Search,AdvancedSearch,SortBy,DescSort,Page")] TicketsIndexViewModel model)
         {
             IQueryable<Ticket> query = context.Tickets;
-            if (!await isCurrentUserAdmin())
+            if (!await isCurrentUserAnAdminAsync())
             {
-                string currentUserId = (await getCurrentUser()).Id;
-                query = query.Where(t => t.RequestedByID == currentUserId);
+                string currentUserId = (await getCurrentUserAsync()).Id;
+                query = query.Where(t => t.CreatedByID == currentUserId);
             
                 ModelState.Remove("Status");
                 ModelState.Remove("AssignedToID");
@@ -149,12 +149,18 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
+        [OverrideAuthorization]
         public async Task<ActionResult> Edit(int? id)
         {
             Ticket ticket = await context.Tickets.FindAsync(id);
             if (ticket == null)
             {
                 return HttpNotFound();
+            }
+            if (!await isCurrentUserAnAdminAsync() && ticket.CreatedByID != (await getCurrentUserAsync()).Id)
+            {
+                TempData["Fail"] = "You can't modify ticket which you didn't create!";
+                return RedirectToAction("Index", "Home");
             }
             TicketsEditViewModel model = new TicketsEditViewModel
             {
@@ -181,12 +187,25 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [OverrideAuthorization]
         public async Task<ActionResult> Edit([Bind(Include = "TicketID,RequestedByID,AssignedToID,Status,CategoryID,Title,Content,Solution")] TicketsEditViewModel model)
         {
             Ticket ticket = await context.Tickets.FindAsync(model.TicketID);
             if (ticket == null)
             {
                 return HttpNotFound();
+            }
+            if (!await isCurrentUserAnAdminAsync())
+            {
+                if (ticket.CreatedByID != (await getCurrentUserAsync()).Id)
+                {
+                    TempData["Fail"] = "You can't modify ticket which you didn't create!";
+                    return RedirectToAction("Index", "Home");
+                }
+
+                ModelState.Remove("AssignedToID");
+                ModelState.Remove("Status");
+                ModelState.Remove("Solution");
             }
 
             model.RequestedBy = await userManager.FindByIdAsync(model.RequestedByID);//unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
@@ -196,17 +215,20 @@ namespace HelpDesk.Controllers
                 if (ModelState.IsValid)
                 {
                     ticket.RequestedByID = model.RequestedByID;
-                    ticket.AssignedToID = model.AssignedToID;
-                    ticket.Status = model.Status;
                     ticket.CategoryID = model.CategoryID;
                     ticket.Title = model.Title;
-                    ticket.Content = model.Content;
-                    ticket.Solution = model.Solution;
+                    ticket.Content = model.Content;                    
+
+                    if (await isCurrentUserAnAdminAsync())
+                    {
+                        ticket.Status = model.Status;
+                        ticket.AssignedToID = model.AssignedToID;
+                        ticket.Solution = model.Solution;
+                    }
+
                     context.Tickets.Attach(ticket);
                     context.Entry(ticket).State = EntityState.Modified;
                     await context.SaveChangesAsync();
-                    //unitOfWork.TicketRepository.Update(ticket);
-                    //unitOfWork.Save();
                     TempData["Success"] = "Successfully edited ticket!";
                     return RedirectToAction("Index");
                 }
@@ -226,84 +248,8 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
-        [OverrideAuthorization]
-        public async Task<ActionResult> EditOwn(int? id)
-        {
-            Ticket ticket = await context.Tickets.FindAsync(id);
-            AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
-            if (ticket == null)
-            {
-                return HttpNotFound();
-            }
-            if (ticket.CreatedByID != user.Id)
-                return RedirectToAction("IndexOwn");            
-            TicketsEditOwnViewModel model = new TicketsEditOwnViewModel
-            {
-                TicketID = ticket.TicketID,
-                RequestedByID = ticket.RequestedByID,
-                Status = ticket.Status,
-                CategoryID = ticket.CategoryID,
-                Title = ticket.Title,
-                Content = ticket.Content,
-                Solution = ticket.Solution,
-                CreatedBy = ticket.CreatedBy,
-                CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss"),
-                RequestedBy = ticket.RequestedBy,
-                AssignedTo = ticket.AssignedTo
-            };
-
-            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
-            return View(model);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [OverrideAuthorization]
-        public async Task<ActionResult> EditOwn([Bind(Include = "TicketID,RequestedByID,CategoryID,Title,Content")] TicketsEditOwnViewModel model)
-        {
-            Ticket ticket = await context.Tickets.FindAsync(model.TicketID);
-            AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
-            if (ticket == null)
-            {
-                return HttpNotFound();
-            }
-            if (ticket.CreatedByID != user.Id)
-                return RedirectToAction("IndexOwn");
-
-            model.RequestedBy = await userManager.FindByIdAsync(model.RequestedByID);//unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
-            model.AssignedTo = ticket.AssignedTo;//unitOfWork.UserRepository.GetById(model.AssignedToID ?? 0);
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    ticket.RequestedByID = model.RequestedByID;
-                    ticket.CategoryID = model.CategoryID;
-                    ticket.Title = model.Title;
-                    ticket.Content = model.Content;
-                    context.Tickets.Attach(ticket);
-                    context.Entry(ticket).State = EntityState.Modified;
-                    await context.SaveChangesAsync();
-                    //unitOfWork.TicketRepository.Update(ticket);
-                    //unitOfWork.Save();
-                    TempData["Success"] = "Successfully edited ticket!";
-                    return RedirectToAction("IndexOwn");
-                }
-            }
-            catch (DuplicateNameException)
-            {
-                ModelState.AddModelError("", "Cannot edit ticket. Try again!");
-            }
-            model.CreatedBy = ticket.CreatedBy;
-            model.CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss");
-
-            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [OverrideAuthorization]
         public async Task<ActionResult> Delete(int id)
         {
             Ticket ticket = await context.Tickets.FindAsync(id);
@@ -425,14 +371,14 @@ namespace HelpDesk.Controllers
             }
         }
 
-        private async Task<AppUser> getCurrentUser()
+        private async Task<AppUser> getCurrentUserAsync()
         {
-            return await userManager.FindByEmailAsync(User.Identity.Name);            
+            return await userManager.FindByEmailAsync(User.Identity.Name);
         }
 
-        private async Task<bool> isCurrentUserAdmin()
+        private async Task<bool> isCurrentUserAnAdminAsync()
         {
-            return await userManager.IsInRoleAsync((await getCurrentUser()).Id, "Admin");
+            return await userManager.IsInRoleAsync((await getCurrentUserAsync()).Id, "Admin");
         }
     }
 }

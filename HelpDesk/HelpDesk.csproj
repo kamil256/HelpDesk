@@ -243,7 +243,6 @@
     <Compile Include="Models\ISortableViewModel.cs" />
     <Compile Include="Models\SettingsIndexViewModel.cs" />
     <Compile Include="Models\TicketsCreateViewModel.cs" />
-    <Compile Include="Models\TicketsEditOwnViewModel.cs" />
     <Compile Include="Models\TicketsEditViewModel.cs" />
     <Compile Include="Models\UsersChangePasswordViewModel.cs" />
     <Compile Include="Entities\Category.cs" />
@@ -282,7 +281,6 @@
     <Content Include="Views\Shared\_LoginLayout.cshtml" />
     <Content Include="Views\Shared\_FooterPartial.cshtml" />
     <Content Include="Views\Settings\Index.cshtml" />
-    <Content Include="Views\Tickets\EditOwn.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

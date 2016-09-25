@@ -4,6 +4,16 @@
     ViewBag.Title = "Edit ticket";
 }
 
+@{
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    string currentUserId = User.Identity.GetUserId();
+    bool isCurrentUserAdmin = false;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
+}
+
 <header>
     <div class="container">
         <h1>Edit ticket</h1>
@@ -49,19 +59,33 @@
             <div class="form-group">
                 @Html.LabelFor(model => model.AssignedToID, new { @class = "control-label col-md-2" })
                 <div class="col-md-8">
-                    @Html.DropDownListFor(
-                        expression: model => model.AssignedToID,
-                        selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name"),
-                        optionLabel: "-",
-                        htmlAttributes: new { @class = "form-control" }
-                    )
+                    @if (isCurrentUserAdmin)
+                    {
+                        @Html.DropDownListFor(
+                                 expression: model => model.AssignedToID,
+                                 selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name"),
+                                 optionLabel: "-",
+                                 htmlAttributes: new { @class = "form-control" }
+                             )
+                    }
+                    else
+                    {
+                        <input value='@(Model.AssignedTo != null ? $"{Model.AssignedTo.FirstName} {Model.AssignedTo.LastName} ({Model.AssignedTo.Email})" : "-")' class="form-control" disabled="disabled" />
+                    }
                 </div>
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(model => model.Status, new { @class = "control-label col-md-2" })
                 <div class="col-md-8">
-                    @Html.DropDownListFor(model => model.Status, new SelectList(new[] { "New", "In progress", "Solved", "Closed" }), new { @class = "form-control" })
+                    @if (isCurrentUserAdmin)
+                    {
+                        @Html.DropDownListFor(model => model.Status, new SelectList(new[] { "New", "In progress", "Solved", "Closed" }), new { @class = "form-control" })
+                    }
+                    else
+                    {
+                        <input value='@(Model.Status)' class="form-control" disabled="disabled" />
+                    }
                     @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -97,7 +121,15 @@
             <div class="form-group">
                 @Html.LabelFor(model => model.Solution, new { @class = "control-label col-md-2" })
                 <div class="col-md-8">
-                    @Html.TextAreaFor(model => model.Solution, 7, 10, new { @class = "form-control" })
+                    @{ 
+                        Dictionary<string, object> htmlAttributes = new Dictionary<string, object>();
+                        htmlAttributes["class"] = "form-control";
+                        if (!isCurrentUserAdmin)
+                        {
+                            htmlAttributes["disabled"] = "disabled";
+                        }
+                    }
+                    @Html.TextAreaFor(model => model.Solution, 7, 10, htmlAttributes)
                     @Html.ValidationMessageFor(model => model.Solution, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -105,7 +137,10 @@
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
                     <input type="submit" value="Save" class="btn btn-blue" />
-                    <button data-ticket-id="@Model.TicketID" data-ticket-title="@Model.Title" type="button" class="btn btn-blue delete-ticket-btn">Delete</button>
+                    @if (isCurrentUserAdmin)
+                    {
+                        <button data-ticket-id="@Model.TicketID" data-ticket-title="@Model.Title" type="button" class="btn btn-blue delete-ticket-btn">Delete</button>
+                    }
                 </div>
             </div>
         </div>
@@ -113,4 +148,8 @@
 </div>
 
 @Html.Partial("_ChangeRequestorPartial")
-@Html.Partial("_DeleteTicketPartial")
+
+@if (isCurrentUserAdmin)
+{   
+    @Html.Partial("_DeleteTicketPartial")
+}
