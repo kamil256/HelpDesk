@@ -7,7 +7,7 @@
 @{
     AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
     string currentUserId = User.Identity.GetUserId();
-    bool? isCurrentUserAdmin = null;
+    bool isCurrentUserAdmin = false;
     if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
     {
         isCurrentUserAdmin = true;
@@ -104,7 +104,15 @@
             <div class="form-group">
                 @Html.LabelFor(model => model.Role, new { @class = "control-label col-md-offset-1 col-md-2" })
                 <div class="col-md-6">
-                    @Html.DropDownListFor(model => model.Role, new SelectList(new[] { "User", "Admin" }), new { @class = "form-control", disabled = isCurrentUserAdmin == true ? null : "disabled" })
+                    @{ 
+                        var htmlAttributes = new Dictionary<string, object>();
+                        htmlAttributes["class"] = "form-control";
+                        if (!isCurrentUserAdmin)
+                        {
+                            htmlAttributes["disabled"] = "disabled";
+                        }
+                    }
+                    @Html.DropDownListFor(model => model.Role, new SelectList(new[] { "User", "Admin" }), htmlAttributes)
                     @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -112,7 +120,7 @@
             <div class="form-group">
                 <div class="col-md-offset-3 col-md-6">
                     <input type="submit" value="Save" class="btn btn-blue" />
-                    @if (isCurrentUserAdmin == true)
+                    @if (isCurrentUserAdmin)
                     {
                         <button data-user-id="@Model.UserID" data-user-name="@Model.FirstName @Model.LastName" type="button" value="Delete" class="btn btn-blue delete-user-btn">Delete</button>
                     }
@@ -121,7 +129,7 @@
         </div>
     }
 
-    @if (isCurrentUserAdmin == true)
+    @if (isCurrentUserAdmin)
     {
         <hr />
 

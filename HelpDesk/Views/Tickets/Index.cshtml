@@ -4,7 +4,7 @@
 @{
     AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
     string currentUserId = User.Identity.GetUserId();
-    bool? isCurrentUserAdmin = null;
+    bool isCurrentUserAdmin = false;
     if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
     {
         isCurrentUserAdmin = true;
@@ -45,36 +45,40 @@
             @Html.HiddenFor(model => model.DescSort)
 
             <div class="row">
-                <div class="form-group col-sm-6 col-md-3">
-                    @Html.LabelFor(model => model.Status, new { @class = "control-label" })
-                    @Html.DropDownListFor(
-                            expression: model => model.Status,
-                            selectList: new SelectList(new[] { "All", "New", "In progress", "Solved", "Closed" }),
-                            htmlAttributes: new { @class = "form-control" }
-                        )
-                </div>
 
-                <div class="form-group col-sm-6 col-md-3">
-                    @Html.LabelFor(model => model.AssignedToID, new { @class = "control-label" })
-                    @Html.DropDownListFor(
-                            expression: model => model.AssignedToID,
-                            selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name"),
-                            optionLabel: "All",
-                            htmlAttributes: new { @class = "form-control" }
-                        )
-                </div>
+                @if (isCurrentUserAdmin)
+                {
+                    <div class="form-group col-sm-6 col-md-3">
+                        @Html.LabelFor(model => model.Status, new { @class = "control-label" })
+                        @Html.DropDownListFor(
+                                 expression: model => model.Status,
+                                 selectList: new SelectList(new[] { "All", "New", "In progress", "Solved", "Closed" }),
+                                 htmlAttributes: new { @class = "form-control" }
+                             )
+                    </div>
 
-                <div class="form-group col-sm-6 col-md-3">
-                    @Html.LabelFor(model => model.CategoryID, new { @class = "control-label" })
-                    @Html.DropDownListFor(
-                            expression: model => model.CategoryID,
-                            selectList: new SelectList(Model.Categories, "CategoryID", "Name"),
-                            optionLabel: "All",
-                            htmlAttributes: new { @class = "form-control" }
-                        )
-                </div>
+                    <div class="form-group col-sm-6 col-md-3">
+                        @Html.LabelFor(model => model.AssignedToID, new { @class = "control-label" })
+                        @Html.DropDownListFor(
+                                 expression: model => model.AssignedToID,
+                                 selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name"),
+                                 optionLabel: "All",
+                                 htmlAttributes: new { @class = "form-control" }
+                             )
+                    </div>
 
-                <div class="form-group col-sm-6 col-md-3">
+                    <div class="form-group col-sm-6 col-md-3">
+                        @Html.LabelFor(model => model.CategoryID, new { @class = "control-label" })
+                        @Html.DropDownListFor(
+                                 expression: model => model.CategoryID,
+                                 selectList: new SelectList(Model.Categories, "CategoryID", "Name"),
+                                 optionLabel: "All",
+                                 htmlAttributes: new { @class = "form-control" }
+                             )
+                    </div>
+                }
+
+                <div class='@(isCurrentUserAdmin ? "form-group col-sm-6 col-md-3" : "form-group col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4")'>
                     @Html.LabelFor(model => model.Search, new { @class = "control-label" })
                     <div class="input-with-button">
                         @Html.TextBoxFor(model => model.Search, new { @class = "form-control" })
@@ -101,7 +105,7 @@
     }
     else
     {
-        <table class="table" style="afont-size:14px;">
+        <table class="table">
             <tr>
                 <th style="min-width: 150px;">
                     @Html.SortableHeader("CreatedOn", "Created on")
@@ -121,9 +125,12 @@
                 <th class="hidden-xs hidden-sm hidden-md hidden-lg" style="min-width: 150px;">
                     @Html.SortableHeader("AssignedTo", "Assigned to")
                 </th>
-                <th class="btn-col" style="text-align: center">
-                    Quick actions
-                </th>
+                @if (isCurrentUserAdmin)
+                {
+                    <th class="btn-col" style="text-align: center">
+                        Quick actions
+                    </th>
+                }
             </tr>
             
             @foreach (var item in Model.Tickets)
@@ -147,11 +154,14 @@
                     <td class="hidden-xs hidden-sm hidden-md hidden-lg">
                         @(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")
                     </td>
-                    <td>
-                        <button class="assign-user-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Assign</button>
-                        <button class="solve-ticket-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Solve</button>
-                        <button class="close-ticket-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Close</button>
-                    </td>
+                    @if (isCurrentUserAdmin)
+                    {
+                        <td>
+                            <button class="assign-user-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Assign</button>
+                            <button class="solve-ticket-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Solve</button>
+                            <button class="close-ticket-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Close</button>
+                        </td>
+                    }
                 </tr>
             }
         </table>
@@ -170,9 +180,12 @@
     }
 </section>
 
-@Html.Partial("_AssignUserPartial", Model.Admins)
-@Html.Partial("_SolveTicketPartial", Model.Admins)
-@Html.Partial("_CloseTicketPartial")
+@if (isCurrentUserAdmin)
+{
+    @Html.Partial("_AssignUserPartial", Model.Admins)
+    @Html.Partial("_SolveTicketPartial", Model.Admins)
+    @Html.Partial("_CloseTicketPartial")
+}
 
 
 <script>
@@ -182,11 +195,11 @@
         $("#AssignedToID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
         $("#CategoryID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
         $("#search-btn").click(function() { $("#Page").val("1"); });
-        
+
         var statuses = document.getElementsByClassName("status");
         for (var i = 0; i < statuses.length; i++)
         {
-            switch (statuses[i].innerHTML)
+            switch (statuses[i].textContent)
             {
                 case "New":
                     statuses[i].className += " status-new";

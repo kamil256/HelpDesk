@@ -30,107 +30,66 @@ namespace HelpDesk.Controllers
             context = new HelpDeskContext();
         }
 
-        public ActionResult Index([Bind(Include = "Status,AssignedToID,CategoryID,Search,AdvancedSearch,SortBy,DescSort,Page")] TicketsIndexViewModel model)
+        [OverrideAuthorization]
+        public async Task<ActionResult> Index([Bind(Include = "Status,AssignedToID,CategoryID,Search,AdvancedSearch,SortBy,DescSort,Page")] TicketsIndexViewModel model)
         {
-            List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
-            if (model.Status != "All")
-                filters.Add(t => t.Status == model.Status);
-            if (model.AssignedToID != null)
-                filters.Add(t => t.AssignedToID == model.AssignedToID);
-            if (model.CategoryID != null)
-                filters.Add(t => t.CategoryID == model.CategoryID);
+            IQueryable<Ticket> query = context.Tickets;
+            if (!await isCurrentUserAdmin())
+            {
+                string currentUserId = (await getCurrentUser()).Id;
+                query = query.Where(t => t.RequestedByID == currentUserId);
+            
+                ModelState.Remove("Status");
+                ModelState.Remove("AssignedToID");
+                ModelState.Remove("CategoryID");
+            }
+            else
+            {
+                if (model.Status != "All")
+                    query = query.Where(t => t.Status == model.Status);
+                if (model.AssignedToID != null)
+                    query = query.Where(t => t.AssignedToID == model.AssignedToID);
+                if (model.CategoryID != null)
+                    query = query.Where(t => t.CategoryID == model.CategoryID);
+            }
+
             if (!string.IsNullOrWhiteSpace(model.Search))
             {
+                query = query.Where(t => t.Title.ToLower().Contains(model.Search.ToLower()));
                 if (model.AdvancedSearch)
-                    filters.Add(t => t.Title.ToLower().Contains(model.Search.ToLower()) ||
-                                     t.Content.ToLower().Contains(model.Search.ToLower()) ||
-                                     t.Solution.ToLower().Contains(model.Search.ToLower()));
-                else
-                    filters.Add(t => t.Title.ToLower().Contains(model.Search.ToLower()));
+                    query = query.Where(t => t.Content.ToLower().Contains(model.Search.ToLower()) ||
+                                             t.Solution.ToLower().Contains(model.Search.ToLower()));                    
             }
             
-            Func<IQueryable<Ticket>, IOrderedQueryable<Ticket>> orderBy = null;
             switch (model.SortBy)
             {
                 case "CreatedOn":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.CreatedOn) : q.OrderBy(t => t.CreatedOn);
+                    query = model.DescSort ? query.OrderByDescending(t => t.CreatedOn) : query.OrderBy(t => t.CreatedOn);
                     break;
                 case "RequestedBy":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.RequestedBy.UserName) : q.OrderBy(t => t.RequestedBy.UserName);
+                    query = model.DescSort ? query.OrderByDescending(t => t.RequestedBy.UserName) : query.OrderBy(t => t.RequestedBy.UserName);
                     break;
                 case "Title":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Title) : q.OrderBy(t => t.Title);
+                    query = model.DescSort ? query.OrderByDescending(t => t.Title) : query.OrderBy(t => t.Title);
                     break;
                 case "Category":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Category.Name) : q.OrderBy(t => t.Category.Name);
+                    query = model.DescSort ? query.OrderByDescending(t => t.Category.Name) : query.OrderBy(t => t.Category.Name);
                     break;
                 case "Status":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Status) : q.OrderBy(t => t.Status);
+                    query = model.DescSort ? query.OrderByDescending(t => t.Status) : query.OrderBy(t => t.Status);
                     break;
                 case "AssignedTo":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.AssignedTo.UserName) : q.OrderBy(t => t.AssignedTo.UserName);
+                    query = model.DescSort ? query.OrderByDescending(t => t.AssignedTo.UserName) : query.OrderBy(t => t.AssignedTo.UserName);
                     break;
             }
 
-            IQueryable<Ticket> query = context.Tickets;
-            foreach (var filter in filters)
-                if (filter != null)
-                    query = query.Where(filter);
-            if (orderBy != null)
-                query = orderBy(query);
+            
             model.Tickets = query.ToPagedList(model.Page, 5);
 
             string adminRoleId = roleManager.Roles.Single(r => r.Name == "Admin").Id;
             model.Admins = userManager.Users.Where(u => u.Roles.FirstOrDefault().RoleId == adminRoleId);// unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
             model.Categories = context.Categories.OrderBy(c => c.Order);
             
-            return View(model);
-        }
-
-        [OverrideAuthorization]
-        public ActionResult IndexOwn([Bind(Include = "Search,SortBy,DescSort,Page")] TicketsIndexOwnViewModel model)
-        {
-            Expression<Func<Ticket, bool>> filter = null;
-            if (!string.IsNullOrWhiteSpace(model.Search))
-            {
-                if (model.AdvancedSearch)
-                    filter = t => t.Title.ToLower().Contains(model.Search.ToLower()) ||
-                                  t.Content.ToLower().Contains(model.Search.ToLower()) ||
-                                  t.Solution.ToLower().Contains(model.Search.ToLower());
-                else
-                    filter = t => t.Title.ToLower().Contains(model.Search.ToLower());
-            }
-
-            Func<IQueryable<Ticket>, IOrderedQueryable<Ticket>> orderBy = null;
-            switch (model.SortBy)
-            {
-                case "CreatedOn":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.CreatedOn) : q.OrderBy(t => t.CreatedOn);
-                    break;
-                case "RequestedBy":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.RequestedBy.UserName) : q.OrderBy(t => t.RequestedBy.UserName);
-                    break;
-                case "Title":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Title) : q.OrderBy(t => t.Title);
-                    break;
-                case "Category":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Category.Name) : q.OrderBy(t => t.Category.Name);
-                    break;
-                case "Status":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.Status) : q.OrderBy(t => t.Status);
-                    break;
-                case "AssignedTo":
-                    orderBy = q => model.DescSort ? q.OrderByDescending(t => t.AssignedTo.UserName) : q.OrderBy(t => t.AssignedTo.UserName);
-                    break;
-            }
-
-            IQueryable<Ticket> query = context.Tickets;
-            if (filter != null)
-                query = query.Where(filter);
-            if (orderBy != null)
-                query = orderBy(query);
-            model.Tickets = query.ToPagedList(model.Page, 5);
-
             return View(model);
         }
 
@@ -469,6 +428,11 @@ namespace HelpDesk.Controllers
         private async Task<AppUser> getCurrentUser()
         {
             return await userManager.FindByEmailAsync(User.Identity.Name);            
+        }
+
+        private async Task<bool> isCurrentUserAdmin()
+        {
+            return await userManager.IsInRoleAsync((await getCurrentUser()).Id, "Admin");
         }
     }
 }
