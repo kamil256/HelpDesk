@@ -15,6 +15,7 @@ using PagedList;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.AspNet.Identity;
+using System.Text;
 
 namespace HelpDesk.Controllers
 {
@@ -289,6 +290,17 @@ namespace HelpDesk.Controllers
                              Email = x.Email
                          };
             return Json(result);
+        }
+
+        public async Task<FileResult> DownloadTicketsAsCSV()
+        {
+            StringBuilder csv = new StringBuilder();
+            csv.AppendLine("Created on;Created by;Requested by;Assigned to;Status;Category;Title;Content;Solution");
+            foreach (Ticket ticket in await context.Tickets.OrderByDescending(t => t.CreatedOn).ToListAsync())
+            {
+                csv.AppendLine($"{ticket.CreatedOn};{ticket.CreatedBy?.FirstName} {ticket.CreatedBy?.LastName};{ticket.RequestedBy?.FirstName} {ticket.RequestedBy?.LastName};{ticket.AssignedTo?.FirstName} {ticket.AssignedTo?.LastName};{ticket.Status};{ticket.Category?.Name};{ticket.Title};{ticket.Content};{ticket.Solution};");
+            }
+            return File(Encoding.GetEncoding("ISO-8859-2").GetBytes(csv.ToString()), "text/plain", string.Format("tickets.csv"));
         }
 
         [HttpPost]
