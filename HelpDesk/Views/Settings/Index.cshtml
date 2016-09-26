@@ -4,43 +4,180 @@
     ViewBag.Title = "Settings";
 }
 
+@{
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    string currentUserId = User.Identity.GetUserId();
+    bool isCurrentUserAdmin = false;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
+}
+
 <style>
     #sortable {
         list-style-type: none;
         display: inline-block;
-        border: 3px dashed black;
-        padding: 15px;
-        margin: 15px;
+        /*border: 3px dashed black;*/
+        /*padding: 15px;*/
+        /*margin: 15px;*/
+        margin: 0;
+        padding: 0;
     }
     #sortable > li {
         /*width: 200px;*/
         padding: 5px;
         margin: 3px;
-        border: 2px solid gray;
+        border: 1px solid gray;
         border-radius: 5px;
-        background-color: #ddd;
-        cursor: move;
+        background-color: #eee;
         overflow: auto;
     }
+    #sortable > li:not(:last-child) {
+        cursor: move;
+    }
+    #sortable span.glyphicon-remove, #sortable span.glyphicon-plus {
+        cursor: pointer;
+    }
+    #sortable span.glyphicon-remove:hover, #sortable span.glyphicon-plus:hover {
+        text-shadow: 0 0 2px blue;
+    }
+    #sortable table {
+        /*max-width: 500px;*/
+    }
+    #sortable table input {
+        display: inline-block;
+    }
+    #sortable li:not(:last-child) td:nth-child(2), li:last-child td:first-child {
+        width: 100%;
+    }
+    #sortable td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    #sortable span.glyphicon {
+        padding: 0 5px;
+        font-size: 20px;
+    }
+    #sortable span.glyphicon-remove {
+        color: red;
+    }
+    #sortable span.glyphicon-plus {
+        color: green;
+    }
+
 </style>
 
-@using (@Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
-    <ul id="sortable">
-        
-        <li>
-            <span style="aline-height: 28px; vertical-align: -6px;  font-size: 20px;" class="glyphicon glyphicon-resize-vertical"></span>
-            <input style="avertical-align: middle; width: 200px;display: inline-block !important" class="form-control" name="categoriesName" value="PC problem" />
-            <input type="hidden" name="categoriesId" value="1" />
-        </li>
-        <li><input class="form-control" name="categoriesName" value="Network problem" /><input type="hidden" name="categoriesId" value="2" /></li>
-        <li><input class="form-control" name="categoriesName" value="Monitor" /><input type="hidden" name="categoriesId" value="3" /></li>
-        <li><input class="form-control" name="categoriesName" value="Return PC and accessories" /><input type="hidden" name="categoriesId" value="4" /></li>
-    </ul>
-    <input type="submit" />
-}
+<header>
+    <div class="container">
+        <h1>Settings</h1>
+    </div>
+</header>
+
+<section class="container">
+    @using (@Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-horizontal">
+
+            @if (isCurrentUserAdmin)
+            {
+                <div class="form-group">
+                    <label class="control-label col-md-2">Users per page</label>
+                    <div class="col-md-8">
+                        <input class="form-control" value="5" />
+                    </div>
+                </div>
+            }
+
+            <div class="form-group">
+                <label class="control-label col-md-2">Tickets per page</label>
+                <div class="col-md-8">
+                    <input class="form-control" value="5" />
+                </div>
+            </div>
+
+            @if (isCurrentUserAdmin)
+            {
+                <div class="form-group">
+                    <label class="control-label col-md-2">Categories</label>
+                    <div class="col-md-8">
+                        <ul id="sortable">
+                            @foreach (var category in Model.Categories)
+                            {
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <span class="glyphicon glyphicon-resize-vertical"></span>
+                                            </td>
+                                            <td>
+                                                <input class="form-control" name="categoriesName" value="@category.Name" />
+                                                <input type="hidden" name="categoriesId" value="@category.CategoryID" />
+                                            </td>
+                                            <td>
+                                                <span class="glyphicon glyphicon-remove" onclick="removeCategory(event)"></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+
+                            }
+                            <li id="add-category">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <input id="new-category" class="form-control" value="" />
+                                        </td>
+                                        <td>
+                                            <span class="glyphicon glyphicon-plus" onclick="addCategory()"></span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            }
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="btn btn-blue" />
+                </div>
+            </div>
+        </div>
+    }
+</section>
 
 <script>
-    $("#sortable").sortable();
+    $("#sortable").sortable({ cancel: "input,textarea,button,select,option,span.glyphicon-remove,span.glyphicon-plus,li:last-child" });
+
+    function addCategory()
+    {
+        var sortable = document.getElementById("add-category");
+        var name = document.getElementById("new-category").value;
+        sortable.outerHTML = "<li>" +
+                                "<table>" +
+                                    "<tr>" +
+                                        "<td>" +
+                                            "<span class='glyphicon glyphicon-resize-vertical'></span>" +
+                                        "</td>" +
+                                        "<td>" +
+                                            "<input class='form-control' name='categoriesName' value='" + name + "' />" +
+                                            "<input type='hidden' name='categoriesId' value='0' />" +
+                                        "</td>" +
+                                        "<td>" +
+                                            "<span class='glyphicon glyphicon-remove' onclick='removeCategory(event)'></span>" +
+                                        "</td>" +
+                                    "</tr>" +
+                                "</table>" +
+                            "</li>" + sortable.outerHTML;
+        name.value = "";
+    }
+
+    function removeCategory(e)
+    {
+        var categoryElementToRemove = e.target.parentElement.parentElement.parentElement.parentElement.parentElement;
+        categoryElementToRemove.outerHTML = "";
+    }
 </script>

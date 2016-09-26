@@ -9,6 +9,7 @@ namespace HelpDesk.Models
     public class SettingsIndexViewModel
     {
         public Category[] Categories { get; set; }
-        public string[] newCategories { get; set; }
+        public string[] CategoriesName { get; set; }
+        public int[] CategoriesId { get; set; }
     }
 }
