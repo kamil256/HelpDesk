@@ -2,13 +2,22 @@
     string currentUserId = User.Identity.GetUserId();
 }
 
+@{
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    bool? isCurrentUserAdmin = null;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
+}
+
 @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
 {
     @Html.AntiForgeryToken()
 
     <ul class="nav navbar-nav navbar-right">
         <li>
-            @Html.ActionLink(User.Identity.Name, "Edit", "Users", new { id = currentUserId }, null)
+            @Html.ActionLink(userManager.FindById(currentUserId).FirstName + " " + userManager.FindById(currentUserId).LastName, "Edit", "Users", new { id = currentUserId }, null)
         </li>
         <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
     </ul>
