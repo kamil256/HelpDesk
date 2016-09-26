@@ -140,6 +140,17 @@
                     </div>
                 </div>
             }
+
+            @if (isCurrentUserAdmin)
+            {
+                <div class="form-group">
+                    <label class="control-label col-md-2">Tickets history</label>
+                    <div class="col-md-8">
+                        <a href='@Url.Action("DownloadTicketsAsCSV", "Tickets")' class="btn btn-blue">Download as CSV file</a>
+                    </div>
+                </div>
+            }
+
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
                     <input type="submit" value="Save" class="btn btn-blue" />
