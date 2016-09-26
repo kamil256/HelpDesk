@@ -13,13 +13,14 @@
         margin: 15px;
     }
     #sortable > li {
-        width: 200px;
+        /*width: 200px;*/
         padding: 5px;
         margin: 3px;
         border: 2px solid gray;
         border-radius: 5px;
         background-color: #ddd;
         cursor: move;
+        overflow: auto;
     }
 </style>
 
@@ -27,10 +28,15 @@
 {
     @Html.AntiForgeryToken()
     <ul id="sortable">
-        <li>PC problem<input type="hidden" name="Categories2" value="1" /></li>
-        <li>Network problem<input type="hidden" name="Categories2" value="2" /></li>
-        <li>Monitor<input type="hidden" name="Categories2" value="3" /></li>
-        <li>Return PC and accessories<input type="hidden" name="Categories2" value="4" /></li>
+        
+        <li>
+            <span style="aline-height: 28px; vertical-align: -6px;  font-size: 20px;" class="glyphicon glyphicon-resize-vertical"></span>
+            <input style="avertical-align: middle; width: 200px;display: inline-block !important" class="form-control" name="categoriesName" value="PC problem" />
+            <input type="hidden" name="categoriesId" value="1" />
+        </li>
+        <li><input class="form-control" name="categoriesName" value="Network problem" /><input type="hidden" name="categoriesId" value="2" /></li>
+        <li><input class="form-control" name="categoriesName" value="Monitor" /><input type="hidden" name="categoriesId" value="3" /></li>
+        <li><input class="form-control" name="categoriesName" value="Return PC and accessories" /><input type="hidden" name="categoriesId" value="4" /></li>
     </ul>
     <input type="submit" />
 }
