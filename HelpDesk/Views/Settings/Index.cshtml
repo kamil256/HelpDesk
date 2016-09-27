@@ -92,19 +92,13 @@
         <div class="form-horizontal">
 
             <div class="form-group ">
-                <label class="control-label col-md-offset-1 col-md-2">Email notifications about new tickets</label>
+                <label class="control-label col-md-offset-1 col-md-2">Notifications</label>
                 <div class="col-md-6 ">
                     <div class="checkbox">
-                        <input class="" type="checkbox" />
+                        <label><input class="" type="checkbox" />Send email notifications about new tickets</label>
                     </div>
-                </div>
-            </div>
-
-            <div class="form-group ">
-                <label class="control-label col-md-offset-1 col-md-2">Email notifications about solved tickets</label>
-                <div class="col-md-6 ">
                     <div class="checkbox">
-                        <input class="" type="checkbox" />
+                        <label><input class="" type="checkbox" />Send email notifications about solved tickets</label>
                     </div>
                 </div>
             </div>
@@ -131,6 +125,7 @@
                 <div class="form-group">
                     <label class="control-label col-md-offset-1 col-md-2">Categories</label>
                     <div class="col-md-6">
+                        <p>If you modify existing categories, then categories of tickets will also be modified. If you delete categories, some tickets will not be assigned to any category.</p>
                         <ul id="sortable">
                             @foreach (var category in Model.Categories)
                             {
