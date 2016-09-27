@@ -15,7 +15,7 @@
 }
 
 <style>
-    #sortable {
+    #sortable, #sortable + ul {
         list-style-type: none;
         display: inline-block;
         /*border: 3px dashed black;*/
@@ -24,19 +24,19 @@
         margin: 0;
         padding: 0;
     }
-    #sortable > li {
+    #sortable > li, #sortable + ul > li, #add-category {
         /*width: 200px;*/
-        padding: 5px;
-        margin: 3px;
+        padding: 1px;
+        margin: 5px 0;
         border: 1px solid rgb(204, 204, 204);
         border-radius: 5px;
-        background-color: #eee;
+        background-color: #ddd;
         overflow: auto;
     }
-    #sortable > li:not(:last-child) {
+    #sortable > li {
         cursor: move;
     }
-    #sortable span.glyphicon-remove, #sortable span.glyphicon-plus {
+    #sortable span.glyphicon-remove, span.glyphicon-plus {
         cursor: pointer;
     }
     #sortable span.glyphicon-remove:hover, #sortable span.glyphicon-plus:hover {
@@ -48,7 +48,7 @@
     #sortable table input {
         display: inline-block;
     }
-    #sortable li:not(:last-child) td:nth-child(2), li:last-child td:first-child {
+    #sortable /*:not(:last-child)*/ td:nth-child(2), ul:last-child li:last-child td:first-child, #add-category td {
         width: 100%;
     }
     #sortable td {
@@ -56,17 +56,27 @@
         text-align: center;
     }
 
-    #sortable span.glyphicon {
+    #sortable span.glyphicon, #sortable + ul span.glyphicon, #add-category span.glyphicon {
         padding: 0 5px;
-        font-size: 20px;
+        /*font-size: 20px;*/
     }
     #sortable span.glyphicon-remove {
         color: red;
     }
-    #sortable span.glyphicon-plus {
+    /*#sortable*/ span.glyphicon-plus {
         color: green;
     }
-
+    .text-box-with-number input {
+        width: 70px;
+        text-align: center;
+    }
+    .text-box-with-number .glyphicon {
+        padding: 0 5px;
+        cursor: pointer;
+    }
+    .text-box-with-number .glyphicon:hover {
+        text-shadow: 0 0 2px blue;
+    }
 </style>
 
 <header>
@@ -81,62 +91,53 @@
         @Html.AntiForgeryToken()
         <div class="form-horizontal">
 
-            @if (isCurrentUserAdmin)
-            {
-                <div class="form-group">
-                    <label class="control-label col-md-2">Users per page</label>
-                    <div class="col-md-8">
-                        <input class="form-control" value="5" />
+            <div class="form-group ">
+                <label class="control-label col-md-offset-1 col-md-2">Email notifications about new tickets</label>
+                <div class="col-md-6 ">
+                    <div class="checkbox">
+                        <input class="" type="checkbox" />
                     </div>
                 </div>
-            }
+            </div>
 
-            <div class="form-group">
-                <label class="control-label col-md-2">Tickets per page</label>
-                <div class="col-md-8">
-                    <input class="form-control" value="5" />
+            <div class="form-group ">
+                <label class="control-label col-md-offset-1 col-md-2">Email notifications about solved tickets</label>
+                <div class="col-md-6 ">
+                    <div class="checkbox">
+                        <input class="" type="checkbox" />
+                    </div>
                 </div>
             </div>
 
             @if (isCurrentUserAdmin)
             {
                 <div class="form-group">
-                    <label class="control-label col-md-2">Categories</label>
-                    <div class="col-md-8">
+                    <label class="control-label col-md-offset-1 col-md-2">Users per page</label>
+                    <div class="col-md-6">
+                        @Html.TextBoxWithNumber(5)
+                    </div>
+                </div>
+            }
+
+            <div class="form-group">
+                <label class="control-label col-md-offset-1 col-md-2">Tickets per page</label>
+                <div class="col-md-6">
+                    @Html.TextBoxWithNumber(5)
+                </div>
+            </div>
+
+            @if (isCurrentUserAdmin)
+            {
+                <div class="form-group">
+                    <label class="control-label col-md-offset-1 col-md-2">Categories</label>
+                    <div class="col-md-6">
                         <ul id="sortable">
                             @foreach (var category in Model.Categories)
                             {
-                                <li>
-                                    <table>
-                                        <tr>
-                                            <td>
-                                                <span class="glyphicon glyphicon-resize-vertical"></span>
-                                            </td>
-                                            <td>
-                                                <input class="form-control" name="categoriesName" value="@category.Name" />
-                                                <input type="hidden" name="categoriesId" value="@category.CategoryID" />
-                                            </td>
-                                            <td>
-                                                <span class="glyphicon glyphicon-remove" onclick="removeCategory(event)"></span>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </li>
-
+                                @Html.SortableCategoryItem(category.CategoryID, category.Name)
                             }
-                            <li id="add-category">
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <input id="new-category" class="form-control" value="" />
-                                        </td>
-                                        <td>
-                                            <span class="glyphicon glyphicon-plus" onclick="addCategory()"></span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </li>
                         </ul>
+                        @Html.SortableCategoryLastItem()
                     </div>
                 </div>
             }
@@ -144,15 +145,15 @@
             @if (isCurrentUserAdmin)
             {
                 <div class="form-group">
-                    <label class="control-label col-md-2">Tickets history</label>
-                    <div class="col-md-8">
+                    <label class="control-label col-md-offset-1 col-md-2">Tickets history</label>
+                    <div class="col-md-6">
                         <a href='@Url.Action("DownloadTicketsAsCSV", "Tickets")' class="btn btn-blue">Download as CSV file</a>
                     </div>
                 </div>
             }
 
             <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
+                <div class="col-md-offset-3 col-md-6">
                     <input type="submit" value="Save" class="btn btn-blue" />
                 </div>
             </div>
@@ -161,28 +162,48 @@
 </section>
 
 <script>
-    $("#sortable").sortable({ cancel: "input,textarea,button,select,option,span.glyphicon-remove,span.glyphicon-plus,li:last-child" });
+    $("#sortable").sortable({ cancel: "input,textarea,button,select,option,span.glyphicon-remove,span.glyphicon-plus" });
 
     function addCategory()
     {
-        var sortable = document.getElementById("add-category");
-        var name = document.getElementById("new-category").value;
-        sortable.outerHTML = "<li>" +
-                                "<table>" +
-                                    "<tr>" +
-                                        "<td>" +
-                                            "<span class='glyphicon glyphicon-resize-vertical'></span>" +
-                                        "</td>" +
-                                        "<td>" +
-                                            "<input class='form-control' name='categoriesName' value='" + name + "' />" +
-                                            "<input type='hidden' name='categoriesId' value='0' />" +
-                                        "</td>" +
-                                        "<td>" +
-                                            "<span class='glyphicon glyphicon-remove' onclick='removeCategory(event)'></span>" +
-                                        "</td>" +
-                                    "</tr>" +
-                                "</table>" +
-                            "</li>" + sortable.outerHTML;
+        var sortable = document.getElementById("sortable");
+        var name = document.getElementById("new-category");
+
+        var span1 = document.createElement("span");
+        span1.className = "glyphicon glyphicon-resize-vertical";
+        var td1 = document.createElement("td");
+        td1.appendChild(span1);
+
+        var input1 = document.createElement("input");
+        input1.className = "form-control";
+        input1.setAttribute("name", "categoriesName");
+        input1.setAttribute("value", name.value);
+        var input2 = document.createElement("input");
+        input2.setAttribute("type", "hidden");
+        input2.setAttribute("name", "categoriesId");
+        input2.setAttribute("value", "0");
+        var td2 = document.createElement("td");
+        td2.appendChild(input1);
+        td2.appendChild(input2);
+
+        var span2 = document.createElement("span");
+        span2.className = "glyphicon glyphicon-remove";
+        span2.setAttribute("onclick", "removeCategory(event)");
+        var td3 = document.createElement("td");
+        td3.appendChild(span2);
+
+        var tr = document.createElement("tr");
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+
+        var table = document.createElement("table");
+        table.appendChild(tr);
+
+        var li = document.createElement("li");
+        li.appendChild(table);
+
+        sortable.appendChild(li);
         name.value = "";
     }
 

@@ -40,5 +40,105 @@ namespace HelpDesk
             }
             return MvcHtmlString.Create(marked);
         }
+        public static MvcHtmlString TextBoxWithNumber(this HtmlHelper htmlHelper, int value)
+        {
+            TagBuilder span1 = new TagBuilder("span");
+            span1.AddCssClass("glyphicon glyphicon-chevron-left");
+            TagBuilder td1 = new TagBuilder("td");
+            td1.InnerHtml = span1.ToString();
+
+            TagBuilder input = new TagBuilder("input");
+            input.AddCssClass("form-control");
+            input.MergeAttribute("value", value.ToString());
+            TagBuilder td2 = new TagBuilder("td");
+            td2.InnerHtml = input.ToString();
+
+            TagBuilder span2 = new TagBuilder("span");
+            span2.AddCssClass("glyphicon glyphicon-chevron-right");
+            TagBuilder td3 = new TagBuilder("td");
+            td3.InnerHtml = span2.ToString();
+
+            TagBuilder tr = new TagBuilder("tr");
+            tr.InnerHtml = td1.ToString();
+            tr.InnerHtml += td2.ToString();
+            tr.InnerHtml += td3.ToString();
+
+            TagBuilder table = new TagBuilder("table");
+            table.AddCssClass("text-box-with-number");
+            table.InnerHtml = tr.ToString();
+
+            return new MvcHtmlString(table.ToString());
+        }
+
+        public static MvcHtmlString SortableCategoryItem(this HtmlHelper htmlHelper, int id, string value)
+        {
+            TagBuilder span1 = new TagBuilder("span");
+            span1.AddCssClass("glyphicon");
+            span1.AddCssClass("glyphicon-resize-vertical");
+            TagBuilder td1 = new TagBuilder("td");
+            td1.InnerHtml = span1.ToString();
+
+            TagBuilder input1 = new TagBuilder("input");
+            input1.AddCssClass("form-control");
+            input1.MergeAttribute("name", "categoriesName");
+            input1.MergeAttribute("value", value);
+            TagBuilder input2 = new TagBuilder("input");
+            input2.MergeAttribute("type", "hidden");
+            input2.MergeAttribute("name", "categoriesId");
+            input2.MergeAttribute("value", id.ToString());
+            TagBuilder td2 = new TagBuilder("td");
+            td2.InnerHtml = input1.ToString();
+            td2.InnerHtml += input2.ToString();
+
+            TagBuilder span2 = new TagBuilder("span");
+            span2.AddCssClass("glyphicon");
+            span2.AddCssClass("glyphicon-remove");
+            span2.MergeAttribute("onclick", "removeCategory(event)");
+            TagBuilder td3 = new TagBuilder("td");
+            td3.InnerHtml = span2.ToString();
+
+            TagBuilder tr = new TagBuilder("tr");
+            tr.InnerHtml = td1.ToString();
+            tr.InnerHtml += td2.ToString();
+            tr.InnerHtml += td3.ToString();
+
+            TagBuilder table = new TagBuilder("table");
+            table.InnerHtml = tr.ToString();
+
+            TagBuilder li = new TagBuilder("li");
+            li.InnerHtml = table.ToString();
+
+            return new MvcHtmlString(li.ToString());
+        }
+
+        public static MvcHtmlString SortableCategoryLastItem(this HtmlHelper htmlHelper)
+        {
+            TagBuilder input1 = new TagBuilder("input");
+            input1.AddCssClass("form-control");
+            input1.MergeAttribute("id", "new-category");
+            //input1.MergeAttribute("value", "");
+            TagBuilder td1 = new TagBuilder("td");
+            td1.InnerHtml = input1.ToString();
+
+            TagBuilder span = new TagBuilder("span");
+            span.AddCssClass("glyphicon");
+            span.AddCssClass("glyphicon-plus");
+            span.MergeAttribute("onclick", "addCategory()");
+            TagBuilder td2 = new TagBuilder("td");
+            td2.InnerHtml = span.ToString();
+
+            TagBuilder tr = new TagBuilder("tr");
+            tr.InnerHtml = td1.ToString();
+            tr.InnerHtml += td2.ToString();
+            
+            TagBuilder table = new TagBuilder("table");
+            table.InnerHtml = tr.ToString();
+
+            TagBuilder div = new TagBuilder("div");
+            div.MergeAttribute("id", "add-category");
+            div.InnerHtml = table.ToString();
+
+            return new MvcHtmlString(div.ToString());
+        }
     }
 }
