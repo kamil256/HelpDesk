@@ -51,7 +51,7 @@ header hr {
 
 /* ----- search button ----- */
 
-.form-group > div.col-md-8 {
+.form-group > div.col-md-6 {
     padding-right: 0;
     margin-right: 15px;
 }
