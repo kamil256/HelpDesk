@@ -1,0 +1,297 @@
+﻿<script>
+    function TicketsViewModel()
+    {
+        var self = this;
+
+        self.tickets = ko.observableArray([]);
+        self.status = ko.observable("All");
+        self.sortBy = ko.observable("Title");
+        self.descSort = ko.observable(true);
+
+        self.statuses = ["All", "New", "In progress", "Solved", "Closed"];
+
+        self.getTickets = function()
+        {
+            $.ajax("/api/ApiTickets",
+            {
+                type: "GET",
+                data:
+                {
+                    status: self.status,
+                    sortBy: self.sortBy,
+                    descSort: self.descSort
+                },
+                success: function(data)
+                {
+                    self.tickets(data);
+                }
+            });
+        };
+
+        self.sort = function(data, event)
+        {
+            var sortBy = event.target.textContent;
+            if (self.sortBy() === sortBy)
+                self.descSort(!self.descSort());
+            else
+                self.sortBy(sortBy);
+            self.getTickets();
+        };
+
+        self.getSortSymbol = ko.computed(function()
+        {
+            if (self.descSort())
+                return "\u25BC";
+            else
+                return "\u25B2";
+        });
+
+        self.getTickets();
+    }
+
+    function formatDate(ticks)
+    {
+        function padZero(value)
+        {
+            return value < 10 ? "0" + value : value;
+        }
+
+        var date = new Date(Number(ticks));
+        var year = date.getFullYear();
+        var month = padZero(date.getMonth() + 1);
+        var day = padZero(date.getDate());
+        var hours = padZero(date.getHours());
+        var minutes = padZero(date.getMinutes());
+        var seconds = padZero(date.getSeconds());
+        return year + "-" + month  + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+    }
+
+    $(document).ready(function()
+    {
+        ko.applyBindings(new TicketsViewModel());
+    });    
+</script>
+
+@{
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    string currentUserId = User.Identity.GetUserId();
+    bool isCurrentUserAdmin = false;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
+}
+
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Tickets";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @(TempData["Success"])
+    </div>
+}
+
+@if (TempData["Fail"] != null)
+{
+    <div class="alert alert-danger">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @(TempData["Fail"])
+    </div>
+}
+
+<header>
+    <div class="container">
+        <h1>List of tickets</h1>
+        <hr />
+
+        <div class="row">
+            @if (isCurrentUserAdmin)
+            {
+                <div class="form-group col-sm-6 col-md-3">
+                    <label class="control-label">Status</label>
+                    <select data-bind="options: statuses, value: status, event: { change: getTickets }" class="form-control"></select>
+                </div>
+
+                @*<div class="form-group col-sm-6 col-md-3">
+                    @Html.LabelFor(model => model.AssignedToID, new { @class = "control-label" })
+                    @Html.DropDownListFor(
+                                     expression: model => model.AssignedToID,
+                                     selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name"),
+                                     optionLabel: "All",
+                                     htmlAttributes: new { @class = "form-control" }
+                                 )
+                </div>
+
+                        <div class="form-group col-sm-6 col-md-3">
+                            @Html.LabelFor(model => model.CategoryID, new { @class = "control-label" })
+                            @Html.DropDownListFor(
+                                     expression: model => model.CategoryID,
+                                     selectList: new SelectList(Model.Categories, "CategoryID", "Name"),
+                                     optionLabel: "All",
+                                     htmlAttributes: new { @class = "form-control" }
+                                 )
+                        </div>*@
+            }
+
+            @*<div class='@(isCurrentUserAdmin ? "form-group col-sm-6 col-md-3" : "form-group col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4")'>
+                @Html.LabelFor(model => model.Search, new { @class = "control-label" })
+                <div class="input-with-button">
+                    @Html.TextBoxFor(model => model.Search, new { @class = "form-control" })
+                    <button id="search-btn" type="submit" class="btn btn-default btn-search">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </div>
+                <div class="checkbox">
+                    <label class="control-label">
+                        @Html.CheckBoxFor(model => model.AdvancedSearch)
+                        Also search in content and solution
+                    </label>
+                </div>
+            </div>*@
+        </div>
+                
+                
+                    
+
+                        
+                    
+                    
+                
+            </div>                                    
+</header>
+
+<section class="container">
+    @*@if (Model.Tickets.Count() == 0)
+    {
+        <h3>No tickets found...</h3>
+    }
+    else
+    {*@
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="min-width: 150px;">
+                        <a href="#" data-bind="click: sort">Created on</a>
+                        <span data-bind="text: getSortSymbol, visible: sortBy() === 'Created on'"></span>
+                    </th>
+                    <th class="hidden-xs hidden-sm" style="min-width: 150px;">
+                        <a href="#" data-bind="click: sort">Requested by</a>
+                        <span data-bind="text: getSortSymbol, visible: sortBy() === 'Requested by'"></span>
+                    </th>
+                    <th class="title-header" style="width: 100%">
+                        <a href="#" data-bind="click: sort">Title</a>
+                        <span data-bind="text: getSortSymbol, visible: sortBy() === 'Title'"></span>
+                    </th>
+                    <th class="hidden-xs hidden-sm" style="min-width: 150px;">
+                        <a href="#" data-bind="click: sort">Category</a>
+                        <span data-bind="text: getSortSymbol, visible: sortBy() === 'Category'"></span>
+                    </th>
+                    <th style="min-width: 100px;">
+                        <a href="#" data-bind="click: sort">Status</a>
+                        <span data-bind="text: getSortSymbol, visible: sortBy() === 'Status'"></span>
+                    </th>
+                    <th class="hidden-xs hidden-sm hidden-md hidden-lg" style="min-width: 150px;">
+                        <a href="#" data-bind="click: sort">Assigned to</a>
+                        <span data-bind="text: getSortSymbol, visible: sortBy() === 'Assigned to'"></span>
+                    </th>
+                    @if (isCurrentUserAdmin)
+                    {
+                        <th class="btn-col" style="text-align: center">
+                            Quick actions
+                        </th>
+                    }
+                </tr>
+            </thead>
+            
+            <tbody data-bind="foreach: tickets">
+                <tr @*onclick='document.location.href="@Url.Action("Edit", new { id = item.TicketID })"'*@>
+                    <td data-bind="text: formatDate(CreatedOn)"></td>
+                    <td data-bind="text: RequestedBy" class="hidden-xs hidden-sm"></td>
+                    <td data-bind="text: Title"></td>
+                    <td data-bind="text: Category" class="hidden-xs hidden-sm"></td>
+                    <td data-bind="text: Status"></td>
+                    <td class="hidden-xs hidden-sm hidden-md hidden-lg">
+                        @*@(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")*@
+                    </td>
+                    @if (isCurrentUserAdmin)
+                    {
+                        <td>
+                            @*<button class="assign-user-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Assign</button>
+                            <button class="solve-ticket-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Solve</button>
+                            <button class="close-ticket-btn btn btn-xs btn-blue" data-ticket-id="@item.TicketID" data-ticket-title="@item.Title">Close</button>*@
+                        </td>
+                    }
+                </tr>
+            </tbody>
+        </table>
+
+        @*@Html.PagedListPager(Model.Tickets, page => @Url.Action("Index", new
+        {
+            Page = page,
+            SortBy = Model.SortBy,
+            DescSort = Model.DescSort,
+            Search = Model.Search,
+            Status = Model.Status,
+            Category = Model.CategoryID,
+            AssignedTo = Model.AssignedToID,
+            AdvancedSearch = Model.AdvancedSearch
+        }), PagedListRenderOptions.Classic)*@
+    @*}*@
+</section>
+
+@*@if (isCurrentUserAdmin)
+{
+    @Html.Partial("_AssignUserPartial", Model.Admins)
+    @Html.Partial("_SolveTicketPartial", Model.Admins)
+    @Html.Partial("_CloseTicketPartial")
+}
+
+
+<script>
+    $(document).ready(function()
+    {
+        $("#Status").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#AssignedToID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#CategoryID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#search-btn").click(function() { $("#Page").val("1"); });
+
+        var statuses = document.getElementsByClassName("status");
+        for (var i = 0; i < statuses.length; i++)
+        {
+            switch (statuses[i].textContent)
+            {
+                case "New":
+                    statuses[i].className += " status-new";
+                    break;
+                case "In progress":
+                    statuses[i].className += " status-in-progress";
+                    break;
+                case "Solved":
+                    statuses[i].className += " status-solved";
+                    break;
+                case "Closed":
+                    statuses[i].className += " status-closed";
+                    break;
+            }
+        }
+    });
+
+    function sort(value)
+    {
+        if ($("#SortBy").val() == value)
+        {
+            $("#DescSort").val($("#DescSort").val().toLowerCase() == "true" ? "false" : "true");
+        }
+        else
+        {
+            $("#SortBy").val(value);
+            $("#DescSort").val("true");
+        }
+        $("#filtering-form").submit();
+    }
+</script>*@

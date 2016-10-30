@@ -118,6 +118,10 @@ header hr {
     background-color: #4694D7;
     color: white;
 }
+.table th a {
+    color: white;
+    text-decoration: underline;
+}
 .table tr:nth-child(2n+1) {
     background-color: #EAEAEA;
 }

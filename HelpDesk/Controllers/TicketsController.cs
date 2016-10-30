@@ -91,7 +91,7 @@ namespace HelpDesk.Controllers
             model.Admins = userManager.Users.Where(u => u.Roles.FirstOrDefault().RoleId == adminRoleId);// unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
             model.Categories = context.Categories.OrderBy(c => c.Order);
             
-            return View(model);
+            return View("ApiIndex"/*model*/);
         }
 
         [OverrideAuthorization]
