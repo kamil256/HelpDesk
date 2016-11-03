@@ -27,11 +27,10 @@ namespace HelpDesk.Controllers
 
         [OverrideAuthorization]
         [HttpGet]
-        public async Task<IndexViewModel> GetTickets([FromUri] IndexViewModel model)
+        public async Task<IEnumerable<TicketDTO>> GetTickets([FromUri] TicketFilteringModel model)
         {
             List<Expression<Func<Entities.Ticket, bool>>> filters = new List<Expression<Func<Entities.Ticket, bool>>>();
 
-            //IQueryable<Ticket> query = context.Tickets; 
             if (!await isCurrentUserAnAdminAsync())
             {
                 string currentUserId = (await getCurrentUserAsync()).Id;
@@ -97,16 +96,16 @@ namespace HelpDesk.Controllers
                     break;
             }
 
-            model.Tickets = unitOfWork.TicketRepository.GetAll(filters, orderBy).Select(ticket => new IndexViewModel.Ticket
+            IEnumerable<TicketDTO> tickets = unitOfWork.TicketRepository.GetAll(filters, orderBy).Select(t => new TicketDTO
             {
-                Id = ticket.TicketID,
-                CreatedOn = ((ticket.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
-                RequestedBy = ticket.RequestedBy?.FirstName + " " + ticket.RequestedBy?.LastName,
-                Title = ticket.Title,
-                Category = ticket.Category?.Name,
-                Status = ticket.Status
+                TicketId = t.TicketID,
+                CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
+                RequestedBy = t.RequestedBy?.FirstName + " " + t.RequestedBy?.LastName,
+                Title = t.Title,
+                Category = t.Category?.Name,
+                Status = t.Status
             });
-            return model;
+            return tickets;
 
             //model.Tickets = query.ToPagedList(model.Page, 5);
         }

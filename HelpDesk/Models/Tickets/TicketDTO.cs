@@ -5,7 +5,7 @@ using System.Web;
 
 namespace HelpDesk.Models.Tickets
 {
-    public class Ticket
+    public class TicketDTO
     {
         public int TicketId { get; set; }
         public string CreatedOn { get; set; }
