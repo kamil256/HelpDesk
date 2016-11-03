@@ -108,6 +108,9 @@ header hr {
 #filtering-form .input-with-button + .checkbox {
     margin: 0;
 }
+.checkbox {
+    margin-top: 5px;
+}
 
 /* ----- list of users and tickets table ----- */
 
