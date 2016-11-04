@@ -131,7 +131,7 @@ header hr {
 .table tr:nth-child(2n) {
     background-color: #E6E6E6;
 }
-.table tr:hover:not(:first-child) {
+.table tbody tr:hover {
     background-color: #F5EECD;
     cursor: pointer;
     outline: 1px solid #E3D179;

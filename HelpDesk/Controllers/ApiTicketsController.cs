@@ -27,7 +27,7 @@ namespace HelpDesk.Controllers
 
         [OverrideAuthorization]
         [HttpGet]
-        public async Task<IEnumerable<TicketDTO>> GetTickets([FromUri] TicketFilteringModel model)
+        public async Task<PagedTickets> GetTickets([FromUri] TicketFilteringModel model)
         {
             List<Expression<Func<Entities.Ticket, bool>>> filters = new List<Expression<Func<Entities.Ticket, bool>>>();
 
@@ -49,7 +49,7 @@ namespace HelpDesk.Controllers
                 if (model.CategoryID != null)
                     filters.Add(ticket => ticket.CategoryID == model.CategoryID);
             }
-
+            
             if (!string.IsNullOrWhiteSpace(model.Search))
             {
                 if (!model.AdvancedSearch)
@@ -96,7 +96,12 @@ namespace HelpDesk.Controllers
                     break;
             }
 
-            IEnumerable<TicketDTO> tickets = unitOfWork.TicketRepository.GetAll(filters, orderBy).Select(t => new TicketDTO
+            int ticketsPerPage = 2;
+            int numberOfTickets = unitOfWork.TicketRepository.GetAll(filters, orderBy).Count();
+            int numberOfPages = (int)Math.Ceiling((decimal)numberOfTickets / ticketsPerPage);
+
+            PagedTickets pagedTickets = new PagedTickets();
+            pagedTickets.Tickets = unitOfWork.TicketRepository.GetAll(filters, orderBy, skip: (model.Page - 1) * ticketsPerPage, take: ticketsPerPage).Select(t => new TicketDTO
             {
                 TicketId = t.TicketID,
                 CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
@@ -105,10 +110,16 @@ namespace HelpDesk.Controllers
                 Category = t.Category?.Name,
                 Status = t.Status
             });
-            return tickets;
 
-            //model.Tickets = query.ToPagedList(model.Page, 5);
+            pagedTickets.NumberOfPages = numberOfPages;
+            return pagedTickets;
         }
+
+        //public void PutTicket(Ticket model)
+        //{
+        //    if (ModelState.IsValid)
+        //        unitOfWork.TicketRepository.Update()
+        //}
 
         private AppUserManager userManager
         {

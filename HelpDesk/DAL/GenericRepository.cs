@@ -26,7 +26,7 @@ namespace HelpDesk.DAL
             return GetAll(filters, orderBy, includeProperties);
         }
 
-        public virtual IEnumerable<T> GetAll(List<Expression<Func<T, bool>>> filters = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includeProperties = "")
+        public virtual IEnumerable<T> GetAll(List<Expression<Func<T, bool>>> filters = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includeProperties = "", int? skip = null, int? take = null)
         {
             IQueryable<T> query = dbSet;
             if (filters != null)
@@ -35,6 +35,10 @@ namespace HelpDesk.DAL
                         query = query.Where(filter);
             if (orderBy != null)
                 query = orderBy(query);
+            if (skip != null)
+                query = query.Skip(skip ?? 0);
+            if (take != null)
+                query = query.Take(take ?? 0);
             foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 query = query.Include(includeProperty);
             return query.ToList();

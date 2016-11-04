@@ -1,5 +1,5 @@
-﻿<div id="close-ticket-dialog" class="dialog">
-    <h4>Close ticket <i id="close-ticket-title"></i></h4>
+﻿<div data-bind="visible: currentTicket()" id="close-ticket-dialog" class="dialog">
+    <h4>Close ticket <i data-bind="text: currentTicket().Title"></i></h4>
     @using (Html.BeginForm("CloseTicket", "Tickets", new { returnUrl = Request.Url.ToString() }))
     {
         @Html.AntiForgeryToken()
@@ -12,27 +12,3 @@
     }
 </div>
 
-<script>
-    $(document).ready(function()
-    {
-        $("#close-ticket-dialog").dialog(
-        {
-            autoOpen: false,
-            modal: true,
-            resizable: false
-        });
-
-        $("#close-ticket-btn-cancel").click(function()
-        {
-            $('#close-ticket-dialog').dialog('close');
-        });
-
-        $(".close-ticket-btn").click(function(e)
-        {
-            event.stopPropagation();
-            $("#CloseTicketID").val(e.target.getAttribute("data-ticket-id"));
-            $("#close-ticket-title").text(e.target.getAttribute("data-ticket-title"));
-            $('#close-ticket-dialog').dialog('open');
-        });
-    });
-</script>

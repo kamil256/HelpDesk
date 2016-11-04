@@ -304,13 +304,12 @@ namespace HelpDesk.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<RedirectResult> AssignUserToTicket(string assignUserID, int assignTicketID, string returnUrl)
+        public async Task<JsonResult> AssignUserToTicket(string userId, int ticketId)
         {
             try
             {
-                AppUser user = await userManager.FindByIdAsync(assignUserID);//unitOfWork.UserRepository.GetById(assignUserID);
-                Ticket ticket = unitOfWork.TicketRepository.GetById(assignTicketID);
+                AppUser user = await userManager.FindByIdAsync(userId);
+                Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "In progress";
                 unitOfWork.TicketRepository.Update(ticket);
@@ -321,17 +320,37 @@ namespace HelpDesk.Controllers
             {
                 TempData["Fail"] = "Cannot assign user to ticket. Try again!";
             }
-            return Redirect(returnUrl);
+            return Json(new { });
         }
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<RedirectResult> AssignUserToTicket(string assignUserID, int assignTicketID, string returnUrl)
+        //{
+        //    try
+        //    {
+        //        AppUser user = await userManager.FindByIdAsync(assignUserID);//unitOfWork.UserRepository.GetById(assignUserID);
+        //        Ticket ticket = unitOfWork.TicketRepository.GetById(assignTicketID);
+        //        ticket.AssignedToID = user.Id;
+        //        ticket.Status = "In progress";
+        //        unitOfWork.TicketRepository.Update(ticket);
+        //        unitOfWork.Save();
+        //        TempData["Success"] = "Successfully assigned user to ticket!";
+        //    }
+        //    catch
+        //    {
+        //        TempData["Fail"] = "Cannot assign user to ticket. Try again!";
+        //    }
+        //    return Redirect(returnUrl);
+        //}
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<RedirectResult> SolveTicket(string solveUserID, int solveTicketID, string solution, string returnUrl)
+        public async Task<JsonResult> SolveTicket(string userId, int ticketId, string solution)
         {
             try
-            { 
-                AppUser user = await userManager.FindByIdAsync(solveUserID);//unitOfWork.UserRepository.GetById(solveUserID);
-                Ticket ticket = unitOfWork.TicketRepository.GetById(solveTicketID);
+            {
+                AppUser user = await userManager.FindByIdAsync(userId);//unitOfWork.UserRepository.GetById(solveUserID);
+                Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "Solved";
                 ticket.Solution = solution;
@@ -343,17 +362,38 @@ namespace HelpDesk.Controllers
             {
                 TempData["Fail"] = "Cannot solve ticket. Try again!";
             }
-            return Redirect(returnUrl);
+            return Json(new { });
         }
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<RedirectResult> SolveTicket(string solveUserID, int solveTicketID, string solution, string returnUrl)
+        //{
+        //    try
+        //    { 
+        //        AppUser user = await userManager.FindByIdAsync(solveUserID);//unitOfWork.UserRepository.GetById(solveUserID);
+        //        Ticket ticket = unitOfWork.TicketRepository.GetById(solveTicketID);
+        //        ticket.AssignedToID = user.Id;
+        //        ticket.Status = "Solved";
+        //        ticket.Solution = solution;
+        //        unitOfWork.TicketRepository.Update(ticket);
+        //        unitOfWork.Save();
+        //        TempData["Success"] = "Successfully solved ticket!";
+        //    }
+        //    catch
+        //    {
+        //        TempData["Fail"] = "Cannot solve ticket. Try again!";
+        //    }
+        //    return Redirect(returnUrl);
+        //}
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<RedirectResult> CloseTicket(int closeTicketID, string returnUrl)
+        public async Task<JsonResult> CloseTicket(int ticketId)
         {
             try
-            { 
+            {
                 AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
-                Ticket ticket = unitOfWork.TicketRepository.GetById(closeTicketID);
+                Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "Closed";
                 unitOfWork.TicketRepository.Update(ticket);
@@ -364,8 +404,29 @@ namespace HelpDesk.Controllers
             {
                 TempData["Fail"] = "Cannot close ticket. Try again!";
             }
-            return Redirect(returnUrl);
+            return Json(new { });
         }
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<RedirectResult> CloseTicket(int closeTicketID, string returnUrl)
+        //{
+        //    try
+        //    { 
+        //        AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
+        //        Ticket ticket = unitOfWork.TicketRepository.GetById(closeTicketID);
+        //        ticket.AssignedToID = user.Id;
+        //        ticket.Status = "Closed";
+        //        unitOfWork.TicketRepository.Update(ticket);
+        //        unitOfWork.Save();
+        //        TempData["Success"] = "Successfully closed ticket!";
+        //    }
+        //    catch
+        //    {
+        //        TempData["Fail"] = "Cannot close ticket. Try again!";
+        //    }
+        //    return Redirect(returnUrl);
+        //}
 
         private AppUserManager userManager
         {
