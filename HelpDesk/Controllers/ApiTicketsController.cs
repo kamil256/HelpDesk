@@ -28,8 +28,7 @@ namespace HelpDesk.Controllers
         public async Task<PagedTickets> GetTickets([FromUri] TicketFilteringModel model)
         {
             List<Expression<Func<Entities.Ticket, bool>>> filters = new List<Expression<Func<Entities.Ticket, bool>>>();
-            bool x = await unitOfWork.UserRepository.IsCurrentUserAnAdmin();
-            AppUser currentUser = (await unitOfWork.UserRepository.Get(filters: new Expression<Func<AppUser, bool>>[] { u => u.Email == User.Identity.Name })).First();
+            AppUser currentUser = unitOfWork.UserRepository.Get(filters: new Expression<Func<AppUser, bool>>[] { u => u.Email == User.Identity.Name }).First();
             if (!await unitOfWork.UserRepository.IsCurrentUserAnAdmin())
             {
                 string currentUserId = (await unitOfWork.UserRepository.GetCurrentUser()).Id;

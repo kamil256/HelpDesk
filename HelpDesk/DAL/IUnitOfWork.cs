@@ -9,6 +9,7 @@ namespace HelpDesk.DAL
     public interface IUnitOfWork
     {
         UserRepository UserRepository { get; }
+        RoleRepository RoleRepository { get; }
         GenericRepository<Ticket> TicketRepository { get; }
         GenericRepository<Category> CategoryRepository { get; }
         void Save();

@@ -12,6 +12,7 @@ namespace HelpDesk.DAL
         private readonly HelpDeskContext context = new HelpDeskContext();
 
         private UserRepository userRepository;
+        private RoleRepository roleRepository;
         private GenericRepository<Ticket> ticketRepository;
         private GenericRepository<Category> categoryRepository;
 
@@ -22,6 +23,16 @@ namespace HelpDesk.DAL
                 if (userRepository == null)
                     userRepository = new UserRepository();
                 return userRepository;
+            }
+        }
+
+        public RoleRepository RoleRepository
+        {
+            get
+            {
+                if (roleRepository == null)
+                    roleRepository = new RoleRepository();
+                return roleRepository;
             }
         }
 

@@ -10,40 +10,13 @@ using System.Data.Entity;
 
 namespace HelpDesk.DAL
 {
-    public class UserRepository// : IRepository<AppUser>
+    public class RoleRepository// : IRepository<AppRole>
     {
-        private readonly AppUserManager userManager = System.Web.HttpContext.Current.Request.GetOwinContext().GetUserManager<AppUserManager>();
         private readonly AppRoleManager roleManager = System.Web.HttpContext.Current.Request.GetOwinContext().GetUserManager<AppRoleManager>();
-        private AppUser currentUser = null;
-
-        public async Task<AppUser> GetCurrentUser()
+        
+        public IEnumerable<AppRole> Get(IEnumerable<Expression<Func<AppRole, bool>>> filters = null, Func<IQueryable<AppRole>, IOrderedQueryable<AppRole>> orderBy = null, int skip = 0, int take = 0, string includeProperties = "")
         {
-            if (currentUser == null)
-                currentUser = await userManager.FindByEmailAsync(System.Web.HttpContext.Current.User.Identity.Name);
-            return currentUser;
-        }
-
-        public async Task<bool> IsAnAdmin(string userId)
-        {
-            return await userManager.IsInRoleAsync(userId, "Admin");
-
-        }
-
-        public async Task<bool> IsCurrentUserAnAdmin()
-        {
-            AppUser currentUser = await GetCurrentUser();
-            return await IsAnAdmin(currentUser.Id);
-        }
-
-        public string GetRoleName(string roleId)
-        {
-            AppRole role = roleManager.Roles.Single(r => r.Id == roleId);
-            return role.Name;
-        }
-
-        public IEnumerable<AppUser> Get(IEnumerable<Expression<Func<AppUser, bool>>> filters = null, Func<IQueryable<AppUser>, IOrderedQueryable<AppUser>> orderBy = null, int skip = 0, int take = 0, string includeProperties = "")
-        {
-            IQueryable<AppUser> query = userManager.Users;
+            IQueryable<AppRole> query = roleManager.Roles;
             if (filters != null)
                 foreach (var filter in filters)
                     if (filter != null)

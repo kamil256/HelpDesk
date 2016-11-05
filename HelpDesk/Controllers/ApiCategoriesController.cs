@@ -15,12 +15,10 @@ namespace HelpDesk.Controllers
     public class ApiCategoriesController : ApiController
     {
         private IUnitOfWork unitOfWork;
-        private HelpDeskContext context;
 
         public ApiCategoriesController()
         {
-            unitOfWork = new UnitOfWork();// Request.GetOwinContext().GetUserManager<AppUserManager>());
-            context = new HelpDeskContext();
+            unitOfWork = new UnitOfWork();
         }
 
         [OverrideAuthorization]

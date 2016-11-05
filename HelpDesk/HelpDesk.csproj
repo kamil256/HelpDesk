@@ -237,6 +237,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ApiCategoriesController.cs" />
     <Compile Include="Controllers\ApiTicketsController.cs" />
+    <Compile Include="Controllers\ApiUsersController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SettingsController.cs" />
     <Compile Include="Controllers\TicketsController.cs" />
@@ -248,6 +249,7 @@
     <Compile Include="DAL\IRepository.cs" />
     <Compile Include="DAL\IUnitOfWork.cs" />
     <Compile Include="DAL\UnitOfWork.cs" />
+    <Compile Include="DAL\RoleRepository.cs" />
     <Compile Include="DAL\UserRepository.cs" />
     <Compile Include="Entities\AppRole.cs" />
     <Compile Include="Entities\AppUser.cs" />
@@ -281,6 +283,9 @@
     <Compile Include="Models\UsersEditViewModel.cs" />
     <Compile Include="Models\TicketsIndexViewModel.cs" />
     <Compile Include="Models\UsersIndexViewModel.cs" />
+    <Compile Include="Models\Users\PagedUsers.cs" />
+    <Compile Include="Models\Users\UserFilteringModel.cs" />
+    <Compile Include="Models\Users\UserDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
