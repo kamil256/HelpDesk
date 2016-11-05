@@ -145,7 +145,7 @@ namespace HelpDesk.Controllers
 
             model.RequestedBy = await userManager.FindByIdAsync(model.RequestedByID);
             //model.RequestedBy = unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
-            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
+            model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: c => c.OrderBy(o => o.Order));
 
             return View(model);
         }
@@ -182,7 +182,7 @@ namespace HelpDesk.Controllers
             string adminRoleId = roleManager.Roles.Single(r => r.Name == "Admin").Id;
             model.Admins = userManager.Users.Where(u => u.Roles.FirstOrDefault().RoleId == adminRoleId);
             //model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
-            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
+            model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: c => c.OrderBy(o => o.Order));
             return View(model);
         }
 
@@ -244,7 +244,7 @@ namespace HelpDesk.Controllers
             string adminRoleId = roleManager.Roles.Single(r => r.Name == "Admin").Id;
             model.Admins = userManager.Users.Where(u => u.Roles.FirstOrDefault().RoleId == adminRoleId);
             //model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
-            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: c => c.OrderBy(o => o.Order));
+            model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: c => c.OrderBy(o => o.Order));
 
             return View(model);
         }

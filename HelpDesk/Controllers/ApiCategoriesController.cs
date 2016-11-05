@@ -26,7 +26,7 @@ namespace HelpDesk.Controllers
         [HttpGet]
         public IEnumerable<CategoryDTO> GetCategories()
         {
-            return unitOfWork.CategoryRepository.GetAll(filters: null, orderBy: o => o.OrderBy(c => c.Order)).Select(c => new CategoryDTO { CategoryId = c.CategoryID, Name = c.Name });
+            return unitOfWork.CategoryRepository.Get(filters: null, orderBy: o => o.OrderBy(c => c.Order)).Select(c => new CategoryDTO { CategoryId = c.CategoryID, Name = c.Name });
         }
     }
 }

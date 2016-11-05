@@ -98,11 +98,11 @@ namespace HelpDesk.Controllers
             }
 
             int ticketsPerPage = 2;
-            int numberOfTickets = unitOfWork.TicketRepository.GetAll(filters: filters, orderBy: orderBy).Count();
+            int numberOfTickets = unitOfWork.TicketRepository.Get(filters: filters, orderBy: orderBy).Count();
             int numberOfPages = (int)Math.Ceiling((decimal)numberOfTickets / ticketsPerPage);
 
             PagedTickets pagedTickets = new PagedTickets();
-            pagedTickets.Tickets = unitOfWork.TicketRepository.GetAll(filters: filters, orderBy: orderBy, skip: (model.Page - 1) * ticketsPerPage, take: ticketsPerPage).Select(t => new TicketDTO
+            pagedTickets.Tickets = unitOfWork.TicketRepository.Get(filters: filters, orderBy: orderBy, skip: (model.Page - 1) * ticketsPerPage, take: ticketsPerPage).Select(t => new TicketDTO
             {
                 TicketId = t.TicketID,
                 CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),

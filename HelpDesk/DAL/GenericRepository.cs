@@ -9,8 +9,8 @@ namespace HelpDesk.DAL
 {
     public class GenericRepository<T> where T : class
     {
-        private DbContext context;
-        private DbSet<T> dbSet;
+        private readonly DbContext context;
+        private readonly DbSet<T> dbSet;
 
         public GenericRepository(DbContext context)
         {
@@ -18,15 +18,7 @@ namespace HelpDesk.DAL
             this.dbSet = context.Set<T>();
         }
 
-        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includeProperties = "")
-        {
-            List<Expression<Func<T, bool>>> filters = new List<Expression<Func<T, bool>>>();
-            if (filter != null)
-                filters.Add(filter);
-            return GetAll(filters, orderBy, includeProperties);
-        }
-
-        public virtual IEnumerable<T> GetAll(List<Expression<Func<T, bool>>> filters = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includeProperties = "", int? skip = null, int? take = null)
+        public virtual IEnumerable<T> Get(IEnumerable<Expression<Func<T, bool>>> filters = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, int skip = 0, int take = 0, string includeProperties = "")
         {
             IQueryable<T> query = dbSet;
             if (filters != null)
@@ -35,13 +27,13 @@ namespace HelpDesk.DAL
                         query = query.Where(filter);
             if (orderBy != null)
                 query = orderBy(query);
-            if (skip != null)
-                query = query.Skip(skip ?? 0);
-            if (take != null)
-                query = query.Take(take ?? 0);
+            if (skip != 0)
+                query = query.Skip(skip);
+            if (take != 0)
+                query = query.Take(take);
             foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 query = query.Include(includeProperty);
-            return query.ToList();
+            return query;
         }
 
         public virtual T GetById(int id)

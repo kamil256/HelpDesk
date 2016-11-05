@@ -27,7 +27,7 @@ namespace HelpDesk.Controllers
         public ActionResult Index()
         {
             SettingsIndexViewModel model = new SettingsIndexViewModel();
-            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: q => q.OrderBy(c => c.Order)).ToArray();
+            model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: q => q.OrderBy(c => c.Order)).ToArray();
             return View(model);
         }
 
@@ -85,7 +85,7 @@ namespace HelpDesk.Controllers
             {
                 
             }
-            model.Categories = unitOfWork.CategoryRepository.GetAll(filter: null, orderBy: q => q.OrderBy(c => c.Order)).ToArray();
+            model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: q => q.OrderBy(c => c.Order)).ToArray();
             return View(model);
         }
 
