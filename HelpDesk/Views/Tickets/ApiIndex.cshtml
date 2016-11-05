@@ -18,7 +18,7 @@
 
         self.statuses = ["All", "New", "In progress", "Solved", "Closed"];
         self.administrators = ko.observableArray([{ Id: '1d60419b-53b0-42a1-8640-e005d5c7f7a6', Name: 'Kamil Dzierlęga' }]);
-        self.categories = ko.observableArray([{ Id: 3, Name: 'Network problem' }, { Id: 4, Name: 'PC problem' }, { Id: 5, Name: 'Monitor problem' }]);
+        self.categories = ko.observableArray([]);
         
         self.filter =
         {
@@ -41,7 +41,7 @@
                 {
                     Status: self.filter.status(),
                     AssignedToID: self.filter.assignedTo() ? self.filter.assignedTo().Id : null,
-                    CategoryID: self.filter.category() ? self.filter.category().Id : null,
+                    CategoryID: self.filter.category() ? self.filter.category().CategoryId : null,
                     Search: self.filter.search(),
                     AdvancedSearch: self.filter.advancedSearch(),
                     SortBy: self.filter.sortBy(),
@@ -52,6 +52,19 @@
                 {
                     self.tickets(data.Tickets);
                     self.numberOfPages(data.NumberOfPages);
+                }
+            });
+        };
+
+        self.getCategories = function()
+        {
+            $.ajax("/api/ApiCategories",
+            {
+                type: "GET",
+                success: function(data)
+                {
+                    self.categories(data);
+                    console.log(self.categories());
                 }
             });
         };
@@ -128,6 +141,7 @@
         });        
 
         self.getTickets();
+        self.getCategories();
     }
 
     function formatDate(ticks)

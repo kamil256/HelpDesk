@@ -17,7 +17,7 @@ namespace HelpDesk.Models.Tickets
         public string Search { get; set; }
         public bool AdvancedSearch { get; set; }
 
-        public string SortBy { get; set; } = "CreatedOn";
+        public string SortBy { get; set; } = "Created on";
         public bool DescSort { get; set; } = true;
 
         public int Page { get; set; } = 1;

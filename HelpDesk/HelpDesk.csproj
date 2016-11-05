@@ -235,6 +235,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\ApiCategoriesController.cs" />
     <Compile Include="Controllers\ApiTicketsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SettingsController.cs" />
@@ -261,6 +262,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
+    <Compile Include="Models\Categories\CategoryDTO.cs" />
     <Compile Include="Models\ISortableViewModel.cs" />
     <Compile Include="Models\SettingsIndexViewModel.cs" />
     <Compile Include="Models\TicketsCreateViewModel.cs" />

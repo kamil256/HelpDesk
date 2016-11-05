@@ -64,12 +64,6 @@ namespace HelpDesk.Controllers
             
             switch (model.SortBy)
             {
-                case "Created on":
-                    if (model.DescSort)
-                        orderBy = query => query.OrderByDescending(t => t.CreatedOn);
-                    else
-                        orderBy = query => query.OrderBy(t => t.CreatedOn);
-                    break;
                 case "Requested by":
                     if (model.DescSort)
                         orderBy = query => query.OrderByDescending(t => t.RequestedBy.FirstName + t.RequestedBy.LastName);
@@ -94,14 +88,21 @@ namespace HelpDesk.Controllers
                     else
                         orderBy = query => query.OrderBy(t => t.Status);
                     break;
+                case "Created on":
+                default:
+                    if (model.DescSort)
+                        orderBy = query => query.OrderByDescending(t => t.CreatedOn);
+                    else
+                        orderBy = query => query.OrderBy(t => t.CreatedOn);
+                    break;
             }
 
             int ticketsPerPage = 2;
-            int numberOfTickets = unitOfWork.TicketRepository.GetAll(filters, orderBy).Count();
+            int numberOfTickets = unitOfWork.TicketRepository.GetAll(filters: filters, orderBy: orderBy).Count();
             int numberOfPages = (int)Math.Ceiling((decimal)numberOfTickets / ticketsPerPage);
 
             PagedTickets pagedTickets = new PagedTickets();
-            pagedTickets.Tickets = unitOfWork.TicketRepository.GetAll(filters, orderBy, skip: (model.Page - 1) * ticketsPerPage, take: ticketsPerPage).Select(t => new TicketDTO
+            pagedTickets.Tickets = unitOfWork.TicketRepository.GetAll(filters: filters, orderBy: orderBy, skip: (model.Page - 1) * ticketsPerPage, take: ticketsPerPage).Select(t => new TicketDTO
             {
                 TicketId = t.TicketID,
                 CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
