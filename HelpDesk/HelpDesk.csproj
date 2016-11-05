@@ -245,8 +245,10 @@
     <Compile Include="DAL\AppUserManager.cs" />
     <Compile Include="DAL\GenericRepository.cs" />
     <Compile Include="DAL\HelpDeskContext.cs" />
+    <Compile Include="DAL\IRepository.cs" />
     <Compile Include="DAL\IUnitOfWork.cs" />
     <Compile Include="DAL\UnitOfWork.cs" />
+    <Compile Include="DAL\UserRepository.cs" />
     <Compile Include="Entities\AppRole.cs" />
     <Compile Include="Entities\AppUser.cs" />
     <Compile Include="Global.asax.cs">

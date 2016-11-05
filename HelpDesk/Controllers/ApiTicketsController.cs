@@ -17,12 +17,10 @@ namespace HelpDesk.Controllers
     public class ApiTicketsController : ApiController
     {
         private IUnitOfWork unitOfWork;
-        private HelpDeskContext context;
 
         public ApiTicketsController()
         {
             unitOfWork = new UnitOfWork();
-            context = new HelpDeskContext();
         }
 
         [OverrideAuthorization]
@@ -30,10 +28,11 @@ namespace HelpDesk.Controllers
         public async Task<PagedTickets> GetTickets([FromUri] TicketFilteringModel model)
         {
             List<Expression<Func<Entities.Ticket, bool>>> filters = new List<Expression<Func<Entities.Ticket, bool>>>();
-
-            if (!await isCurrentUserAnAdminAsync())
+            bool x = await unitOfWork.UserRepository.IsCurrentUserAnAdmin();
+            AppUser currentUser = (await unitOfWork.UserRepository.Get(filters: new Expression<Func<AppUser, bool>>[] { u => u.Email == User.Identity.Name })).First();
+            if (!await unitOfWork.UserRepository.IsCurrentUserAnAdmin())
             {
-                string currentUserId = (await getCurrentUserAsync()).Id;
+                string currentUserId = (await unitOfWork.UserRepository.GetCurrentUser()).Id;
                 filters.Add(ticket => ticket.CreatedByID == currentUserId);
 
                 ModelState.Remove("Status");
@@ -114,38 +113,6 @@ namespace HelpDesk.Controllers
 
             pagedTickets.NumberOfPages = numberOfPages;
             return pagedTickets;
-        }
-
-        //public void PutTicket(Ticket model)
-        //{
-        //    if (ModelState.IsValid)
-        //        unitOfWork.TicketRepository.Update()
-        //}
-
-        private AppUserManager userManager
-        {
-            get
-            {
-                return Request.GetOwinContext().GetUserManager<AppUserManager>();
-            }
-        }
-
-        private AppRoleManager roleManager
-        {
-            get
-            {
-                return Request.GetOwinContext().GetUserManager<AppRoleManager>();
-            }
-        }
-
-        private async Task<AppUser> getCurrentUserAsync()
-        {
-            return await userManager.FindByEmailAsync(User.Identity.Name);
-        }
-
-        private async Task<bool> isCurrentUserAnAdminAsync()
-        {
-            return await userManager.IsInRoleAsync((await getCurrentUserAsync()).Id, "Admin");
         }
     }
 }

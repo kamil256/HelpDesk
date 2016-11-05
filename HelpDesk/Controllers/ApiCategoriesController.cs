@@ -1,6 +1,7 @@
 ﻿using HelpDesk.DAL;
 using HelpDesk.Entities;
 using HelpDesk.Models.Categories;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace HelpDesk.Controllers
 
         public ApiCategoriesController()
         {
-            unitOfWork = new UnitOfWork();
+            unitOfWork = new UnitOfWork();// Request.GetOwinContext().GetUserManager<AppUserManager>());
             context = new HelpDeskContext();
         }
 

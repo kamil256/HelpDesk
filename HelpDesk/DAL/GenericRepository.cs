@@ -7,7 +7,7 @@ using System.Web;
 
 namespace HelpDesk.DAL
 {
-    public class GenericRepository<T> where T : class
+    public class GenericRepository<T> : IRepository<T> where T : class
     {
         private readonly DbContext context;
         private readonly DbSet<T> dbSet;

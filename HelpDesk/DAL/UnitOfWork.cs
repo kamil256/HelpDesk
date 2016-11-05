@@ -9,18 +9,18 @@ namespace HelpDesk.DAL
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private HelpDeskContext context = new HelpDeskContext();
+        private readonly HelpDeskContext context = new HelpDeskContext();
 
-        private GenericRepository<AppUser> userRepository;
+        private UserRepository userRepository;
         private GenericRepository<Ticket> ticketRepository;
         private GenericRepository<Category> categoryRepository;
 
-        public GenericRepository<AppUser> UserRepository
+        public UserRepository UserRepository
         {
             get
             {
                 if (userRepository == null)
-                    userRepository = new GenericRepository<AppUser>(context);
+                    userRepository = new UserRepository();
                 return userRepository;
             }
         }

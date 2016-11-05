@@ -20,7 +20,7 @@ namespace HelpDesk.Controllers
 
         public SettingsController()
         {
-            unitOfWork = new UnitOfWork();
+            unitOfWork = new UnitOfWork();// HttpContext.GetOwinContext().GetUserManager<AppUserManager>());
             context = new HelpDeskContext();
         }
 

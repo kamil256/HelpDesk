@@ -25,7 +25,7 @@ namespace HelpDesk.Controllers
 
         public AccountController()//IUnitOfWork unitOfWork, IAuthProvider authProvider)
         {
-            this.unitOfWork = new UnitOfWork();//unitOfWork;
+            this.unitOfWork = new UnitOfWork();//HttpContext.GetOwinContext().GetUserManager<AppUserManager>());
             this.authProvider = new FormsAuthProvider(unitOfWork);//authProvider;
         }
 
