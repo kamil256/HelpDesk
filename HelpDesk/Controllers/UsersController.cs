@@ -84,7 +84,7 @@ namespace HelpDesk.Controllers
             if (orderBy != null)
                 query = orderBy(query);
             model.Users = query.ToPagedList(model.Page, 5);
-            return View(model);
+            return View("ApiIndex"/*model*/);
         }
 
         public ActionResult Create()

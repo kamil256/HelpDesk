@@ -112,7 +112,7 @@ namespace HelpDesk.Controllers
 
             if (!model.IgnorePaging)
             {
-                int usersPerPage = 1;
+                int usersPerPage = 5;
                 int numberOfUsers = unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy).Count();
                 int numberOfPages = (int)Math.Ceiling((decimal)numberOfUsers / usersPerPage);
 
@@ -132,8 +132,9 @@ namespace HelpDesk.Controllers
                 MobilePhone = u.MobilePhone,
                 Company = u.Company,
                 Department = u.Department,
-                Role = u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null ? "Admin" : "User"
-            });            
+                Role = u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null ? "Admin" : "User",
+                Tickets = u.CreatedTickets.Count
+            });         
 
             return pagedUsers;
         }
