@@ -17,7 +17,7 @@
         });
 
         self.statuses = ["All", "New", "In progress", "Solved", "Closed"];
-        self.administrators = ko.observableArray([{ Id: '1d60419b-53b0-42a1-8640-e005d5c7f7a6', Name: 'Kamil Dzierlęga' }]);
+        self.administrators = ko.observableArray([]);
         self.categories = ko.observableArray([]);
         
         self.filter =
@@ -56,6 +56,25 @@
             });
         };
 
+        self.getAdministrators = function()
+        {
+            $.ajax("/api/ApiUsers",
+            {
+                type: "GET",
+                data:
+                {
+                    Role: "Admin",
+                    IgnorePaging: true
+                },
+                success: function(data)
+                {
+                    for (var i = 0; i < data.Users.length; i++)
+                        data.Users[i].Name = data.Users[i].FirstName + " " + data.Users[i].LastName;
+                    self.administrators(data.Users);
+                }
+            });
+        };
+
         self.getCategories = function()
         {
             $.ajax("/api/ApiCategories",
@@ -64,7 +83,6 @@
                 success: function(data)
                 {
                     self.categories(data);
-                    console.log(self.categories());
                 }
             });
         };
@@ -141,6 +159,7 @@
         });        
 
         self.getTickets();
+        self.getAdministrators();
         self.getCategories();
     }
 
@@ -214,7 +233,7 @@
 
                 <div class="form-group col-sm-6 col-md-3">
                     <label class="control-label">Assigned to</label>
-                    <select data-bind="options: administrators, value: filter.assignedTo, optionsCaption: 'All', optionsText: 'Name', event: { change: function() { filter.page(1); getTickets(); } }" class="form-control"></select>
+                    <select data-bind="options: administrators, value: filter.assignedTo, optionsCaption: 'All', optionsText: 'Name' , event: { change: function() { filter.page(1); getTickets(); } }" class="form-control"></select>
                 </div>
 
                 <div class="form-group col-sm-6 col-md-3">
