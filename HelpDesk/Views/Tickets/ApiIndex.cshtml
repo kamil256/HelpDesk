@@ -294,11 +294,7 @@
             }
         </style>
 
-        <script>
-
-        </script>
-
-        <div data-bind="foreach: tickets">
+        <div data-bind="foreach: tickets" style="margin-bottom: 20px;">
             <div class="ticket-item" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }" style="box-shadow: gray 0 0 10px; display: table; clear: both; background-color: #F5F5F5; border-radius: 10px; width: 100%; margin-top: 10px;">
                 <div  style="display: table-row;">
                     <div class="hidden-xs" style="display: table-cell; width: 150px; border-right: 1px dashed gray; vertical-align: middle; text-align: center;">
@@ -352,11 +348,13 @@
             </div>
         </div>
 
-        <ul data-bind="foreach: pages" class="pagination">
-            <li data-bind="css: { active: $data == $root.filter.page() }">
-                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
-            </li>
-        </ul>
+        <!-- ko if: pages().length >= 2 -->
+            <ul data-bind="foreach: pages" class="pagination" style="margin: 0;">
+                <li data-bind="css: { active: $data == $root.filter.page() }">
+                    <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
+                </li>
+            </ul>
+        <!-- /ko -->
     </div>
 </section>
 @*if (isCurrentUserAdmin)

@@ -112,9 +112,7 @@ namespace HelpDesk.Controllers
                 AssignedToId = t.AssignedToID,
                 Title = t.Title,
                 Category = t.Category?.Name,
-                Status = t.Status,
-                Content = t.Content,
-                Solution = t.Solution
+                Status = t.Status
             });
 
             pagedTickets.NumberOfPages = numberOfPages;
