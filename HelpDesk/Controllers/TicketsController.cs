@@ -122,7 +122,7 @@ namespace HelpDesk.Controllers
                         RequestedByID = model.RequestedByID,
                         CreatedOn = DateTime.Now,
                         Status = "New",
-                        CategoryID = model.CategoryID ?? 0,
+                        CategoryID = model.CategoryID,
                         Title = model.Title,
                         Content = model.Content
                     };

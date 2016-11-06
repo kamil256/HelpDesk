@@ -306,7 +306,7 @@
                     </div>
 
                     <div style="padding: 10px; display: table-cell">
-                        <b><p style="font-size: 22px;" data-bind="text: Title"></p></b>
+                        <b><p style="font-size: 22px; margin-bottom: 10px;" data-bind="text: Title"></p></b>
                         <p>
                             Created at <b data-bind="text: formatDate(CreatedOn)"></b> by
                             <b>
@@ -340,9 +340,9 @@
                     </div>
 
                     <div class="hidden-xs" style="width: 150px; display: table-cell; border-left: 1px dashed gray; vertical-align: middle">
-                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-blue" style="width: 130px; margin: 10px 10px 2px;">Assign</button>
-                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-blue" style="width: 130px; margin: 2px 10px;">Solve</button>
-                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-blue" style="width: 130px; margin: 2px 10px 10px;">Close</button>
+                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-primary" style="width: 130px; margin: 10px 10px 2px;">Assign</button>
+                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-success" style="width: 130px; margin: 2px 10px;">Solve</button>
+                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-inverse" style="width: 130px; margin: 2px 10px 10px;">Close</button>
                     </div>
                 </div>
             </div>
