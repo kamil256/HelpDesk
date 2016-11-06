@@ -96,7 +96,7 @@
                 data:
                 {
                     ticketId: self.currentTicket().TicketId,
-                    userId: self.currentUser().Id
+                    userId: self.currentUser().UserId
                 },
                 success: function(data)
                 {
@@ -115,7 +115,7 @@
                 data:
                 {
                     ticketId: self.currentTicket().TicketId,
-                    userId: self.currentUser().Id,
+                    userId: self.currentUser().UserId,
                     solution: self.solution
                 },
                 success: function(data)
@@ -272,72 +272,85 @@
 
             <div class="checkbox">
                 <label>
-                    <input data-bind="value: filter.descSort, event: { change: function() { filter.descSort(!filter.descSort()); getTickets(); } }" type="checkbox" />
+                    <input data-bind="value: filter.descSort, event: { change: function() { filter.descSort(!filter.descSort()); console.log(filter.descSort()); getTickets(); } }" checked="checked" type="checkbox" />
                     Descending order
                 </label>
             </div>
         </div>
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="min-width: 150px;">
-                        <a href="#" data-bind="click: sort">Created on</a>
-                        <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Created on'"></span>
-                    </th>
-                    <th class="hidden-xs hidden-sm" style="min-width: 150px;">
-                        <a href="#" data-bind="click: sort">Requested by</a>
-                        <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Requested by'"></span>
-                    </th>
-                    <th class="title-header" style="width: 100%">
-                        <a href="#" data-bind="click: sort">Title</a>
-                        <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Title'"></span>
-                    </th>
-                    <th class="hidden-xs hidden-sm" style="min-width: 150px;">
-                        <a href="#" data-bind="click: sort">Category</a>
-                        <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Category'"></span>
-                    </th>
-                    <th style="min-width: 100px;">
-                        <a href="#" data-bind="click: sort">Status</a>
-                        <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Status'"></span>
-                    </th>
-                    <th class="hidden-xs hidden-sm hidden-md hidden-lg" style="min-width: 150px;">
-                        <a href="#" data-bind="click: sort">Assigned to</a>
-                        <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Assigned to'"></span>
-                    </th>
-                    @if (isCurrentUserAdmin)
-                    {
-                        <th class="btn-col" style="text-align: center">
-                            Quick actions
-                        </th>
-                    }
-                </tr>
-            </thead>
+        <style>
+            
 
-            <tbody data-bind="foreach: tickets">
-                <tr data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }">
-                    <td data-bind="text: formatDate(CreatedOn)"></td>
-                    <td data-bind="text: RequestedBy" class="hidden-xs hidden-sm"></td>
-                    <td data-bind="text: Title"></td>
-                    <td data-bind="text: Category" class="hidden-xs hidden-sm"></td>
-                    <td data-bind="text: Status, css: { 'status-new': Status == 'New',
-                                                    'status-in-progress': Status == 'In progress',
-                                                    'status-solved': Status == 'Solved',
-                                                    'status-closed': Status == 'Closed' }"></td>
-                    <td class="hidden-xs hidden-sm hidden-md hidden-lg">
-                        @*@(item.AssignedTo != null ? $"{item.AssignedTo.FirstName} {@item.AssignedTo.LastName}" : "-")*@
-                    </td>
-                    @if (isCurrentUserAdmin)
-                    {
-                        <td>
-                            <button data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-xs btn-blue">Assign</button>
-                            <button data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-xs btn-blue">Solve</button>
-                            <button data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-xs btn-blue">Close</button>
-                        </td>
-                    }
-                </tr>
-            </tbody>
-        </table>
+            .ticket-item:hover {
+                background-color: #F5EECD !important;
+                cursor: pointer;
+                /*border-radius: 10px;*/
+                /*outline: 1px solid #E3D179;*/
+            }
+            .ticket-item p {
+                margin-bottom: 3px;
+                transition: height 5s;
+                -webkit-transition: height 5s;
+            }
+        </style>
+
+        <script>
+
+        </script>
+
+        <div data-bind="foreach: tickets">
+            <div class="ticket-item" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }" style="box-shadow: gray 0 0 10px; display: table; clear: both; background-color: #F5F5F5; border-radius: 10px; width: 100%; margin-top: 10px;">
+                <div  style="display: table-row;">
+                    <div class="hidden-xs" style="display: table-cell; width: 150px; border-right: 1px dashed gray; vertical-align: middle; text-align: center;">
+                        <p style="color: gray;">#<span data-bind="text: TicketId"></span></p>
+                        <p style="font-weight: bold; font-size: 20px" data-bind="text: Status, css: { 'status-new': Status == 'New',
+                                                                                                                   'status-in-progress': Status == 'In progress',
+                                                                                                                   'status-solved': Status == 'Solved',
+                                                                                                                   'status-closed': Status == 'Closed' }"></p>
+                    </div>
+
+                    <div style="padding: 10px; display: table-cell">
+                        <b><p style="font-size: 22px;" data-bind="text: Title"></p></b>
+                        <p>
+                            Created on <b data-bind="text: formatDate(CreatedOn)"></b> by
+                            <b>
+                                <!-- ko if: (CreatedBy) -->
+                                    <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + CreatedById; }, text: CreatedBy"></a>
+                                <!-- /ko -->
+
+                                <!-- ko if: (!CreatedBy) -->
+                                    <span data-bind="visible: !CreatedBy">deleted user</span>
+                                <!-- /ko -->
+                            </b>
+                            for
+                            <b>
+                                <!-- ko if: (RequestedBy) -->
+                                    <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequestedById; }, text: RequestedBy"></a>
+                                <!-- /ko -->
+                                
+                                <!-- ko if: (!RequestedBy) -->
+                                    <span data-bind="visible: !RequestedBy">deleted user</span>
+                                <!-- /ko -->
+                            </b>
+                        </p>
+                        <p>Category: <b data-bind="text: Category ? Category : 'none'"></b></p>
+                        <p class="visible-xs">Status: <b data-bind="text: Status, css: { 'status-new': Status == 'New',
+                                                                           'status-in-progress': Status == 'In progress',
+                                                                           'status-solved': Status == 'Solved',
+                                                                           'status-closed': Status == 'Closed' }"></b></p>
+                        <!-- ko if: (AssignedTo) -->
+                            <p data-bind="visible: AssignedTo">Assigned to: <b><a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + AssignedToId; }, text: AssignedTo"></a></b></p>
+                        <!-- /ko -->
+                    </div>
+
+                    <div class="hidden-xs" style="width: 150px; display: table-cell; border-left: 1px dashed gray; vertical-align: middle">
+                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-blue" style="width: 130px; margin: 10px 10px 2px;">Assign</button>
+                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-blue" style="width: 130px; margin: 2px 10px;">Solve</button>
+                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-blue" style="width: 130px; margin: 2px 10px 10px;">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <ul data-bind="foreach: pages" class="pagination">
             <li data-bind="css: { active: $data == $root.filter.page() }">

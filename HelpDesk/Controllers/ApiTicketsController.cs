@@ -95,7 +95,7 @@ namespace HelpDesk.Controllers
                     break;
             }
 
-            int ticketsPerPage = 2;
+            int ticketsPerPage = 5;
             int numberOfTickets = unitOfWork.TicketRepository.Get(filters: filters, orderBy: orderBy).Count();
             int numberOfPages = (int)Math.Ceiling((decimal)numberOfTickets / ticketsPerPage);
 
@@ -104,10 +104,17 @@ namespace HelpDesk.Controllers
             {
                 TicketId = t.TicketID,
                 CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
-                RequestedBy = t.RequestedBy?.FirstName + " " + t.RequestedBy?.LastName,
+                CreatedBy = t.CreatedBy != null ? t.CreatedBy.FirstName + " " + t.CreatedBy.LastName : null,
+                RequestedBy = t.RequestedBy != null ? t.RequestedBy.FirstName + " " + t.RequestedBy.LastName : null,
+                AssignedTo = t.AssignedTo != null ? t.AssignedTo.FirstName + " " + t.AssignedTo.LastName : null,
+                CreatedById = t.CreatedByID,
+                RequestedById = t.RequestedByID,
+                AssignedToId = t.AssignedToID,
                 Title = t.Title,
                 Category = t.Category?.Name,
-                Status = t.Status
+                Status = t.Status,
+                Content = t.Content,
+                Solution = t.Solution
             });
 
             pagedTickets.NumberOfPages = numberOfPages;
