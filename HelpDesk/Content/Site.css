@@ -322,7 +322,7 @@ footer .designer {
 }
 .btn-inverse:active,
 .btn-inverse.active,
-.open > .dropdown-toggle.btn-info {
+.open > .dropdown-toggle.btn-inverse {
   background-image: none;
 }
 .btn-inverse.disabled:hover,
@@ -343,3 +343,9 @@ fieldset[disabled] .btn-inverse.focus {
 }
 
 
+/*.navbar-inverse li.active > a {
+    background-color: #00ABEC !important;
+}
+.navbar-inverse {
+    border-bottom-color: #00ABEC !important;
+}*/
