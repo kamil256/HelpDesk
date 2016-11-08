@@ -1,0 +1,327 @@
+﻿@model HelpDesk.Models.UsersEditViewModel
+
+<script>
+    function TicketsViewModel()
+    {
+        var self = this;
+
+        self.tickets = ko.observableArray([]);
+        self.currentTicket = ko.observable();
+        self.currentUser = ko.observable();
+
+        self.numberOfPages = ko.observable();
+        self.pages = ko.computed(function()
+        {
+            var pages = [];
+            for (var i = 1; i <= self.numberOfPages(); i++)
+                pages.push(i);
+            return pages;
+        });
+
+        self.statuses = ["All", "New", "In progress", "Solved", "Closed"];
+        self.administrators = ko.observableArray([]);
+        self.categories = ko.observableArray([]);
+        self.sortingOptions = ko.observableArray(["Created on", "Requested by", "Title", "Category", "Status"]);
+
+        self.filter =
+        {
+            status: ko.observable("All"),
+            assignedTo: ko.observable(),
+            category: ko.observable(),
+            search: ko.observable(),
+            advancedSearch: ko.observable(false),
+            sortBy: ko.observable("Created on"),
+            descSort: ko.observable(true),
+            page: ko.observable(1)
+        };
+
+        self.getTickets = function()
+        {
+            $.ajax("/api/ApiTickets",
+            {
+                type: "GET",
+                data:
+                {
+                    Status: self.filter.status(),
+                    AssignedToID: self.filter.assignedTo() ? self.filter.assignedTo().UserId : null,
+                    CategoryID: self.filter.category() ? self.filter.category().CategoryId : null,
+                    Search: self.filter.search(),
+                    AdvancedSearch: self.filter.advancedSearch(),
+                    SortBy: self.filter.sortBy,
+                    DescSort: self.filter.descSort,
+                    Page: self.filter.page()
+                },
+                success: function(data)
+                {
+                    self.tickets(data.Tickets);
+                    self.numberOfPages(data.NumberOfPages);
+                }
+            });
+        };
+
+        self.getAdministrators = function()
+        {
+            $.ajax("/api/ApiUsers",
+            {
+                type: "GET",
+                data:
+                {
+                    Role: "Admin",
+                    IgnorePaging: true
+                },
+                success: function(data)
+                {
+                    for (var i = 0; i < data.Users.length; i++)
+                        data.Users[i].Name = data.Users[i].FirstName + " " + data.Users[i].LastName;
+                    self.administrators(data.Users);
+                }
+            });
+        };
+
+        self.getCategories = function()
+        {
+            $.ajax("/api/ApiCategories",
+            {
+                type: "GET",
+                success: function(data)
+                {
+                    self.categories(data);
+                }
+            });
+        };
+
+        self.assignUser = function()
+        {
+            $.ajax("/Tickets/AssignUserToTicket",
+            {
+                type: "POST",
+                data:
+                {
+                    ticketId: self.currentTicket().TicketId,
+                    userId: self.currentUser().UserId
+                },
+                success: function(data)
+                {
+                    self.getTickets();
+                }
+            });
+        };
+
+        self.solution = ko.observable("");
+
+        self.solveTicket = function()
+        {
+            $.ajax("/Tickets/SolveTicket",
+            {
+                type: "POST",
+                data:
+                {
+                    ticketId: self.currentTicket().TicketId,
+                    userId: self.currentUser().UserId,
+                    solution: self.solution
+                },
+                success: function(data)
+                {
+                    self.getTickets();
+                }
+            });
+        };
+
+        self.closeTicket = function()
+        {
+            $.ajax("/Tickets/CloseTicket",
+            {
+                type: "POST",
+                data:
+                {
+                    ticketId: self.currentTicket().TicketId
+                },
+                success: function(data)
+                {
+                    self.getTickets();
+                }
+            });
+        };
+
+        self.sort = function(data, event)
+        {
+            var sortBy = event.target.textContent;
+            if (self.filter.sortBy() === sortBy)
+                self.filter.descSort(!self.filter.descSort());
+            else
+                self.filter.sortBy(sortBy);
+            self.getTickets();
+        };
+
+        self.getSortSymbol = ko.computed(function()
+        {
+            if (self.filter.descSort())
+                return "\u25BC";
+            else
+                return "\u25B2";
+        });
+
+        self.getTickets();
+        self.getAdministrators();
+        self.getCategories();
+    }
+
+    function formatDate(ticks)
+    {
+        function padZero(value)
+        {
+            return value < 10 ? "0" + value : value;
+        }
+
+        var date = new Date(Number(ticks));
+        var year = date.getFullYear();
+        var month = padZero(date.getMonth() + 1);
+        var day = padZero(date.getDate());
+        var hours = padZero(date.getHours());
+        var minutes = padZero(date.getMinutes());
+        var seconds = padZero(date.getSeconds());
+        return year + "-" + month  + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+    }
+
+    $(document).ready(function()
+    {
+        ko.applyBindings(new TicketsViewModel());
+    });
+</script>
+
+@{
+    ViewBag.Title = "Edit user";
+}
+
+@{
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    string currentUserId = User.Identity.GetUserId();
+    bool isCurrentUserAdmin = false;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
+}
+
+<header>
+    <div class="container">
+        <h1 style="margin-bottom: 30px;">Edit user</h1>
+
+        <div class="col-sm-offset-2 col-sm-8 @*col-md-offset-3 col-md-6*@ col-lg-offset-3 col-lg-6">
+            <div class="btn-group btn-group-justified">
+                <a href='@Url.Action("Details", new { id = Model.UserID })' class="btn btn-default"><span class="glyphicon glyphicon-unchecked"></span> View</a>
+                <a href='@Url.Action("Edit", new { id = Model.UserID })' class="btn btn-default"><span class="glyphicon glyphicon-unchecked"></span> Edit</a>
+                <a href='@Url.Action("Tickets", new { id = Model.UserID })' class="btn btn-inverse"><span class="glyphicon glyphicon-check"></span> Tickets</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="container">
+    <style>
+        @@media (min-width: 768px) {
+            .details-panel {
+                background-color: #F5F5F5;
+                box-shadow: gray 0 0 10px;
+                padding: 30px;
+                border-radius: 5px;
+            }
+        }
+    </style>
+
+
+
+        <div data-bind="foreach: tickets" style="margin-bottom: 20px;">
+            <div class="ticket-item" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }" style="box-shadow: gray 0 0 10px; display: table; clear: both; background-color: #F5F5F5; border-radius: 10px; width: 100%; margin-top: 10px;">
+                <div style="display: table-row;">
+                    <div class="hidden-xs" style="display: table-cell; width: 150px; border-right: 1px dashed gray; vertical-align: middle; text-align: center;">
+                        <p style="color: gray;">#<span data-bind="text: TicketId"></span></p>
+                        <p style="font-weight: bold; font-size: 20px" data-bind="text: Status, css: { 'status-new': Status == 'New',
+                                                                                                                   'status-in-progress': Status == 'In progress',
+                                                                                                                   'status-solved': Status == 'Solved',
+                                                                                                                   'status-closed': Status == 'Closed' }"></p>
+                    </div>
+
+                    <div style="padding: 10px; display: table-cell">
+                        <b><p style="font-size: 22px; margin-bottom: 10px;" data-bind="text: Title"></p></b>
+                        <p>
+                            Created at <b data-bind="text: formatDate(CreatedOn)"></b> by
+                            <b>
+                                <!-- ko if: (CreatedBy) -->
+                                <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + CreatedById; }, text: CreatedBy"></a>
+                                <!-- /ko -->
+                                <!-- ko if: (!CreatedBy) -->
+                                <span data-bind="visible: !CreatedBy">deleted user</span>
+                                <!-- /ko -->
+                            </b>
+                            for
+                            <b>
+                                <!-- ko if: (RequestedBy) -->
+                                <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequestedById; }, text: RequestedBy"></a>
+                                <!-- /ko -->
+                                <!-- ko if: (!RequestedBy) -->
+                                <span data-bind="visible: !RequestedBy">deleted user</span>
+                                <!-- /ko -->
+                            </b>
+                        </p>
+                        <p>Category: <b data-bind="text: Category ? Category : 'none'"></b></p>
+                        <p class="visible-xs">
+                            Status: <b data-bind="text: Status, css: { 'status-new': Status == 'New',
+                                                                           'status-in-progress': Status == 'In progress',
+                                                                           'status-solved': Status == 'Solved',
+                                                                           'status-closed': Status == 'Closed' }"></b>
+                        </p>
+                        <!-- ko if: (AssignedTo) -->
+                        <p data-bind="visible: AssignedTo">Assigned to: <b><a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + AssignedToId; }, text: AssignedTo"></a></b></p>
+                        <!-- /ko -->
+                    </div>
+
+                    <div class="hidden-xs" style="width: 150px; display: table-cell; border-left: 1px dashed gray; vertical-align: middle">
+                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-primary" style="width: 130px; margin: 10px 10px 2px;">Assign</button>
+                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-success" style="width: 130px; margin: 2px 10px;">Solve</button>
+                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-inverse" style="width: 130px; margin: 2px 10px 10px;">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ko if: pages().length >= 2 -->
+        <ul data-bind="foreach: pages" class="pagination" style="margin: 0;">
+            <li data-bind="css: { active: $data == $root.filter.page() }">
+                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
+            </li>
+        </ul>
+        <!-- /ko -->
+</section>
+
+@Html.Partial("_DeleteUserPartial")
+
+<script>
+    $(document).ready(function()
+    {
+        $("#Status").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#AssignedToID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#CategoryID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#search-btn").click(function() { $("#Page").val("1"); });
+
+        var statuses = document.getElementsByClassName("status");
+        for (var i = 0; i < statuses.length; i++)
+        {
+            switch (statuses[i].innerHTML)
+            {
+                case "New":
+                    statuses[i].className += " status-new";
+                    break;
+                case "In progress":
+                    statuses[i].className += " status-in-progress";
+                    break;
+                case "Solved":
+                    statuses[i].className += " status-solved";
+                    break;
+                case "Closed":
+                    statuses[i].className += " status-closed";
+                    break;
+            }
+        }
+    });
+</script>

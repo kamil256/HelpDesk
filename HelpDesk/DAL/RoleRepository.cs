@@ -32,9 +32,9 @@ namespace HelpDesk.DAL
             return query;
         }
 
-        public AppUser GetById(int id)
+        public AppRole GetById(string id)
         {
-            throw new NotImplementedException();
+            return roleManager.Roles.SingleOrDefault(u => u.Id == id);
         }
 
         public void Insert(AppUser entity)

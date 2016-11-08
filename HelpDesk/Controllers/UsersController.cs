@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
+using HelpDesk.Models.Tickets;
 
 namespace HelpDesk.Controllers
 {
@@ -136,6 +137,60 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
+        public ViewResult Details(string id)
+        {
+            AppUser user = unitOfWork.UserRepository.GetById(id);
+            UsersDetailsViewModel model = new UsersDetailsViewModel
+            {
+                UserID = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Phone = user.Phone,
+                MobilePhone = user.MobilePhone,
+                Company = user.Company,
+                Department = user.Department,
+                Role = unitOfWork.RoleRepository.GetById(user.Roles.First().RoleId).Name
+            };
+            return View(model);
+        }
+
+        public async Task<ActionResult> Tickets(string id)
+        {
+            try
+            {
+                AppUser user;
+                if (await isCurrentUserAdmin())
+                    user = await userManager.FindByIdAsync(id);
+                else
+                    user = await getCurrentUser();
+                if (user == null)
+                    throw new Exception($"User id {id} doesn't exist");
+                UsersEditViewModel model = new UsersEditViewModel();
+                model.UserID = user.Id;
+                model.Tickets = unitOfWork.TicketRepository.Get(filters: new List<Expression<Func<Ticket, bool>>> { t => t.CreatedByID == id }, orderBy: t => t.OrderByDescending(x => x.CreatedOn)).Select(t => new TicketDTO
+                {
+                    TicketId = t.TicketID,
+                    CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
+                    CreatedBy = t.CreatedBy != null ? t.CreatedBy.FirstName + " " + t.CreatedBy.LastName : null,
+                    RequestedBy = t.RequestedBy != null ? t.RequestedBy.FirstName + " " + t.RequestedBy.LastName : null,
+                    AssignedTo = t.AssignedTo != null ? t.AssignedTo.FirstName + " " + t.AssignedTo.LastName : null,
+                    CreatedById = t.CreatedByID,
+                    RequestedById = t.RequestedByID,
+                    AssignedToId = t.AssignedToID,
+                    Title = t.Title,
+                    Category = t.Category?.Name,
+                    Status = t.Status
+                });
+                return View("Tickets", model);
+            }
+            catch
+            {
+                TempData["Fail"] = "Poblem with editing user. Try again!";
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
         [OverrideAuthorization]
         public async Task<ActionResult> Edit(string id)
         {
@@ -158,8 +213,8 @@ namespace HelpDesk.Controllers
                     MobilePhone = user.MobilePhone,
                     Company = user.Company,
                     Department = user.Department,
-                    Role = (await userManager.GetRolesAsync(user.Id))[0],
-                    Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn)
+                    Role = (await userManager.GetRolesAsync(user.Id))[0]
+                    //Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn)
                 };
                 return View(model);
             }
@@ -246,9 +301,11 @@ namespace HelpDesk.Controllers
                 TempData["Fail"] = "Poblem with editing user. Try again!";
                 return RedirectToAction("Index", "Home");
             }
-            model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
+            //model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
             return View(model);
         }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -59,9 +59,9 @@ namespace HelpDesk.DAL
             return query;
         }
 
-        public AppUser GetById(int id)
+        public AppUser GetById(string id)
         {
-            throw new NotImplementedException();
+            return userManager.Users.SingleOrDefault(u => u.Id == id);
         }
 
         public void Insert(AppUser entity)

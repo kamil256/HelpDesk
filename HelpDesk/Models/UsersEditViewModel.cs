@@ -1,4 +1,5 @@
 ﻿using HelpDesk.Entities;
+using HelpDesk.Models.Tickets;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -50,6 +51,6 @@ namespace HelpDesk.Models
 
         public string Role { get; set; }
 
-        public IEnumerable<Ticket> Tickets { get; set; }
+        public IEnumerable<TicketDTO> Tickets { get; set; }
     }
 }
