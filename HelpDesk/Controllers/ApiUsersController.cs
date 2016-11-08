@@ -112,7 +112,7 @@ namespace HelpDesk.Controllers
 
             if (!model.IgnorePaging)
             {
-                int usersPerPage = 5;
+                int usersPerPage = 1;
                 int numberOfUsers = unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy).Count();
                 int numberOfPages = (int)Math.Ceiling((decimal)numberOfUsers / usersPerPage);
 
