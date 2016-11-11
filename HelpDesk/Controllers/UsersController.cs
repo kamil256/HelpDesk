@@ -372,119 +372,87 @@ namespace HelpDesk.Controllers
         //    return View(model);
         //}
 
-        //[OverrideAuthorization]
-        //public async Task<ActionResult> ChangePassword(string id)
-        //{
-        //    try
-        //    {
-        //        AppUser user;
-        //        if (await isCurrentUserAdmin())
-        //            user = await userManager.FindByIdAsync(id);
-        //        else
-        //            user = await getCurrentUser();
-        //        if (user == null)
-        //            throw new Exception($"User id {id} doesn't exist");
-        //        UsersChangePasswordViewModel model = new UsersChangePasswordViewModel
-        //        {
-        //            UserID = user.Id,
-        //            FirstName = user.FirstName,
-        //            LastName = user.LastName,
-        //            Email = user.Email,
-        //            Phone = user.Phone,
-        //            MobilePhone = user.MobilePhone,
-        //            Company = user.Company,
-        //            Department = user.Department,
-        //            Role = (await userManager.GetRolesAsync(user.Id))[0]
-        //            //Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn)
-        //        };
-        //        return View(model);
-        //    }
-        //    catch
-        //    {
-        //        TempData["Fail"] = "Poblem with editing user. Try again!";
-        //        return RedirectToAction("Index", "Home");
-        //    }
-        //}
+        [OverrideAuthorization]
+        public async Task<ActionResult> ChangePassword(string id)
+        {
+            try
+            {
+                AppUser user;
+                if (await isCurrentUserAdmin())
+                    user = await userManager.FindByIdAsync(id);
+                else
+                    user = await getCurrentUser();
+                if (user == null)
+                    throw new Exception($"User id {id} doesn't exist");
+                UsersChangePasswordViewModel model = new UsersChangePasswordViewModel
+                {
+                    UserID = user.Id
+                };
+                return View(model);
+            }
+            catch
+            {
+                TempData["Fail"] = "Poblem with editing user. Try again!";
+                return RedirectToAction("Index", "Home");
+            }
+        }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //[OverrideAuthorization]
-        //public async Task<ActionResult> ChangePassword([Bind(Include = "UserID,FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel model)
-        //{
-        //    AppUser user;
-        //    try
-        //    {
-        //        if (await isCurrentUserAdmin())
-        //            user = await userManager.FindByIdAsync(model.UserID);
-        //        else
-        //        {
-        //            user = await getCurrentUser();
-        //            ModelState.Remove("Role");
-        //        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [OverrideAuthorization]
+        public async Task<ActionResult> ChangePassword([Bind(Include = "UserID,CurrentPassword,Password,ConfirmPassword")] UsersChangePasswordViewModel model)
+        {
+            AppUser user;
+            try
+            {
+                if (await isCurrentUserAdmin())
+                    user = await userManager.FindByIdAsync(model.UserID);
+                else
+                {
+                    user = await getCurrentUser();
+                    ModelState.Remove("Role");
+                }
 
-        //        if (user == null)
-        //            throw new Exception($"User id {model.UserID} doesn't exist");
+                if (user == null)
+                    throw new Exception($"User id {model.UserID} doesn't exist");
 
-        //        bool editingLoggedInUser = user.Email == User.Identity.Name;
+                bool editingLoggedInUser = user.Email == User.Identity.Name;
 
-        //        if (ModelState.IsValid)
-        //        {
-        //            user.FirstName = model.FirstName;
-        //            user.LastName = model.LastName;
-        //            user.UserName = model.Email;
-        //            user.Email = model.Email;
-        //            user.Phone = model.Phone;
-        //            user.MobilePhone = model.MobilePhone;
-        //            user.Company = model.Company;
-        //            user.Department = model.Department;
+                bool correctPassword = userManager.CheckPassword(user, model.CurrentPassword);
+                if (!correctPassword)
+                    ModelState.AddModelError("CurrentPassword", "Incorrect current password.");
+                
 
-        //            IdentityResult passwordValidationResult = null;
-        //            if (model.Password != null)
-        //            {
-        //                passwordValidationResult = await userManager.PasswordValidator.ValidateAsync(model.Password);
-        //                if (passwordValidationResult.Succeeded)
-        //                    user.PasswordHash = userManager.PasswordHasher.HashPassword(model.Password);
-        //                else
-        //                    foreach (string error in passwordValidationResult.Errors)
-        //                        ModelState.AddModelError("", error);
-        //            }
-        //            if (model.Password == null || passwordValidationResult.Succeeded)
-        //            {
-        //                IdentityResult userUpdateResult = await userManager.UpdateAsync(user);
-        //                if (userUpdateResult.Succeeded)
-        //                {
-        //                    if (await isCurrentUserAdmin())
-        //                    {
-        //                        AppRole role = roleManager.FindByName(model.Role);
-        //                        if (role == null)
-        //                            roleManager.Create(new AppRole { Name = model.Role });
-        //                        userManager.RemoveFromRoles(user.Id, userManager.GetRoles(user.Id).ToArray<string>());
-        //                        userManager.AddToRole(user.Id, model.Role);
-        //                    }
-
-        //                    if (editingLoggedInUser)
-        //                    {
-        //                        IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
-        //                        AuthManager.SignOut();
-        //                        AuthManager.SignIn(await userManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
-        //                    }
-        //                    TempData["Success"] = "Successfully edited user!";
-        //                    return RedirectToAction("Index", "Home");
-        //                }
-        //                else
-        //                    foreach (string error in userUpdateResult.Errors)
-        //                        ModelState.AddModelError("", error);
-        //            }
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        TempData["Fail"] = "Poblem with editing user. Try again!";
-        //        return RedirectToAction("Index", "Home");
-        //    }
-        //    //model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
-        //    return View(model);
-        //}
+                if (ModelState.IsValid)
+                {
+                    IdentityResult passwordValidationResult = await userManager.PasswordValidator.ValidateAsync(model.Password);
+                    if (passwordValidationResult.Succeeded)
+                    {
+                        user.PasswordHash = userManager.PasswordHasher.HashPassword(model.Password);
+                        userManager.Update(user);
+                        if (editingLoggedInUser)
+                        {
+                            IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
+                            AuthManager.SignOut();
+                            AuthManager.SignIn(await userManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
+                        }
+                        TempData["Success"] = "Successfully edited user!";
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                        foreach (string error in passwordValidationResult.Errors)
+                            ModelState.AddModelError("", error);
+                    
+                }
+            }
+            catch
+            {
+                TempData["Fail"] = "Poblem with editing user. Try again!";
+                return RedirectToAction("Index", "Home");
+            }
+            //model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
+            return View(model);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

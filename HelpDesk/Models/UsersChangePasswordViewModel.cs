@@ -8,7 +8,7 @@ namespace HelpDesk.Models
 {
     public class UsersChangePasswordViewModel
     {
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         [Required]
         [Display(Name = "Current password")]

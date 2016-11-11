@@ -71,6 +71,7 @@ namespace HelpDesk.DAL
 
         public void Update(AppUser entity)
         {
+            //userManager.UpdateAsync();
             throw new NotImplementedException();
         }
 
