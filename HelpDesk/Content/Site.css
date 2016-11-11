@@ -379,20 +379,16 @@ ul.horizontal-menu > li.selected > a, ul.horizontal-menu > li > a:hover {
         margin-top: 0;
     }
     ul.horizontal-menu > li {
+        
         display: block;        
     }
     ul.horizontal-menu > li > a {
         color: #555;
         margin: 0;
     }
-    ul.horizontal-menu > li.selected {
-                
-        border-width: 0;
-        /*border: 2px solid #428bca;
-        border-radius: 3px;*/        
-    }
     ul.horizontal-menu > li.selected > a, ul.horizontal-menu > li > a:hover {
         background-color: #555;
+        border-width: 0;
         color: #DDD;
     }
 }
