@@ -349,3 +349,50 @@ fieldset[disabled] .btn-inverse.focus {
 .navbar-inverse {
     border-bottom-color: #00ABEC !important;
 }*/
+
+/* ----- horizontal menu  ----- */
+
+ul.horizontal-menu {
+    list-style-type: none;
+    margin: 10px 0 20px;
+    padding: 0;
+    text-align: center;
+}
+ul.horizontal-menu > li {
+    display: inline-block;
+    font-weight: bold;
+    
+}
+ul.horizontal-menu > li > a {
+    color: #428bca;
+    display: block;
+    margin: 0 5px;
+    padding: 15px 15px;
+    text-decoration: none;
+}
+ul.horizontal-menu > li.selected > a, ul.horizontal-menu > li > a:hover {
+    border-bottom: 2px solid #428bca;
+}
+@media (max-width: 767px) {
+    ul.horizontal-menu {
+        background-color: #DDD;        
+        margin-top: 0;
+    }
+    ul.horizontal-menu > li {
+        display: block;        
+    }
+    ul.horizontal-menu > li > a {
+        color: #555;
+        margin: 0;
+    }
+    ul.horizontal-menu > li.selected {
+                
+        border-width: 0;
+        /*border: 2px solid #428bca;
+        border-radius: 3px;*/        
+    }
+    ul.horizontal-menu > li.selected > a, ul.horizontal-menu > li > a:hover {
+        background-color: #555;
+        color: #DDD;
+    }
+}
