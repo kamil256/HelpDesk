@@ -457,7 +457,7 @@ namespace HelpDesk.Controllers
         public async Task<ActionResult> History(string id)
         {
             
-            //try
+            try
             {
                 AppUser user = await userManager.FindByIdAsync(id);
                 if (user == null)
@@ -472,34 +472,36 @@ namespace HelpDesk.Controllers
                     UserID = id,
                     Logs = new List<Log>()
                 };
-                model.Logs.Add(new Log
+                foreach (var log in context.AspNetUsersHistory.Where(l => l.UserId == user.Id).OrderByDescending(l => l.ChangeDate))
                 {
-                    Date = DateTime.Now,
-                    Content = "Log #1"
-                });
-                model.Logs.Add(new Log
-                {
-                    Date = new DateTime(2015, 3, 5),
-                    Content = "Log #2"
-                });
-                model.Logs.Add(new Log
-                {
-                    Date = new DateTime(1985, 9, 2),
-                    Content = "Log #3"
-                });
-                model.Logs.Add(new Log
-                {
-                    Date = DateTime.Now,
-                    Content = "Log #4"
-                });
+                    AppUser changeAuthor = unitOfWork.UserRepository.GetById(log.ChangeAuthorId);
+                    string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.ChangeAuthorId);
+                    switch (log.ActionType)
+                    {
+                        case "UPDATE":
+                            logContent += $"updated value [{log.ColumnName}] from [{log.OldValue}] to [{log.NewValue}]";
+                            break;
+                        case "CREATE":
+                            logContent += "created user";
+                            break;
+                        case "DELETE":
+                            logContent += "deleted user";
+                            break;
+                    }
+                    model.Logs.Add(new Log
+                    {
+                        Date = log.ChangeDate,
+                        Content = logContent}
+                    );
+                }
                 return View(model);
             }
-            //catch
-            //{
-            //    TempData["Fail"] = "Poblem with reading user history. Try again!";
-            //    return RedirectToAction("Index", "Home");
-            //}
-            
+            catch
+            {
+                TempData["Fail"] = "Poblem with reading user history. Try again!";
+                return RedirectToAction("Index", "Home");
+            }
+
         }
 
         [HttpPost]
