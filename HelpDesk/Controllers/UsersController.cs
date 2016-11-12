@@ -454,6 +454,54 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
+        public async Task<ActionResult> History(string id)
+        {
+            
+            //try
+            {
+                AppUser user = await userManager.FindByIdAsync(id);
+                if (user == null)
+                    throw new Exception($"User id {id} doesn't exist");
+
+                AppUser currentUser = await getCurrentUser();
+                if (!await isCurrentUserAdmin() && user.Id != currentUser.Id)
+                    return new HttpUnauthorizedResult();
+
+                UsersHistoryViewModel model = new UsersHistoryViewModel
+                {
+                    UserID = id,
+                    Logs = new List<Log>()
+                };
+                model.Logs.Add(new Log
+                {
+                    Date = DateTime.Now,
+                    Content = "Log #1"
+                });
+                model.Logs.Add(new Log
+                {
+                    Date = new DateTime(2015, 3, 5),
+                    Content = "Log #2"
+                });
+                model.Logs.Add(new Log
+                {
+                    Date = new DateTime(1985, 9, 2),
+                    Content = "Log #3"
+                });
+                model.Logs.Add(new Log
+                {
+                    Date = DateTime.Now,
+                    Content = "Log #4"
+                });
+                return View(model);
+            }
+            //catch
+            //{
+            //    TempData["Fail"] = "Poblem with reading user history. Try again!";
+            //    return RedirectToAction("Index", "Home");
+            //}
+            
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(string id)

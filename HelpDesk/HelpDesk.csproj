@@ -288,6 +288,7 @@
     <Compile Include="Entities\User2.cs" />
     <Compile Include="Models\UsersCreateViewModel.cs" />
     <Compile Include="Models\UsersDetailsViewModel.cs" />
+    <Compile Include="Models\UsersHistoryViewModel.cs" />
     <Compile Include="Models\UsersEditViewModel.cs" />
     <Compile Include="Models\TicketsIndexViewModel.cs" />
     <Compile Include="Models\UsersIndexViewModel.cs" />
@@ -327,6 +328,7 @@
     <Content Include="Views\Users\Details.cshtml" />
     <Content Include="Views\Users\Tickets.cshtml" />
     <Content Include="Views\Users\ChangePassword.cshtml" />
+    <Content Include="Views\Users\History.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
