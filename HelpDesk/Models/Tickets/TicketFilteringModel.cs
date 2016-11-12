@@ -11,6 +11,7 @@ namespace HelpDesk.Models.Tickets
 {
     public class TicketFilteringModel
     {
+        public string UserId { get; set; }
         public string Status { get; set; } = "All";
         public string AssignedToID { get; set; }
         public int? CategoryID { get; set; }

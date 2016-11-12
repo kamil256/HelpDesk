@@ -42,6 +42,7 @@
                 type: "GET",
                 data:
                 {
+                    UserId: '@Model.UserID',
                     Status: self.filter.status(),
                     AssignedToID: self.filter.assignedTo() ? self.filter.assignedTo().UserId : null,
                     CategoryID: self.filter.category() ? self.filter.category().CategoryId : null,
@@ -203,95 +204,103 @@
     }
 }
 
-<header>
+<header style="margin: 0;">
     <div class="container">
-        <h1 style="margin-bottom: 30px;">Edit user</h1>
-
-        <div class="col-sm-offset-2 col-sm-8 @*col-md-offset-3 col-md-6*@ col-lg-offset-3 col-lg-6">
-            <div class="btn-group btn-group-justified">
-                <a href='@Url.Action("Details", new { id = Model.UserID })' class="btn btn-default"><span class="glyphicon glyphicon-unchecked"></span> View</a>
-                <a href='@Url.Action("Edit", new { id = Model.UserID })' class="btn btn-default"><span class="glyphicon glyphicon-unchecked"></span> Edit</a>
-                <a href='@Url.Action("Tickets", new { id = Model.UserID })' class="btn btn-inverse"><span class="glyphicon glyphicon-check"></span> Tickets</a>
-            </div>
-        </div>
+        <h1>User details</h1>
     </div>
 </header>
 
-<section class="container">
+<section class="container" style="padding: 0;">
     <style>
         @@media (min-width: 768px) {
             .details-panel {
                 background-color: #F5F5F5;
                 box-shadow: gray 0 0 10px;
-                padding: 30px;
                 border-radius: 5px;
+                padding: 30px 0;
             }
-        }
+
+            @@media (max-width: 767px) {
+                .details-panel {
+                    padding: 0 !important;
+                }
+            }
     </style>
 
+    <ul class="horizontal-menu">
+        <li><a href='@Url.Action("Edit", new { id = Model.UserID })'>Personal information</a></li>
+        <li><a href='@Url.Action("ChangePassword", new { id = Model.UserID })'>Change password</a></li>
+        <li class="selected"><a href='@Url.Action("Tickets", new { id = Model.UserID })'>Tickets</a></li>
+        <li><a href='@Url.Action("History", new { id = Model.UserID })'>History</a></li>
+    </ul>
+</section>
+<section class="container">
 
 
-        <div data-bind="foreach: tickets" style="margin-bottom: 20px;">
-            <div class="ticket-item" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }" style="box-shadow: gray 0 0 10px; display: table; clear: both; background-color: #F5F5F5; border-radius: 10px; width: 100%; margin-top: 10px;">
-                <div style="display: table-row;">
-                    <div class="hidden-xs" style="display: table-cell; width: 150px; border-right: 1px dashed gray; vertical-align: middle; text-align: center;">
-                        <p style="color: gray;">#<span data-bind="text: TicketId"></span></p>
-                        <p style="font-weight: bold; font-size: 20px" data-bind="text: Status, css: { 'status-new': Status == 'New',
+
+
+
+    <div data-bind="foreach: tickets" style="margin-bottom: 20px;">
+        <div class="ticket-item" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }" style="box-shadow: gray 0 0 10px; display: table; clear: both; background-color: #F5F5F5; border-radius: 10px; width: 100%; margin-top: 10px;">
+            <div style="display: table-row;">
+                <div class="hidden-xs" style="display: table-cell; width: 150px; border-right: 1px dashed gray; vertical-align: middle; text-align: center;">
+                    <p style="color: gray;">#<span data-bind="text: TicketId"></span></p>
+                    <p style="font-weight: bold; font-size: 20px" data-bind="text: Status, css: { 'status-new': Status == 'New',
                                                                                                                    'status-in-progress': Status == 'In progress',
                                                                                                                    'status-solved': Status == 'Solved',
                                                                                                                    'status-closed': Status == 'Closed' }"></p>
-                    </div>
+                </div>
 
-                    <div style="padding: 10px; display: table-cell">
-                        <b><p style="font-size: 22px; margin-bottom: 10px;" data-bind="text: Title"></p></b>
-                        <p>
-                            Created at <b data-bind="text: formatDate(CreatedOn)"></b> by
-                            <b>
-                                <!-- ko if: (CreatedBy) -->
-                                <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + CreatedById; }, text: CreatedBy"></a>
-                                <!-- /ko -->
-                                <!-- ko if: (!CreatedBy) -->
-                                <span data-bind="visible: !CreatedBy">deleted user</span>
-                                <!-- /ko -->
-                            </b>
-                            for
-                            <b>
-                                <!-- ko if: (RequestedBy) -->
-                                <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequestedById; }, text: RequestedBy"></a>
-                                <!-- /ko -->
-                                <!-- ko if: (!RequestedBy) -->
-                                <span data-bind="visible: !RequestedBy">deleted user</span>
-                                <!-- /ko -->
-                            </b>
-                        </p>
-                        <p>Category: <b data-bind="text: Category ? Category : 'none'"></b></p>
-                        <p class="visible-xs">
-                            Status: <b data-bind="text: Status, css: { 'status-new': Status == 'New',
+                <div style="padding: 10px; display: table-cell">
+                    <b><p style="font-size: 22px; margin-bottom: 10px;" data-bind="text: Title"></p></b>
+                    <p>
+                        Created at <b data-bind="text: formatDate(CreatedOn)"></b> by
+                        <b>
+                            <!-- ko if: (CreatedBy) -->
+                            <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + CreatedById; }, text: CreatedBy"></a>
+                            <!-- /ko -->
+                            <!-- ko if: (!CreatedBy) -->
+                            <span data-bind="visible: !CreatedBy">deleted user</span>
+                            <!-- /ko -->
+                        </b>
+                        for
+                        <b>
+                            <!-- ko if: (RequestedBy) -->
+                            <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequestedById; }, text: RequestedBy"></a>
+                            <!-- /ko -->
+                            <!-- ko if: (!RequestedBy) -->
+                            <span data-bind="visible: !RequestedBy">deleted user</span>
+                            <!-- /ko -->
+                        </b>
+                    </p>
+                    <p>Category: <b data-bind="text: Category ? Category : 'none'"></b></p>
+                    <p class="visible-xs">
+                        Status: <b data-bind="text: Status, css: { 'status-new': Status == 'New',
                                                                            'status-in-progress': Status == 'In progress',
                                                                            'status-solved': Status == 'Solved',
                                                                            'status-closed': Status == 'Closed' }"></b>
-                        </p>
-                        <!-- ko if: (AssignedTo) -->
-                        <p data-bind="visible: AssignedTo">Assigned to: <b><a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + AssignedToId; }, text: AssignedTo"></a></b></p>
-                        <!-- /ko -->
-                    </div>
+                    </p>
+                    <!-- ko if: (AssignedTo) -->
+                    <p data-bind="visible: AssignedTo">Assigned to: <b><a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + AssignedToId; }, text: AssignedTo"></a></b></p>
+                    <!-- /ko -->
+                </div>
 
-                    <div class="hidden-xs" style="width: 150px; display: table-cell; border-left: 1px dashed gray; vertical-align: middle">
-                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-primary" style="width: 130px; margin: 10px 10px 2px;">Assign</button>
-                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-success" style="width: 130px; margin: 2px 10px;">Solve</button>
-                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-inverse" style="width: 130px; margin: 2px 10px 10px;">Close</button>
-                    </div>
+                <div class="hidden-xs" style="width: 150px; display: table-cell; border-left: 1px dashed gray; vertical-align: middle">
+                    <button data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-primary" style="width: 130px; margin: 10px 10px 2px;">Assign</button>
+                    <button data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-success" style="width: 130px; margin: 2px 10px;">Solve</button>
+                    <button data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-inverse" style="width: 130px; margin: 2px 10px 10px;">Close</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- ko if: pages().length >= 2 -->
-        <ul data-bind="foreach: pages" class="pagination" style="margin: 0;">
-            <li data-bind="css: { active: $data == $root.filter.page() }">
-                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
-            </li>
-        </ul>
-        <!-- /ko -->
+    <!-- ko if: pages().length >= 2 -->
+    <ul data-bind="foreach: pages" class="pagination" style="margin: 0;">
+        <li data-bind="css: { active: $data == $root.filter.page() }">
+            <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
+        </li>
+    </ul>
+    <!-- /ko -->
 </section>
 
 @Html.Partial("_DeleteUserPartial")

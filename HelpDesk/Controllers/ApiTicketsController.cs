@@ -40,6 +40,8 @@ namespace HelpDesk.Controllers
             }
             else
             {
+                if (model.UserId != null)
+                    filters.Add(ticket => ticket.CreatedByID == model.UserId);
                 if (model.Status != "All")
                     filters.Add(ticket => ticket.Status == model.Status);
                 if (model.AssignedToID != null)
