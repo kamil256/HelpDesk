@@ -1,7 +1,7 @@
 ﻿@model HelpDesk.Models.TicketsEditViewModel
 
 @{
-    ViewBag.Title = "Edit ticket";
+    ViewBag.Title = "Ticket details";
 }
 
 @{
@@ -14,23 +14,69 @@
     }
 }
 
-<header>
+<header style="margin: 0">
     <div class="container">
-        <h1>Edit ticket</h1>
+        <h1>Ticket details</h1>
     </div>
 </header>
+
+<section class="container" style="padding: 0;">
+    <style>
+        @@media (min-width: 768px) {
+            .details-panel {
+                background-color: #F5F5F5;
+                box-shadow: gray 0 0 10px;
+                border-radius: 5px;
+                padding: 30px 0;
+            }
+        }
+
+        @@media (max-width: 767px) {
+            .details-panel {
+                padding: 0 !important;
+            }
+        }
+    </style>
+
+    <ul class="horizontal-menu">
+        <li class="selected"><a href='@Url.Action("Edit", new { id = Model.TicketID })'>Details</a></li>
+        <li><a href='@Url.Action("History", new { id = Model.TicketID })'>History</a></li>
+    </ul>
+</section>
+
+
 
 <div class="container">
     @using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()
-        <div class="form-horizontal">
+        <div class="form-horizontal details-panel col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8" style="padding: 15px 0;">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             @Html.HiddenFor(model => model.TicketID)
 
             <div class="form-group">
-                @Html.LabelFor(model => model.CreatedBy, new { @class = "control-label col-md-offset-1 col-md-2" })
-                <div class="col-md-6">
+                @Html.Label("ID", new { @class = "control-label col-sm-3" })
+                <div class="col-sm-8">
+                    <p class="form-control-static">
+                        @Html.DisplayFor(model => model.TicketID)
+                        @Html.HiddenFor(model => model.TicketID)
+                    </p>
+                    @Html.ValidationMessageFor(model => model.TicketID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.CreatedOn, new { @class = "control-label col-sm-3" })
+                <div class="col-sm-8">
+                    <p class="form-control-static">
+                        @Model.CreatedOn
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.CreatedBy, new { @class = "control-label col-sm-3" })
+                <div class="col-sm-8">
                     <p class="form-control-static">
                         @if (Model.CreatedBy != null)
                         {
@@ -40,14 +86,13 @@
                         {
                             <span>Deleted user</span>
                         }
-                        on @Model.CreatedOn
                     </p>
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.RequestedByID, new { @class = "control-label col-md-offset-1 col-md-2" })
-                <div class="col-md-6 input-with-button">
+                @Html.LabelFor(model => model.RequestedByID, new { @class = "control-label col-sm-3" })
+                <div class="col-sm-8 input-with-button">
                     @Html.HiddenFor(model => model.RequestedByID)
                     <input id="change-requestor-inp" value='@(Model.RequestedBy != null ? $"{Model.RequestedBy.FirstName} {Model.RequestedBy.LastName} ({Model.RequestedBy.Email})" : "-")' class="form-control" disabled="disabled" />
                     <button id="change-requestor-btn" type="button" class="btn btn-default btn-search" data-ticket-title="@Model.Title">
@@ -57,8 +102,8 @@
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.AssignedToID, new { @class = "control-label col-md-offset-1 col-md-2" })
-                <div class="col-md-6">
+                @Html.LabelFor(model => model.AssignedToID, new { @class = "control-label col-sm-3" })
+                <div class="col-sm-8">
                     @if (isCurrentUserAdmin)
                     {
                         @Html.DropDownListFor(
@@ -76,8 +121,8 @@
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.Status, new { @class = "control-label col-md-offset-1 col-md-2" })
-                <div class="col-md-6">
+                @Html.LabelFor(model => model.Status, new { @class = "control-label col-sm-3" })
+                <div class="col-sm-8">
                     @if (isCurrentUserAdmin)
                     {
                         @Html.DropDownListFor(model => model.Status, new SelectList(new[] { "New", "In progress", "Solved", "Closed" }), new { @class = "form-control" })
@@ -91,8 +136,8 @@
             </div>
             
             <div class="form-group">
-                @Html.LabelFor(model => model.CategoryID, new { @class = "control-label col-md-offset-1 col-md-2" })
-                <div class="col-md-6">
+                @Html.LabelFor(model => model.CategoryID, new { @class = "control-label col-sm-3" })
+                <div class="col-sm-8">
                     @Html.DropDownListFor(
                         expression: model => model.CategoryID,
                         selectList: new SelectList(Model.Categories.Select(c => new { CategoryID = c.CategoryID, Name = c.Name }), "CategoryID", "Name"),
@@ -103,24 +148,24 @@
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.Title, new { @class = "control-label col-md-offset-1 col-md-2" })
-                <div class="col-md-6">
+                @Html.LabelFor(model => model.Title, new { @class = "control-label col-sm-3" })
+                <div class="col-sm-8">
                     @Html.TextBoxFor(model => model.Title, new { @class = "form-control" })
                     @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.Content, new { @class = "control-label col-md-offset-1 col-md-2" })
-                <div class="col-md-6">
+                @Html.LabelFor(model => model.Content, new { @class = "control-label col-sm-3" })
+                <div class="col-sm-8">
                     @Html.TextAreaFor(model => model.Content, 7, 10, new { @class = "form-control" })
                     @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.Solution, new { @class = "control-label col-md-offset-1 col-md-2" })
-                <div class="col-md-6">
+                @Html.LabelFor(model => model.Solution, new { @class = "control-label col-sm-3" })
+                <div class="col-sm-8">
                     @{ 
                         Dictionary<string, object> htmlAttributes = new Dictionary<string, object>();
                         htmlAttributes["class"] = "form-control";
@@ -135,11 +180,11 @@
             </div>
 
             <div class="form-group">
-                <div class="col-md-offset-3 col-md-6">
+                <div class="col-sm-offset-3 col-sm-8">
                     <input type="submit" value="Save" class="btn btn-blue" />
                     @if (isCurrentUserAdmin)
                     {
-                        <button data-ticket-id="@Model.TicketID" data-ticket-title="@Model.Title" type="button" class="btn btn-blue delete-ticket-btn">Delete</button>
+                        <button data-ticket-id="@Model.TicketID" data-ticket-title="@Model.Title" type="button" class="btn btn-danger delete-ticket-btn">Delete</button>
                     }
                 </div>
             </div>

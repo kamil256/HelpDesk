@@ -479,7 +479,7 @@ namespace HelpDesk.Controllers
                     switch (log.ActionType)
                     {
                         case "UPDATE":
-                            logContent += $"updated value [{log.ColumnName}] from [{log.OldValue}] to [{log.NewValue}]";
+                            logContent += $"changed [{log.ColumnName}] from [{log.OldValue}] to [{log.NewValue}]";
                             break;
                         case "CREATE":
                             logContent += "created user";
