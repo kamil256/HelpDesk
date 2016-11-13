@@ -260,6 +260,7 @@
     <Compile Include="DAL\UserRepository.cs" />
     <Compile Include="Entities\AppRole.cs" />
     <Compile Include="Entities\AppUser.cs" />
+    <Compile Include="Entities\Settings.cs" />
     <Compile Include="Entities\TicketsHistory.cs" />
     <Compile Include="Entities\AspNetUsersHistory.cs" />
     <Compile Include="Global.asax.cs">
@@ -300,6 +301,14 @@
     <Compile Include="Migrations\201611131059199_Create table with history of tickets.cs" />
     <Compile Include="Migrations\201611131059199_Create table with history of tickets.Designer.cs">
       <DependentUpon>201611131059199_Create table with history of tickets.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201611131515071_Create table with settings.cs" />
+    <Compile Include="Migrations\201611131515071_Create table with settings.Designer.cs">
+      <DependentUpon>201611131515071_Create table with settings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201611131522023_Configure one-to-one relationship between User and Settings.cs" />
+    <Compile Include="Migrations\201611131522023_Configure one-to-one relationship between User and Settings.Designer.cs">
+      <DependentUpon>201611131522023_Configure one-to-one relationship between User and Settings.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
@@ -398,6 +407,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201611131059199_Create table with history of tickets.resx">
       <DependentUpon>201611131059199_Create table with history of tickets.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201611131515071_Create table with settings.resx">
+      <DependentUpon>201611131515071_Create table with settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201611131522023_Configure one-to-one relationship between User and Settings.resx">
+      <DependentUpon>201611131522023_Configure one-to-one relationship between User and Settings.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

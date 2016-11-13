@@ -16,5 +16,6 @@ namespace HelpDesk.Entities
         public virtual ICollection<Ticket> CreatedTickets { get; set; }
         public virtual ICollection<Ticket> RequestedTickets { get; set; }
         public virtual ICollection<Ticket> AssignedTickets { get; set; }
+        public virtual Settings Settings { get; set; }
     }
 }

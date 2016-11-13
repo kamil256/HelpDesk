@@ -33,7 +33,7 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Index([Bind(Include = "CategoriesName,CategoriesId")] SettingsIndexViewModel model)
+        public async Task<ActionResult> Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,CategoriesName,CategoriesId")] SettingsIndexViewModel model)
         {
             try
             {

@@ -110,7 +110,8 @@ namespace HelpDesk.Controllers
                         Phone = model.Phone,
                         MobilePhone = model.MobilePhone,
                         Company = model.Company,
-                        Department = model.Department
+                        Department = model.Department,
+                        Settings = new Settings()
                     };
                     AppRole role = HttpContext.GetOwinContext().GetUserManager<AppRoleManager>().FindByName(model.Role);
                     if (role == null)
