@@ -249,6 +249,7 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
+        [OverrideAuthorization]
         public async Task<ActionResult> History(int id)
         {
 
