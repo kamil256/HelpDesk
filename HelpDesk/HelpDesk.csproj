@@ -361,6 +361,7 @@
     <Content Include="Views\Users\Tickets.cshtml" />
     <Content Include="Views\Users\ChangePassword.cshtml" />
     <Content Include="Views\Users\History.cshtml" />
+    <Content Include="Views\Tickets\History.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
