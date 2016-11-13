@@ -24,9 +24,14 @@ namespace HelpDesk.Controllers
             context = new HelpDeskContext();
         }
 
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
+            Settings settings = (await getCurrentUserAsync()).Settings; 
             SettingsIndexViewModel model = new SettingsIndexViewModel();
+            model.NewTicketsNotifications = settings.NewTicketsNotifications;
+            model.SolvedTicketsNotifications = settings.SolvedTicketsNotifications;
+            model.UsersPerPage = settings.UsersPerPage;
+            model.TicketsPerPage = settings.TicketsPerPage;
             model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: q => q.OrderBy(c => c.Order)).ToArray();
             return View(model);
         }
@@ -35,17 +40,23 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,CategoriesName,CategoriesId")] SettingsIndexViewModel model)
         {
-            try
+            //try
             {
                 if (!await isCurrentUserAnAdminAsync())
                 {
                     ModelState.Remove("CategoriesName");
                     ModelState.Remove("CategoriesId");
+                    ModelState.Remove("UsersPerPage");
                 }
                 if (ModelState.IsValid)
                 {
+                    Settings settings = context.Settings.Find((await getCurrentUserAsync()).Id);
+                    settings.NewTicketsNotifications = model.NewTicketsNotifications;
+                    settings.SolvedTicketsNotifications = model.SolvedTicketsNotifications;
+                    settings.TicketsPerPage = model.TicketsPerPage ?? 10;
                     if (await isCurrentUserAnAdminAsync())
                     {
+                        settings.UsersPerPage = model.UsersPerPage ?? 10;
                         IEnumerable<Category> categories = context.Categories.Include("Tickets");
                         foreach (Category category in categories)
                         {
@@ -77,14 +88,16 @@ namespace HelpDesk.Controllers
                             }
                         }
                     }
+                    context.Entry(settings).State = EntityState.Modified;
                     await context.SaveChangesAsync();
+                    unitOfWork.Save();
                     return RedirectToAction("Index", "Home");
                 }
             }
-            catch
-            {
+            //catch
+            //{
                 
-            }
+            //}
             model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: q => q.OrderBy(c => c.Order)).ToArray();
             return View(model);
         }

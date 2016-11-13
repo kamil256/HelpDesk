@@ -40,21 +40,24 @@ namespace HelpDesk
             }
             return MvcHtmlString.Create(marked);
         }
-        public static MvcHtmlString TextBoxWithNumber(this HtmlHelper htmlHelper, int value)
+        public static MvcHtmlString TextBoxWithNumber(this HtmlHelper htmlHelper, string name, int value)
         {
             TagBuilder span1 = new TagBuilder("span");
             span1.AddCssClass("glyphicon glyphicon-chevron-left");
+            span1.MergeAttribute("onclick", $"if (isNaN($('input[name={name}]').val())) $('input[name={name}]').val(1); else if ($('input[name={name}]').val() > 1) $('input[name={name}]').val(Number($('input[name={name}]').val()) - 1)");
             TagBuilder td1 = new TagBuilder("td");
             td1.InnerHtml = span1.ToString();
 
             TagBuilder input = new TagBuilder("input");
             input.AddCssClass("form-control");
+            input.MergeAttribute("name", name);
             input.MergeAttribute("value", value.ToString());
             TagBuilder td2 = new TagBuilder("td");
             td2.InnerHtml = input.ToString();
 
             TagBuilder span2 = new TagBuilder("span");
             span2.AddCssClass("glyphicon glyphicon-chevron-right");
+            span2.MergeAttribute("onclick", $"if (isNaN($('input[name={name}]').val())) $('input[name={name}]').val(1); else $('input[name={name}]').val(Number($('input[name={name}]').val()) + 1)");
             TagBuilder td3 = new TagBuilder("td");
             td3.InnerHtml = span2.ToString();
 
