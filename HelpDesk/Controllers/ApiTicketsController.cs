@@ -97,7 +97,7 @@ namespace HelpDesk.Controllers
                     break;
             }
 
-            int ticketsPerPage = 5;
+            int ticketsPerPage = currentUser.Settings.TicketsPerPage;
             int numberOfTickets = unitOfWork.TicketRepository.Get(filters: filters, orderBy: orderBy).Count();
             int numberOfPages = (int)Math.Ceiling((decimal)numberOfTickets / ticketsPerPage);
 

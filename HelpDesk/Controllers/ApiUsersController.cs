@@ -25,6 +25,7 @@ namespace HelpDesk.Controllers
         [HttpGet]
         public PagedUsers GetUsers([FromUri] UserFilteringModel model)
         {
+            AppUser currentUser = unitOfWork.UserRepository.Get(filters: new Expression<Func<AppUser, bool>>[] { u => u.Email == User.Identity.Name }).First();
             List<Expression<Func<AppUser, bool>>> filters = new List<Expression<Func<AppUser, bool>>>();
             if (!string.IsNullOrWhiteSpace(model.Search))
             {
@@ -112,7 +113,7 @@ namespace HelpDesk.Controllers
 
             if (!model.IgnorePaging)
             {
-                int usersPerPage = 1;
+                int usersPerPage = currentUser.Settings.UsersPerPage;
                 int numberOfUsers = unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy).Count();
                 int numberOfPages = (int)Math.Ceiling((decimal)numberOfUsers / usersPerPage);
 
