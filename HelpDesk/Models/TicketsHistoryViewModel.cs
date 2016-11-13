@@ -8,9 +8,9 @@ using System.Web;
 
 namespace HelpDesk.Models
 {
-    public class UsersHistoryViewModel
+    public class TicketsHistoryViewModel
     {
-        public string UserID { get; set; }
+        public string TicketID { get; set; }
 
         public List<Log> Logs { get; set; }
     }

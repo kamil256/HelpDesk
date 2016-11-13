@@ -305,6 +305,7 @@
     <Compile Include="Models\AddTicketViewModel.cs" />
     <Compile Include="Models\Categories\CategoryDTO.cs" />
     <Compile Include="Models\ISortableViewModel.cs" />
+    <Compile Include="Models\Log.cs" />
     <Compile Include="Models\SettingsIndexViewModel.cs" />
     <Compile Include="Models\TicketsCreateViewModel.cs" />
     <Compile Include="Models\TicketsEditViewModel.cs" />
@@ -319,6 +320,7 @@
     <Compile Include="Models\UsersCreateViewModel.cs" />
     <Compile Include="Models\UsersDetailsViewModel.cs" />
     <Compile Include="Models\UsersHistoryViewModel.cs" />
+    <Compile Include="Models\TicketsHistoryViewModel.cs" />
     <Compile Include="Models\UsersEditViewModel.cs" />
     <Compile Include="Models\TicketsIndexViewModel.cs" />
     <Compile Include="Models\UsersIndexViewModel.cs" />
