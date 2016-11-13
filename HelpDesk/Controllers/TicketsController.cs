@@ -249,6 +249,57 @@ namespace HelpDesk.Controllers
             return View(model);
         }
 
+        public async Task<ActionResult> History(int id)
+        {
+
+            try
+            {
+                Ticket ticket = unitOfWork.TicketRepository.GetById(id);
+                if (ticket == null)
+                    throw new Exception($"Ticket id {id} doesn't exist");
+
+                AppUser currentUser = await getCurrentUserAsync();
+                if (!await isCurrentUserAnAdminAsync() && ticket.CreatedByID != currentUser.Id && ticket.RequestedByID != currentUser.Id)
+                    return new HttpUnauthorizedResult();
+
+                TicketsHistoryViewModel model = new TicketsHistoryViewModel
+                {
+                    TicketID = id.ToString(),
+                    Logs = new List<Log>()
+                };
+                foreach (var log in context.TicketsHistory.Where(l => l.TicketId == ticket.TicketID.ToString()).OrderByDescending(l => l.ChangeDate))
+                {
+                    AppUser changeAuthor = unitOfWork.UserRepository.GetById(log.ChangeAuthorId);
+                    string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.ChangeAuthorId);
+                    switch (log.ActionType)
+                    {
+                        case "UPDATE":
+                            logContent += $"changed [{log.ColumnName}] from [{log.OldValue}] to [{log.NewValue}]";
+                            break;
+                        case "INSERT":
+                            logContent += "created ticket";
+                            break;
+                        case "DELETE":
+                            logContent += "deleted ticket";
+                            break;
+                    }
+                    model.Logs.Add(new Log
+                    {
+                        Date = log.ChangeDate,
+                        Content = logContent
+                    }
+                    );
+                }
+                return View(model);
+            }
+            catch
+            {
+                TempData["Fail"] = "Poblem with reading user history. Try again!";
+                return RedirectToAction("Index", "Home");
+            }
+
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(int id)
