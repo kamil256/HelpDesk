@@ -481,7 +481,7 @@ namespace HelpDesk.Controllers
                         case "UPDATE":
                             logContent += $"changed [{log.ColumnName}] from [{log.OldValue}] to [{log.NewValue}]";
                             break;
-                        case "CREATE":
+                        case "INSERT":
                             logContent += "created user";
                             break;
                         case "DELETE":
