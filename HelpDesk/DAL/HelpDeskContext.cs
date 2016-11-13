@@ -28,6 +28,7 @@ namespace HelpDesk.DAL
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Category> Categories { get; set; }        
         public DbSet<AspNetUsersHistory> AspNetUsersHistory { get; set; }
+        public DbSet<TicketsHistory> TicketsHistory { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

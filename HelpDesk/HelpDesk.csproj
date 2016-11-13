@@ -260,6 +260,7 @@
     <Compile Include="DAL\UserRepository.cs" />
     <Compile Include="Entities\AppRole.cs" />
     <Compile Include="Entities\AppUser.cs" />
+    <Compile Include="Entities\TicketsHistory.cs" />
     <Compile Include="Entities\AspNetUsersHistory.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -295,6 +296,10 @@
     <Compile Include="Migrations\201611121638583_Change Id to UserId to be more understandable.cs" />
     <Compile Include="Migrations\201611121638583_Change Id to UserId to be more understandable.Designer.cs">
       <DependentUpon>201611121638583_Change Id to UserId to be more understandable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201611131059199_Create table with history of tickets.cs" />
+    <Compile Include="Migrations\201611131059199_Create table with history of tickets.Designer.cs">
+      <DependentUpon>201611131059199_Create table with history of tickets.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
@@ -387,6 +392,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201611121638583_Change Id to UserId to be more understandable.resx">
       <DependentUpon>201611121638583_Change Id to UserId to be more understandable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201611131059199_Create table with history of tickets.resx">
+      <DependentUpon>201611131059199_Create table with history of tickets.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
