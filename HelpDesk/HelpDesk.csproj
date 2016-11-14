@@ -311,6 +311,10 @@
     <Compile Include="Migrations\201611131522023_Configure one-to-one relationship between User and Settings.Designer.cs">
       <DependentUpon>201611131522023_Configure one-to-one relationship between User and Settings.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201611141450171_Running Seed method.cs" />
+    <Compile Include="Migrations\201611141450171_Running Seed method.Designer.cs">
+      <DependentUpon>201611141450171_Running Seed method.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
     <Compile Include="Models\Categories\CategoryDTO.cs" />
@@ -414,6 +418,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201611131522023_Configure one-to-one relationship between User and Settings.resx">
       <DependentUpon>201611131522023_Configure one-to-one relationship between User and Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201611141450171_Running Seed method.resx">
+      <DependentUpon>201611141450171_Running Seed method.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

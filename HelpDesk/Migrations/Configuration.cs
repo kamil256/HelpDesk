@@ -1,9 +1,13 @@
 namespace HelpDesk.Migrations
 {
+    using DAL;
+    using Entities;
+    using Microsoft.AspNet.Identity.Owin;
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
+    using System.Web;
 
     internal sealed class Configuration : DbMigrationsConfiguration<HelpDesk.DAL.HelpDeskContext>
     {
@@ -14,6 +18,22 @@ namespace HelpDesk.Migrations
 
         protected override void Seed(HelpDesk.DAL.HelpDeskContext context)
         {
+            //context.Roles.AddOrUpdate
+            //(
+            //    new AppRole { Name = "Admin" },
+            //    new AppRole { Name = "User" }
+            //);
+            //AppUser user = new AppUser
+            //{
+            //    FirstName = "Admin",
+            //    LastName = "Admin",
+            //    Email = "admin@example.com"
+            //};
+            //AppUserManager userManager = System.Web.HttpContext.Current.Request.GetOwinContext().GetUserManager<AppUserManager>();
+            //if (userManager.Users.SingleOrDefault(u => u.Email == user.Email) == null)
+            //    userManager.CreateAsync(user, "Password");
+
+
             //  This method will be called after migrating to the latest version.
 
             //  You can use the DbSet<T>.AddOrUpdate() helper extension method 

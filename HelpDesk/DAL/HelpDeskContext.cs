@@ -52,9 +52,9 @@ namespace HelpDesk.DAL
         {
             AppUserManager userMgr = new AppUserManager(new UserStore<AppUser>(context));
             AppRoleManager roleMgr = new AppRoleManager(new RoleStore<AppRole>(context));
-            string roleName = "Administrators";
+            string roleName = "admin";
             string userName = "Admin";
-            string password = "MySecret";
+            string password = "Password";
             string email = "admin@example.com";
             if (!roleMgr.RoleExists(roleName))
             {
