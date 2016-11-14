@@ -295,7 +295,7 @@
         </style>
 
         <div data-bind="foreach: tickets" style="margin-bottom: 20px;">
-            <div class="ticket-item" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }" style="box-shadow: gray 0 0 10px; display: table; clear: both; background-color: #F5F5F5; border-radius: 10px; width: 100%; margin-top: 10px;">
+            <div class="ticket-item" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }" style="box-shadow: gray 0 0 10px; display: table; clear: both; background-color: #F5F5F5; border-radius: 5px; width: 100%; margin-top: 10px;">
                 <div  style="display: table-row;">
                     <div class="hidden-xs" style="display: table-cell; width: 150px; border-right: 1px dashed gray; vertical-align: middle; text-align: center;">
                         <p style="color: gray;">#<span data-bind="text: TicketId"></span></p>
@@ -305,11 +305,11 @@
                                                                                                                    'status-closed': Status == 'Closed' }"></p>
                     </div>
 
-                    <div style="padding: 10px; display: table-cell">
-                        <b><p style="font-size: 22px; margin-bottom: 10px;" data-bind="text: Title"></p></b>
-                        <p>
-                            Created at <b data-bind="text: formatDate(CreatedOn)"></b> by
-                            <b>
+                    <div style="padding: 10px; display: table-cell;">
+                        <div><p style="font-size: 22px; margin-bottom: 10px;" data-bind="text: Title"></p></div>
+                        @*<p>*@
+                            @*Created at*@ <p><span style="color: gray">Date:</span> <span data-bind="text: formatDate(CreatedOn)"></span> @*by*@</p>
+                            @*<b>
                                 <!-- ko if: (CreatedBy) -->
                                     <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + CreatedById; }, text: CreatedBy"></a>
                                 <!-- /ko -->
@@ -318,31 +318,32 @@
                                     <span data-bind="visible: !CreatedBy">deleted user</span>
                                 <!-- /ko -->
                             </b>
-                            for
-                            <b>
-                                <!-- ko if: (RequestedBy) -->
-                                    <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequestedById; }, text: RequestedBy"></a>
-                                <!-- /ko -->
-                                
-                                <!-- ko if: (!RequestedBy) -->
-                                    <span data-bind="visible: !RequestedBy">deleted user</span>
-                                <!-- /ko -->
-                            </b>
-                        </p>
-                        <p>Category: <b data-bind="text: Category ? Category : 'none'"></b></p>
-                        <p class="visible-xs">Status: <b data-bind="text: Status, css: { 'status-new': Status == 'New',
+                            for*@
+                        <p><span style="color: gray">User:</span>
+    <span>
+        <!-- ko if: (RequestedBy) -->
+        <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequestedById; }, text: RequestedBy"></a>
+        <!-- /ko -->
+        <!-- ko if: (!RequestedBy) -->
+        <span data-bind="visible: !RequestedBy">deleted user</span>
+        <!-- /ko -->
+    </span>
+</p>
+                        @*</p>*@
+                        <p><span style="color: gray">Category:</span> <span data-bind="text: Category ? Category : 'none'"></span></p>
+                        <p class="visible-xs"><span style="color: gray">Status:</span> <span data-bind="text: Status, css: { 'status-new': Status == 'New',
                                                                            'status-in-progress': Status == 'In progress',
                                                                            'status-solved': Status == 'Solved',
-                                                                           'status-closed': Status == 'Closed' }"></b></p>
-                        <!-- ko if: (AssignedTo) -->
+                                                                           'status-closed': Status == 'Closed' }"></span>@*</p>*@
+                        @*<!-- ko if: (AssignedTo) -->
                             <p data-bind="visible: AssignedTo">Assigned to: <b><a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + AssignedToId; }, text: AssignedTo"></a></b></p>
-                        <!-- /ko -->
+                        <!-- /ko -->*@
                     </div>
 
-                    <div class="hidden-xs" style="width: 150px; display: table-cell; border-left: 1px dashed gray; vertical-align: middle">
-                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-primary" style="width: 130px; margin: 10px 10px 2px;">Assign</button>
-                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-success" style="width: 130px; margin: 2px 10px;">Solve</button>
-                        <button data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-inverse" style="width: 130px; margin: 2px 10px 10px;">Close</button>
+                    <div class="hidden-xs" style="width: 180px; display: table-cell; aborder-left: 1px dashed gray; vertical-align: bottom">
+                        <button title="Close ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-inverse pull-right" style="width: 50px; margin: 10px 10px 10px 0;"><span class="glyphicon glyphicon-remove"></span>@*Close*@</button>
+                        <button title="Solve ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-success pull-right" style="width: 50px; margin: 10px 3px 10px 0;"><span class="glyphicon glyphicon-ok"></span>@*Solve*@</button>
+                        <button title="Assign admin to ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-primary pull-right" style="width: 50px; margin: 10px 3px 10px 0;">+<span class="glyphicon glyphicon-user"></span>@*Assign*@</button>
                     </div>
                 </div>
             </div>

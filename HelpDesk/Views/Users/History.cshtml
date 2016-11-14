@@ -47,18 +47,25 @@
     </ul>
 </section>
 <section class="container">
-    <div class="details-panel" style="padding: 15px 15px; font-family: Courier">
-        @foreach (var log in Model.Logs)
-        {
-            <div class="row">
-                <div class="col-sm-4 col-md-3 col-lg-2">
-                    <b>@log.Date.ToString()</b>
+    <div class="details-panel" style="padding: 15px 15px;  padding-top: 25px;">
+        @*<div class="text-center">
+            <p style="display: inline-block; margin-bottom: 20px; padding: 0 40px 10px; border-bottom: 1px solid #999; border-bottom-left-radius: 100px 1px; border-bottom-right-radius: 100px 1px;">
+                <b>View history of changes of @Model.FirstName @Model.LastName account</b>
+            </p>
+        </div>*@
+        <div style="font-family: Courier;">
+            @foreach (var log in Model.Logs)
+            {
+                <div class="row">
+                    <div class="col-sm-4 col-md-3 col-lg-2">
+                        <b>@log.Date.ToString()</b>
+                    </div>
+                    <div class="col-sm-8 col-md-9 col-lg-10">
+                        @log.Content
+                    </div>
                 </div>
-                <div class="col-sm-8 col-md-9 col-lg-10">
-                    @log.Content
-                </div>
-            </div>
-        }
+            }
+        </div>
     </div>          
 </section>
 

@@ -77,7 +77,7 @@ namespace HelpDesk
         {
             TagBuilder span1 = new TagBuilder("span");
             span1.AddCssClass("glyphicon");
-            span1.AddCssClass("glyphicon-resize-vertical");
+            span1.AddCssClass("glyphicon-option-vertical"/*"glyphicon-resize-vertical"*/);
             TagBuilder td1 = new TagBuilder("td");
             td1.InnerHtml = span1.ToString();
 
@@ -94,7 +94,7 @@ namespace HelpDesk
             td2.InnerHtml += input2.ToString();
 
             TagBuilder span2 = new TagBuilder("span");
-            span2.AddCssClass("glyphicon");
+            span2.AddCssClass("glyphicon");            
             span2.AddCssClass("glyphicon-remove");
             span2.MergeAttribute("onclick", "removeCategory(event)");
             TagBuilder td3 = new TagBuilder("td");

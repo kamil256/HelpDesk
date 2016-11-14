@@ -169,6 +169,8 @@ namespace HelpDesk.Controllers
                     throw new Exception($"User id {id} doesn't exist");
                 UsersEditViewModel model = new UsersEditViewModel();
                 model.UserID = user.Id;
+                model.FirstName = user.FirstName;
+                model.LastName = user.LastName;
                 model.Tickets = unitOfWork.TicketRepository.Get(filters: new List<Expression<Func<Ticket, bool>>> { t => t.CreatedByID == id }, orderBy: t => t.OrderByDescending(x => x.CreatedOn)).Select(t => new TicketDTO
                 {
                     TicketId = t.TicketID,
@@ -387,7 +389,9 @@ namespace HelpDesk.Controllers
                     throw new Exception($"User id {id} doesn't exist");
                 UsersChangePasswordViewModel model = new UsersChangePasswordViewModel
                 {
-                    UserID = user.Id
+                    UserID = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName
                 };
                 return View(model);
             }
@@ -452,6 +456,9 @@ namespace HelpDesk.Controllers
                 return RedirectToAction("Index", "Home");
             }
             //model.Tickets = user.CreatedTickets.OrderByDescending(t => t.CreatedOn);
+
+            model.FirstName = user.FirstName;
+            model.LastName = user.LastName;
             return View(model);
         }
 
@@ -472,6 +479,8 @@ namespace HelpDesk.Controllers
                 UsersHistoryViewModel model = new UsersHistoryViewModel
                 {
                     UserID = id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
                     Logs = new List<Log>()
                 };
                 foreach (var log in context.AspNetUsersHistory.Where(l => l.UserId == user.Id).OrderByDescending(l => l.ChangeDate))
