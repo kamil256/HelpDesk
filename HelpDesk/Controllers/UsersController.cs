@@ -524,6 +524,7 @@ namespace HelpDesk.Controllers
                 AppUser user = await userManager.Users.Include(u => u.CreatedTickets)
                                                       .Include(u => u.RequestedTickets)
                                                       .Include(u => u.AssignedTickets)
+                                                      .Include(u => u.Settings)
                                                       .SingleOrDefaultAsync(u => u.Id == id);
                 if (user == null)
                     return HttpNotFound();

@@ -132,10 +132,10 @@ namespace HelpDesk.Controllers
                     //unitOfWork.Save();
                     TempData["Success"] = "Successfully added new ticket!";
                     AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
-                    if (await userManager.IsInRoleAsync(user.Id, "Admin"))
+                    //if (await userManager.IsInRoleAsync(user.Id, "Admin"))
                         return RedirectToAction("Index");
-                    else
-                        return RedirectToAction("IndexOwn");
+                    //else
+                    //    return RedirectToAction("IndexOwn");
                 }
             }
             catch
