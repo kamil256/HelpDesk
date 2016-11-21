@@ -104,7 +104,7 @@
             <div class="form-group">
                 @Html.LabelFor(model => model.AssignedToID, new { @class = "control-label col-sm-3" })
                 <div class="col-sm-8">
-                    @if (isCurrentUserAdmin)
+                    @if (ViewBag.IsCurrentUserAdmin)
                     {
                         @Html.DropDownListFor(
                                  expression: model => model.AssignedToID,

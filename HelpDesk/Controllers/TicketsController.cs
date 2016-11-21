@@ -22,87 +22,52 @@ namespace HelpDesk.Controllers
     [Authorize(Roles = "Admin")]
     public class TicketsController : Controller
     {
+        private AppUserManager UserManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+            }
+        }
+
+        private AppRoleManager RoleManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
+            }
+        }
+
+        private AppUser CurrentUser
+        {
+            get
+            {
+                return UserManager.FindByNameAsync(User.Identity.Name).Result;
+            }
+        }
+
         private IUnitOfWork unitOfWork;
-        private HelpDeskContext context;
 
         public TicketsController()
         {
             unitOfWork = new UnitOfWork();
-            context = new HelpDeskContext();
         }
 
         [OverrideAuthorization]
-        public async Task<ActionResult> Index([Bind(Include = "Status,AssignedToID,CategoryID,Search,AdvancedSearch,SortBy,DescSort,Page")] TicketsIndexViewModel model)
+        public ViewResult Index()
         {
-            IQueryable<Ticket> query = context.Tickets;
-            if (!await isCurrentUserAnAdminAsync())
-            {
-                string currentUserId = (await getCurrentUserAsync()).Id;
-                query = query.Where(t => t.CreatedByID == currentUserId);
-            
-                ModelState.Remove("Status");
-                ModelState.Remove("AssignedToID");
-                ModelState.Remove("CategoryID");
-            }
-            else
-            {
-                if (model.Status != "All")
-                    query = query.Where(t => t.Status == model.Status);
-                if (model.AssignedToID != null)
-                    query = query.Where(t => t.AssignedToID == model.AssignedToID);
-                if (model.CategoryID != null)
-                    query = query.Where(t => t.CategoryID == model.CategoryID);
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Search))
-            {
-                query = query.Where(t => t.Title.ToLower().Contains(model.Search.ToLower()));
-                if (model.AdvancedSearch)
-                    query = query.Where(t => t.Content.ToLower().Contains(model.Search.ToLower()) ||
-                                             t.Solution.ToLower().Contains(model.Search.ToLower()));                    
-            }
-            
-            switch (model.SortBy)
-            {
-                case "CreatedOn":
-                    query = model.DescSort ? query.OrderByDescending(t => t.CreatedOn) : query.OrderBy(t => t.CreatedOn);
-                    break;
-                case "RequestedBy":
-                    query = model.DescSort ? query.OrderByDescending(t => t.RequestedBy.UserName) : query.OrderBy(t => t.RequestedBy.UserName);
-                    break;
-                case "Title":
-                    query = model.DescSort ? query.OrderByDescending(t => t.Title) : query.OrderBy(t => t.Title);
-                    break;
-                case "Category":
-                    query = model.DescSort ? query.OrderByDescending(t => t.Category.Name) : query.OrderBy(t => t.Category.Name);
-                    break;
-                case "Status":
-                    query = model.DescSort ? query.OrderByDescending(t => t.Status) : query.OrderBy(t => t.Status);
-                    break;
-                case "AssignedTo":
-                    query = model.DescSort ? query.OrderByDescending(t => t.AssignedTo.UserName) : query.OrderBy(t => t.AssignedTo.UserName);
-                    break;
-            }
-
-            
-            model.Tickets = query.ToPagedList(model.Page, 5);
-
-            string adminRoleId = roleManager.Roles.Single(r => r.Name == "Admin").Id;
-            model.Admins = userManager.Users.Where(u => u.Roles.FirstOrDefault().RoleId == adminRoleId);// unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
-            model.Categories = context.Categories.OrderBy(c => c.Order);
-            
-            return View("ApiIndex"/*model*/);
+            return View("ApiIndex");
         }
 
         [OverrideAuthorization]
-        public async Task<ActionResult> Create()
+        public ViewResult Create()
         {
-            TicketsCreateViewModel model = new TicketsCreateViewModel();
-            model.RequestedBy = await userManager.FindByEmailAsync(User.Identity.Name);
-            
-            //model.RequestedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single();
-            model.RequestedByID = model.RequestedBy.Id;
-            model.Categories = context.Categories.OrderBy(c => c.Order);
+            TicketsCreateViewModel model = new TicketsCreateViewModel
+            {
+                RequestedBy = CurrentUser,
+                RequestedByID = CurrentUser.Id,
+                Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order))
+            };
             return View(model);
         }
 
@@ -115,10 +80,9 @@ namespace HelpDesk.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    Ticket ticket = new Ticket()
+                    Ticket ticket = new Ticket
                     {
-                        CreatedByID = (await userManager.FindByEmailAsync(User.Identity.Name)).Id,
-                        //CreatedBy = unitOfWork.UserRepository.GetAll(u => u.Email == User.Identity.Name).Single(),
+                        CreatedByID = CurrentUser.Id,
                         RequestedByID = model.RequestedByID,
                         CreatedOn = DateTime.Now,
                         Status = "New",
@@ -126,39 +90,30 @@ namespace HelpDesk.Controllers
                         Title = model.Title,
                         Content = model.Content
                     };
-                    context.Tickets.Add(ticket);
-                    await context.SaveChangesAsync();
-                    //unitOfWork.TicketRepository.Insert(ticket);
-                    //unitOfWork.Save();
+                    unitOfWork.TicketRepository.Insert(ticket);
+                    unitOfWork.Save();
                     TempData["Success"] = "Successfully added new ticket!";
-                    AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
-                    if (await userManager.IsInRoleAsync(user.Id, "Admin"))
-                        return RedirectToAction("Index");
-                    else
-                        return RedirectToAction("IndexOwn");
+                    return RedirectToAction("Index");
                 }
             }
             catch
             {
                 ModelState.AddModelError("", "Cannot create ticket. Try again!");
             }
-
-            model.RequestedBy = await userManager.FindByIdAsync(model.RequestedByID);
-            //model.RequestedBy = unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
-            model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: c => c.OrderBy(o => o.Order));
-
+            model.RequestedBy = await UserManager.FindByIdAsync(model.RequestedByID);
+            model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
             return View(model);
         }
 
         [OverrideAuthorization]
         public async Task<ActionResult> Edit(int? id)
         {
-            Ticket ticket = await context.Tickets.FindAsync(id);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(id ?? 0);
             if (ticket == null)
             {
                 return HttpNotFound();
             }
-            if (!await isCurrentUserAnAdminAsync() && ticket.CreatedByID != (await getCurrentUserAsync()).Id)
+            if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatedByID != CurrentUser.Id)
             {
                 TempData["Fail"] = "You can't modify ticket which you didn't create!";
                 return RedirectToAction("Index", "Home");
@@ -178,11 +133,10 @@ namespace HelpDesk.Controllers
                 RequestedBy = ticket.RequestedBy,                
                 AssignedTo = ticket.AssignedTo
             };
-
-            string adminRoleId = roleManager.Roles.Single(r => r.Name == "Admin").Id;
-            model.Admins = userManager.Users.Where(u => u.Roles.FirstOrDefault().RoleId == adminRoleId);
-            //model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
-            model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: c => c.OrderBy(o => o.Order));
+            string adminRoleId = RoleManager.FindByName("Admin").Id;
+            model.Admins = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
+            model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
+            ViewBag.IsCurrentUserAdmin = await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin");
             return View(model);
         }
 
@@ -191,26 +145,38 @@ namespace HelpDesk.Controllers
         [OverrideAuthorization]
         public async Task<ActionResult> Edit([Bind(Include = "TicketID,RequestedByID,AssignedToID,Status,CategoryID,Title,Content,Solution")] TicketsEditViewModel model)
         {
-            Ticket ticket = await context.Tickets.FindAsync(model.TicketID);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(model.TicketID);
             if (ticket == null)
             {
                 return HttpNotFound();
             }
-            if (!await isCurrentUserAnAdminAsync())
+
+            model.RequestedBy = await UserManager.FindByIdAsync(model.RequestedByID);
+            if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
             {
-                if (ticket.CreatedByID != (await getCurrentUserAsync()).Id)
+                model.AssignedTo = await UserManager.FindByIdAsync(model.AssignedToID);
+            }
+            else
+            {
+                if (ticket.CreatedByID != CurrentUser.Id)
                 {
                     TempData["Fail"] = "You can't modify ticket which you didn't create!";
                     return RedirectToAction("Index", "Home");
                 }
+                else
+                {
+                    ModelState.Remove("AssignedToID");
+                    model.AssignedToID = ticket.AssignedToID;
+                    model.AssignedTo = ticket.AssignedTo;
 
-                ModelState.Remove("AssignedToID");
-                ModelState.Remove("Status");
-                ModelState.Remove("Solution");
+                    ModelState.Remove("Status");
+                    model.Status = ticket.Status;
+
+                    ModelState.Remove("Solution");
+                    model.Solution = ticket.Solution;
+                }
             }
 
-            model.RequestedBy = await userManager.FindByIdAsync(model.RequestedByID);//unitOfWork.UserRepository.GetById(model.RequestedByID ?? 0);
-            model.AssignedTo = await userManager.FindByIdAsync(model.AssignedToID);//unitOfWork.UserRepository.GetById(model.AssignedToID ?? 0);
             try
             {
                 if (ModelState.IsValid)
@@ -219,17 +185,11 @@ namespace HelpDesk.Controllers
                     ticket.CategoryID = model.CategoryID;
                     ticket.Title = model.Title;
                     ticket.Content = model.Content;                    
-
-                    if (await isCurrentUserAnAdminAsync())
-                    {
-                        ticket.Status = model.Status;
-                        ticket.AssignedToID = model.AssignedToID;
-                        ticket.Solution = model.Solution;
-                    }
-
-                    context.Tickets.Attach(ticket);
-                    context.Entry(ticket).State = EntityState.Modified;
-                    await context.SaveChangesAsync();
+                    ticket.Status = model.Status;
+                    ticket.AssignedToID = model.AssignedToID;
+                    ticket.Solution = model.Solution;
+                    unitOfWork.TicketRepository.Update(ticket);
+                    unitOfWork.Save();
                     TempData["Success"] = "Successfully edited ticket!";
                     return RedirectToAction("Index");
                 }
@@ -241,11 +201,9 @@ namespace HelpDesk.Controllers
             model.CreatedBy = ticket.CreatedBy;
             model.CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss");
 
-            string adminRoleId = roleManager.Roles.Single(r => r.Name == "Admin").Id;
-            model.Admins = userManager.Users.Where(u => u.Roles.FirstOrDefault().RoleId == adminRoleId);
-            //model.Admins = unitOfWork.UserRepository.GetAll(u => u.Role == "Admin", orderBy: o => o.OrderBy(t => t.FirstName));
-            model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: c => c.OrderBy(o => o.Order));
-
+            string adminRoleId = RoleManager.FindByName("Admin").Id;
+            model.Admins = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
+            model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
             return View(model);
         }
 
@@ -259,8 +217,7 @@ namespace HelpDesk.Controllers
                 if (ticket == null)
                     throw new Exception($"Ticket id {id} doesn't exist");
 
-                AppUser currentUser = await getCurrentUserAsync();
-                if (!await isCurrentUserAnAdminAsync() && ticket.CreatedByID != currentUser.Id && ticket.RequestedByID != currentUser.Id)
+                if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatedByID != CurrentUser.Id && ticket.RequestedByID != CurrentUser.Id)
                     return new HttpUnauthorizedResult();
 
                 TicketsHistoryViewModel model = new TicketsHistoryViewModel
@@ -268,7 +225,7 @@ namespace HelpDesk.Controllers
                     TicketID = id.ToString(),
                     Logs = new List<Log>()
                 };
-                foreach (var log in context.TicketsHistory.Where(l => l.TicketId == ticket.TicketID.ToString()).OrderByDescending(l => l.ChangeDate))
+                foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketID.ToString() }, orderBy: x => x.OrderByDescending(l => l.ChangeDate)))
                 {
                     AppUser changeAuthor = unitOfWork.UserRepository.GetById(log.ChangeAuthorId);
                     string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.ChangeAuthorId);
@@ -305,14 +262,13 @@ namespace HelpDesk.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(int id)
         {
-            Ticket ticket = await context.Tickets.FindAsync(id);
-            AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(id);
             if (ticket == null)
             {
                 return HttpNotFound();
             }
-            if (!(await userManager.IsInRoleAsync(user.Id, "Admin")) && ticket.CreatedByID != user.Id)
-                return RedirectToAction("IndexOwn");
+            if (!(await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin")) && ticket.CreatedByID != CurrentUser.Id)
+                return RedirectToAction("Index");
             try
             { 
                 unitOfWork.TicketRepository.Delete(id);
@@ -326,10 +282,11 @@ namespace HelpDesk.Controllers
             return RedirectToAction("Index");
         }
 
+        // todo: move to UsersController or use Web Api instead if possible
         [OverrideAuthorization]
         public JsonResult FindUsers(string search)
         {
-            var result = from x in userManager.Users.Where//unitOfWork.UserRepository.GetAll
+            var result = from x in UserManager.Users.Where
                          (
                               u => (u.FirstName + " " + u.LastName).ToLower().Contains(search.ToLower()) ||
                               u.Email.ToLower().Contains(search.ToLower())
@@ -344,11 +301,11 @@ namespace HelpDesk.Controllers
             return Json(result);
         }
 
-        public async Task<FileResult> DownloadTicketsAsCSV()
+        public FileResult DownloadTicketsAsCSV()
         {
             StringBuilder csv = new StringBuilder();
             csv.AppendLine("Created on;Created by;Requested by;Assigned to;Status;Category;Title;Content;Solution");
-            foreach (Ticket ticket in await context.Tickets.OrderByDescending(t => t.CreatedOn).ToListAsync())
+            foreach (Ticket ticket in unitOfWork.TicketRepository.Get(orderBy: x => x.OrderByDescending(t => t.CreatedOn)))
             {
                 csv.AppendLine($"{ticket.CreatedOn};{ticket.CreatedBy?.FirstName} {ticket.CreatedBy?.LastName};{ticket.RequestedBy?.FirstName} {ticket.RequestedBy?.LastName};{ticket.AssignedTo?.FirstName} {ticket.AssignedTo?.LastName};{ticket.Status};{ticket.Category?.Name};{ticket.Title};{ticket.Content};{ticket.Solution};");
             }
@@ -360,7 +317,7 @@ namespace HelpDesk.Controllers
         {
             try
             {
-                AppUser user = await userManager.FindByIdAsync(userId);
+                AppUser user = await UserManager.FindByIdAsync(userId);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "In progress";
@@ -401,7 +358,7 @@ namespace HelpDesk.Controllers
         {
             try
             {
-                AppUser user = await userManager.FindByIdAsync(userId);//unitOfWork.UserRepository.GetById(solveUserID);
+                AppUser user = await UserManager.FindByIdAsync(userId);//unitOfWork.UserRepository.GetById(solveUserID);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "Solved";
@@ -444,7 +401,7 @@ namespace HelpDesk.Controllers
         {
             try
             {
-                AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
+                AppUser user = await UserManager.FindByEmailAsync(User.Identity.Name);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "Closed";
@@ -479,31 +436,5 @@ namespace HelpDesk.Controllers
         //    }
         //    return Redirect(returnUrl);
         //}
-
-        private AppUserManager userManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
-            }
-        }
-
-        private AppRoleManager roleManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
-            }
-        }
-
-        private async Task<AppUser> getCurrentUserAsync()
-        {
-            return await userManager.FindByEmailAsync(User.Identity.Name);
-        }
-
-        private async Task<bool> isCurrentUserAnAdminAsync()
-        {
-            return await userManager.IsInRoleAsync((await getCurrentUserAsync()).Id, "Admin");
-        }
     }
 }

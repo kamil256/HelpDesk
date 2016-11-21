@@ -12,6 +12,8 @@ namespace HelpDesk.DAL
         RoleRepository RoleRepository { get; }
         GenericRepository<Ticket> TicketRepository { get; }
         GenericRepository<Category> CategoryRepository { get; }
+        GenericRepository<AspNetUsersHistory> AspNetUsersHistoryRepository { get; }
+        GenericRepository<TicketsHistory> TicketsHistoryRepository { get; }
         void Save();
     }
 }
