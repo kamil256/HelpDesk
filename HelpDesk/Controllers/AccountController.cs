@@ -1,7 +1,5 @@
 ﻿using HelpDesk.DAL;
 using HelpDesk.Entities;
-using HelpDesk.Infrastructure.Abstract;
-using HelpDesk.Infrastructure.Concrete;
 using HelpDesk.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -14,19 +12,16 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
-using static HelpDesk.Infrastructure.Utilities;
 
 namespace HelpDesk.Controllers
 {
     public class AccountController : Controller
     {
         private IUnitOfWork unitOfWork;
-        private IAuthProvider authProvider;
 
-        public AccountController()//IUnitOfWork unitOfWork, IAuthProvider authProvider)
+        public AccountController()
         {
-            this.unitOfWork = new UnitOfWork();//HttpContext.GetOwinContext().GetUserManager<AppUserManager>());
-            this.authProvider = new FormsAuthProvider(unitOfWork);//authProvider;
+            this.unitOfWork = new UnitOfWork();
         }
 
         public ActionResult Login(string returnUrl)

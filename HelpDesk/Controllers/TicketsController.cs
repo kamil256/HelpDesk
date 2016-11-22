@@ -9,7 +9,6 @@ using System.Web.Mvc;
 using HelpDesk.DAL;
 using HelpDesk.Models;
 using HelpDesk.Entities;
-using static HelpDesk.Infrastructure.Utilities;
 using System.Linq.Expressions;
 using PagedList;
 using System.Threading.Tasks;
@@ -227,7 +226,7 @@ namespace HelpDesk.Controllers
                 };
                 foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketID.ToString() }, orderBy: x => x.OrderByDescending(l => l.ChangeDate)))
                 {
-                    AppUser changeAuthor = unitOfWork.UserRepository.GetById(log.ChangeAuthorId);
+                    AppUser changeAuthor = UserManager.FindById(log.ChangeAuthorId);
                     string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.ChangeAuthorId);
                     switch (log.ActionType)
                     {

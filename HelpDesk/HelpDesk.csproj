@@ -257,8 +257,6 @@
     <Compile Include="DAL\IRepository.cs" />
     <Compile Include="DAL\IUnitOfWork.cs" />
     <Compile Include="DAL\UnitOfWork.cs" />
-    <Compile Include="DAL\RoleRepository.cs" />
-    <Compile Include="DAL\UserRepository.cs" />
     <Compile Include="Entities\AppRole.cs" />
     <Compile Include="Entities\AppUser.cs" />
     <Compile Include="Entities\Settings.cs" />
@@ -268,9 +266,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="HelperMethods.cs" />
-    <Compile Include="Infrastructure\Abstract\IAuthProvider.cs" />
-    <Compile Include="Infrastructure\Concrete\FormsAuthProvider.cs" />
-    <Compile Include="Infrastructure\Utilities.cs" />
     <Compile Include="Migrations\201609221918277_Init.cs" />
     <Compile Include="Migrations\201609221918277_Init.Designer.cs">
       <DependentUpon>201609221918277_Init.cs</DependentUpon>

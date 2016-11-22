@@ -11,32 +11,11 @@ namespace HelpDesk.DAL
     {
         private readonly HelpDeskContext context = new HelpDeskContext();
 
-        private UserRepository userRepository;
-        private RoleRepository roleRepository;
         private GenericRepository<Ticket> ticketRepository;
         private GenericRepository<Category> categoryRepository;
+        private GenericRepository<Settings> settingsRepository;
         private GenericRepository<AspNetUsersHistory> aspNetUsersHistoryRepository;
         private GenericRepository<TicketsHistory> ticketsHistoryRepository;
-
-        public UserRepository UserRepository
-        {
-            get
-            {
-                if (userRepository == null)
-                    userRepository = new UserRepository();
-                return userRepository;
-            }
-        }
-
-        public RoleRepository RoleRepository
-        {
-            get
-            {
-                if (roleRepository == null)
-                    roleRepository = new RoleRepository();
-                return roleRepository;
-            }
-        }
 
         public GenericRepository<Ticket> TicketRepository
         {
@@ -55,6 +34,16 @@ namespace HelpDesk.DAL
                 if (categoryRepository == null)
                     categoryRepository = new GenericRepository<Category>(context);
                 return categoryRepository;
+            }
+        }
+
+        public GenericRepository<Settings> SettingsRepository
+        {
+            get
+            {
+                if (settingsRepository == null)
+                    settingsRepository = new GenericRepository<Settings>(context);
+                return settingsRepository;
             }
         }
 

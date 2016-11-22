@@ -1,6 +1,7 @@
 ﻿using HelpDesk.DAL;
 using HelpDesk.Entities;
 using HelpDesk.Models;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
@@ -15,18 +16,40 @@ namespace HelpDesk.Controllers
     [Authorize]
     public class SettingsController : Controller
     {
+        private AppUserManager UserManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+            }
+        }
+
+        private AppRoleManager RoleManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
+            }
+        }
+
+        private AppUser CurrentUser
+        {
+            get
+            {
+                return UserManager.FindByNameAsync(User.Identity.Name).Result;
+            }
+        }
+
         private IUnitOfWork unitOfWork;
-        private HelpDeskContext context;
 
         public SettingsController()
         {
-            unitOfWork = new UnitOfWork();// HttpContext.GetOwinContext().GetUserManager<AppUserManager>());
-            context = new HelpDeskContext();
+            unitOfWork = new UnitOfWork();
         }
 
-        public async Task<ActionResult> Index()
+        public ViewResult Index()
         {
-            Settings settings = (await getCurrentUserAsync()).Settings; 
+            Settings settings = CurrentUser.Settings; 
             SettingsIndexViewModel model = new SettingsIndexViewModel();
             model.NewTicketsNotifications = settings.NewTicketsNotifications;
             model.SolvedTicketsNotifications = settings.SolvedTicketsNotifications;
@@ -38,11 +61,11 @@ namespace HelpDesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,CategoriesName,CategoriesId")] SettingsIndexViewModel model)
+        public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,CategoriesName,CategoriesId")] SettingsIndexViewModel model)
         {
             //try
             {
-                if (!await isCurrentUserAnAdminAsync())
+                if (!UserManager.IsInRole(CurrentUser.Id, "Admin"))
                 {
                     ModelState.Remove("CategoriesName");
                     ModelState.Remove("CategoriesId");
@@ -50,82 +73,51 @@ namespace HelpDesk.Controllers
                 }
                 if (ModelState.IsValid)
                 {
-                    Settings settings = context.Settings.Find((await getCurrentUserAsync()).Id);
+                    Settings settings = CurrentUser.Settings;
                     settings.NewTicketsNotifications = model.NewTicketsNotifications;
                     settings.SolvedTicketsNotifications = model.SolvedTicketsNotifications;
                     settings.TicketsPerPage = model.TicketsPerPage ?? 10;
-                    if (await isCurrentUserAnAdminAsync())
+                    // todo: copy whole model with categories to categories in DB. If new then insert, else update without checking if it's different (addorupdate?)
+                    if (UserManager.IsInRole(CurrentUser.Id, "Admin"))
                     {
                         settings.UsersPerPage = model.UsersPerPage ?? 10;
-                        IEnumerable<Category> categories = context.Categories.Include("Tickets");
+                        IEnumerable<Category> categories = unitOfWork.CategoryRepository.Get(includeProperties: "Tickets");
                         foreach (Category category in categories)
                         {
                             if (!model.CategoriesId.Contains(category.CategoryID))
-                            {
-                                if (context.Entry(category).State == EntityState.Deleted)
-                                    context.Categories.Attach(category);
-                                context.Categories.Remove(category);
-                            }
+                                unitOfWork.CategoryRepository.Delete(category);
                             else
                             {
                                 int index = Array.IndexOf(model.CategoriesId, category.CategoryID);
                                 category.Name = model.CategoriesName[index];
-                                context.Categories.Attach(category);
-                                context.Entry(category).State = EntityState.Modified;
+                                unitOfWork.CategoryRepository.Update(category);
                             }
                         }
                         for (int i = 0; i < model.CategoriesId.Length; i++)
                         {
                             if (model.CategoriesId[i] == 0)
                             {
-                                context.Categories.Add(new Category { Name = model.CategoriesName[i], Order = i });
+                                unitOfWork.CategoryRepository.Insert(new Category { Name = model.CategoriesName[i], Order = i });
                             }
                             else
                             {
                                 var category = categories.Single(c => c.CategoryID == model.CategoriesId[i]);
                                 category.Order = i;
-                                context.Entry(category).State = EntityState.Modified;
+                                unitOfWork.CategoryRepository.Update(category);
                             }
                         }
                     }
-                    context.Entry(settings).State = EntityState.Modified;
-                    await context.SaveChangesAsync();
+                    unitOfWork.SettingsRepository.Update(settings);
                     unitOfWork.Save();
                     return RedirectToAction("Index", "Home");
                 }
             }
             //catch
             //{
-                
+
             //}
-            model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: q => q.OrderBy(c => c.Order)).ToArray();
+            model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order)).ToArray();
             return View(model);
-        }
-
-        private AppUserManager userManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
-            }
-        }
-
-        private AppRoleManager roleManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
-            }
-        }
-
-        private async Task<AppUser> getCurrentUserAsync()
-        {
-            return await userManager.FindByEmailAsync(User.Identity.Name);
-        }
-
-        private async Task<bool> isCurrentUserAnAdminAsync()
-        {
-            return await userManager.IsInRoleAsync((await getCurrentUserAsync()).Id, "Admin");
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using HelpDesk.DAL;
 using HelpDesk.Entities;
 using HelpDesk.Models.Tickets;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,37 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web;
 
 namespace HelpDesk.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class ApiTicketsController : ApiController
     {
+        private AppUserManager UserManager
+        {
+            get
+            {
+                return HttpContext.Current.Request.GetOwinContext().GetUserManager<AppUserManager>();
+            }
+        }
+
+        private AppRoleManager RoleManager
+        {
+            get
+            {
+                return HttpContext.Current.Request.GetOwinContext().GetUserManager<AppRoleManager>();
+            }
+        }
+
+        private AppUser CurrentUser
+        {
+            get
+            {
+                return UserManager.FindByNameAsync(User.Identity.Name).Result;
+            }
+        }
+
         private IUnitOfWork unitOfWork;
 
         public ApiTicketsController()
@@ -25,14 +51,12 @@ namespace HelpDesk.Controllers
 
         [OverrideAuthorization]
         [HttpGet]
-        public async Task<PagedTickets> GetTickets([FromUri] TicketFilteringModel model)
+        public PagedTickets GetTickets([FromUri] TicketFilteringModel model)
         {
             List<Expression<Func<Entities.Ticket, bool>>> filters = new List<Expression<Func<Entities.Ticket, bool>>>();
-            AppUser currentUser = unitOfWork.UserRepository.Get(filters: new Expression<Func<AppUser, bool>>[] { u => u.Email == User.Identity.Name }).First();
-            if (!await unitOfWork.UserRepository.IsCurrentUserAnAdmin())
+            if (!UserManager.IsInRole(CurrentUser.Id, "Admin"))
             {
-                string currentUserId = (await unitOfWork.UserRepository.GetCurrentUser()).Id;
-                filters.Add(ticket => ticket.CreatedByID == currentUserId);
+                filters.Add(ticket => ticket.CreatedByID == CurrentUser.Id);
 
                 ModelState.Remove("Status");
                 ModelState.Remove("AssignedToID");
@@ -49,7 +73,7 @@ namespace HelpDesk.Controllers
                 if (model.CategoryID != null)
                     filters.Add(ticket => ticket.CategoryID == model.CategoryID);
             }
-            
+
             if (!string.IsNullOrWhiteSpace(model.Search))
             {
                 if (!model.AdvancedSearch)
@@ -61,7 +85,7 @@ namespace HelpDesk.Controllers
             }
 
             Func<IQueryable<Entities.Ticket>, IOrderedQueryable<Entities.Ticket>> orderBy = null;
-            
+
             switch (model.SortBy)
             {
                 case "Requested by":
@@ -97,7 +121,7 @@ namespace HelpDesk.Controllers
                     break;
             }
 
-            int ticketsPerPage = currentUser.Settings.TicketsPerPage;
+            int ticketsPerPage = CurrentUser.Settings.TicketsPerPage;
             int numberOfTickets = unitOfWork.TicketRepository.Get(filters: filters, orderBy: orderBy).Count();
             int numberOfPages = (int)Math.Ceiling((decimal)numberOfTickets / ticketsPerPage);
 

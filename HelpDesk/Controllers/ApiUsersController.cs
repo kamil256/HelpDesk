@@ -1,6 +1,8 @@
 ﻿using HelpDesk.DAL;
 using HelpDesk.Entities;
 using HelpDesk.Models.Users;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +10,37 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 
 namespace HelpDesk.Controllers
 {
     public class ApiUsersController : ApiController
     {
+        private AppUserManager UserManager
+        {
+            get
+            {
+                return HttpContext.Current.Request.GetOwinContext().GetUserManager<AppUserManager>();
+            }
+        }
+
+        private AppRoleManager RoleManager
+        {
+            get
+            {
+                return HttpContext.Current.Request.GetOwinContext().GetUserManager<AppRoleManager>();
+            }
+        }
+
+        private AppUser CurrentUser
+        {
+            get
+            {
+                return UserManager.FindByNameAsync(User.Identity.Name).Result;
+            }
+        }
+
         private IUnitOfWork unitOfWork;
 
         public ApiUsersController()
@@ -25,7 +52,6 @@ namespace HelpDesk.Controllers
         [HttpGet]
         public PagedUsers GetUsers([FromUri] UserFilteringModel model)
         {
-            AppUser currentUser = unitOfWork.UserRepository.Get(filters: new Expression<Func<AppUser, bool>>[] { u => u.Email == User.Identity.Name }).First();
             List<Expression<Func<AppUser, bool>>> filters = new List<Expression<Func<AppUser, bool>>>();
             if (!string.IsNullOrWhiteSpace(model.Search))
             {
@@ -101,20 +127,20 @@ namespace HelpDesk.Controllers
 
             if (!string.IsNullOrEmpty(model.Role))
             {
-                string roleId = unitOfWork.RoleRepository.Get().FirstOrDefault(r => r.Name == model.Role).Id;
+                string roleId = RoleManager.FindByName(model.Role).Id;//unitOfWork.RoleRepository.Get().FirstOrDefault(r => r.Name == model.Role).Id;
                 filters.Add(u => u.Roles.FirstOrDefault(r => r.RoleId == roleId) != null);
             }
 
             PagedUsers pagedUsers = new PagedUsers();
-            string adminRoleId = unitOfWork.RoleRepository.Get().FirstOrDefault(r => r.Name == "Admin").Id;
-            
+            string adminRoleId = RoleManager.FindByName("Admin").Id;//unitOfWork.RoleRepository.Get().FirstOrDefault(r => r.Name == "Admin").Id;
+
             int skip = 0;
             int take = 0;
 
             if (!model.IgnorePaging)
             {
-                int usersPerPage = currentUser.Settings.UsersPerPage;
-                int numberOfUsers = unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy).Count();
+                int usersPerPage = CurrentUser.Settings.UsersPerPage;
+                int numberOfUsers = UserManager.Users.Count();//unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy).Count();
                 int numberOfPages = (int)Math.Ceiling((decimal)numberOfUsers / usersPerPage);
 
                 skip = (model.Page - 1) * usersPerPage;
@@ -123,7 +149,15 @@ namespace HelpDesk.Controllers
                 pagedUsers.NumberOfPages = numberOfPages;
             }
 
-            pagedUsers.Users = unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy, skip: skip, take: take).Select(u => new UserDTO
+            IQueryable<AppUser> users = UserManager.Users;
+            if (filters != null)
+                foreach (var filter in filters)
+                    if (filter != null)
+                        users = users.Where(filter);
+            if (orderBy != null)
+                users = orderBy(users);
+            users = users.Skip(skip).Take(take);
+            pagedUsers.Users = users.Select(u => new UserDTO//unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy, skip: skip, take: take).Select(u => new UserDTO
             {
                 UserId = u.Id,
                 FirstName = u.FirstName,
