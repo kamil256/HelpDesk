@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 
-namespace HelpDesk.Controllers
+namespace HelpDesk.Controllers.WebAPI
 {
-    public class ApiUsersController : ApiController
+    public class UsersController : ApiController
     {
         private AppUserManager UserManager
         {
@@ -43,7 +43,7 @@ namespace HelpDesk.Controllers
 
         private IUnitOfWork unitOfWork;
 
-        public ApiUsersController()
+        public UsersController()
         {
             unitOfWork = new UnitOfWork();
         }

@@ -55,7 +55,7 @@ namespace HelpDesk.Controllers
         [OverrideAuthorization]
         public ViewResult Index()
         {
-            return View("ApiIndex");
+            return View("Index");
         }
 
         [OverrideAuthorization]

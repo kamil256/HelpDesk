@@ -13,10 +13,10 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web;
 
-namespace HelpDesk.Controllers
+namespace HelpDesk.Controllers.WebAPI
 {
     [Authorize(Roles = "Admin")]
-    public class ApiTicketsController : ApiController
+    public class TicketsController : ApiController
     {
         private AppUserManager UserManager
         {
@@ -44,7 +44,7 @@ namespace HelpDesk.Controllers
 
         private IUnitOfWork unitOfWork;
 
-        public ApiTicketsController()
+        public TicketsController()
         {
             unitOfWork = new UnitOfWork();
         }

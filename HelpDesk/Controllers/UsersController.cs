@@ -56,7 +56,7 @@ namespace HelpDesk.Controllers
 
         public ViewResult Index()
         {
-            return View("ApiIndex");
+            return View("Index");
         }
 
         public ViewResult Create()

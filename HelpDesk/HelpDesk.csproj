@@ -244,8 +244,8 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ApiCategoriesController.cs" />
-    <Compile Include="Controllers\ApiTicketsController.cs" />
-    <Compile Include="Controllers\ApiUsersController.cs" />
+    <Compile Include="Controllers\WebAPI\TicketsController.cs" />
+    <Compile Include="Controllers\WebAPI\UsersController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SettingsController.cs" />
     <Compile Include="Controllers\TicketsController.cs" />
@@ -346,13 +346,11 @@
     <Content Include="Views\Users\Create.cshtml" />
     <Content Include="Views\Users\Delete.cshtml" />
     <Content Include="Views\Users\Edit.cshtml" />
-    <Content Include="Views\Users\Index.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Users\oldChangePassword.cshtml" />
     <Content Include="Views\Tickets\Create.cshtml" />
-    <Content Include="Views\Tickets\Index.cshtml" />
     <Content Include="Views\Tickets\Edit.cshtml" />
     <Content Include="Views\Tickets\Delete.cshtml" />
     <Content Include="Views\Tickets\_ChangeRequestorPartial.cshtml" />
@@ -364,8 +362,8 @@
     <Content Include="Views\Shared\_LoginLayout.cshtml" />
     <Content Include="Views\Shared\_FooterPartial.cshtml" />
     <Content Include="Views\Settings\Index.cshtml" />
-    <Content Include="Views\Tickets\ApiIndex.cshtml" />
-    <Content Include="Views\Users\ApiIndex.cshtml" />
+    <Content Include="Views\Tickets\Index.cshtml" />
+    <Content Include="Views\Users\Index.cshtml" />
     <Content Include="Views\Users\Details.cshtml" />
     <Content Include="Views\Users\Tickets.cshtml" />
     <Content Include="Views\Users\ChangePassword.cshtml" />
@@ -380,6 +378,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Controllers\MVC\" />
     <Folder Include="DAL\Abstract\" />
     <Folder Include="DAL\Concrete\" />
   </ItemGroup>
