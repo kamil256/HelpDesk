@@ -2,7 +2,7 @@
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Collections.Generic;
 
-namespace HelpDesk.Entities
+namespace HelpDesk.DAL.Entities
 {
     public class AppUser : IdentityUser
     {

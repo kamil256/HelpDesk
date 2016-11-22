@@ -1,4 +1,4 @@
-﻿using HelpDesk.Entities;
+﻿using HelpDesk.DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

@@ -1,5 +1,6 @@
-﻿using HelpDesk.DAL;
-using HelpDesk.Entities;
+﻿using HelpDesk.DAL.Abstract;
+using HelpDesk.DAL.Concrete;
+using HelpDesk.DAL.Entities;
 using HelpDesk.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -13,7 +14,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 
-namespace HelpDesk.Controllers
+namespace HelpDesk.Controllers.MVC
 {
     public class AccountController : Controller
     {

@@ -6,17 +6,18 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using HelpDesk.DAL;
 using HelpDesk.Models;
-using HelpDesk.Entities;
 using System.Linq.Expressions;
 using PagedList;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.AspNet.Identity;
 using System.Text;
+using HelpDesk.DAL.Concrete;
+using HelpDesk.DAL.Abstract;
+using HelpDesk.DAL.Entities;
 
-namespace HelpDesk.Controllers
+namespace HelpDesk.Controllers.MVC
 {
     [Authorize(Roles = "Admin")]
     public class TicketsController : Controller

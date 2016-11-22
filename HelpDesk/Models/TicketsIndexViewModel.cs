@@ -1,4 +1,4 @@
-﻿using HelpDesk.Entities;
+﻿using HelpDesk.DAL.Entities;
 using PagedList;
 using System;
 using System.Collections.Generic;
@@ -26,6 +26,6 @@ namespace HelpDesk.Models
         public IEnumerable<AppUser> Admins { get; set; }
         public IEnumerable<Category> Categories { get; set; }
         
-        public IPagedList<HelpDesk.Entities.Ticket> Tickets { get; set; }
+        public IPagedList<HelpDesk.DAL.Entities.Ticket> Tickets { get; set; }
     }
 }

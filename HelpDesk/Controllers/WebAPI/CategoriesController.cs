@@ -1,5 +1,5 @@
-﻿using HelpDesk.DAL;
-using HelpDesk.Entities;
+﻿using HelpDesk.DAL.Abstract;
+using HelpDesk.DAL.Concrete;
 using HelpDesk.Models.Categories;
 using Microsoft.AspNet.Identity.Owin;
 using System;
@@ -10,13 +10,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace HelpDesk.Controllers
+namespace HelpDesk.Controllers.WebAPI
 {
-    public class ApiCategoriesController : ApiController
+    public class CategoriesController : ApiController
     {
         private IUnitOfWork unitOfWork;
 
-        public ApiCategoriesController()
+        public CategoriesController()
         {
             unitOfWork = new UnitOfWork();
         }

@@ -3,9 +3,9 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
-using HelpDesk.Entities;
+using HelpDesk.DAL.Entities;
 
-namespace HelpDesk.DAL
+namespace HelpDesk.DAL.Concrete
 {
     public class AppRoleManager : RoleManager<AppRole>, IDisposable
     {
@@ -17,8 +17,7 @@ namespace HelpDesk.DAL
         IdentityFactoryOptions<AppRoleManager> options,
         IOwinContext context)
         {
-            return new AppRoleManager(new
-            RoleStore<AppRole>(context.Get<HelpDeskContext>()));
+            return new AppRoleManager(new RoleStore<AppRole>(context.Get<HelpDeskContext>()));
         }
     }
 }

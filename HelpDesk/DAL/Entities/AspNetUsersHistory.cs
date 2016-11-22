@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
-namespace HelpDesk.Entities
+namespace HelpDesk.DAL.Entities
 {
     [Table("AspNetUsersHistory")]
     public class AspNetUsersHistory

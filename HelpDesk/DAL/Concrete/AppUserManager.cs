@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using HelpDesk.DAL.Entities;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
-using HelpDesk.Entities;
-namespace HelpDesk.DAL
+namespace HelpDesk.DAL.Concrete
 {
     public class AppUserManager : UserManager<AppUser>
     {

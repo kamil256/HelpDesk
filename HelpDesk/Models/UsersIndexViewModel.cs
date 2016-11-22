@@ -1,4 +1,5 @@
-﻿using PagedList;
+﻿using HelpDesk.DAL.Entities;
+using PagedList;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,6 @@ namespace HelpDesk.Models
         public bool DescSort { get; set; } = false;
         public int Page { get; set; } = 1;
 
-        public IPagedList<HelpDesk.Entities.AppUser> Users { get; set; }
+        public IPagedList<AppUser> Users { get; set; }
     }
 }

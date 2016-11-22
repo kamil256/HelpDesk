@@ -1,7 +1,5 @@
 namespace HelpDesk.Migrations
 {
-    using DAL;
-    using Entities;
     using Microsoft.AspNet.Identity.Owin;
     using System;
     using System.Data.Entity;
@@ -9,14 +7,14 @@ namespace HelpDesk.Migrations
     using System.Linq;
     using System.Web;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<HelpDesk.DAL.HelpDeskContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<HelpDesk.DAL.Concrete.HelpDeskContext>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(HelpDesk.DAL.HelpDeskContext context)
+        protected override void Seed(HelpDesk.DAL.Concrete.HelpDeskContext context)
         {
             //context.Roles.AddOrUpdate
             //(

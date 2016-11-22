@@ -1,5 +1,4 @@
-﻿using HelpDesk.Entities;
-using PagedList;
+﻿using PagedList;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

@@ -6,9 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using HelpDesk.DAL;
 using HelpDesk.Models;
-using HelpDesk.Entities;
 using System.Linq.Expressions;
 using PagedList;
 using Microsoft.AspNet.Identity;
@@ -17,8 +15,11 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
 using HelpDesk.Models.Tickets;
+using HelpDesk.DAL.Concrete;
+using HelpDesk.DAL.Entities;
+using HelpDesk.DAL.Abstract;
 
-namespace HelpDesk.Controllers
+namespace HelpDesk.Controllers.MVC
 {
     [Authorize(Roles = "Admin")]
     public class UsersController : Controller

@@ -1,5 +1,6 @@
-﻿using HelpDesk.DAL;
-using HelpDesk.Entities;
+﻿using HelpDesk.DAL.Abstract;
+using HelpDesk.DAL.Concrete;
+using HelpDesk.DAL.Entities;
 using HelpDesk.Models.Users;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;

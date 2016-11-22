@@ -1,5 +1,4 @@
-﻿using HelpDesk.Entities;
-using HelpDesk.Models.Tickets;
+﻿using HelpDesk.Models.Tickets;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

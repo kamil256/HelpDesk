@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using HelpDesk.Entities;
 using System.Data.Entity;
+using HelpDesk.DAL.Abstract;
+using HelpDesk.DAL.Entities;
 
-namespace HelpDesk.DAL
+namespace HelpDesk.DAL.Concrete
 {
     public class UnitOfWork : IUnitOfWork
     {

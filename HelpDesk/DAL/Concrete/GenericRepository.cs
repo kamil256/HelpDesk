@@ -1,11 +1,12 @@
-﻿using System;
+﻿using HelpDesk.DAL.Abstract;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
 
-namespace HelpDesk.DAL
+namespace HelpDesk.DAL.Concrete
 {
     public class GenericRepository<T> : IRepository<T> where T : class
     {

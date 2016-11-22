@@ -242,26 +242,26 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\ApiCategoriesController.cs" />
+    <Compile Include="Controllers\MVC\AccountController.cs" />
+    <Compile Include="Controllers\WebAPI\CategoriesController.cs" />
     <Compile Include="Controllers\WebAPI\TicketsController.cs" />
     <Compile Include="Controllers\WebAPI\UsersController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\SettingsController.cs" />
-    <Compile Include="Controllers\TicketsController.cs" />
-    <Compile Include="Controllers\UsersController.cs" />
-    <Compile Include="DAL\AppRoleManager.cs" />
-    <Compile Include="DAL\AppUserManager.cs" />
-    <Compile Include="DAL\GenericRepository.cs" />
-    <Compile Include="DAL\HelpDeskContext.cs" />
-    <Compile Include="DAL\IRepository.cs" />
-    <Compile Include="DAL\IUnitOfWork.cs" />
-    <Compile Include="DAL\UnitOfWork.cs" />
-    <Compile Include="Entities\AppRole.cs" />
-    <Compile Include="Entities\AppUser.cs" />
-    <Compile Include="Entities\Settings.cs" />
-    <Compile Include="Entities\TicketsHistory.cs" />
-    <Compile Include="Entities\AspNetUsersHistory.cs" />
+    <Compile Include="Controllers\MVC\HomeController.cs" />
+    <Compile Include="Controllers\MVC\SettingsController.cs" />
+    <Compile Include="Controllers\MVC\TicketsController.cs" />
+    <Compile Include="Controllers\MVC\UsersController.cs" />
+    <Compile Include="DAL\Concrete\AppRoleManager.cs" />
+    <Compile Include="DAL\Concrete\AppUserManager.cs" />
+    <Compile Include="DAL\Concrete\GenericRepository.cs" />
+    <Compile Include="DAL\Concrete\HelpDeskContext.cs" />
+    <Compile Include="DAL\Abstract\IRepository.cs" />
+    <Compile Include="DAL\Abstract\IUnitOfWork.cs" />
+    <Compile Include="DAL\Concrete\UnitOfWork.cs" />
+    <Compile Include="DAL\Entities\AppRole.cs" />
+    <Compile Include="DAL\Entities\AppUser.cs" />
+    <Compile Include="DAL\Entities\Settings.cs" />
+    <Compile Include="DAL\Entities\TicketsHistory.cs" />
+    <Compile Include="DAL\Entities\AspNetUsersHistory.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -310,6 +310,10 @@
     <Compile Include="Migrations\201611141450171_Running Seed method.Designer.cs">
       <DependentUpon>201611141450171_Running Seed method.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201611222221578_ChangeNamespacesOfDALClasses.cs" />
+    <Compile Include="Migrations\201611222221578_ChangeNamespacesOfDALClasses.Designer.cs">
+      <DependentUpon>201611222221578_ChangeNamespacesOfDALClasses.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddTicketViewModel.cs" />
     <Compile Include="Models\Categories\CategoryDTO.cs" />
@@ -322,10 +326,9 @@
     <Compile Include="Models\Tickets\TicketFilteringModel.cs" />
     <Compile Include="Models\Tickets\TicketDTO.cs" />
     <Compile Include="Models\UsersChangePasswordViewModel.cs" />
-    <Compile Include="Entities\Category.cs" />
+    <Compile Include="DAL\Entities\Category.cs" />
     <Compile Include="Models\AccountLoginViewModel.cs" />
-    <Compile Include="Entities\Ticket.cs" />
-    <Compile Include="Entities\User2.cs" />
+    <Compile Include="DAL\Entities\Ticket.cs" />
     <Compile Include="Models\UsersCreateViewModel.cs" />
     <Compile Include="Models\UsersDetailsViewModel.cs" />
     <Compile Include="Models\UsersHistoryViewModel.cs" />
@@ -378,9 +381,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Controllers\MVC\" />
-    <Folder Include="DAL\Abstract\" />
-    <Folder Include="DAL\Concrete\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201609221918277_Init.resx">
@@ -415,6 +415,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201611141450171_Running Seed method.resx">
       <DependentUpon>201611141450171_Running Seed method.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201611222221578_ChangeNamespacesOfDALClasses.resx">
+      <DependentUpon>201611222221578_ChangeNamespacesOfDALClasses.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

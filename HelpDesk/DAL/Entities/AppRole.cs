@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNet.Identity.EntityFramework;
 
-namespace HelpDesk.Entities
+namespace HelpDesk.DAL.Entities
 {
     public class AppRole : IdentityRole
     {

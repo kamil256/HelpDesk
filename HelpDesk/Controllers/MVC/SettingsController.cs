@@ -1,5 +1,6 @@
-﻿using HelpDesk.DAL;
-using HelpDesk.Entities;
+﻿using HelpDesk.DAL.Abstract;
+using HelpDesk.DAL.Concrete;
+using HelpDesk.DAL.Entities;
 using HelpDesk.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
-namespace HelpDesk.Controllers
+namespace HelpDesk.Controllers.MVC
 {
     [Authorize]
     public class SettingsController : Controller

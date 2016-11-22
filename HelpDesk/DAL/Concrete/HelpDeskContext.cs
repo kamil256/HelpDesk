@@ -1,4 +1,4 @@
-﻿using HelpDesk.Entities;
+﻿using HelpDesk.DAL.Entities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
@@ -8,9 +8,9 @@ using System.Linq;
 using System.Web;
 //using HelpDesk.Entities;
 
-namespace HelpDesk.DAL
+namespace HelpDesk.DAL.Concrete
 {
-    public class HelpDeskContext : IdentityDbContext<HelpDesk.Entities.AppUser>
+    public class HelpDeskContext : IdentityDbContext<HelpDesk.DAL.Entities.AppUser>
     {
         public HelpDeskContext() : base("HelpDeskContext") { }
 
@@ -24,7 +24,6 @@ namespace HelpDesk.DAL
             return new HelpDeskContext();
         }
 
-        public DbSet<User2> Users2 { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Category> Categories { get; set; }        
         public DbSet<AspNetUsersHistory> AspNetUsersHistory { get; set; }

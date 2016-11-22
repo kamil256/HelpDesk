@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HelpDesk.DAL
+namespace HelpDesk.DAL.Abstract
 {
     public interface IRepository<T> where T: class
     {

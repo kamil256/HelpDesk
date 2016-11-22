@@ -1,10 +1,11 @@
-﻿using HelpDesk.Entities;
+﻿using HelpDesk.DAL.Concrete;
+using HelpDesk.DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace HelpDesk.DAL
+namespace HelpDesk.DAL.Abstract
 {
     public interface IUnitOfWork
     {

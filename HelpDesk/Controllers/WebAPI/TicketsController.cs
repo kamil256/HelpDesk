@@ -1,6 +1,4 @@
-﻿using HelpDesk.DAL;
-using HelpDesk.Entities;
-using HelpDesk.Models.Tickets;
+﻿using HelpDesk.Models.Tickets;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
@@ -12,6 +10,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web;
+using HelpDesk.DAL.Concrete;
+using HelpDesk.DAL.Entities;
+using HelpDesk.DAL.Abstract;
 
 namespace HelpDesk.Controllers.WebAPI
 {
@@ -53,7 +54,7 @@ namespace HelpDesk.Controllers.WebAPI
         [HttpGet]
         public PagedTickets GetTickets([FromUri] TicketFilteringModel model)
         {
-            List<Expression<Func<Entities.Ticket, bool>>> filters = new List<Expression<Func<Entities.Ticket, bool>>>();
+            List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
             if (!UserManager.IsInRole(CurrentUser.Id, "Admin"))
             {
                 filters.Add(ticket => ticket.CreatedByID == CurrentUser.Id);
@@ -84,7 +85,7 @@ namespace HelpDesk.Controllers.WebAPI
                                           ticket.Solution.ToLower().Contains(model.Search.ToLower()));
             }
 
-            Func<IQueryable<Entities.Ticket>, IOrderedQueryable<Entities.Ticket>> orderBy = null;
+            Func<IQueryable<Ticket>, IOrderedQueryable<Ticket>> orderBy = null;
 
             switch (model.SortBy)
             {

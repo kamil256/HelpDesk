@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace HelpDesk.Controllers
+namespace HelpDesk.Controllers.MVC
 {
     [Authorize]
     public class HomeController : Controller
