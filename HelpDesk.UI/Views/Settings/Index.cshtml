@@ -1,0 +1,238 @@
+﻿@model HelpDesk.UI.ViewModels.SettingsIndexViewModel
+
+@{
+    ViewBag.Title = "Settings";
+}
+
+@{
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    string currentUserId = User.Identity.GetUserId();
+    bool isCurrentUserAdmin = false;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
+}
+
+<style>
+    #sortable, #sortable + ul {
+        list-style-type: none;
+        display: inline-block;
+        /*border: 3px dashed black;*/
+        /*padding: 15px;*/
+        /*margin: 15px;*/
+        margin: 0;
+        padding: 0;
+    }
+    #sortable > li, #sortable + ul > li, #add-category {
+        /*width: 200px;*/
+        padding: 1px;
+        margin: 5px 0;
+        border: 1px solid rgb(204, 204, 204);
+        border-radius: 5px;
+        background-color: #ddd;
+        overflow: auto;
+    }
+    #sortable > li {
+        cursor: move;
+    }
+    #sortable span.glyphicon-remove, span.glyphicon-plus {
+        cursor: pointer;
+    }
+    #sortable span.glyphicon-remove:hover, #sortable span.glyphicon-plus:hover {
+        text-shadow: 0 0 2px blue;
+    }
+    #sortable table {
+        /*max-width: 500px;*/
+    }
+    #sortable table input {
+        display: inline-block;
+    }
+    #sortable /*:not(:last-child)*/ td:nth-child(2), ul:last-child li:last-child td:first-child, #add-category td {
+        width: 100%;
+    }
+    #sortable td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    #sortable span.glyphicon, #sortable + ul span.glyphicon, #add-category span.glyphicon {
+        padding: 0 5px;
+        /*font-size: 20px;*/
+    }
+    #sortable span.glyphicon-remove {
+        color: red;
+    }
+    /*#sortable*/ span.glyphicon-plus {
+        color: green;
+    }
+    .text-box-with-number input {
+        width: 70px;
+        text-align: center;
+    }
+    .text-box-with-number .glyphicon {
+        padding: 0 5px;
+        cursor: pointer;
+    }
+    .text-box-with-number .glyphicon:hover {
+        text-shadow: 0 0 2px blue;
+    }
+</style>
+
+<header>
+    <div class="container">
+        <h1>Settings</h1>
+    </div>
+</header>
+
+<style>
+    @@media (min-width: 768px) {
+        .details-panel {
+            background-color: #F5F5F5;
+            box-shadow: gray 0 0 10px;
+            border-radius: 5px;
+            padding: 30px 0;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        .details-panel {
+            padding: 0 !important;
+        }
+    }
+</style>
+
+<script>$('#widget').draggable();</script>
+
+<section class="container">
+    @using (@Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-horizontal details-panel col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8" style="padding: 15px 0;">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form-group ">
+                <label class="control-label col-sm-3">Notifications</label>
+                <div class="col-sm-8">
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBoxFor(x => x.NewTicketsNotifications)
+                            Send email notifications about new tickets
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBoxFor(x => x.SolvedTicketsNotifications)
+                            Send email notifications about solved tickets
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            @if (isCurrentUserAdmin)
+            {
+                <div class="form-group">
+                    <label class="control-label col-sm-3">Users per page</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxWithNumber("UsersPerPage", Model.UsersPerPage ?? 10)
+                        @Html.ValidationMessageFor(model => model.UsersPerPage, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">Tickets per page</label>
+                <div class="col-sm-8">
+                    @Html.TextBoxWithNumber("TicketsPerPage", Model.TicketsPerPage ?? 10)
+                    @Html.ValidationMessageFor(model => model.TicketsPerPage, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            @if (isCurrentUserAdmin)
+            {
+                <div class="form-group">
+                    <label class="control-label col-sm-3">Categories</label>
+                    <div class="col-sm-8">
+                        <p>If you modify existing categories, then categories of tickets will also be modified. If you delete categories, then some tickets will not be assigned to any category.</p>
+                        <ul id="sortable">
+                            @foreach (var category in Model.Categories)
+                            {
+                                @Html.SortableCategoryItem(category.CategoryID, category.Name)
+                            }
+                        </ul>
+                        @Html.SortableCategoryLastItem()
+                    </div>
+                </div>
+            }
+
+            @if (isCurrentUserAdmin)
+            {
+                <div class="form-group">
+                    <label class="control-label col-sm-3">Tickets summary</label>
+                    <div class="col-sm-8">
+                        <a href='@Url.Action("DownloadTicketsAsCSV", "Tickets")' class="btn btn-success">Download as CSV file</a>
+                    </div>
+                </div>
+            }
+
+            <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-8">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+<script>
+    $("#sortable").sortable({ cancel: "input,textarea,button,select,option,span.glyphicon-remove,span.glyphicon-plus" });
+
+    function addCategory()
+    {
+        var sortable = document.getElementById("sortable");
+        var name = document.getElementById("new-category");
+
+        var span1 = document.createElement("span");
+        span1.className = "glyphicon glyphicon-option-vertical";//glyphicon-resize-vertical";
+        var td1 = document.createElement("td");
+        td1.appendChild(span1);
+
+        var input1 = document.createElement("input");
+        input1.className = "form-control";
+        input1.setAttribute("name", "categoriesName");
+        input1.setAttribute("value", name.value);
+        var input2 = document.createElement("input");
+        input2.setAttribute("type", "hidden");
+        input2.setAttribute("name", "categoriesId");
+        input2.setAttribute("value", "0");
+        var td2 = document.createElement("td");
+        td2.appendChild(input1);
+        td2.appendChild(input2);
+
+        var span2 = document.createElement("span");
+        span2.className = "glyphicon glyphicon-remove";
+        span2.setAttribute("onclick", "removeCategory(event)");
+        var td3 = document.createElement("td");
+        td3.appendChild(span2);
+
+        var tr = document.createElement("tr");
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+
+        var table = document.createElement("table");
+        table.appendChild(tr);
+
+        var li = document.createElement("li");
+        li.appendChild(table);
+
+        sortable.appendChild(li);
+        name.value = "";
+    }
+
+    function removeCategory(e)
+    {
+        var categoryElementToRemove = e.target.parentElement.parentElement.parentElement.parentElement.parentElement;
+        categoryElementToRemove.outerHTML = "";
+    }
+</script>

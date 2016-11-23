@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelpDesk", "HelpDesk\HelpDesk.csproj", "{C752FBEC-BBCD-469A-A92B-0462C00A4BC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelpDesk.UI", "HelpDesk.UI\HelpDesk.UI.csproj", "{C752FBEC-BBCD-469A-A92B-0462C00A4BC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelpDesk.DAL", "HelpDesk.DAL\HelpDesk.DAL.csproj", "{40A75D74-EF50-4FB5-AE02-00F452590F8E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{C752FBEC-BBCD-469A-A92B-0462C00A4BC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C752FBEC-BBCD-469A-A92B-0462C00A4BC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C752FBEC-BBCD-469A-A92B-0462C00A4BC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40A75D74-EF50-4FB5-AE02-00F452590F8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40A75D74-EF50-4FB5-AE02-00F452590F8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40A75D74-EF50-4FB5-AE02-00F452590F8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40A75D74-EF50-4FB5-AE02-00F452590F8E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

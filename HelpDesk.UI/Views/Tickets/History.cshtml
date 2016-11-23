@@ -1,0 +1,61 @@
+﻿@model HelpDesk.UI.ViewModels.TicketsHistoryViewModel
+
+@{
+    ViewBag.Title = "Ticket details";
+}
+
+@{
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    string currentUserId = User.Identity.GetUserId();
+    bool isCurrentUserAdmin = false;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
+}
+
+<header style="margin: 0;">
+    <div class="container">
+        <h1>Ticket details</h1>
+    </div>
+</header>
+
+
+
+<section class="container" style="padding: 0;">
+    <style>
+        @@media (min-width: 768px) {
+            .details-panel {
+                background-color: #F5F5F5;
+                box-shadow: gray 0 0 10px;
+                border-radius: 5px;
+                padding: 30px 0;
+            }
+            }
+        @@media (max-width: 767px) {
+            .details-panel {
+                padding: 0 !important;
+            }
+        }        
+    </style>
+
+    <ul class="horizontal-menu">
+        <li><a href='@Url.Action("Edit", new { id = Model.TicketID })'>Details</a></li>
+        <li class="selected"><a href='@Url.Action("History", new { id = Model.TicketID })'>History</a></li>
+    </ul>
+</section>
+<section class="container">
+    <div class="details-panel" style="padding: 15px 15px;  padding-top: 30px; font-family: Courier">
+        @foreach (var log in Model.Logs)
+        {
+            <div class="row">
+                <div class="col-sm-4 col-md-3 col-lg-2">
+                    <b>@log.Date.ToString()</b>
+                </div>
+                <div class="col-sm-8 col-md-9 col-lg-10">
+                    @log.Content
+                </div>
+            </div>
+        }
+    </div>          
+</section>

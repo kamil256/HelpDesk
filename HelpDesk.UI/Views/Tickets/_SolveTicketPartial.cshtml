@@ -1,0 +1,53 @@
+﻿@model IEnumerable<AppUser>
+
+<div id="solve-ticket-dialog" class="dialog">
+    <h4>Solve ticket <i id="solve-ticket-title"></i></h4>
+    @using (Html.BeginForm("SolveTicket", "Tickets", new { returnUrl = Request.Url.ToString() }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Hidden("SolveTicketID")
+        <div class="form-group">
+            <label class="control-label">Solving user</label>
+            @Html.DropDownList(
+                   name: "SolveUserID", 
+                   selectList: new SelectList(Model.Select(u => new { UserID = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name", Model.Single(u => u.Email == User.Identity.Name).Id), 
+                   htmlAttributes: new { @class = "form-control" }
+            )
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">Solution</label>
+            @Html.TextArea("Solution", "", 7, 10, new { @class = "form-control" })
+        </div>
+
+        <div class="button-group">
+            <input type="submit" class="btn btn-blue" value="Ok" />
+            <input id="solve-ticket-btn-cancel" type="button" class="btn btn-blue" value="Cancel" />
+        </div>
+    }
+</div>
+
+<script>
+    $(document).ready(function()
+    {
+        $("#solve-ticket-dialog").dialog(
+        {
+            autoOpen: false,
+            modal: true,
+            resizable: false
+        });
+
+        $("#solve-ticket-btn-cancel").click(function()
+        {
+            $('#solve-ticket-dialog').dialog('close');
+        });
+
+        $(".solve-ticket-btn").click(function(e)
+        {
+            event.stopPropagation();
+            $("#SolveTicketID").val(e.target.getAttribute("data-ticket-id"));
+            $("#solve-ticket-title").text(e.target.getAttribute("data-ticket-title"));
+            $('#solve-ticket-dialog').dialog('open');            
+        });
+    });
+</script>

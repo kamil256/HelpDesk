@@ -1,0 +1,145 @@
+﻿@model HelpDesk.UI.ViewModels.UsersDetailsViewModel
+
+@{
+    ViewBag.Title = "User details";
+}
+
+@{
+    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    string currentUserId = User.Identity.GetUserId();
+    bool isCurrentUserAdmin = false;
+    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+    {
+        isCurrentUserAdmin = true;
+    }
+}
+
+<header>
+    <div class="container">
+        <h1 style="margin-bottom: 30px;">User details</h1>
+
+        <div class="col-sm-offset-2 col-sm-8 @*col-md-offset-3 col-md-6*@ col-lg-offset-3 col-lg-6">
+            <div class="btn-group btn-group-justified">
+                <a href='@Url.Action("Details", new { id = Model.UserID })' class="btn btn-inverse"><span class="glyphicon glyphicon-check"></span> View</a>
+                <a href="@Url.Action("Edit", new { id = Model.UserID })" class="btn btn-default"><span class="glyphicon glyphicon-unchecked"></span> Edit</a>
+                <a href='@Url.Action("Tickets", new { id = Model.UserID })' class="btn btn-default"><span class="glyphicon glyphicon-unchecked"></span> Tickets</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="container">
+    <style>
+        @@media (min-width: 768px) {
+            .details-panel {
+                background-color: #F5F5F5; 
+                box-shadow: gray 0 0 10px; 
+                padding: 30px 0; 
+                border-radius: 5px;
+            }
+        }
+    </style>
+
+
+            <div class="form-horizontal details-panel col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8" @*style="background-color: #F5F5F5; box-shadow: gray 0 0 10px; padding: 10px; border-radius: 5px;"*@ @*style="border-color: black; border-width: 0 1px 1px; border-style: solid"*@>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.FirstName, new { @class = "control-label col-sm-3" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control", disabled = "disabled" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LastName, new { @class = "control-label col-sm-3" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.LastName, new { @class = "form-control", disabled = "disabled" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Email, new { @class = "control-label col-sm-3" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control", disabled = "disabled" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Phone, new { @class = "control-label col-sm-3" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Phone, new { @class = "form-control", disabled = "disabled" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MobilePhone, new { @class = "control-label col-sm-3" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.MobilePhone, new { @class = "form-control", disabled = "disabled" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Company, new { @class = "control-label col-sm-3" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Company, new { @class = "form-control", disabled = "disabled" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Department, new { @class = "control-label col-sm-3" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Department, new { @class = "form-control", disabled = "disabled" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Role, new { @class = "control-label col-sm-3" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Role, new { @class = "form-control", disabled = "disabled" })
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    <div class="col-sm-offset-3 col-sm-8">
+                        @if (isCurrentUserAdmin)
+                        {
+                            <button data-user-id="@Model.UserID" data-user-name="@Model.FirstName @Model.LastName" type="button" value="Delete" class="btn btn-danger delete-user-btn">Delete</button>
+                        }
+                    </div>
+                </div>
+            </div>
+
+</section>
+
+@Html.Partial("_DeleteUserPartial")
+
+<script>
+    $(document).ready(function()
+    {
+        $("#Status").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#AssignedToID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#CategoryID").change(function() { $("#Page").val("1"); $("#filtering-form").submit(); });
+        $("#search-btn").click(function() { $("#Page").val("1"); });
+
+        var statuses = document.getElementsByClassName("status");
+        for (var i = 0; i < statuses.length; i++)
+        {
+            switch (statuses[i].innerHTML)
+            {
+                case "New":
+                    statuses[i].className += " status-new";
+                    break;
+                case "In progress":
+                    statuses[i].className += " status-in-progress";
+                    break;
+                case "Solved":
+                    statuses[i].className += " status-solved";
+                    break;
+                case "Closed":
+                    statuses[i].className += " status-closed";
+                    break;
+            }
+        }
+    });
+</script>
