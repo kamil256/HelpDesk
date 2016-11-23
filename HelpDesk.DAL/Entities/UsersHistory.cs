@@ -7,10 +7,10 @@ using System.Web;
 
 namespace HelpDesk.DAL.Entities
 {
-    [Table("AspNetUsersHistory")]
-    public class AspNetUsersHistory
+    [Table("UsersHistory")]
+    public class UsersHistory
     {
-        public int AspNetUsersHistoryId { get; set; }
+        public int UsersHistoryId { get; set; }
 
         public DateTime ChangeDate { get; set; }
         public string ChangeAuthorId { get; set; }

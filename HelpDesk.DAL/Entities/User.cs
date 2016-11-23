@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace HelpDesk.DAL.Entities
 {
-    public class AppUser : IdentityUser
+    public class User : IdentityUser
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -5,7 +5,7 @@
 }
 
 @{
-    AppUserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<AppUserManager>();
+    UserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<UserManager>();
     string currentUserId = User.Identity.GetUserId();
     bool isCurrentUserAdmin = false;
     if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))

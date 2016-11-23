@@ -24,7 +24,7 @@ namespace HelpDesk.UI.ViewModels
         [Required]
         public string Content { get; set; }
 
-        public AppUser RequestedBy { get; set; }
+        public User RequestedBy { get; set; }
         public IEnumerable<Category> Categories { get; set; }
     }
 }

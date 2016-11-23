@@ -24,23 +24,23 @@ namespace HelpDesk.UI.Controllers.MVC
     [Authorize(Roles = "Admin")]
     public class UsersController : Controller
     {
-        private AppUserManager UserManager
+        private UserManager UserManager
         {
             get
             {
-                return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+                return HttpContext.GetOwinContext().GetUserManager<UserManager>();
             }
         }
 
-        private AppRoleManager RoleManager
+        private RoleManager RoleManager
         {
             get
             {
-                return HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
+                return HttpContext.GetOwinContext().GetUserManager<RoleManager>();
             }
         }
 
-        private AppUser CurrentUser
+        private User CurrentUser
         {
             get
             {
@@ -73,7 +73,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 if (ModelState.IsValid)
                 {
-                    AppUser user = new AppUser
+                    User user = new User
                     {
                         UserName = model.Email,
                         Email = model.Email,
@@ -138,7 +138,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             try
             {
-                AppUser user;
+                User user;
                 if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
                     user = await UserManager.FindByIdAsync(id);
                 else
@@ -171,7 +171,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [OverrideAuthorization]
         public async Task<ActionResult> Edit([Bind(Include = "UserID,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel model)
         {
-            AppUser user;
+            User user;
             try
             {
                 if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
@@ -229,7 +229,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             try
             {
-                AppUser user;
+                User user;
                 if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
                     user = await UserManager.FindByIdAsync(id);
                 else
@@ -256,7 +256,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [OverrideAuthorization]
         public async Task<ActionResult> ChangePassword([Bind(Include = "UserID,CurrentPassword,Password,ConfirmPassword")] UsersChangePasswordViewModel model)
         {
-            AppUser user;
+            User user;
             try
             {
                 if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
@@ -310,7 +310,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             try
             {
-                AppUser user;
+                User user;
                 if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
                     user = await UserManager.FindByIdAsync(id);
                 else
@@ -351,7 +351,7 @@ namespace HelpDesk.UI.Controllers.MVC
             
             try
             {
-                AppUser user = await UserManager.FindByIdAsync(id);
+                User user = await UserManager.FindByIdAsync(id);
                 if (user == null)
                     throw new Exception($"User id {id} doesn't exist");
 
@@ -365,9 +365,9 @@ namespace HelpDesk.UI.Controllers.MVC
                     LastName = user.LastName,
                     Logs = new List<Log>()
                 };
-                foreach (var log in unitOfWork.AspNetUsersHistoryRepository.Get(filters: new Expression<Func<AspNetUsersHistory, bool>>[] { l => l.UserId == user.Id }, orderBy: x => x.OrderByDescending(l => l.ChangeDate)))
+                foreach (var log in unitOfWork.AspNetUsersHistoryRepository.Get(filters: new Expression<Func<UsersHistory, bool>>[] { l => l.UserId == user.Id }, orderBy: x => x.OrderByDescending(l => l.ChangeDate)))
                 {
-                    AppUser changeAuthor = UserManager.FindById(log.ChangeAuthorId);
+                    User changeAuthor = UserManager.FindById(log.ChangeAuthorId);
                     string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.ChangeAuthorId);
                     switch (log.ActionType)
                     {
@@ -403,7 +403,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             try
             {
-                AppUser user = await UserManager.Users.Include(u => u.CreatedTickets)
+                User user = await UserManager.Users.Include(u => u.CreatedTickets)
                                                       .Include(u => u.RequestedTickets)
                                                       .Include(u => u.AssignedTickets)
                                                       .Include(u => u.Settings)

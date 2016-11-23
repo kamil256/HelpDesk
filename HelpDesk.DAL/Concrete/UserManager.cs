@@ -5,16 +5,16 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 namespace HelpDesk.DAL.Concrete
 {
-    public class AppUserManager : UserManager<AppUser>
+    public class UserManager : UserManager<User>
     {
-        public AppUserManager(IUserStore<AppUser> store) : base(store)
+        public UserManager(IUserStore<User> store) : base(store)
         {
         }
 
-        public static AppUserManager Create(IdentityFactoryOptions<AppUserManager> options, IOwinContext context)
+        public static UserManager Create(IdentityFactoryOptions<UserManager> options, IOwinContext context)
         {
             HelpDeskContext db = context.Get<HelpDeskContext>();
-            AppUserManager manager = new AppUserManager(new UserStore<AppUser>(db));
+            UserManager manager = new UserManager(new UserStore<User>(db));
 
             manager.PasswordValidator = new PasswordValidator
             {
@@ -25,7 +25,7 @@ namespace HelpDesk.DAL.Concrete
                 RequireUppercase = true
             };
 
-            manager.UserValidator = new Microsoft.AspNet.Identity.UserValidator<AppUser>(manager)
+            manager.UserValidator = new Microsoft.AspNet.Identity.UserValidator<User>(manager)
             {
                 RequireUniqueEmail = true,
                 AllowOnlyAlphanumericUserNames = false

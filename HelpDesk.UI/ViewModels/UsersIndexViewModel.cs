@@ -14,6 +14,6 @@ namespace HelpDesk.UI.ViewModels
         public bool DescSort { get; set; } = false;
         public int Page { get; set; } = 1;
 
-        public IPagedList<AppUser> Users { get; set; }
+        public IPagedList<User> Users { get; set; }
     }
 }

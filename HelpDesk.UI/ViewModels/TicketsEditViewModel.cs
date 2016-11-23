@@ -33,11 +33,11 @@ namespace HelpDesk.UI.ViewModels
         public string Solution { get; set; }
 
         [DisplayName("Created by")]
-        public AppUser CreatedBy { get; set; }
+        public User CreatedBy { get; set; }
         public string CreatedOn { get; set; }
-        public AppUser RequestedBy { get; set; }
-        public AppUser AssignedTo { get; set; }
-        public IEnumerable<AppUser> Admins { get; set; }
+        public User RequestedBy { get; set; }
+        public User AssignedTo { get; set; }
+        public IEnumerable<User> Admins { get; set; }
         public IEnumerable<Category> Categories { get; set; }
     }
 }

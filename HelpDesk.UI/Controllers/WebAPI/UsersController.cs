@@ -18,23 +18,23 @@ namespace HelpDesk.UI.Controllers.WebAPI
 {
     public class UsersController : ApiController
     {
-        private AppUserManager UserManager
+        private UserManager UserManager
         {
             get
             {
-                return HttpContext.Current.Request.GetOwinContext().GetUserManager<AppUserManager>();
+                return HttpContext.Current.Request.GetOwinContext().GetUserManager<UserManager>();
             }
         }
 
-        private AppRoleManager RoleManager
+        private RoleManager RoleManager
         {
             get
             {
-                return HttpContext.Current.Request.GetOwinContext().GetUserManager<AppRoleManager>();
+                return HttpContext.Current.Request.GetOwinContext().GetUserManager<RoleManager>();
             }
         }
 
-        private AppUser CurrentUser
+        private User CurrentUser
         {
             get
             {
@@ -53,7 +53,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
         [HttpGet]
         public PagedUsers GetUsers([FromUri] UserFilteringModel model)
         {
-            List<Expression<Func<AppUser, bool>>> filters = new List<Expression<Func<AppUser, bool>>>();
+            List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
             if (!string.IsNullOrWhiteSpace(model.Search))
             {
                 filters.Add(u => u.FirstName.ToLower().Contains(model.Search.ToLower()) ||
@@ -65,7 +65,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                                  u.Department.ToLower().Contains(model.Search.ToLower()));
             }
 
-            Func<IQueryable<AppUser>, IOrderedQueryable<AppUser>> orderBy = null;
+            Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
 
             switch (model.SortBy)
             {
@@ -150,7 +150,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 pagedUsers.NumberOfPages = numberOfPages;
             }
 
-            IQueryable<AppUser> users = UserManager.Users;
+            IQueryable<User> users = UserManager.Users;
             if (filters != null)
                 foreach (var filter in filters)
                     if (filter != null)

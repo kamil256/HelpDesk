@@ -26,9 +26,9 @@ namespace HelpDesk.DAL.Entities
         public string Content { get; set; }
         public string Solution { get; set; }
 
-        public virtual AppUser CreatedBy { get; set; }
-        public virtual AppUser RequestedBy { get; set; }
-        public virtual AppUser AssignedTo { get; set; }
+        public virtual User CreatedBy { get; set; }
+        public virtual User RequestedBy { get; set; }
+        public virtual User AssignedTo { get; set; }
         public virtual Category Category { get; set; }
     }
 }

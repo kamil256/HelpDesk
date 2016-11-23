@@ -19,23 +19,23 @@ namespace HelpDesk.UI.Controllers.WebAPI
     [Authorize(Roles = "Admin")]
     public class TicketsController : ApiController
     {
-        private AppUserManager UserManager
+        private UserManager UserManager
         {
             get
             {
-                return HttpContext.Current.Request.GetOwinContext().GetUserManager<AppUserManager>();
+                return HttpContext.Current.Request.GetOwinContext().GetUserManager<UserManager>();
             }
         }
 
-        private AppRoleManager RoleManager
+        private RoleManager RoleManager
         {
             get
             {
-                return HttpContext.Current.Request.GetOwinContext().GetUserManager<AppRoleManager>();
+                return HttpContext.Current.Request.GetOwinContext().GetUserManager<RoleManager>();
             }
         }
 
-        private AppUser CurrentUser
+        private User CurrentUser
         {
             get
             {

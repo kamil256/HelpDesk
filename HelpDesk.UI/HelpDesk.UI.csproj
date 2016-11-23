@@ -281,54 +281,6 @@
     <Compile Include="HelperMethods.cs" />
     <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
     <Compile Include="Infrastructure\NinjectResolver.cs" />
-    <Compile Include="Migrations\201609221918277_Init.cs" />
-    <Compile Include="Migrations\201609221918277_Init.Designer.cs">
-      <DependentUpon>201609221918277_Init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611121541095_Add history.cs" />
-    <Compile Include="Migrations\201611121541095_Add history.Designer.cs">
-      <DependentUpon>201611121541095_Add history.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611121603006_Remove UserId foreign key from history.cs" />
-    <Compile Include="Migrations\201611121603006_Remove UserId foreign key from history.Designer.cs">
-      <DependentUpon>201611121603006_Remove UserId foreign key from history.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611121632005_Add AspNetUsersHistory table.cs" />
-    <Compile Include="Migrations\201611121632005_Add AspNetUsersHistory table.Designer.cs">
-      <DependentUpon>201611121632005_Add AspNetUsersHistory table.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611121633333_Delete ChangeAuthorName column.cs" />
-    <Compile Include="Migrations\201611121633333_Delete ChangeAuthorName column.Designer.cs">
-      <DependentUpon>201611121633333_Delete ChangeAuthorName column.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611121637208_Add primary key.cs" />
-    <Compile Include="Migrations\201611121637208_Add primary key.Designer.cs">
-      <DependentUpon>201611121637208_Add primary key.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611121638583_Change Id to UserId to be more understandable.cs" />
-    <Compile Include="Migrations\201611121638583_Change Id to UserId to be more understandable.Designer.cs">
-      <DependentUpon>201611121638583_Change Id to UserId to be more understandable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611131059199_Create table with history of tickets.cs" />
-    <Compile Include="Migrations\201611131059199_Create table with history of tickets.Designer.cs">
-      <DependentUpon>201611131059199_Create table with history of tickets.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611131515071_Create table with settings.cs" />
-    <Compile Include="Migrations\201611131515071_Create table with settings.Designer.cs">
-      <DependentUpon>201611131515071_Create table with settings.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611131522023_Configure one-to-one relationship between User and Settings.cs" />
-    <Compile Include="Migrations\201611131522023_Configure one-to-one relationship between User and Settings.Designer.cs">
-      <DependentUpon>201611131522023_Configure one-to-one relationship between User and Settings.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611141450171_Running Seed method.cs" />
-    <Compile Include="Migrations\201611141450171_Running Seed method.Designer.cs">
-      <DependentUpon>201611141450171_Running Seed method.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611222221578_ChangeNamespacesOfDALClasses.cs" />
-    <Compile Include="Migrations\201611222221578_ChangeNamespacesOfDALClasses.Designer.cs">
-      <DependentUpon>201611222221578_ChangeNamespacesOfDALClasses.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="ViewModels\AddTicketViewModel.cs" />
     <Compile Include="ViewModels\Categories\CategoryDTO.cs" />
@@ -394,44 +346,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201609221918277_Init.resx">
-      <DependentUpon>201609221918277_Init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611121541095_Add history.resx">
-      <DependentUpon>201611121541095_Add history.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611121603006_Remove UserId foreign key from history.resx">
-      <DependentUpon>201611121603006_Remove UserId foreign key from history.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611121632005_Add AspNetUsersHistory table.resx">
-      <DependentUpon>201611121632005_Add AspNetUsersHistory table.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611121633333_Delete ChangeAuthorName column.resx">
-      <DependentUpon>201611121633333_Delete ChangeAuthorName column.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611121637208_Add primary key.resx">
-      <DependentUpon>201611121637208_Add primary key.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611121638583_Change Id to UserId to be more understandable.resx">
-      <DependentUpon>201611121638583_Change Id to UserId to be more understandable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611131059199_Create table with history of tickets.resx">
-      <DependentUpon>201611131059199_Create table with history of tickets.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611131515071_Create table with settings.resx">
-      <DependentUpon>201611131515071_Create table with settings.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611131522023_Configure one-to-one relationship between User and Settings.resx">
-      <DependentUpon>201611131522023_Configure one-to-one relationship between User and Settings.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611141450171_Running Seed method.resx">
-      <DependentUpon>201611141450171_Running Seed method.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611222221578_ChangeNamespacesOfDALClasses.resx">
-      <DependentUpon>201611222221578_ChangeNamespacesOfDALClasses.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HelpDesk.DAL\HelpDesk.DAL.csproj">

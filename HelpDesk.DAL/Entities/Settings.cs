@@ -18,6 +18,6 @@ namespace HelpDesk.DAL.Entities
         public int UsersPerPage { get; set; } = 10;
         public int TicketsPerPage { get; set; } = 10;
 
-        public virtual AppUser User { get; set; }
+        public virtual User User { get; set; }
     }
 }

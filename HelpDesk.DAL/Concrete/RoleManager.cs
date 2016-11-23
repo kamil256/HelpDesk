@@ -7,17 +7,17 @@ using HelpDesk.DAL.Entities;
 
 namespace HelpDesk.DAL.Concrete
 {
-    public class AppRoleManager : RoleManager<AppRole>, IDisposable
+    public class RoleManager : RoleManager<Role>, IDisposable
     {
-        public AppRoleManager(RoleStore<AppRole> store)
+        public RoleManager(RoleStore<Role> store)
         : base(store)
         {
         }
-        public static AppRoleManager Create(
-        IdentityFactoryOptions<AppRoleManager> options,
+        public static RoleManager Create(
+        IdentityFactoryOptions<RoleManager> options,
         IOwinContext context)
         {
-            return new AppRoleManager(new RoleStore<AppRole>(context.Get<HelpDeskContext>()));
+            return new RoleManager(new RoleStore<Role>(context.Get<HelpDeskContext>()));
         }
     }
 }

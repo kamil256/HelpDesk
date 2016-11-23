@@ -11,8 +11,8 @@ namespace HelpDesk.UI
         public void Configuration(IAppBuilder app)
         {
             app.CreatePerOwinContext<HelpDeskContext>(HelpDeskContext.Create);
-            app.CreatePerOwinContext<AppUserManager>(AppUserManager.Create);
-            app.CreatePerOwinContext<AppRoleManager>(AppRoleManager.Create);
+            app.CreatePerOwinContext<UserManager>(UserManager.Create);
+            app.CreatePerOwinContext<RoleManager>(RoleManager.Create);
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,

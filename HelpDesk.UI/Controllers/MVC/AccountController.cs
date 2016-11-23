@@ -37,9 +37,9 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             if (ModelState.IsValid)
             {
-                AppUserManager userManager = HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+                UserManager userManager = HttpContext.GetOwinContext().GetUserManager<UserManager>();
                 IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
-                AppUser user = await userManager.FindAsync(model.Email, model.Password);
+                User user = await userManager.FindAsync(model.Email, model.Password);
                 if (user == null)
                     ModelState.AddModelError("", "Incorrect email or password");
                 else

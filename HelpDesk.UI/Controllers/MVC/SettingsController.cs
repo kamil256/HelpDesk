@@ -17,23 +17,23 @@ namespace HelpDesk.UI.Controllers.MVC
     [Authorize]
     public class SettingsController : Controller
     {
-        private AppUserManager UserManager
+        private UserManager UserManager
         {
             get
             {
-                return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+                return HttpContext.GetOwinContext().GetUserManager<UserManager>();
             }
         }
 
-        private AppRoleManager RoleManager
+        private RoleManager RoleManager
         {
             get
             {
-                return HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
+                return HttpContext.GetOwinContext().GetUserManager<RoleManager>();
             }
         }
 
-        private AppUser CurrentUser
+        private User CurrentUser
         {
             get
             {

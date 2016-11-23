@@ -22,23 +22,23 @@ namespace HelpDesk.UI.Controllers.MVC
     [Authorize(Roles = "Admin")]
     public class TicketsController : Controller
     {
-        private AppUserManager UserManager
+        private UserManager UserManager
         {
             get
             {
-                return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+                return HttpContext.GetOwinContext().GetUserManager<UserManager>();
             }
         }
 
-        private AppRoleManager RoleManager
+        private RoleManager RoleManager
         {
             get
             {
-                return HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
+                return HttpContext.GetOwinContext().GetUserManager<RoleManager>();
             }
         }
 
-        private AppUser CurrentUser
+        private User CurrentUser
         {
             get
             {
@@ -227,7 +227,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 };
                 foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketID.ToString() }, orderBy: x => x.OrderByDescending(l => l.ChangeDate)))
                 {
-                    AppUser changeAuthor = UserManager.FindById(log.ChangeAuthorId);
+                    User changeAuthor = UserManager.FindById(log.ChangeAuthorId);
                     string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.ChangeAuthorId);
                     switch (log.ActionType)
                     {
@@ -317,7 +317,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             try
             {
-                AppUser user = await UserManager.FindByIdAsync(userId);
+                User user = await UserManager.FindByIdAsync(userId);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "In progress";
@@ -358,7 +358,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             try
             {
-                AppUser user = await UserManager.FindByIdAsync(userId);//unitOfWork.UserRepository.GetById(solveUserID);
+                User user = await UserManager.FindByIdAsync(userId);//unitOfWork.UserRepository.GetById(solveUserID);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "Solved";
@@ -401,7 +401,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             try
             {
-                AppUser user = await UserManager.FindByEmailAsync(User.Identity.Name);
+                User user = await UserManager.FindByEmailAsync(User.Identity.Name);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "Closed";

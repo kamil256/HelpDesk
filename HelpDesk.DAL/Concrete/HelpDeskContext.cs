@@ -10,13 +10,13 @@ using System.Web;
 
 namespace HelpDesk.DAL.Concrete
 {
-    public class HelpDeskContext : IdentityDbContext<HelpDesk.DAL.Entities.AppUser>
+    public class HelpDeskContext : IdentityDbContext<HelpDesk.DAL.Entities.User>
     {
         public HelpDeskContext() : base("HelpDeskContext") { }
 
         static HelpDeskContext()
         {
-            //Database.SetInitializer<HelpDeskContext>(new IdentityDbInit());
+            Database.SetInitializer<HelpDeskContext>(new IdentityDbInit());
         }
 
         public static HelpDeskContext Create()
@@ -26,7 +26,7 @@ namespace HelpDesk.DAL.Concrete
 
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Category> Categories { get; set; }        
-        public DbSet<AspNetUsersHistory> AspNetUsersHistory { get; set; }
+        public DbSet<UsersHistory> AspNetUsersHistory { get; set; }
         public DbSet<TicketsHistory> TicketsHistory { get; set; }
         public DbSet<Settings> Settings { get; set; }
 
@@ -49,26 +49,33 @@ namespace HelpDesk.DAL.Concrete
 
         public void PerformInitialSetup(HelpDeskContext context)
         {
-            AppUserManager userMgr = new AppUserManager(new UserStore<AppUser>(context));
-            AppRoleManager roleMgr = new AppRoleManager(new RoleStore<AppRole>(context));
-            string roleName = "admin";
-            string userName = "Admin";
+            base.Seed(context);
+            UserManager userMgr = new UserManager(new UserStore<User>(context));
+            RoleManager roleMgr = new RoleManager(new RoleStore<Role>(context));
+            string roleName = "Admin";
+            string userName = "admin@example.com";
             string password = "Password";
             string email = "admin@example.com";
             if (!roleMgr.RoleExists(roleName))
             {
-                roleMgr.Create(new AppRole(roleName));
+                roleMgr.Create(new Role(roleName));
             }
-            AppUser user = userMgr.FindByName(userName);
+            if (!roleMgr.RoleExists("User"))
+            {
+                roleMgr.Create(new Role("User"));
+            }
+            User user = userMgr.FindByName(userName);
             if (user == null)
             {
-                userMgr.Create(new AppUser { UserName = userName, Email = email }, password);
+                userMgr.Create(new User { UserName = userName, Email = email }, password);
                 user = userMgr.FindByName(userName);
             }
-
+            user.Settings = new Entities.Settings();
+            context.Settings.Add(user.Settings);
             {
                 userMgr.AddToRole(user.Id, roleName);
             }
+            context.SaveChanges();
         }
     }
 }
