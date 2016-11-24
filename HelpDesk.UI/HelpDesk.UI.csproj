@@ -299,8 +299,6 @@
     <Compile Include="ViewModels\UsersEditViewModel.cs" />
     <Compile Include="ViewModels\TicketsIndexViewModel.cs" />
     <Compile Include="ViewModels\UsersIndexViewModel.cs" />
-    <Compile Include="ViewModels\Users\PagedUsers.cs" />
-    <Compile Include="ViewModels\Users\UserFilteringModel.cs" />
     <Compile Include="ViewModels\Users\UserDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
