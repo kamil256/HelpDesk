@@ -52,70 +52,64 @@ namespace HelpDesk.UI.Controllers.WebAPI
 
         [OverrideAuthorization]
         [HttpGet]
-        public PagedTickets GetTickets([FromUri] TicketFilteringModel model)
+        public HttpResponseMessage GetTickets(string userId = null, string status = null, string assignedToID = null, int? categoryID = null, string search = null, bool advancedSearch = false, string sortBy = null, bool descSort = false, int page = 0)
         {
             List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
             if (!UserManager.IsInRole(CurrentUser.Id, "Admin"))
-            {
                 filters.Add(ticket => ticket.CreatedByID == CurrentUser.Id);
-
-                ModelState.Remove("Status");
-                ModelState.Remove("AssignedToID");
-                ModelState.Remove("CategoryID");
-            }
             else
             {
-                if (model.UserId != null)
-                    filters.Add(ticket => ticket.CreatedByID == model.UserId);
-                if (model.Status != "All")
-                    filters.Add(ticket => ticket.Status == model.Status);
-                if (model.AssignedToID != null)
-                    filters.Add(ticket => ticket.AssignedToID == model.AssignedToID);
-                if (model.CategoryID != null)
-                    filters.Add(ticket => ticket.CategoryID == model.CategoryID);
+                if (userId != null)
+                    filters.Add(ticket => ticket.CreatedByID == userId);
+                if (status != null)
+                    filters.Add(ticket => ticket.Status == status);
+                if (assignedToID != null)
+                    filters.Add(ticket => ticket.AssignedToID == assignedToID);
+                if (categoryID != null)
+                    filters.Add(ticket => ticket.CategoryID == categoryID);
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Search))
+            if (!string.IsNullOrEmpty(search))
             {
-                if (!model.AdvancedSearch)
-                    filters.Add(ticket => ticket.Title.ToLower().Contains(model.Search.ToLower()));
+                if (!advancedSearch)
+                    filters.Add(ticket => ticket.Title.ToLower().Contains(search.ToLower()));
                 else
-                    filters.Add(ticket => ticket.Title.ToLower().Contains(model.Search.ToLower()) ||
-                                          ticket.Content.ToLower().Contains(model.Search.ToLower()) ||
-                                          ticket.Solution.ToLower().Contains(model.Search.ToLower()));
+                    filters.Add(ticket => ticket.Title.ToLower().Contains(search.ToLower()) ||
+                                          ticket.Content.ToLower().Contains(search.ToLower()) ||
+                                          ticket.Solution.ToLower().Contains(search.ToLower()));
             }
 
             Func<IQueryable<Ticket>, IOrderedQueryable<Ticket>> orderBy = null;
 
-            switch (model.SortBy)
+            switch (sortBy)
             {
                 case "Requested by":
-                    if (model.DescSort)
+                    if (descSort)
                         orderBy = query => query.OrderByDescending(t => t.RequestedBy.FirstName + t.RequestedBy.LastName);
                     else
                         orderBy = query => query.OrderBy(t => t.RequestedBy.FirstName + t.RequestedBy.LastName);
                     break;
                 case "Title":
-                    if (model.DescSort)
+                    if (descSort)
                         orderBy = query => query.OrderByDescending(t => t.Title);
                     else
                         orderBy = query => query.OrderBy(t => t.Title);
                     break;
                 case "Category":
-                    if (model.DescSort)
+                    if (descSort)
                         orderBy = query => query.OrderByDescending(t => t.Category.Name);
                     else
                         orderBy = query => query.OrderBy(t => t.Category.Name);
                     break;
                 case "Status":
-                    if (model.DescSort)
+                    if (descSort)
                         orderBy = query => query.OrderByDescending(t => t.Status);
                     else
                         orderBy = query => query.OrderBy(t => t.Status);
                     break;
                 case "Created on":
                 default:
-                    if (model.DescSort)
+                    if (descSort)
                         orderBy = query => query.OrderByDescending(t => t.CreatedOn);
                     else
                         orderBy = query => query.OrderBy(t => t.CreatedOn);
@@ -123,27 +117,39 @@ namespace HelpDesk.UI.Controllers.WebAPI
             }
 
             int ticketsPerPage = CurrentUser.Settings.TicketsPerPage;
-            int numberOfTickets = unitOfWork.TicketRepository.Get(filters: filters, orderBy: orderBy).Count();
-            int numberOfPages = (int)Math.Ceiling((decimal)numberOfTickets / ticketsPerPage);
+            int numberOfTickets = unitOfWork.TicketRepository.Get(filters: filters).Count();
+            int numberOfPages;
 
-            PagedTickets pagedTickets = new PagedTickets();
-            pagedTickets.Tickets = unitOfWork.TicketRepository.Get(filters: filters, orderBy: orderBy, skip: (model.Page - 1) * ticketsPerPage, take: ticketsPerPage).Select(t => new TicketDTO
+            IEnumerable<Ticket> tickets;
+            if (page != 0)
             {
-                TicketId = t.TicketID,
-                CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
-                CreatedBy = t.CreatedBy != null ? t.CreatedBy.FirstName + " " + t.CreatedBy.LastName : null,
-                RequestedBy = t.RequestedBy != null ? t.RequestedBy.FirstName + " " + t.RequestedBy.LastName : null,
-                AssignedTo = t.AssignedTo != null ? t.AssignedTo.FirstName + " " + t.AssignedTo.LastName : null,
-                CreatedById = t.CreatedByID,
-                RequestedById = t.RequestedByID,
-                AssignedToId = t.AssignedToID,
-                Title = t.Title,
-                Category = t.Category?.Name,
-                Status = t.Status
+                numberOfPages = (int)Math.Ceiling((decimal)numberOfTickets / ticketsPerPage);
+                tickets = unitOfWork.TicketRepository.Get(filters: filters, orderBy: orderBy, skip: (page - 1) * ticketsPerPage, take: ticketsPerPage);                
+            }
+            else
+            {
+                numberOfPages = 1;
+                tickets = unitOfWork.TicketRepository.Get(filters: filters, orderBy: orderBy);                
+            }
+            
+            return Request.CreateResponse(HttpStatusCode.OK, new 
+            {
+                Tickets = tickets.Select(t => new TicketDTO
+                {
+                    TicketId = t.TicketID,
+                    CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
+                    CreatedBy = t.CreatedBy != null ? t.CreatedBy.FirstName + " " + t.CreatedBy.LastName : null,
+                    RequestedBy = t.RequestedBy != null ? t.RequestedBy.FirstName + " " + t.RequestedBy.LastName : null,
+                    AssignedTo = t.AssignedTo != null ? t.AssignedTo.FirstName + " " + t.AssignedTo.LastName : null,
+                    CreatedById = t.CreatedByID,
+                    RequestedById = t.RequestedByID,
+                    AssignedToId = t.AssignedToID,
+                    Title = t.Title,
+                    Category = t.Category?.Name,
+                    Status = t.Status
+                }),
+                NumberOfPages = numberOfPages
             });
-
-            pagedTickets.NumberOfPages = numberOfPages;
-            return pagedTickets;
         }
     }
 }

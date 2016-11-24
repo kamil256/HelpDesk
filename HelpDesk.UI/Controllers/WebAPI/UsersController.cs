@@ -157,7 +157,10 @@ namespace HelpDesk.UI.Controllers.WebAPI
                         users = users.Where(filter);
             if (orderBy != null)
                 users = orderBy(users);
-            users = users.Skip(skip).Take(take);
+            if (!model.IgnorePaging)
+            {
+                users = users.Skip(skip).Take(take);
+            }
             pagedUsers.Users = users.Select(u => new UserDTO//unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy, skip: skip, take: take).Select(u => new UserDTO
             {
                 UserId = u.Id,

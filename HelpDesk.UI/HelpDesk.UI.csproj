@@ -289,8 +289,6 @@
     <Compile Include="ViewModels\SettingsIndexViewModel.cs" />
     <Compile Include="ViewModels\TicketsCreateViewModel.cs" />
     <Compile Include="ViewModels\TicketsEditViewModel.cs" />
-    <Compile Include="ViewModels\Tickets\PagedTickets.cs" />
-    <Compile Include="ViewModels\Tickets\TicketFilteringModel.cs" />
     <Compile Include="ViewModels\Tickets\TicketDTO.cs" />
     <Compile Include="ViewModels\UsersChangePasswordViewModel.cs" />
     <Compile Include="ViewModels\AccountLoginViewModel.cs" />
