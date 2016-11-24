@@ -87,7 +87,6 @@
   <ItemGroup>
     <Compile Include="Abstract\IRepository.cs" />
     <Compile Include="Abstract\IUnitOfWork.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="Concrete\RoleManager.cs" />
     <Compile Include="Concrete\UserManager.cs" />
     <Compile Include="Concrete\GenericRepository.cs" />
