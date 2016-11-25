@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace HelpDesk.UI.ViewModels
+namespace HelpDesk.UI.ViewModels.Users
 {
-    public class UsersEditViewModel
+    public class EditViewModel
     {
         public string UserID { get; set; }
 

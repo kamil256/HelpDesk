@@ -1,4 +1,4 @@
-﻿@model HelpDesk.UI.ViewModels.UsersEditViewModel
+﻿@model HelpDesk.UI.ViewModels.Users.EditViewModel
 
 <script>
     function TicketsViewModel()
@@ -25,7 +25,7 @@
 
         self.filter =
         {
-            status: ko.observable("All"),
+            status: ko.observable(),
             assignedTo: ko.observable(),
             category: ko.observable(),
             search: ko.observable(),

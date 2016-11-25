@@ -290,14 +290,12 @@
     <Compile Include="ViewModels\Tickets\CreateViewModel.cs" />
     <Compile Include="ViewModels\Tickets\EditViewModel.cs" />
     <Compile Include="ViewModels\Tickets\TicketDTO.cs" />
-    <Compile Include="ViewModels\UsersChangePasswordViewModel.cs" />
+    <Compile Include="ViewModels\Users\ChangePasswordViewModel.cs" />
     <Compile Include="ViewModels\AccountLoginViewModel.cs" />
-    <Compile Include="ViewModels\UsersCreateViewModel.cs" />
-    <Compile Include="ViewModels\UsersDetailsViewModel.cs" />
-    <Compile Include="ViewModels\UsersHistoryViewModel.cs" />
+    <Compile Include="ViewModels\Users\CreateViewModel.cs" />
+    <Compile Include="ViewModels\Users\HistoryViewModel.cs" />
     <Compile Include="ViewModels\Tickets\HistoryViewModel.cs" />
-    <Compile Include="ViewModels\UsersEditViewModel.cs" />
-    <Compile Include="ViewModels\UsersIndexViewModel.cs" />
+    <Compile Include="ViewModels\Users\EditViewModel.cs" />
     <Compile Include="ViewModels\Users\UserDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -307,15 +305,12 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Users\Create.cshtml" />
-    <Content Include="Views\Users\Delete.cshtml" />
     <Content Include="Views\Users\Edit.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Users\oldChangePassword.cshtml" />
     <Content Include="Views\Tickets\Create.cshtml" />
     <Content Include="Views\Tickets\Edit.cshtml" />
-    <Content Include="Views\Tickets\Delete.cshtml" />
     <Content Include="Views\Tickets\_ChangeRequestorPartial.cshtml" />
     <Content Include="Views\Tickets\_DeleteTicketPartial.cshtml" />
     <Content Include="Views\Users\_DeleteUserPartial.cshtml" />
@@ -327,7 +322,6 @@
     <Content Include="Views\Settings\Index.cshtml" />
     <Content Include="Views\Tickets\Index.cshtml" />
     <Content Include="Views\Users\Index.cshtml" />
-    <Content Include="Views\Users\Details.cshtml" />
     <Content Include="Views\Users\Tickets.cshtml" />
     <Content Include="Views\Users\ChangePassword.cshtml" />
     <Content Include="Views\Users\History.cshtml" />

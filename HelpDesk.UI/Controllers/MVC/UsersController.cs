@@ -17,7 +17,7 @@ using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
 using HelpDesk.DAL.Abstract;
 using HelpDesk.UI.ViewModels;
-using HelpDesk.UI.ViewModels.Tickets;
+using HelpDesk.UI.ViewModels.Users;
 
 namespace HelpDesk.UI.Controllers.MVC
 {
@@ -67,7 +67,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] UsersCreateViewModel model)
+        public async Task<ActionResult> Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] CreateViewModel model)
         {
             try
             {
@@ -115,24 +115,6 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
-        //public ViewResult Details(string id)
-        //{
-        //    AppUser user = unitOfWork.UserRepository.GetById(id);
-        //    UsersDetailsViewModel model = new UsersDetailsViewModel
-        //    {
-        //        UserID = user.Id,
-        //        FirstName = user.FirstName,
-        //        LastName = user.LastName,
-        //        Email = user.Email,
-        //        Phone = user.Phone,
-        //        MobilePhone = user.MobilePhone,
-        //        Company = user.Company,
-        //        Department = user.Department,
-        //        Role = unitOfWork.RoleRepository.GetById(user.Roles.First().RoleId).Name
-        //    };
-        //    return View(model);
-        //}
-
         [OverrideAuthorization]
         public async Task<ActionResult> Edit(string id)
         {
@@ -145,7 +127,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     user = CurrentUser;
                 if (user == null)
                     throw new Exception($"User id {id} doesn't exist");
-                UsersEditViewModel model = new UsersEditViewModel
+                EditViewModel model = new EditViewModel
                 {
                     UserID = user.Id,
                     FirstName = user.FirstName,
@@ -169,7 +151,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [HttpPost]
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
-        public async Task<ActionResult> Edit([Bind(Include = "UserID,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] UsersEditViewModel model)
+        public async Task<ActionResult> Edit([Bind(Include = "UserID,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] EditViewModel model)
         {
             User user;
             try
@@ -236,7 +218,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     user = CurrentUser;
                 if (user == null)
                     throw new Exception($"User id {id} doesn't exist");
-                UsersChangePasswordViewModel model = new UsersChangePasswordViewModel
+                ChangePasswordViewModel model = new ChangePasswordViewModel
                 {
                     UserID = user.Id,
                     FirstName = user.FirstName,
@@ -254,7 +236,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [HttpPost]
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
-        public async Task<ActionResult> ChangePassword([Bind(Include = "UserID,CurrentPassword,Password,ConfirmPassword")] UsersChangePasswordViewModel model)
+        public async Task<ActionResult> ChangePassword([Bind(Include = "UserID,CurrentPassword,Password,ConfirmPassword")] ChangePasswordViewModel model)
         {
             User user;
             try
@@ -318,11 +300,11 @@ namespace HelpDesk.UI.Controllers.MVC
                 if (user == null)
                     throw new Exception($"User id {id} doesn't exist");
 
-                UsersEditViewModel model = new UsersEditViewModel();
+                EditViewModel model = new EditViewModel();
                 model.UserID = user.Id;
                 model.FirstName = user.FirstName;
                 model.LastName = user.LastName;
-                model.Tickets = unitOfWork.TicketRepository.Get(filters: new List<Expression<Func<Ticket, bool>>> { t => t.CreatedByID == id }, orderBy: t => t.OrderByDescending(x => x.CreatedOn)).Select(t => new TicketDTO
+                model.Tickets = unitOfWork.TicketRepository.Get(filters: new List<Expression<Func<Ticket, bool>>> { t => t.CreatedByID == id }, orderBy: t => t.OrderByDescending(x => x.CreatedOn)).Select(t => new ViewModels.Tickets.TicketDTO
                 {
                     TicketId = t.TicketID,
                     CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
@@ -358,7 +340,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && user.Id != CurrentUser.Id)
                     return new HttpUnauthorizedResult();
 
-                UsersHistoryViewModel model = new UsersHistoryViewModel
+                HistoryViewModel model = new HistoryViewModel
                 {
                     UserID = id,
                     FirstName = user.FirstName,

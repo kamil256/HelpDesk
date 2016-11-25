@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace HelpDesk.UI.ViewModels
+namespace HelpDesk.UI.ViewModels.Users
 {
-    public class UsersCreateViewModel
+    public class CreateViewModel
     {
         [Required]
         [Display(Name = "First name")]
