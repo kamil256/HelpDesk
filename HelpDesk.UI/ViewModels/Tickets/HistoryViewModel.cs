@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace HelpDesk.UI.ViewModels
+namespace HelpDesk.UI.ViewModels.Tickets
 {
-    public class TicketsHistoryViewModel
+    public class HistoryViewModel
     {
         public string TicketID { get; set; }
 

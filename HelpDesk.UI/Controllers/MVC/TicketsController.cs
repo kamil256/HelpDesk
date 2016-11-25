@@ -16,6 +16,7 @@ using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Entities;
 using HelpDesk.UI.ViewModels;
+using HelpDesk.UI.ViewModels.Tickets;
 
 namespace HelpDesk.UI.Controllers.MVC
 {
@@ -62,7 +63,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [OverrideAuthorization]
         public ViewResult Create()
         {
-            TicketsCreateViewModel model = new TicketsCreateViewModel
+            CreateViewModel model = new CreateViewModel
             {
                 RequestedBy = CurrentUser,
                 RequestedByID = CurrentUser.Id,
@@ -74,7 +75,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [HttpPost]
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
-        public async Task<ActionResult> Create([Bind(Include = "RequestedByID,CategoryID,Title,Content")] TicketsCreateViewModel model)
+        public async Task<ActionResult> Create([Bind(Include = "RequestedByID,CategoryID,Title,Content")] CreateViewModel model)
         {
             try
             {
@@ -118,7 +119,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 TempData["Fail"] = "You can't modify ticket which you didn't create!";
                 return RedirectToAction("Index", "Home");
             }
-            TicketsEditViewModel model = new TicketsEditViewModel
+            EditViewModel model = new EditViewModel
             {
                 TicketID = ticket.TicketID,
                 RequestedByID = ticket.RequestedByID,
@@ -143,7 +144,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [HttpPost]
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
-        public async Task<ActionResult> Edit([Bind(Include = "TicketID,RequestedByID,AssignedToID,Status,CategoryID,Title,Content,Solution")] TicketsEditViewModel model)
+        public async Task<ActionResult> Edit([Bind(Include = "TicketID,RequestedByID,AssignedToID,Status,CategoryID,Title,Content,Solution")] EditViewModel model)
         {
             Ticket ticket = unitOfWork.TicketRepository.GetById(model.TicketID);
             if (ticket == null)
@@ -220,7 +221,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatedByID != CurrentUser.Id && ticket.RequestedByID != CurrentUser.Id)
                     return new HttpUnauthorizedResult();
 
-                TicketsHistoryViewModel model = new TicketsHistoryViewModel
+                HistoryViewModel model = new HistoryViewModel
                 {
                     TicketID = id.ToString(),
                     Logs = new List<Log>()
@@ -332,33 +333,12 @@ namespace HelpDesk.UI.Controllers.MVC
             return Json(new { });
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<RedirectResult> AssignUserToTicket(string assignUserID, int assignTicketID, string returnUrl)
-        //{
-        //    try
-        //    {
-        //        AppUser user = await userManager.FindByIdAsync(assignUserID);//unitOfWork.UserRepository.GetById(assignUserID);
-        //        Ticket ticket = unitOfWork.TicketRepository.GetById(assignTicketID);
-        //        ticket.AssignedToID = user.Id;
-        //        ticket.Status = "In progress";
-        //        unitOfWork.TicketRepository.Update(ticket);
-        //        unitOfWork.Save();
-        //        TempData["Success"] = "Successfully assigned user to ticket!";
-        //    }
-        //    catch
-        //    {
-        //        TempData["Fail"] = "Cannot assign user to ticket. Try again!";
-        //    }
-        //    return Redirect(returnUrl);
-        //}
-
         [HttpPost]
         public async Task<JsonResult> SolveTicket(string userId, int ticketId, string solution)
         {
             try
             {
-                User user = await UserManager.FindByIdAsync(userId);//unitOfWork.UserRepository.GetById(solveUserID);
+                User user = await UserManager.FindByIdAsync(userId);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "Solved";
@@ -373,28 +353,6 @@ namespace HelpDesk.UI.Controllers.MVC
             }
             return Json(new { });
         }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<RedirectResult> SolveTicket(string solveUserID, int solveTicketID, string solution, string returnUrl)
-        //{
-        //    try
-        //    { 
-        //        AppUser user = await userManager.FindByIdAsync(solveUserID);//unitOfWork.UserRepository.GetById(solveUserID);
-        //        Ticket ticket = unitOfWork.TicketRepository.GetById(solveTicketID);
-        //        ticket.AssignedToID = user.Id;
-        //        ticket.Status = "Solved";
-        //        ticket.Solution = solution;
-        //        unitOfWork.TicketRepository.Update(ticket);
-        //        unitOfWork.Save();
-        //        TempData["Success"] = "Successfully solved ticket!";
-        //    }
-        //    catch
-        //    {
-        //        TempData["Fail"] = "Cannot solve ticket. Try again!";
-        //    }
-        //    return Redirect(returnUrl);
-        //}
 
         [HttpPost]
         public async Task<JsonResult> CloseTicket(int ticketId)
@@ -415,26 +373,5 @@ namespace HelpDesk.UI.Controllers.MVC
             }
             return Json(new { });
         }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<RedirectResult> CloseTicket(int closeTicketID, string returnUrl)
-        //{
-        //    try
-        //    { 
-        //        AppUser user = await userManager.FindByEmailAsync(User.Identity.Name);
-        //        Ticket ticket = unitOfWork.TicketRepository.GetById(closeTicketID);
-        //        ticket.AssignedToID = user.Id;
-        //        ticket.Status = "Closed";
-        //        unitOfWork.TicketRepository.Update(ticket);
-        //        unitOfWork.Save();
-        //        TempData["Success"] = "Successfully closed ticket!";
-        //    }
-        //    catch
-        //    {
-        //        TempData["Fail"] = "Cannot close ticket. Try again!";
-        //    }
-        //    return Redirect(returnUrl);
-        //}
     }
 }
