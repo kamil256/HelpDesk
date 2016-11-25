@@ -2,6 +2,7 @@
 using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
 using HelpDesk.UI.ViewModels;
+using HelpDesk.UI.ViewModels.Settings;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
@@ -51,7 +52,7 @@ namespace HelpDesk.UI.Controllers.MVC
         public ViewResult Index()
         {
             Settings settings = CurrentUser.Settings; 
-            SettingsIndexViewModel model = new SettingsIndexViewModel();
+            IndexViewModel model = new IndexViewModel();
             model.NewTicketsNotifications = settings.NewTicketsNotifications;
             model.SolvedTicketsNotifications = settings.SolvedTicketsNotifications;
             model.UsersPerPage = settings.UsersPerPage;
@@ -62,7 +63,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,CategoriesName,CategoriesId")] SettingsIndexViewModel model)
+        public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,CategoriesName,CategoriesId")] IndexViewModel model)
         {
             //try
             {

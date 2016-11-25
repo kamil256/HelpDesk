@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace HelpDesk.UI.ViewModels
+namespace HelpDesk.UI.ViewModels.Settings
 {
-    public class SettingsIndexViewModel
+    public class IndexViewModel
     {
         [Required]
         public bool NewTicketsNotifications { get; set; }
