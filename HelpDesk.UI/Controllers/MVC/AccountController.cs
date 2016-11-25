@@ -2,6 +2,7 @@
 using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
 using HelpDesk.UI.ViewModels;
+using HelpDesk.UI.ViewModels.Account;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
@@ -18,6 +19,30 @@ namespace HelpDesk.UI.Controllers.MVC
 {
     public class AccountController : Controller
     {
+        private UserManager UserManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().GetUserManager<UserManager>();
+            }
+        }
+
+        private RoleManager RoleManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().GetUserManager<RoleManager>();
+            }
+        }
+
+        private User CurrentUser
+        {
+            get
+            {
+                return UserManager.FindByNameAsync(User.Identity.Name).Result;
+            }
+        }
+
         private IUnitOfWork unitOfWork;
 
         public AccountController(IUnitOfWork unitOfWork)
@@ -27,25 +52,24 @@ namespace HelpDesk.UI.Controllers.MVC
 
         public ActionResult Login(string returnUrl)
         {
-            AccountLoginViewModel model = new AccountLoginViewModel { ReturnUrl = returnUrl };
+            LoginViewModel model = new LoginViewModel { ReturnUrl = returnUrl };
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Login(AccountLoginViewModel model)
+        public async Task<ActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
-                UserManager userManager = HttpContext.GetOwinContext().GetUserManager<UserManager>();
                 IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
-                User user = await userManager.FindAsync(model.Email, model.Password);
+                User user = await UserManager.FindAsync(model.Email, model.Password);
                 if (user == null)
                     ModelState.AddModelError("", "Incorrect email or password");
                 else
                 {
                     AuthManager.SignOut();
-                    AuthManager.SignIn(await userManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
+                    AuthManager.SignIn(await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
                     return Redirect(model.ReturnUrl ?? "/");
                 }
             }

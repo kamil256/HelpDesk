@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace HelpDesk.UI.ViewModels
+namespace HelpDesk.UI.ViewModels.Account
 {
-    public class AccountLoginViewModel
+    public class LoginViewModel
     {
         [Required]
         [Display(Name = "Email")]
