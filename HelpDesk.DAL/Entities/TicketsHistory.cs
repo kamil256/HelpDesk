@@ -10,15 +10,18 @@ namespace HelpDesk.DAL.Entities
     [Table("TicketsHistory")]
     public class TicketsHistory
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid TicketsHistoryId { get; set; }
+        public int TicketsHistoryId { get; set; }
 
-        public DateTime ChangeDate { get; set; }
-        public string ChangeAuthorId { get; set; }
+        public DateTime Date { get; set; }
 
-        public string TicketId { get; set; }
-        public string ActionType { get; set; }
-        public string ColumnName { get; set; }        
+        [Required]
+        public string AuthorId { get; set; }
+
+        public int TicketId { get; set; }
+
+        [Required]
+        public string Action { get; set; }
+        public string Column { get; set; }        
         public string OldValue { get; set; }
         public string NewValue { get; set; }
     }

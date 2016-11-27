@@ -93,11 +93,11 @@
     <Compile Include="Concrete\HelpDeskContext.cs" />
     <Compile Include="Concrete\UnitOfWork.cs" />
     <Compile Include="Entities\Role.cs" />
+    <Compile Include="Entities\Ticket.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\UsersHistory.cs" />
     <Compile Include="Entities\Category.cs" />
     <Compile Include="Entities\Settings.cs" />
-    <Compile Include="Entities\Ticket.cs" />
     <Compile Include="Entities\TicketsHistory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
