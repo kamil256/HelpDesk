@@ -15,7 +15,6 @@ using System.Text;
 using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Entities;
-using HelpDesk.UI.ViewModels;
 using HelpDesk.UI.ViewModels.Tickets;
 
 namespace HelpDesk.UI.Controllers.MVC
@@ -145,20 +144,36 @@ namespace HelpDesk.UI.Controllers.MVC
         private void updateTicketHistory(Ticket currentTicket, Ticket updatedTicket)
         {
             List<TicketsHistory> ticketsHistoryList = new List<TicketsHistory>();
+
             if (currentTicket.RequestedByID != updatedTicket.RequestedByID)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "RequestedBy", NewValue = updatedTicket.RequestedByID });
-            if (currentTicket.CategoryID != updatedTicket.CategoryID)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "CategoryID", NewValue = updatedTicket.CategoryID.ToString() });
-            if (currentTicket.Title != updatedTicket.Title)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "Title", NewValue = updatedTicket.Title });
-            if (currentTicket.Content != updatedTicket.Content)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "Content", NewValue = updatedTicket.Content });
-            if (currentTicket.Status != updatedTicket.Status)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "Status", NewValue = updatedTicket.Status });
+            {
+                string requesterName = updatedTicket.RequestedBy != null ? $"{updatedTicket.RequestedBy.FirstName} {updatedTicket.RequestedBy.LastName}" : "";
+                ticketsHistoryList.Add(new TicketsHistory { Column = "requester", NewValue = requesterName });
+            }
+
             if (currentTicket.AssignedToID != updatedTicket.AssignedToID)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "AssignedToID", NewValue = updatedTicket.AssignedToID });
+            {
+                string assignedUserName = updatedTicket.AssignedTo != null ? $"{updatedTicket.AssignedTo.FirstName} {updatedTicket.AssignedTo.LastName}" : "";
+                ticketsHistoryList.Add(new TicketsHistory { Column = "assigned user", NewValue = assignedUserName });
+            }
+
+            if (currentTicket.Status != updatedTicket.Status)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "status", NewValue = updatedTicket.Status });
+
+            if (currentTicket.CategoryID != updatedTicket.CategoryID)
+            {
+                string categoryName = updatedTicket.Category != null ? updatedTicket.Category.Name : "";
+                ticketsHistoryList.Add(new TicketsHistory { Column = "category", NewValue = categoryName });
+            }
+
+            if (currentTicket.Title != updatedTicket.Title)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "title", NewValue = updatedTicket.Title });
+
+            if (currentTicket.Content != updatedTicket.Content)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "content", NewValue = updatedTicket.Content });
+            
             if (currentTicket.Solution != updatedTicket.Solution)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "Solution", NewValue = updatedTicket.Solution });
+                ticketsHistoryList.Add(new TicketsHistory { Column = "solution", NewValue = updatedTicket.Solution });
 
             foreach (var log in ticketsHistoryList)
             {
@@ -206,7 +221,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 }
             }
 
-            try
+            //try
             {
                 if (ModelState.IsValid)
                 {
@@ -219,26 +234,26 @@ namespace HelpDesk.UI.Controllers.MVC
                     ticket.Status = model.Status;
                     ticket.AssignedToID = model.AssignedToID;
                     ticket.Solution = model.Solution;
+                    unitOfWork.TicketRepository.Update(ticket);
 
                     updateTicketHistory(oldTicket, ticket);
-
-                    unitOfWork.TicketRepository.Update(ticket);                                        
                     unitOfWork.Save();
 
                     TempData["Success"] = "Successfully edited ticket!";
                     return RedirectToAction("Index");
                 }
             }
-            catch
-            {
-                ModelState.AddModelError("", "Cannot edit ticket. Try again!");
-            }
+            //catch
+            //{
+            //    ModelState.AddModelError("", "Cannot edit ticket. Try again!");
+            //}
             model.CreatedBy = ticket.CreatedBy;
             model.CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss");
 
             string adminRoleId = RoleManager.FindByName("Admin").Id;
             model.Admins = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
             model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
+            ViewBag.IsCurrentUserAdmin = await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin");
             return View(model);
         }
 
@@ -257,18 +272,19 @@ namespace HelpDesk.UI.Controllers.MVC
 
                 HistoryViewModel model = new HistoryViewModel
                 {
-                    TicketID = id.ToString(),
-                    Logs = new List<Log>()
+                    TicketID = id,
+                    Logs = new List<HistoryViewModel.Log>()
                 };
                 foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketID }, orderBy: x => x.OrderByDescending(l => l.Date)))
                 {
-                    User changeAuthor = UserManager.FindById(log.AuthorId);
-                    string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.AuthorId);
-                    logContent += $"changed [{log.Column}] to [{log.NewValue}]";
-                    model.Logs.Add(new Log
+                    User author = UserManager.FindById(log.AuthorId);
+                    model.Logs.Add(new HistoryViewModel.Log
                     {
                         Date = log.Date,
-                        Content = logContent
+                        AuthorId = log.AuthorId,
+                        AuthorName = author != null ? $"{author.FirstName} {author.LastName}" : null,
+                        Column = log.Column,
+                        NewValue = log.NewValue
                     });
                 }
                 return View(model);
@@ -349,10 +365,11 @@ namespace HelpDesk.UI.Controllers.MVC
 
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "In progress";
+                unitOfWork.TicketRepository.Update(ticket);
+
                 updateTicketHistory(oldTicket, ticket);
-                                
-                unitOfWork.TicketRepository.Update(ticket);  
                 unitOfWork.Save();
+
                 TempData["Success"] = "Successfully assigned user to ticket!";
             }
             catch
@@ -374,10 +391,9 @@ namespace HelpDesk.UI.Controllers.MVC
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "Solved";
                 ticket.Solution = solution;
-
-                updateTicketHistory(oldTicket, ticket);
-
                 unitOfWork.TicketRepository.Update(ticket);
+
+                updateTicketHistory(oldTicket, ticket);                
                 unitOfWork.Save();
                 TempData["Success"] = "Successfully solved ticket!";
             }
@@ -398,10 +414,9 @@ namespace HelpDesk.UI.Controllers.MVC
                 
                 ticket.AssignedToID = CurrentUser.Id;
                 ticket.Status = "Closed";
-
-                updateTicketHistory(oldTicket, ticket);
-
                 unitOfWork.TicketRepository.Update(ticket);
+
+                updateTicketHistory(oldTicket, ticket);                
                 unitOfWork.Save();
                 TempData["Success"] = "Successfully closed ticket!";
             }

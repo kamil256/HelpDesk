@@ -283,7 +283,6 @@
     <Compile Include="Infrastructure\NinjectResolver.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="ViewModels\Categories\CategoryDTO.cs" />
-    <Compile Include="ViewModels\Log.cs" />
     <Compile Include="ViewModels\Settings\IndexViewModel.cs" />
     <Compile Include="ViewModels\Tickets\CreateViewModel.cs" />
     <Compile Include="ViewModels\Tickets\EditViewModel.cs" />

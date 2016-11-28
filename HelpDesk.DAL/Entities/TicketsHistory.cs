@@ -7,6 +7,7 @@ using System.Web;
 
 namespace HelpDesk.DAL.Entities
 {
+    [Table("TicketsHistory")]
     public class TicketsHistory
     {
         public int TicketsHistoryId { get; set; }

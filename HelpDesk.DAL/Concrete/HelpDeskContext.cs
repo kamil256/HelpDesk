@@ -25,8 +25,7 @@ namespace HelpDesk.DAL.Concrete
         }
 
         public DbSet<Ticket> Tickets { get; set; }
-        public DbSet<Category> Categories { get; set; }        
-        public DbSet<UsersHistory> UsersHistory { get; set; }
+        public DbSet<Category> Categories { get; set; } 
         public DbSet<TicketsHistory> TicketsHistory { get; set; }
         public DbSet<Settings> Settings { get; set; }
 

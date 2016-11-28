@@ -9,9 +9,14 @@ namespace HelpDesk.UI.ViewModels.Users
     public class HistoryViewModel
     {
         public string UserID { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-
         public List<Log> Logs { get; set; }
+
+        public class Log
+        {
+            public DateTime Date { get; set; }
+            public int TicketId { get; set; }
+            public string Column { get; set; }
+            public string NewValue { get; set; }
+        }
     }
 }

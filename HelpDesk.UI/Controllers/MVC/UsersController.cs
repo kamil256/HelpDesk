@@ -16,7 +16,6 @@ using Microsoft.Owin.Security;
 using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
 using HelpDesk.DAL.Abstract;
-using HelpDesk.UI.ViewModels;
 using HelpDesk.UI.ViewModels.Users;
 
 namespace HelpDesk.UI.Controllers.MVC
@@ -343,20 +342,17 @@ namespace HelpDesk.UI.Controllers.MVC
                 HistoryViewModel model = new HistoryViewModel
                 {
                     UserID = id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Logs = new List<Log>()
+                    Logs = new List<HistoryViewModel.Log>()
                 };
-                foreach (var log in unitOfWork.UsersHistoryRepository.Get(filters: new Expression<Func<UsersHistory, bool>>[] { l => l.UserId == user.Id }, orderBy: x => x.OrderByDescending(l => l.Date)))
+                foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.AuthorId == user.Id }, orderBy: x => x.OrderByDescending(l => l.Date)))
                 {
-                    User changeAuthor = UserManager.FindById(log.AuthorId);
-                    string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.AuthorId);
-                    logContent += $"changed [{log.Column}] to [{log.NewValue}]";
-                    model.Logs.Add(new Log
+                    model.Logs.Add(new HistoryViewModel.Log
                     {
                         Date = log.Date,
-                        Content = logContent}
-                    );
+                        TicketId = log.TicketId,
+                        Column = log.Column,
+                        NewValue = log.NewValue
+                    });
                 }
                 return View(model);
             }

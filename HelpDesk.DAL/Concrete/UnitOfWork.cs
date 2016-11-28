@@ -15,7 +15,6 @@ namespace HelpDesk.DAL.Concrete
         private GenericRepository<Ticket> ticketRepository;
         private GenericRepository<Category> categoryRepository;
         private GenericRepository<Settings> settingsRepository;
-        private GenericRepository<UsersHistory> usersHistoryRepository;
         private GenericRepository<TicketsHistory> ticketsHistoryRepository;
 
         public GenericRepository<Ticket> TicketRepository
@@ -45,16 +44,6 @@ namespace HelpDesk.DAL.Concrete
                 if (settingsRepository == null)
                     settingsRepository = new GenericRepository<Settings>(context);
                 return settingsRepository;
-            }
-        }
-
-        public GenericRepository<UsersHistory> UsersHistoryRepository
-        {
-            get
-            {
-                if (usersHistoryRepository == null)
-                    usersHistoryRepository = new GenericRepository<UsersHistory>(context);
-                return usersHistoryRepository;
             }
         }
 
