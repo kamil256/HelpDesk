@@ -56,17 +56,17 @@ namespace HelpDesk.UI.Controllers.WebAPI
         {
             List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
             if (!UserManager.IsInRole(CurrentUser.Id, "Admin"))
-                filters.Add(ticket => ticket.CreatedByID == CurrentUser.Id);
+                filters.Add(ticket => ticket.CreatorId == CurrentUser.Id);
             else
             {
                 if (userId != null)
-                    filters.Add(ticket => ticket.CreatedByID == userId);
+                    filters.Add(ticket => ticket.CreatorId == userId);
                 if (status != null)
                     filters.Add(ticket => ticket.Status == status);
                 if (assignedToID != null)
-                    filters.Add(ticket => ticket.AssignedToID == assignedToID);
+                    filters.Add(ticket => ticket.AssignedUserId == assignedToID);
                 if (categoryID != null)
-                    filters.Add(ticket => ticket.CategoryID == categoryID);
+                    filters.Add(ticket => ticket.CategoryId == categoryID);
             }
 
             if (!string.IsNullOrEmpty(search))
@@ -85,9 +85,9 @@ namespace HelpDesk.UI.Controllers.WebAPI
             {
                 case "Requested by":
                     if (descSort)
-                        orderBy = query => query.OrderByDescending(t => t.RequestedBy.FirstName + t.RequestedBy.LastName);
+                        orderBy = query => query.OrderByDescending(t => t.Requestor.FirstName + t.Requestor.LastName);
                     else
-                        orderBy = query => query.OrderBy(t => t.RequestedBy.FirstName + t.RequestedBy.LastName);
+                        orderBy = query => query.OrderBy(t => t.Requestor.FirstName + t.Requestor.LastName);
                     break;
                 case "Title":
                     if (descSort)
@@ -110,9 +110,9 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 case "Created on":
                 default:
                     if (descSort)
-                        orderBy = query => query.OrderByDescending(t => t.CreatedOn);
+                        orderBy = query => query.OrderByDescending(t => t.CreateDate);
                     else
-                        orderBy = query => query.OrderBy(t => t.CreatedOn);
+                        orderBy = query => query.OrderBy(t => t.CreateDate);
                     break;
             }
 
@@ -136,14 +136,14 @@ namespace HelpDesk.UI.Controllers.WebAPI
             {
                 Tickets = tickets.Select(t => new TicketDTO
                 {
-                    TicketId = t.TicketID,
-                    CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
-                    CreatedBy = t.CreatedBy != null ? t.CreatedBy.FirstName + " " + t.CreatedBy.LastName : null,
-                    RequestedBy = t.RequestedBy != null ? t.RequestedBy.FirstName + " " + t.RequestedBy.LastName : null,
-                    AssignedTo = t.AssignedTo != null ? t.AssignedTo.FirstName + " " + t.AssignedTo.LastName : null,
-                    CreatedById = t.CreatedByID,
-                    RequestedById = t.RequestedByID,
-                    AssignedToId = t.AssignedToID,
+                    TicketId = t.TicketId,
+                    CreatedOn = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
+                    CreatedBy = t.Creator != null ? t.Creator.FirstName + " " + t.Creator.LastName : null,
+                    RequestedBy = t.Requestor != null ? t.Requestor.FirstName + " " + t.Requestor.LastName : null,
+                    AssignedTo = t.AssignedUser != null ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : null,
+                    CreatedById = t.CreatorId,
+                    RequestedById = t.RequestorId,
+                    AssignedToId = t.AssignedUserId,
                     Title = t.Title,
                     Category = t.Category?.Name,
                     Status = t.Status

@@ -28,7 +28,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
             return unitOfWork.CategoryRepository.Get(orderBy: o => o.OrderBy(c => c.Order))
                                                 .Select(c => new CategoryDTO
                                                 {
-                                                    CategoryId = c.CategoryID,
+                                                    CategoryId = c.CategoryId,
                                                     Name = c.Name
                                                 });
         }

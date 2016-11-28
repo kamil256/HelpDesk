@@ -82,11 +82,11 @@ namespace HelpDesk.UI.Controllers.MVC
                 {
                     Ticket ticket = new Ticket
                     {
-                        CreatedByID = CurrentUser.Id,
-                        RequestedByID = model.RequestedByID,
-                        CreatedOn = DateTime.Now,
+                        CreatorId = CurrentUser.Id,
+                        RequestorId = model.RequestedByID,
+                        CreateDate = DateTime.Now,
                         Status = "New",
-                        CategoryID = model.CategoryID,
+                        CategoryId = model.CategoryID,
                         Title = model.Title,
                         Content = model.Content
                     };
@@ -114,25 +114,25 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 return HttpNotFound();
             }
-            if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatedByID != CurrentUser.Id)
+            if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatorId != CurrentUser.Id)
             {
                 TempData["Fail"] = "You can't modify ticket which you didn't create!";
                 return RedirectToAction("Index", "Home");
             }
             EditViewModel model = new EditViewModel
             {
-                TicketID = ticket.TicketID,
-                RequestedByID = ticket.RequestedByID,
-                AssignedToID = ticket.AssignedToID,
+                TicketID = ticket.TicketId,
+                RequestedByID = ticket.RequestorId,
+                AssignedToID = ticket.AssignedUserId,
                 Status = ticket.Status,
-                CategoryID = ticket.CategoryID,
+                CategoryID = ticket.CategoryId,
                 Title = ticket.Title,
                 Content = ticket.Content,
                 Solution = ticket.Solution,
-                CreatedBy = ticket.CreatedBy,
-                CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss"),
-                RequestedBy = ticket.RequestedBy,                
-                AssignedTo = ticket.AssignedTo
+                CreatedBy = ticket.Creator,
+                CreatedOn = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss"),
+                RequestedBy = ticket.Requestor,                
+                AssignedTo = ticket.AssignedUser
             };
             string adminRoleId = RoleManager.FindByName("Admin").Id;
             model.Admins = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
@@ -145,22 +145,22 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             List<TicketsHistory> ticketsHistoryList = new List<TicketsHistory>();
 
-            if (currentTicket.RequestedByID != updatedTicket.RequestedByID)
+            if (currentTicket.RequestorId != updatedTicket.RequestorId)
             {
-                string requesterName = updatedTicket.RequestedBy != null ? $"{updatedTicket.RequestedBy.FirstName} {updatedTicket.RequestedBy.LastName}" : "";
+                string requesterName = updatedTicket.Requestor != null ? $"{updatedTicket.Requestor.FirstName} {updatedTicket.Requestor.LastName}" : "";
                 ticketsHistoryList.Add(new TicketsHistory { Column = "requester", NewValue = requesterName });
             }
 
-            if (currentTicket.AssignedToID != updatedTicket.AssignedToID)
+            if (currentTicket.AssignedUserId != updatedTicket.AssignedUserId)
             {
-                string assignedUserName = updatedTicket.AssignedTo != null ? $"{updatedTicket.AssignedTo.FirstName} {updatedTicket.AssignedTo.LastName}" : "";
+                string assignedUserName = updatedTicket.AssignedUser != null ? $"{updatedTicket.AssignedUser.FirstName} {updatedTicket.AssignedUser.LastName}" : "";
                 ticketsHistoryList.Add(new TicketsHistory { Column = "assigned user", NewValue = assignedUserName });
             }
 
             if (currentTicket.Status != updatedTicket.Status)
                 ticketsHistoryList.Add(new TicketsHistory { Column = "status", NewValue = updatedTicket.Status });
 
-            if (currentTicket.CategoryID != updatedTicket.CategoryID)
+            if (currentTicket.CategoryId != updatedTicket.CategoryId)
             {
                 string categoryName = updatedTicket.Category != null ? updatedTicket.Category.Name : "";
                 ticketsHistoryList.Add(new TicketsHistory { Column = "category", NewValue = categoryName });
@@ -179,7 +179,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 log.Date = DateTime.Now;
                 log.AuthorId = CurrentUser.Id;
-                log.TicketId = currentTicket.TicketID;
+                log.TicketId = currentTicket.TicketId;
                 unitOfWork.TicketsHistoryRepository.Insert(log);
             }
         }
@@ -202,7 +202,7 @@ namespace HelpDesk.UI.Controllers.MVC
             }
             else
             {
-                if (ticket.CreatedByID != CurrentUser.Id)
+                if (ticket.CreatorId != CurrentUser.Id)
                 {
                     TempData["Fail"] = "You can't modify ticket which you didn't create!";
                     return RedirectToAction("Index", "Home");
@@ -210,8 +210,8 @@ namespace HelpDesk.UI.Controllers.MVC
                 else
                 {
                     ModelState.Remove("AssignedToID");
-                    model.AssignedToID = ticket.AssignedToID;
-                    model.AssignedTo = ticket.AssignedTo;
+                    model.AssignedToID = ticket.AssignedUserId;
+                    model.AssignedTo = ticket.AssignedUser;
 
                     ModelState.Remove("Status");
                     model.Status = ticket.Status;
@@ -227,12 +227,12 @@ namespace HelpDesk.UI.Controllers.MVC
                 {
                     Ticket oldTicket = (Ticket)ticket.Clone();
 
-                    ticket.RequestedByID = model.RequestedByID;
-                    ticket.CategoryID = model.CategoryID;
+                    ticket.RequestorId = model.RequestedByID;
+                    ticket.CategoryId = model.CategoryID;
                     ticket.Title = model.Title;
                     ticket.Content = model.Content;
                     ticket.Status = model.Status;
-                    ticket.AssignedToID = model.AssignedToID;
+                    ticket.AssignedUserId = model.AssignedToID;
                     ticket.Solution = model.Solution;
                     unitOfWork.TicketRepository.Update(ticket);
 
@@ -247,8 +247,8 @@ namespace HelpDesk.UI.Controllers.MVC
             //{
             //    ModelState.AddModelError("", "Cannot edit ticket. Try again!");
             //}
-            model.CreatedBy = ticket.CreatedBy;
-            model.CreatedOn = ticket.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss");
+            model.CreatedBy = ticket.Creator;
+            model.CreatedOn = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss");
 
             string adminRoleId = RoleManager.FindByName("Admin").Id;
             model.Admins = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
@@ -267,7 +267,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 if (ticket == null)
                     throw new Exception($"Ticket id {id} doesn't exist");
 
-                if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatedByID != CurrentUser.Id && ticket.RequestedByID != CurrentUser.Id)
+                if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatorId != CurrentUser.Id && ticket.RequestorId != CurrentUser.Id)
                     return new HttpUnauthorizedResult();
 
                 HistoryViewModel model = new HistoryViewModel
@@ -275,7 +275,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     TicketID = id,
                     Logs = new List<HistoryViewModel.Log>()
                 };
-                foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketID }, orderBy: x => x.OrderByDescending(l => l.Date)))
+                foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketId }, orderBy: x => x.OrderByDescending(l => l.Date)))
                 {
                     User author = UserManager.FindById(log.AuthorId);
                     model.Logs.Add(new HistoryViewModel.Log
@@ -306,7 +306,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 return HttpNotFound();
             }
-            if (!(await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin")) && ticket.CreatedByID != CurrentUser.Id)
+            if (!(await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin")) && ticket.CreatorId != CurrentUser.Id)
                 return RedirectToAction("Index");
             try
             {
@@ -347,9 +347,9 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             StringBuilder csv = new StringBuilder();
             csv.AppendLine("Created on;Created by;Requested by;Assigned to;Status;Category;Title;Content;Solution");
-            foreach (Ticket ticket in unitOfWork.TicketRepository.Get(orderBy: x => x.OrderByDescending(t => t.CreatedOn)))
+            foreach (Ticket ticket in unitOfWork.TicketRepository.Get(orderBy: x => x.OrderByDescending(t => t.CreateDate)))
             {
-                csv.AppendLine($"{ticket.CreatedOn};{ticket.CreatedBy?.FirstName} {ticket.CreatedBy?.LastName};{ticket.RequestedBy?.FirstName} {ticket.RequestedBy?.LastName};{ticket.AssignedTo?.FirstName} {ticket.AssignedTo?.LastName};{ticket.Status};{ticket.Category?.Name};{ticket.Title};{ticket.Content};{ticket.Solution};");
+                csv.AppendLine($"{ticket.CreateDate};{ticket.Creator?.FirstName} {ticket.Creator?.LastName};{ticket.Requestor?.FirstName} {ticket.Requestor?.LastName};{ticket.AssignedUser?.FirstName} {ticket.AssignedUser?.LastName};{ticket.Status};{ticket.Category?.Name};{ticket.Title};{ticket.Content};{ticket.Solution};");
             }
             return File(Encoding.GetEncoding("ISO-8859-2").GetBytes(csv.ToString()), "text/plain", string.Format("tickets.csv"));
         }
@@ -363,7 +363,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 Ticket oldTicket = (Ticket)ticket.Clone();
 
-                ticket.AssignedToID = user.Id;
+                ticket.AssignedUserId = user.Id;
                 ticket.Status = "In progress";
                 unitOfWork.TicketRepository.Update(ticket);
 
@@ -388,7 +388,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 Ticket oldTicket = (Ticket)ticket.Clone();
 
-                ticket.AssignedToID = user.Id;
+                ticket.AssignedUserId = user.Id;
                 ticket.Status = "Solved";
                 ticket.Solution = solution;
                 unitOfWork.TicketRepository.Update(ticket);
@@ -412,7 +412,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 Ticket oldTicket = (Ticket)ticket.Clone();
                 
-                ticket.AssignedToID = CurrentUser.Id;
+                ticket.AssignedUserId = CurrentUser.Id;
                 ticket.Status = "Closed";
                 unitOfWork.TicketRepository.Update(ticket);
 

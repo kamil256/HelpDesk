@@ -303,16 +303,16 @@ namespace HelpDesk.UI.Controllers.MVC
                 model.UserID = user.Id;
                 model.FirstName = user.FirstName;
                 model.LastName = user.LastName;
-                model.Tickets = unitOfWork.TicketRepository.Get(filters: new List<Expression<Func<Ticket, bool>>> { t => t.CreatedByID == id }, orderBy: t => t.OrderByDescending(x => x.CreatedOn)).Select(t => new ViewModels.Tickets.TicketDTO
+                model.Tickets = unitOfWork.TicketRepository.Get(filters: new List<Expression<Func<Ticket, bool>>> { t => t.CreatorId == id }, orderBy: t => t.OrderByDescending(x => x.CreateDate)).Select(t => new ViewModels.Tickets.TicketDTO
                 {
-                    TicketId = t.TicketID,
-                    CreatedOn = ((t.CreatedOn - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
-                    CreatedBy = t.CreatedBy != null ? t.CreatedBy.FirstName + " " + t.CreatedBy.LastName : null,
-                    RequestedBy = t.RequestedBy != null ? t.RequestedBy.FirstName + " " + t.RequestedBy.LastName : null,
-                    AssignedTo = t.AssignedTo != null ? t.AssignedTo.FirstName + " " + t.AssignedTo.LastName : null,
-                    CreatedById = t.CreatedByID,
-                    RequestedById = t.RequestedByID,
-                    AssignedToId = t.AssignedToID,
+                    TicketId = t.TicketId,
+                    CreatedOn = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
+                    CreatedBy = t.Creator != null ? t.Creator.FirstName + " " + t.Creator.LastName : null,
+                    RequestedBy = t.Requestor != null ? t.Requestor.FirstName + " " + t.Requestor.LastName : null,
+                    AssignedTo = t.AssignedUser != null ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : null,
+                    CreatedById = t.CreatorId,
+                    RequestedById = t.RequestorId,
+                    AssignedToId = t.AssignedUserId,
                     Title = t.Title,
                     Category = t.Category?.Name,
                     Status = t.Status

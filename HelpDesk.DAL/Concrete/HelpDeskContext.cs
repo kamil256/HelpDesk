@@ -32,9 +32,9 @@ namespace HelpDesk.DAL.Concrete
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Ticket>().HasOptional(t => t.CreatedBy).WithMany(u => u.CreatedTickets).HasForeignKey(t => t.CreatedByID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<Ticket>().HasOptional(t => t.RequestedBy).WithMany(u => u.RequestedTickets).HasForeignKey(t => t.RequestedByID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<Ticket>().HasOptional(t => t.AssignedTo).WithMany(u => u.AssignedTickets).HasForeignKey(t => t.AssignedToID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Ticket>().HasOptional(t => t.Creator).WithMany(u => u.CreatedTickets).HasForeignKey(t => t.CreatorId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Ticket>().HasOptional(t => t.Requestor).WithMany(u => u.RequestedTickets).HasForeignKey(t => t.RequestorId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Ticket>().HasOptional(t => t.AssignedUser).WithMany(u => u.AssignedTickets).HasForeignKey(t => t.AssignedUserId).WillCascadeOnDelete(false);
         }
     }
 

@@ -9,7 +9,7 @@ namespace HelpDesk.UI.ViewModels.Account
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Email")]
+        [DataType(DataType.EmailAddress)]
         [EmailAddress]
         public string Email { get; set; }
 

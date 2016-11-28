@@ -86,11 +86,11 @@ namespace HelpDesk.UI.Controllers.MVC
                         IEnumerable<Category> categories = unitOfWork.CategoryRepository.Get(includeProperties: "Tickets");
                         foreach (Category category in categories)
                         {
-                            if (!model.CategoriesId.Contains(category.CategoryID))
+                            if (!model.CategoriesId.Contains(category.CategoryId))
                                 unitOfWork.CategoryRepository.Delete(category);
                             else
                             {
-                                int index = Array.IndexOf(model.CategoriesId, category.CategoryID);
+                                int index = Array.IndexOf(model.CategoriesId, category.CategoryId);
                                 category.Name = model.CategoriesName[index];
                                 unitOfWork.CategoryRepository.Update(category);
                             }
@@ -103,7 +103,7 @@ namespace HelpDesk.UI.Controllers.MVC
                             }
                             else
                             {
-                                var category = categories.Single(c => c.CategoryID == model.CategoriesId[i]);
+                                var category = categories.Single(c => c.CategoryId == model.CategoriesId[i]);
                                 category.Order = i;
                                 unitOfWork.CategoryRepository.Update(category);
                             }

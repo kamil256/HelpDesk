@@ -16,7 +16,10 @@ namespace HelpDesk.DAL.Entities
         [Required]
         public string AuthorId { get; set; }
 
+        [Required]
         public int TicketId { get; set; }
+
+        [Required]
         public string Column { get; set; }
         public string NewValue { get; set; }
     }

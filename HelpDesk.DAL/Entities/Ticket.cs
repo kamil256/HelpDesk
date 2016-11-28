@@ -9,15 +9,15 @@ namespace HelpDesk.DAL.Entities
 {
     public class Ticket : ICloneable
     {
-        public int TicketID { get; set; }
-        public string CreatedByID { get; set; }
-        public string RequestedByID { get; set; }
-        public string AssignedToID { get; set; }
-        public DateTime CreatedOn { get; set; }
+        public int TicketId { get; set; }
+        public DateTime CreateDate { get; set; }
+        public string CreatorId { get; set; }
+        public string RequestorId { get; set; }
+        public string AssignedUserId { get; set; }        
 
         [Required]
         public string Status { get; set; }
-        public int? CategoryID { get; set; }
+        public int? CategoryId { get; set; }
 
         [Required]
         public string Title { get; set; }
@@ -26,22 +26,22 @@ namespace HelpDesk.DAL.Entities
         public string Content { get; set; }
         public string Solution { get; set; }
 
-        public virtual User CreatedBy { get; set; }
-        public virtual User RequestedBy { get; set; }
-        public virtual User AssignedTo { get; set; }
+        public virtual User Creator { get; set; }
+        public virtual User Requestor { get; set; }
+        public virtual User AssignedUser { get; set; }
         public virtual Category Category { get; set; }
 
         public object Clone()
         {
             return new Ticket
             {
-                TicketID = this.TicketID,
-                CreatedByID = this.CreatedByID,
-                RequestedByID = this.RequestedByID,
-                AssignedToID = this.AssignedToID,
-                CreatedOn = this.CreatedOn,
+                TicketId = this.TicketId,
+                CreatorId = this.CreatorId,
+                RequestorId = this.RequestorId,
+                AssignedUserId = this.AssignedUserId,
+                CreateDate = this.CreateDate,
                 Status = this.Status,
-                CategoryID = this.CategoryID,
+                CategoryId = this.CategoryId,
                 Title = this.Title,
                 Content = this.Content,
                 Solution = this.Solution

@@ -9,8 +9,6 @@ namespace HelpDesk.DAL.Entities
     [Table("Settings")]
     public class Settings
     {
-        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        //public string SettingsId { get; set; }
         [ForeignKey("User")]
         public string SettingsId { get; set; }
         public bool NewTicketsNotifications { get; set; } = true;
