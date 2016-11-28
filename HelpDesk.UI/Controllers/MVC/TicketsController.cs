@@ -142,97 +142,30 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
-        private void saveTicketHistory(Ticket oldTicket, EditViewModel model)
+        private void saveTicketHistory(Ticket currentTicket, Ticket updatedTicket)
         {
-            if (oldTicket.RequestedByID != model.RequestedByID)
-            {
-                TicketsHistory ticketHistory = new TicketsHistory
-                {
-                    Date = DateTime.Now,
-                    AuthorId = CurrentUser.Id,
-                    TicketId = oldTicket.TicketID,
-                    Column = "RequestedBy",
-                    NewValue = model.RequestedByID
-                };
-                unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
-            }
+            List<TicketsHistory> ticketsHistoryList = new List<TicketsHistory>();
+            if (currentTicket.RequestedByID != updatedTicket.RequestedByID)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "RequestedBy", NewValue = updatedTicket.RequestedByID });
+            if (currentTicket.CategoryID != updatedTicket.CategoryID)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "CategoryID", NewValue = updatedTicket.CategoryID.ToString() });
+            if (currentTicket.Title != updatedTicket.Title)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "Title", NewValue = updatedTicket.Title });
+            if (currentTicket.Content != updatedTicket.Content)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "Content", NewValue = updatedTicket.Content });
+            if (currentTicket.Status != updatedTicket.Status)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "Status", NewValue = updatedTicket.Status });
+            if (currentTicket.AssignedToID != updatedTicket.AssignedToID)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "AssignedToID", NewValue = updatedTicket.AssignedToID });
+            if (currentTicket.Solution != updatedTicket.Solution)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "Solution", NewValue = updatedTicket.Solution });
 
-            if (oldTicket.CategoryID != model.CategoryID)
+            foreach (var log in ticketsHistoryList)
             {
-                TicketsHistory ticketHistory = new TicketsHistory
-                {
-                    Date = DateTime.Now,
-                    AuthorId = CurrentUser.Id,
-                    TicketId = oldTicket.TicketID,
-                    Column = "CategoryID",
-                    NewValue = model.CategoryID.ToString()
-                };
-                unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
-            }
-
-            if (oldTicket.Title != model.Title)
-            {
-                TicketsHistory ticketHistory = new TicketsHistory
-                {
-                    Date = DateTime.Now,
-                    AuthorId = CurrentUser.Id,
-                    TicketId = oldTicket.TicketID,
-                    Column = "Title",
-                    NewValue = model.Title
-                };
-                unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
-            }
-
-            if (oldTicket.Content != model.Content)
-            {
-                TicketsHistory ticketHistory = new TicketsHistory
-                {
-                    Date = DateTime.Now,
-                    AuthorId = CurrentUser.Id,
-                    TicketId = oldTicket.TicketID,
-                    Column = "Content",
-                    NewValue = model.Content
-                };
-                unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
-            }
-
-            if (oldTicket.Status != model.Status)
-            {
-                TicketsHistory ticketHistory = new TicketsHistory
-                {
-                    Date = DateTime.Now,
-                    AuthorId = CurrentUser.Id,
-                    TicketId = oldTicket.TicketID,
-                    Column = "Status",
-                    NewValue = model.Status
-                };
-                unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
-            }
-
-            if (oldTicket.AssignedToID != model.AssignedToID)
-            {
-                TicketsHistory ticketHistory = new TicketsHistory
-                {
-                    Date = DateTime.Now,
-                    AuthorId = CurrentUser.Id,
-                    TicketId = oldTicket.TicketID,
-                    Column = "AssignedToID",
-                    NewValue = model.AssignedToID
-                };
-                unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
-            }
-
-            if (oldTicket.Solution != model.Solution)
-            {
-                TicketsHistory ticketHistory = new TicketsHistory
-                {
-                    Date = DateTime.Now,
-                    AuthorId = CurrentUser.Id,
-                    TicketId = oldTicket.TicketID,
-                    Column = "Solution",
-                    NewValue = model.Solution
-                };
-                unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
+                log.Date = DateTime.Now;
+                log.AuthorId = CurrentUser.Id;
+                log.TicketId = currentTicket.TicketID;
+                unitOfWork.TicketsHistoryRepository.Insert(log);
             }
         }
 
@@ -277,17 +210,26 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 if (ModelState.IsValid)
                 {
-                    saveTicketHistory(ticket, model);
+                    saveTicketHistory(ticket, new Ticket
+                    {
+                        RequestedByID = model.RequestedByID,
+                        CategoryID = model.CategoryID,
+                        Title = model.Title,
+                        Content = model.Content,
+                        Status = model.Status,
+                        AssignedToID = model.AssignedToID,
+                        Solution = model.Solution
+                    });
 
                     ticket.RequestedByID = model.RequestedByID;
                     ticket.CategoryID = model.CategoryID;
                     ticket.Title = model.Title;
-                    ticket.Content = model.Content;                    
+                    ticket.Content = model.Content;
                     ticket.Status = model.Status;
                     ticket.AssignedToID = model.AssignedToID;
                     ticket.Solution = model.Solution;
-                    unitOfWork.TicketRepository.Update(ticket);
-                                        
+
+                    unitOfWork.TicketRepository.Update(ticket);                                        
                     unitOfWork.Save();
 
                     TempData["Success"] = "Successfully edited ticket!";
