@@ -12,7 +12,7 @@ namespace HelpDesk.DAL.Abstract
         GenericRepository<Ticket> TicketRepository { get; }
         GenericRepository<Category> CategoryRepository { get; }
         GenericRepository<Settings> SettingsRepository { get; }
-        GenericRepository<UsersHistory> AspNetUsersHistoryRepository { get; }
+        GenericRepository<UsersHistory> UsersHistoryRepository { get; }
         GenericRepository<TicketsHistory> TicketsHistoryRepository { get; }
         void Save();
     }

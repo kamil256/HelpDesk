@@ -7,22 +7,16 @@ using System.Web;
 
 namespace HelpDesk.DAL.Entities
 {
-    [Table("TicketsHistory")]
     public class TicketsHistory
     {
         public int TicketsHistoryId { get; set; }
-
         public DateTime Date { get; set; }
 
         [Required]
         public string AuthorId { get; set; }
 
         public int TicketId { get; set; }
-
-        [Required]
-        public string Action { get; set; }
-        public string Column { get; set; }        
-        public string OldValue { get; set; }
+        public string Column { get; set; }
         public string NewValue { get; set; }
     }
 }

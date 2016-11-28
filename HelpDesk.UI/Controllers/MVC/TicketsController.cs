@@ -94,16 +94,6 @@ namespace HelpDesk.UI.Controllers.MVC
                     unitOfWork.TicketRepository.Insert(ticket);
                     unitOfWork.Save();
 
-                    TicketsHistory ticketHistory = new TicketsHistory
-                    {
-                        Date = DateTime.Now,
-                        AuthorId = CurrentUser.Id,
-                        TicketId = ticket.TicketID,
-                        Action = "INSERT"
-                    };
-                    unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
-                    unitOfWork.Save();
-
                     TempData["Success"] = "Successfully added new ticket!";
                     return RedirectToAction("Index");
                 }
@@ -161,9 +151,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     Date = DateTime.Now,
                     AuthorId = CurrentUser.Id,
                     TicketId = oldTicket.TicketID,
-                    Action = "UPDATE",
                     Column = "RequestedBy",
-                    OldValue = oldTicket.RequestedByID,
                     NewValue = model.RequestedByID
                 };
                 unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
@@ -176,9 +164,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     Date = DateTime.Now,
                     AuthorId = CurrentUser.Id,
                     TicketId = oldTicket.TicketID,
-                    Action = "UPDATE",
                     Column = "CategoryID",
-                    OldValue = oldTicket.CategoryID.ToString(),
                     NewValue = model.CategoryID.ToString()
                 };
                 unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
@@ -191,9 +177,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     Date = DateTime.Now,
                     AuthorId = CurrentUser.Id,
                     TicketId = oldTicket.TicketID,
-                    Action = "UPDATE",
                     Column = "Title",
-                    OldValue = oldTicket.Title,
                     NewValue = model.Title
                 };
                 unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
@@ -206,9 +190,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     Date = DateTime.Now,
                     AuthorId = CurrentUser.Id,
                     TicketId = oldTicket.TicketID,
-                    Action = "UPDATE",
                     Column = "Content",
-                    OldValue = oldTicket.Content,
                     NewValue = model.Content
                 };
                 unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
@@ -221,9 +203,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     Date = DateTime.Now,
                     AuthorId = CurrentUser.Id,
                     TicketId = oldTicket.TicketID,
-                    Action = "UPDATE",
                     Column = "Status",
-                    OldValue = oldTicket.Status,
                     NewValue = model.Status
                 };
                 unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
@@ -236,9 +216,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     Date = DateTime.Now,
                     AuthorId = CurrentUser.Id,
                     TicketId = oldTicket.TicketID,
-                    Action = "UPDATE",
                     Column = "AssignedToID",
-                    OldValue = oldTicket.AssignedToID,
                     NewValue = model.AssignedToID
                 };
                 unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
@@ -251,9 +229,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     Date = DateTime.Now,
                     AuthorId = CurrentUser.Id,
                     TicketId = oldTicket.TicketID,
-                    Action = "UPDATE",
                     Column = "Solution",
-                    OldValue = oldTicket.Solution,
                     NewValue = model.Solution
                 };
                 unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
@@ -353,24 +329,12 @@ namespace HelpDesk.UI.Controllers.MVC
                 {
                     User changeAuthor = UserManager.FindById(log.AuthorId);
                     string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.AuthorId);
-                    switch (log.Action)
-                    {
-                        case "UPDATE":
-                            logContent += $"changed [{log.Column}] from [{log.OldValue}] to [{log.NewValue}]";
-                            break;
-                        case "INSERT":
-                            logContent += "created ticket";
-                            break;
-                        case "DELETE":
-                            logContent += "deleted ticket";
-                            break;
-                    }
+                    logContent += $"changed [{log.Column}] to [{log.NewValue}]";
                     model.Logs.Add(new Log
                     {
                         Date = log.Date,
                         Content = logContent
-                    }
-                    );
+                    });
                 }
                 return View(model);
             }
@@ -394,18 +358,10 @@ namespace HelpDesk.UI.Controllers.MVC
             if (!(await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin")) && ticket.CreatedByID != CurrentUser.Id)
                 return RedirectToAction("Index");
             try
-            { 
+            {
+                foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { x => x.TicketId == id }))
+                    unitOfWork.TicketsHistoryRepository.Delete(log);
                 unitOfWork.TicketRepository.Delete(id);
-                unitOfWork.Save();
-
-                TicketsHistory ticketHistory = new TicketsHistory
-                {
-                    Date = DateTime.Now,
-                    AuthorId = CurrentUser.Id,
-                    TicketId = ticket.TicketID,
-                    Action = "DELETE"
-                };
-                unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
                 unitOfWork.Save();
 
                 TempData["Success"] = "Successfully deleted ticket!";
@@ -454,9 +410,37 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 User user = await UserManager.FindByIdAsync(userId);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
+
+                if (ticket.AssignedToID != userId)
+                {
+                    TicketsHistory ticketHistory = new TicketsHistory
+                    {
+                        Date = DateTime.Now,
+                        AuthorId = CurrentUser.Id,
+                        TicketId = ticketId,
+                        Column = "AssignedToID",
+                        NewValue = userId
+                    };
+                    unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
+                }
+
+                if (ticket.Status != "In progress")
+                {
+                    TicketsHistory ticketHistory = new TicketsHistory
+                    {
+                        Date = DateTime.Now,
+                        AuthorId = CurrentUser.Id,
+                        TicketId = ticketId,
+                        Column = "Status",
+                        NewValue = "In progress"
+                    };
+                    unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
+                }
+
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "In progress";
-                unitOfWork.TicketRepository.Update(ticket);
+                unitOfWork.TicketRepository.Update(ticket);                
+
                 unitOfWork.Save();
                 TempData["Success"] = "Successfully assigned user to ticket!";
             }
@@ -474,6 +458,46 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 User user = await UserManager.FindByIdAsync(userId);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
+
+                if (ticket.AssignedToID != userId)
+                {
+                    TicketsHistory ticketHistory = new TicketsHistory
+                    {
+                        Date = DateTime.Now,
+                        AuthorId = CurrentUser.Id,
+                        TicketId = ticketId,
+                        Column = "AssignedToID",
+                        NewValue = userId
+                    };
+                    unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
+                }
+
+                if (ticket.Status != "Solved")
+                {
+                    TicketsHistory ticketHistory = new TicketsHistory
+                    {
+                        Date = DateTime.Now,
+                        AuthorId = CurrentUser.Id,
+                        TicketId = ticketId,
+                        Column = "Status",
+                        NewValue = "Solved"
+                    };
+                    unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
+                }
+
+                if (ticket.Solution != solution)
+                {
+                    TicketsHistory ticketHistory = new TicketsHistory
+                    {
+                        Date = DateTime.Now,
+                        AuthorId = CurrentUser.Id,
+                        TicketId = ticketId,
+                        Column = "Solution",
+                        NewValue = solution
+                    };
+                    unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
+                }
+
                 ticket.AssignedToID = user.Id;
                 ticket.Status = "Solved";
                 ticket.Solution = solution;
@@ -489,13 +513,40 @@ namespace HelpDesk.UI.Controllers.MVC
         }
 
         [HttpPost]
-        public async Task<JsonResult> CloseTicket(int ticketId)
+        public JsonResult CloseTicket(int ticketId)
         {
             try
             {
-                User user = await UserManager.FindByEmailAsync(User.Identity.Name);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
-                ticket.AssignedToID = user.Id;
+
+                if (ticket.AssignedToID != CurrentUser.Id)
+                {
+                    TicketsHistory ticketHistory = new TicketsHistory
+                    {
+                        Date = DateTime.Now,
+                        AuthorId = CurrentUser.Id,
+                        TicketId = ticketId,
+                        Column = "AssignedToID",
+                        NewValue = CurrentUser.Id
+                    };
+                    unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
+                }
+
+                if (ticket.Status != "Closed")
+                {
+                    TicketsHistory ticketHistory = new TicketsHistory
+                    {
+                        Date = DateTime.Now,
+                        AuthorId = CurrentUser.Id,
+                        TicketId = ticketId,
+                        Column = "Status",
+                        NewValue = "Closed"
+                    };
+                    unitOfWork.TicketsHistoryRepository.Insert(ticketHistory);
+                }
+
+
+                ticket.AssignedToID = CurrentUser.Id;
                 ticket.Status = "Closed";
                 unitOfWork.TicketRepository.Update(ticket);
                 unitOfWork.Save();

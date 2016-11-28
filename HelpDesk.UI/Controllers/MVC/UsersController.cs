@@ -347,25 +347,14 @@ namespace HelpDesk.UI.Controllers.MVC
                     LastName = user.LastName,
                     Logs = new List<Log>()
                 };
-                foreach (var log in unitOfWork.AspNetUsersHistoryRepository.Get(filters: new Expression<Func<UsersHistory, bool>>[] { l => l.UserId == user.Id }, orderBy: x => x.OrderByDescending(l => l.ChangeDate)))
+                foreach (var log in unitOfWork.UsersHistoryRepository.Get(filters: new Expression<Func<UsersHistory, bool>>[] { l => l.UserId == user.Id }, orderBy: x => x.OrderByDescending(l => l.Date)))
                 {
-                    User changeAuthor = UserManager.FindById(log.ChangeAuthorId);
-                    string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.ChangeAuthorId);
-                    switch (log.ActionType)
-                    {
-                        case "UPDATE":
-                            logContent += $"changed [{log.ColumnName}] from [{log.OldValue}] to [{log.NewValue}]";
-                            break;
-                        case "INSERT":
-                            logContent += "created user";
-                            break;
-                        case "DELETE":
-                            logContent += "deleted user";
-                            break;
-                    }
+                    User changeAuthor = UserManager.FindById(log.AuthorId);
+                    string logContent = String.Format("User [{0}] with ID [{1}] ", changeAuthor != null ? changeAuthor.FirstName + " " + changeAuthor.LastName : "deleted user", log.AuthorId);
+                    logContent += $"changed [{log.Column}] to [{log.NewValue}]";
                     model.Logs.Add(new Log
                     {
-                        Date = log.ChangeDate,
+                        Date = log.Date,
                         Content = logContent}
                     );
                 }
