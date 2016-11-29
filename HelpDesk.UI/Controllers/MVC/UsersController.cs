@@ -128,7 +128,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     throw new Exception($"User id {id} doesn't exist");
                 EditViewModel model = new EditViewModel
                 {
-                    UserID = user.Id,
+                    UserId = user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Email = user.Email,
@@ -156,7 +156,7 @@ namespace HelpDesk.UI.Controllers.MVC
             try
             {
                 if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
-                    user = await UserManager.FindByIdAsync(model.UserID);
+                    user = await UserManager.FindByIdAsync(model.UserId);
                 else
                 {
                     user = CurrentUser;
@@ -164,7 +164,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 }
 
                 if (user == null)
-                    throw new Exception($"User id {model.UserID} doesn't exist");
+                    throw new Exception($"User id {model.UserId} doesn't exist");
 
                 if (ModelState.IsValid)
                 {
@@ -219,7 +219,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     throw new Exception($"User id {id} doesn't exist");
                 ChangePasswordViewModel model = new ChangePasswordViewModel
                 {
-                    UserID = user.Id,
+                    UserId = user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName
                 };
@@ -241,14 +241,14 @@ namespace HelpDesk.UI.Controllers.MVC
             try
             {
                 if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
-                    user = await UserManager.FindByIdAsync(model.UserID);
+                    user = await UserManager.FindByIdAsync(model.UserId);
                 else
                 {
                     user = CurrentUser;
                     ModelState.Remove("Role");
                 }
                 if (user == null)
-                    throw new Exception($"User id {model.UserID} doesn't exist");
+                    throw new Exception($"User id {model.UserId} doesn't exist");
 
                 bool editingLoggedInUser = user.Email == User.Identity.Name;
 
@@ -259,7 +259,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
                 if (ModelState.IsValid)
                 {
-                    IdentityResult changePasswordResult = await UserManager.ChangePasswordAsync(user.Id, model.CurrentPassword, model.Password);
+                    IdentityResult changePasswordResult = await UserManager.ChangePasswordAsync(user.Id, model.CurrentPassword, model.NewPassword);
                     if (changePasswordResult.Succeeded)
                     {
                         if (editingLoggedInUser)
@@ -300,18 +300,18 @@ namespace HelpDesk.UI.Controllers.MVC
                     throw new Exception($"User id {id} doesn't exist");
 
                 EditViewModel model = new EditViewModel();
-                model.UserID = user.Id;
+                model.UserId = user.Id;
                 model.FirstName = user.FirstName;
                 model.LastName = user.LastName;
                 model.Tickets = unitOfWork.TicketRepository.Get(filters: new List<Expression<Func<Ticket, bool>>> { t => t.CreatorId == id }, orderBy: t => t.OrderByDescending(x => x.CreateDate)).Select(t => new ViewModels.Tickets.TicketDTO
                 {
                     TicketId = t.TicketId,
-                    CreatedOn = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
+                    CreateDate = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
                     CreatedBy = t.Creator != null ? t.Creator.FirstName + " " + t.Creator.LastName : null,
-                    RequestedBy = t.Requestor != null ? t.Requestor.FirstName + " " + t.Requestor.LastName : null,
+                    RequestedBy = t.Requester != null ? t.Requester.FirstName + " " + t.Requester.LastName : null,
                     AssignedTo = t.AssignedUser != null ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : null,
                     CreatedById = t.CreatorId,
-                    RequestedById = t.RequestorId,
+                    RequestedById = t.RequesterId,
                     AssignedToId = t.AssignedUserId,
                     Title = t.Title,
                     Category = t.Category?.Name,
@@ -341,7 +341,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
                 HistoryViewModel model = new HistoryViewModel
                 {
-                    UserID = id,
+                    UserId = id,
                     Logs = new List<HistoryViewModel.Log>()
                 };
                 foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.AuthorId == user.Id }, orderBy: x => x.OrderByDescending(l => l.Date)))

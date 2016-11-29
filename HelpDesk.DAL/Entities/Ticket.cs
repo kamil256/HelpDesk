@@ -12,7 +12,7 @@ namespace HelpDesk.DAL.Entities
         public int TicketId { get; set; }
         public DateTime CreateDate { get; set; }
         public string CreatorId { get; set; }
-        public string RequestorId { get; set; }
+        public string RequesterId { get; set; }
         public string AssignedUserId { get; set; }        
 
         [Required]
@@ -27,7 +27,7 @@ namespace HelpDesk.DAL.Entities
         public string Solution { get; set; }
 
         public virtual User Creator { get; set; }
-        public virtual User Requestor { get; set; }
+        public virtual User Requester { get; set; }
         public virtual User AssignedUser { get; set; }
         public virtual Category Category { get; set; }
 
@@ -37,7 +37,7 @@ namespace HelpDesk.DAL.Entities
             {
                 TicketId = this.TicketId,
                 CreatorId = this.CreatorId,
-                RequestorId = this.RequestorId,
+                RequesterId = this.RequesterId,
                 AssignedUserId = this.AssignedUserId,
                 CreateDate = this.CreateDate,
                 Status = this.Status,

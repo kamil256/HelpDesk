@@ -16,6 +16,6 @@ namespace HelpDesk.UI.ViewModels.Users
         public string Company { get; set; }
         public string Department { get; set; }
         public string Role { get; set; }
-        public int Tickets { get; set; }
+        public int TicketsCount { get; set; }
     }
 }

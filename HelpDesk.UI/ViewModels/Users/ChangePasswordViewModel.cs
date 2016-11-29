@@ -8,25 +8,20 @@ namespace HelpDesk.UI.ViewModels.Users
 {
     public class ChangePasswordViewModel
     {
-        public string UserID { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string UserId { get; set; }
 
         [Required]
         [Display(Name = "Current password")]
-        [DataType(DataType.Password)]
         public string CurrentPassword { get; set; }
 
         [Required]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "The {0} must be at least {2} characters long.")]
         [Display(Name = "New password")]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        public string Password { get; set; }
+        public string NewPassword { get; set; }
 
         [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm new password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Display(Name = "Confirm new password")]
         public string ConfirmPassword { get; set; }
     }
 }

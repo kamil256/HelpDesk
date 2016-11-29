@@ -11,19 +11,21 @@ namespace HelpDesk.UI.ViewModels.Tickets
 {
     public class EditViewModel
     {
-        public int TicketID { get; set; }
+        public int TicketId { get; set; }
 
-        [DisplayName("Requested by")]
-        public string RequestedByID { get; set; }
+        public string CreateDate { get; set; }
 
-        [DisplayName("Assigned to")]
-        public string AssignedToID { get; set; }
+        [DisplayName("Requester")]
+        public string RequesterId { get; set; }
+
+        [DisplayName("Assigned user")]
+        public string AssignedUserId { get; set; }
         
         [Required]
         public string Status { get; set; }
 
         [DisplayName("Category")]
-        public int? CategoryID { get; set; }
+        public int? CategoryId { get; set; }
         
         [Required]
         public string Title { get; set; }
@@ -32,12 +34,15 @@ namespace HelpDesk.UI.ViewModels.Tickets
         public string Content { get; set; }
         public string Solution { get; set; }
 
-        [DisplayName("Created by")]
-        public User CreatedBy { get; set; }
-        public string CreatedOn { get; set; }
-        public User RequestedBy { get; set; }
-        public User AssignedTo { get; set; }
-        public IEnumerable<User> Admins { get; set; }
+        [DisplayName("Creator")]
+        public User Creator { get; set; }        
+        public User Requester { get; set; }
+
+        // TODO: is displayname attribute necessary?
+        [DisplayName("Assigned user")]
+        public User AssignedUser { get; set; }
+
+        public IEnumerable<User> Administrators { get; set; }
         public IEnumerable<Category> Categories { get; set; }
     }
 }

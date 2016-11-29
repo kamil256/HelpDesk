@@ -64,7 +64,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             CreateViewModel model = new CreateViewModel
             {
-                RequestedBy = CurrentUser,
+                Requester = CurrentUser,
                 RequestedByID = CurrentUser.Id,
                 Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order))
             };
@@ -83,7 +83,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     Ticket ticket = new Ticket
                     {
                         CreatorId = CurrentUser.Id,
-                        RequestorId = model.RequestedByID,
+                        RequesterId = model.RequestedByID,
                         CreateDate = DateTime.Now,
                         Status = "New",
                         CategoryId = model.CategoryID,
@@ -101,7 +101,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 ModelState.AddModelError("", "Cannot create ticket. Try again!");
             }
-            model.RequestedBy = await UserManager.FindByIdAsync(model.RequestedByID);
+            model.Requester = await UserManager.FindByIdAsync(model.RequestedByID);
             model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
             return View(model);
         }
@@ -121,21 +121,21 @@ namespace HelpDesk.UI.Controllers.MVC
             }
             EditViewModel model = new EditViewModel
             {
-                TicketID = ticket.TicketId,
-                RequestedByID = ticket.RequestorId,
-                AssignedToID = ticket.AssignedUserId,
+                TicketId = ticket.TicketId,
+                RequesterId = ticket.RequesterId,
+                AssignedUserId = ticket.AssignedUserId,
                 Status = ticket.Status,
-                CategoryID = ticket.CategoryId,
+                CategoryId = ticket.CategoryId,
                 Title = ticket.Title,
                 Content = ticket.Content,
                 Solution = ticket.Solution,
-                CreatedBy = ticket.Creator,
-                CreatedOn = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss"),
-                RequestedBy = ticket.Requestor,                
-                AssignedTo = ticket.AssignedUser
+                Creator = ticket.Creator,
+                CreateDate = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss"),
+                Requester = ticket.Requester,                
+                AssignedUser = ticket.AssignedUser
             };
             string adminRoleId = RoleManager.FindByName("Admin").Id;
-            model.Admins = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
+            model.Administrators = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
             model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
             ViewBag.IsCurrentUserAdmin = await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin");
             return View(model);
@@ -145,9 +145,9 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             List<TicketsHistory> ticketsHistoryList = new List<TicketsHistory>();
 
-            if (currentTicket.RequestorId != updatedTicket.RequestorId)
+            if (currentTicket.RequesterId != updatedTicket.RequesterId)
             {
-                string requesterName = updatedTicket.Requestor != null ? $"{updatedTicket.Requestor.FirstName} {updatedTicket.Requestor.LastName}" : "";
+                string requesterName = updatedTicket.Requester != null ? $"{updatedTicket.Requester.FirstName} {updatedTicket.Requester.LastName}" : "";
                 ticketsHistoryList.Add(new TicketsHistory { Column = "requester", NewValue = requesterName });
             }
 
@@ -189,16 +189,16 @@ namespace HelpDesk.UI.Controllers.MVC
         [OverrideAuthorization]
         public async Task<ActionResult> Edit([Bind(Include = "TicketID,RequestedByID,AssignedToID,Status,CategoryID,Title,Content,Solution")] EditViewModel model)
         {
-            Ticket ticket = unitOfWork.TicketRepository.GetById(model.TicketID);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(model.TicketId);
             if (ticket == null)
             {
                 return HttpNotFound();
             }
 
-            model.RequestedBy = await UserManager.FindByIdAsync(model.RequestedByID);
+            model.Requester = await UserManager.FindByIdAsync(model.RequesterId);
             if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
             {
-                model.AssignedTo = await UserManager.FindByIdAsync(model.AssignedToID);
+                model.AssignedUser = await UserManager.FindByIdAsync(model.AssignedUserId);
             }
             else
             {
@@ -210,8 +210,8 @@ namespace HelpDesk.UI.Controllers.MVC
                 else
                 {
                     ModelState.Remove("AssignedToID");
-                    model.AssignedToID = ticket.AssignedUserId;
-                    model.AssignedTo = ticket.AssignedUser;
+                    model.AssignedUserId = ticket.AssignedUserId;
+                    model.AssignedUser = ticket.AssignedUser;
 
                     ModelState.Remove("Status");
                     model.Status = ticket.Status;
@@ -227,12 +227,12 @@ namespace HelpDesk.UI.Controllers.MVC
                 {
                     Ticket oldTicket = (Ticket)ticket.Clone();
 
-                    ticket.RequestorId = model.RequestedByID;
-                    ticket.CategoryId = model.CategoryID;
+                    ticket.RequesterId = model.RequesterId;
+                    ticket.CategoryId = model.CategoryId;
                     ticket.Title = model.Title;
                     ticket.Content = model.Content;
                     ticket.Status = model.Status;
-                    ticket.AssignedUserId = model.AssignedToID;
+                    ticket.AssignedUserId = model.AssignedUserId;
                     ticket.Solution = model.Solution;
                     unitOfWork.TicketRepository.Update(ticket);
 
@@ -247,11 +247,11 @@ namespace HelpDesk.UI.Controllers.MVC
             //{
             //    ModelState.AddModelError("", "Cannot edit ticket. Try again!");
             //}
-            model.CreatedBy = ticket.Creator;
-            model.CreatedOn = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss");
+            model.Creator = ticket.Creator;
+            model.CreateDate = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss");
 
             string adminRoleId = RoleManager.FindByName("Admin").Id;
-            model.Admins = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
+            model.Administrators = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
             model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
             ViewBag.IsCurrentUserAdmin = await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin");
             return View(model);
@@ -267,12 +267,12 @@ namespace HelpDesk.UI.Controllers.MVC
                 if (ticket == null)
                     throw new Exception($"Ticket id {id} doesn't exist");
 
-                if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatorId != CurrentUser.Id && ticket.RequestorId != CurrentUser.Id)
+                if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatorId != CurrentUser.Id && ticket.RequesterId != CurrentUser.Id)
                     return new HttpUnauthorizedResult();
 
                 HistoryViewModel model = new HistoryViewModel
                 {
-                    TicketID = id,
+                    TicketId = id,
                     Logs = new List<HistoryViewModel.Log>()
                 };
                 foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketId }, orderBy: x => x.OrderByDescending(l => l.Date)))
@@ -349,7 +349,7 @@ namespace HelpDesk.UI.Controllers.MVC
             csv.AppendLine("Created on;Created by;Requested by;Assigned to;Status;Category;Title;Content;Solution");
             foreach (Ticket ticket in unitOfWork.TicketRepository.Get(orderBy: x => x.OrderByDescending(t => t.CreateDate)))
             {
-                csv.AppendLine($"{ticket.CreateDate};{ticket.Creator?.FirstName} {ticket.Creator?.LastName};{ticket.Requestor?.FirstName} {ticket.Requestor?.LastName};{ticket.AssignedUser?.FirstName} {ticket.AssignedUser?.LastName};{ticket.Status};{ticket.Category?.Name};{ticket.Title};{ticket.Content};{ticket.Solution};");
+                csv.AppendLine($"{ticket.CreateDate};{ticket.Creator?.FirstName} {ticket.Creator?.LastName};{ticket.Requester?.FirstName} {ticket.Requester?.LastName};{ticket.AssignedUser?.FirstName} {ticket.AssignedUser?.LastName};{ticket.Status};{ticket.Category?.Name};{ticket.Title};{ticket.Content};{ticket.Solution};");
             }
             return File(Encoding.GetEncoding("ISO-8859-2").GetBytes(csv.ToString()), "text/plain", string.Format("tickets.csv"));
         }

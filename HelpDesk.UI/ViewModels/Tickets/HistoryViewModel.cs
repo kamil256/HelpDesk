@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HelpDesk.DAL.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,7 +9,7 @@ namespace HelpDesk.UI.ViewModels.Tickets
 {
     public class HistoryViewModel
     {
-        public int TicketID { get; set; }
+        public int TicketId { get; set; }
         public List<Log> Logs { get; set; }
 
         public class Log

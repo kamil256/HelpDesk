@@ -9,15 +9,14 @@ namespace HelpDesk.UI.ViewModels.Account
     public class LoginViewModel
     {
         [Required]
-        [DataType(DataType.EmailAddress)]
         [EmailAddress]
+        [Display(Name = "Email address")]
         public string Email { get; set; }
 
         [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
         public string Password { get; set; }
 
+        // TODO: is ReturnURL necessary?
         public string ReturnUrl { get; set; }
     }
 }

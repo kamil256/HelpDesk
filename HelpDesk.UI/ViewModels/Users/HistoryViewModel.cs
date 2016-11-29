@@ -8,7 +8,7 @@ namespace HelpDesk.UI.ViewModels.Users
 {
     public class HistoryViewModel
     {
-        public string UserID { get; set; }
+        public string UserId { get; set; }
         public List<Log> Logs { get; set; }
 
         public class Log

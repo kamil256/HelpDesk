@@ -85,9 +85,9 @@ namespace HelpDesk.UI.Controllers.WebAPI
             {
                 case "Requested by":
                     if (descSort)
-                        orderBy = query => query.OrderByDescending(t => t.Requestor.FirstName + t.Requestor.LastName);
+                        orderBy = query => query.OrderByDescending(t => t.Requester.FirstName + t.Requester.LastName);
                     else
-                        orderBy = query => query.OrderBy(t => t.Requestor.FirstName + t.Requestor.LastName);
+                        orderBy = query => query.OrderBy(t => t.Requester.FirstName + t.Requester.LastName);
                     break;
                 case "Title":
                     if (descSort)
@@ -137,12 +137,12 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 Tickets = tickets.Select(t => new TicketDTO
                 {
                     TicketId = t.TicketId,
-                    CreatedOn = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
+                    CreateDate = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
                     CreatedBy = t.Creator != null ? t.Creator.FirstName + " " + t.Creator.LastName : null,
-                    RequestedBy = t.Requestor != null ? t.Requestor.FirstName + " " + t.Requestor.LastName : null,
+                    RequestedBy = t.Requester != null ? t.Requester.FirstName + " " + t.Requester.LastName : null,
                     AssignedTo = t.AssignedUser != null ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : null,
                     CreatedById = t.CreatorId,
-                    RequestedById = t.RequestorId,
+                    RequestedById = t.RequesterId,
                     AssignedToId = t.AssignedUserId,
                     Title = t.Title,
                     Category = t.Category?.Name,

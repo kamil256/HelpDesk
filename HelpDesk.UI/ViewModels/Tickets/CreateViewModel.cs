@@ -12,8 +12,8 @@ namespace HelpDesk.UI.ViewModels.Tickets
     public class CreateViewModel
     {
         [Required]
-        [DisplayName("Requested by")]
-        public string RequestedByID { get; set; }
+        [DisplayName("Requester")]
+        public string RequesterId { get; set; }
 
         [DisplayName("Category")]
         public int? CategoryID { get; set; }
@@ -24,7 +24,7 @@ namespace HelpDesk.UI.ViewModels.Tickets
         [Required]
         public string Content { get; set; }
 
-        public User RequestedBy { get; set; }
+        public User Requester { get; set; }
         public IEnumerable<Category> Categories { get; set; }
     }
 }
