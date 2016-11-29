@@ -16,7 +16,7 @@ namespace HelpDesk.UI.ViewModels.Tickets
         public string RequesterId { get; set; }
 
         [DisplayName("Category")]
-        public int? CategoryID { get; set; }
+        public int? CategoryId { get; set; }
 
         [Required]
         public string Title { get; set; }

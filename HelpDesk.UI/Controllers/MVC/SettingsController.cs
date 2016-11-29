@@ -1,6 +1,7 @@
 ﻿using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
+using HelpDesk.UI.Infrastructure;
 using HelpDesk.UI.ViewModels;
 using HelpDesk.UI.ViewModels.Settings;
 using Microsoft.AspNet.Identity;
@@ -8,6 +9,7 @@ using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -18,108 +20,102 @@ namespace HelpDesk.UI.Controllers.MVC
     [Authorize]
     public class SettingsController : Controller
     {
-        private UserManager UserManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<UserManager>();
-            }
-        }
-
-        private RoleManager RoleManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<RoleManager>();
-            }
-        }
-
-        private User CurrentUser
-        {
-            get
-            {
-                return UserManager.FindByNameAsync(User.Identity.Name).Result;
-            }
-        }
-
-        private IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly IdentityHelper identityHelper;
 
         public SettingsController(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
+            this.identityHelper = new IdentityHelper();
         }
 
         public ViewResult Index()
         {
-            Settings settings = CurrentUser.Settings; 
-            IndexViewModel model = new IndexViewModel();
-            model.NewTicketsNotifications = settings.NewTicketsNotifications;
-            model.SolvedTicketsNotifications = settings.SolvedTicketsNotifications;
-            model.UsersPerPage = settings.UsersPerPage;
-            model.TicketsPerPage = settings.TicketsPerPage;
-            model.Categories = unitOfWork.CategoryRepository.Get(filters: null, orderBy: q => q.OrderBy(c => c.Order)).ToArray();
+            Settings settings = identityHelper.CurrentUser.Settings;
+
+            IndexViewModel model = new IndexViewModel
+            {
+                NewTicketsNotifications = settings.NewTicketsNotifications,
+                SolvedTicketsNotifications = settings.SolvedTicketsNotifications,                
+                TicketsPerPage = settings.TicketsPerPage
+            };
+
+            if (identityHelper.IsCurrentUserAnAdministrator())
+            {
+                model.UsersPerPage = settings.UsersPerPage;
+                model.Categories = unitOfWork.CategoryRepository.Get(orderBy: query => query.OrderBy(category => category.Order)).ToArray();
+            }
+
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,CategoriesName,CategoriesId")] IndexViewModel model)
+        public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,CategoriesId,CategoriesName")] IndexViewModel model)
         {
-            //try
+            if (!identityHelper.IsCurrentUserAnAdministrator())
             {
-                if (!UserManager.IsInRole(CurrentUser.Id, "Admin"))
+                ModelState.Remove("UsersPerPage");
+                ModelState.Remove("CategoriesId");
+                ModelState.Remove("CategoriesName");
+            }
+
+            if (ModelState.IsValid)
+            {
+                Settings settings = unitOfWork.SettingsRepository.GetById(identityHelper.CurrentUser.Id);
+                settings.NewTicketsNotifications = model.NewTicketsNotifications;
+                settings.SolvedTicketsNotifications = model.SolvedTicketsNotifications;
+                settings.TicketsPerPage = model.TicketsPerPage;
+
+                if (identityHelper.IsCurrentUserAnAdministrator())
                 {
-                    ModelState.Remove("CategoriesName");
-                    ModelState.Remove("CategoriesId");
-                    ModelState.Remove("UsersPerPage");
-                }
-                if (ModelState.IsValid)
-                {
-                    Settings settings = CurrentUser.Settings;
-                    settings.NewTicketsNotifications = model.NewTicketsNotifications;
-                    settings.SolvedTicketsNotifications = model.SolvedTicketsNotifications;
-                    settings.TicketsPerPage = model.TicketsPerPage ?? 10;
-                    // todo: copy whole model with categories to categories in DB. If new then insert, else update without checking if it's different (addorupdate?)
-                    if (UserManager.IsInRole(CurrentUser.Id, "Admin"))
+                    settings.UsersPerPage = model.UsersPerPage;
+
+                    IEnumerable<Category> existingCategories = unitOfWork.CategoryRepository.Get(includeProperties: "Tickets");
+
+                    List<Category> newCategories = new List<Category>();
+                    for (int i = 0; i < (model.CategoriesId?.Length ?? 0); i++)
                     {
-                        settings.UsersPerPage = model.UsersPerPage ?? 10;
-                        IEnumerable<Category> categories = unitOfWork.CategoryRepository.Get(includeProperties: "Tickets");
-                        foreach (Category category in categories)
+                        newCategories.Add(new Category
                         {
-                            if (!model.CategoriesId.Contains(category.CategoryId))
-                                unitOfWork.CategoryRepository.Delete(category);
-                            else
+                            CategoryId = model.CategoriesId[i],
+                            Name = model.CategoriesName[i],
+                            Order = i
+                        });
+                    }
+
+                    foreach (Category existingCategory in existingCategories)
+                    {
+                        if (newCategories.SingleOrDefault(c => c.CategoryId == existingCategory.CategoryId) == null)
+                            unitOfWork.CategoryRepository.Delete(existingCategory);
+                    }
+                    
+                    foreach (Category newCategory in newCategories)
+                    {
+                        Category category = existingCategories.SingleOrDefault(c => c.CategoryId == newCategory.CategoryId);
+                        if (category == null)
+                            unitOfWork.CategoryRepository.Insert(new Category
                             {
-                                int index = Array.IndexOf(model.CategoriesId, category.CategoryId);
-                                category.Name = model.CategoriesName[index];
-                                unitOfWork.CategoryRepository.Update(category);
-                            }
-                        }
-                        for (int i = 0; i < model.CategoriesId.Length; i++)
+                                Name = newCategory.Name,
+                                Order = newCategory.Order
+                            });
+                        else
                         {
-                            if (model.CategoriesId[i] == 0)
-                            {
-                                unitOfWork.CategoryRepository.Insert(new Category { Name = model.CategoriesName[i], Order = i });
-                            }
-                            else
-                            {
-                                var category = categories.Single(c => c.CategoryId == model.CategoriesId[i]);
-                                category.Order = i;
-                                unitOfWork.CategoryRepository.Update(category);
-                            }
+                            category.Name = newCategory.Name;
+                            category.Order = newCategory.Order;
+                            unitOfWork.CategoryRepository.Update(category);
                         }
                     }
-                    unitOfWork.SettingsRepository.Update(settings);
-                    unitOfWork.Save();
-                    return RedirectToAction("Index", "Home");
                 }
+                unitOfWork.SettingsRepository.Update(settings);
+                unitOfWork.Save();
+                return RedirectToAction("Index", "Home");
             }
-            //catch
-            //{
-
-            //}
-            model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order)).ToArray();
-            return View(model);
+            else
+            {
+                model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order)).ToArray();
+                return View(model);
+            }
         }
-    }
+    }    
 }

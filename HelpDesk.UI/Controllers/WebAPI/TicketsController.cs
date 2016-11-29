@@ -138,12 +138,12 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 {
                     TicketId = t.TicketId,
                     CreateDate = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
-                    CreatedBy = t.Creator != null ? t.Creator.FirstName + " " + t.Creator.LastName : null,
-                    RequestedBy = t.Requester != null ? t.Requester.FirstName + " " + t.Requester.LastName : null,
-                    AssignedTo = t.AssignedUser != null ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : null,
-                    CreatedById = t.CreatorId,
-                    RequestedById = t.RequesterId,
-                    AssignedToId = t.AssignedUserId,
+                    CreatorName = t.Creator != null ? t.Creator.FirstName + " " + t.Creator.LastName : null,
+                    RequesterName = t.Requester != null ? t.Requester.FirstName + " " + t.Requester.LastName : null,
+                    AssignedUserName = t.AssignedUser != null ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : null,
+                    CreatorId = t.CreatorId,
+                    RequesterId = t.RequesterId,
+                    AssignedUserId = t.AssignedUserId,
                     Title = t.Title,
                     Category = t.Category?.Name,
                     Status = t.Status

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace HelpDesk.UI
+namespace HelpDesk.UI.Infrastructure
 {
     public static class HelperMethods
     {

@@ -219,9 +219,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     throw new Exception($"User id {id} doesn't exist");
                 ChangePasswordViewModel model = new ChangePasswordViewModel
                 {
-                    UserId = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName
+                    UserId = user.Id
                 };
                 return View(model);
             }
@@ -282,8 +280,6 @@ namespace HelpDesk.UI.Controllers.MVC
                 TempData["Fail"] = "Poblem with editing user. Try again!";
                 return RedirectToAction("Index", "Home");
             }
-            model.FirstName = user.FirstName;
-            model.LastName = user.LastName;
             return View(model);
         }
 
@@ -303,20 +299,20 @@ namespace HelpDesk.UI.Controllers.MVC
                 model.UserId = user.Id;
                 model.FirstName = user.FirstName;
                 model.LastName = user.LastName;
-                model.Tickets = unitOfWork.TicketRepository.Get(filters: new List<Expression<Func<Ticket, bool>>> { t => t.CreatorId == id }, orderBy: t => t.OrderByDescending(x => x.CreateDate)).Select(t => new ViewModels.Tickets.TicketDTO
-                {
-                    TicketId = t.TicketId,
-                    CreateDate = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
-                    CreatedBy = t.Creator != null ? t.Creator.FirstName + " " + t.Creator.LastName : null,
-                    RequestedBy = t.Requester != null ? t.Requester.FirstName + " " + t.Requester.LastName : null,
-                    AssignedTo = t.AssignedUser != null ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : null,
-                    CreatedById = t.CreatorId,
-                    RequestedById = t.RequesterId,
-                    AssignedToId = t.AssignedUserId,
-                    Title = t.Title,
-                    Category = t.Category?.Name,
-                    Status = t.Status
-                });
+                //model.Tickets = unitOfWork.TicketRepository.Get(filters: new List<Expression<Func<Ticket, bool>>> { t => t.CreatorId == id }, orderBy: t => t.OrderByDescending(x => x.CreateDate)).Select(t => new ViewModels.Tickets.TicketDTO
+                //{
+                //    TicketId = t.TicketId,
+                //    CreateDate = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
+                //    CreatorName = t.Creator != null ? t.Creator.FirstName + " " + t.Creator.LastName : null,
+                //    RequesterName = t.Requester != null ? t.Requester.FirstName + " " + t.Requester.LastName : null,
+                //    AssignedUserName = t.AssignedUser != null ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : null,
+                //    CreatorId = t.CreatorId,
+                //    RequesterId = t.RequesterId,
+                //    AssignedUserId = t.AssignedUserId,
+                //    Title = t.Title,
+                //    Category = t.Category?.Name,
+                //    Status = t.Status
+                //});
                 return View("Tickets", model);
             }
             catch

@@ -16,7 +16,6 @@ namespace HelpDesk.UI.ViewModels.Account
         [Required]
         public string Password { get; set; }
 
-        // TODO: is ReturnURL necessary?
         public string ReturnUrl { get; set; }
     }
 }

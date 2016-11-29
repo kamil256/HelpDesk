@@ -1,6 +1,7 @@
 ﻿using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
+using HelpDesk.UI.Infrastructure;
 using HelpDesk.UI.ViewModels;
 using HelpDesk.UI.ViewModels.Account;
 using Microsoft.AspNet.Identity;
@@ -19,40 +20,21 @@ namespace HelpDesk.UI.Controllers.MVC
 {
     public class AccountController : Controller
     {
-        private UserManager UserManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<UserManager>();
-            }
-        }
-
-        private RoleManager RoleManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<RoleManager>();
-            }
-        }
-
-        private User CurrentUser
-        {
-            get
-            {
-                return UserManager.FindByNameAsync(User.Identity.Name).Result;
-            }
-        }
-
-        private IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly IdentityHelper identityHelper;
 
         public AccountController(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
+            this.identityHelper = new IdentityHelper();
         }
 
         public ActionResult Login(string returnUrl)
         {
-            LoginViewModel model = new LoginViewModel { ReturnUrl = returnUrl };
+            LoginViewModel model = new LoginViewModel
+            {
+                ReturnUrl = returnUrl
+            };
             return View(model);
         }
 
@@ -62,14 +44,14 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             if (ModelState.IsValid)
             {
-                IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
-                User user = await UserManager.FindAsync(model.Email, model.Password);
+                User user = await identityHelper.UserManager.FindAsync(model.Email, model.Password);
                 if (user == null)
                     ModelState.AddModelError("", "Incorrect email or password");
                 else
                 {
-                    AuthManager.SignOut();
-                    AuthManager.SignIn(await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
+                    IAuthenticationManager authenticationManager = HttpContext.GetOwinContext().Authentication;
+                    authenticationManager.SignOut();
+                    authenticationManager.SignIn(await identityHelper.UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
                     return Redirect(model.ReturnUrl ?? "/");
                 }
             }
@@ -78,8 +60,8 @@ namespace HelpDesk.UI.Controllers.MVC
 
         public ActionResult LogOff()
         {
-            IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
-            AuthManager.SignOut();
+            IAuthenticationManager authenticationManager = HttpContext.GetOwinContext().Authentication;
+            authenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
         }
     }

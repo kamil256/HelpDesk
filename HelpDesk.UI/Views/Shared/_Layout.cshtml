@@ -1,4 +1,9 @@
-﻿@{ 
+﻿@using HelpDesk.UI.Infrastructure;
+@using Microsoft.AspNet.Identity;
+@using Microsoft.AspNet.Identity.Owin;
+@using HelpDesk.DAL.Concrete;
+
+@{ 
     UserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<UserManager>();
     string currentUserId = User.Identity.GetUserId();
     bool? isCurrentUserAdmin = null;

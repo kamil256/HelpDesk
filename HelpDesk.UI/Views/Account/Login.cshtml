@@ -1,5 +1,5 @@
-﻿@using HelpDesk.UI.ViewModels.Account
-@model LoginViewModel
+﻿@model HelpDesk.UI.ViewModels.Account.LoginViewModel
+
 @{
     ViewBag.Title = "Log in";
     Layout = "~/Views/Shared/_LoginLayout.cshtml";
@@ -8,9 +8,10 @@
 <div class="login-window">
     <h3>Log in to Help Desk</h3>
     <div>
-        @using (Html.BeginForm("Login", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post, new { role = "form" }))
+        @using (Html.BeginForm("Login", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post))
         {
             @Html.AntiForgeryToken()
+
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
             <div class="form-group">

@@ -65,7 +65,7 @@ namespace HelpDesk.UI.Controllers.MVC
             CreateViewModel model = new CreateViewModel
             {
                 Requester = CurrentUser,
-                RequestedByID = CurrentUser.Id,
+                RequesterId = CurrentUser.Id,
                 Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order))
             };
             return View(model);
@@ -83,10 +83,10 @@ namespace HelpDesk.UI.Controllers.MVC
                     Ticket ticket = new Ticket
                     {
                         CreatorId = CurrentUser.Id,
-                        RequesterId = model.RequestedByID,
+                        RequesterId = model.RequesterId,
                         CreateDate = DateTime.Now,
                         Status = "New",
-                        CategoryId = model.CategoryID,
+                        CategoryId = model.CategoryId,
                         Title = model.Title,
                         Content = model.Content
                     };
@@ -101,7 +101,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 ModelState.AddModelError("", "Cannot create ticket. Try again!");
             }
-            model.Requester = await UserManager.FindByIdAsync(model.RequestedByID);
+            model.Requester = await UserManager.FindByIdAsync(model.RequesterId);
             model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
             return View(model);
         }

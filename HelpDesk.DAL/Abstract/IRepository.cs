@@ -11,6 +11,7 @@ namespace HelpDesk.DAL.Abstract
     {
         IEnumerable<T> Get(IEnumerable<Expression<Func<T, bool>>> filters = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, int skip = 0, int take = 0, string includeProperties = "");
         T GetById(int id);
+        T GetById(string id);
         void Insert(T entity);
         void Update(T entity);
         void Delete(int id);

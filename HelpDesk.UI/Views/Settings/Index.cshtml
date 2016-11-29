@@ -1,17 +1,10 @@
-﻿@model HelpDesk.UI.ViewModels.Settings.IndexViewModel
+﻿@using HelpDesk.UI.Infrastructure;
+
+@model HelpDesk.UI.ViewModels.Settings.IndexViewModel
 
 @{
     ViewBag.Title = "Settings";
-}
-
-@{
-    UserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<UserManager>();
-    string currentUserId = User.Identity.GetUserId();
-    bool isCurrentUserAdmin = false;
-    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
-    {
-        isCurrentUserAdmin = true;
-    }
+    IdentityHelper identityHelper = new IdentityHelper();
 }
 
 <style>
@@ -108,6 +101,7 @@
     @using (@Html.BeginForm())
     {
         @Html.AntiForgeryToken()
+
         <div class="form-horizontal details-panel col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8" style="padding: 15px 0;">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
@@ -129,12 +123,12 @@
                 </div>
             </div>
 
-            @if (isCurrentUserAdmin)
+            @if (identityHelper.IsCurrentUserAnAdministrator())
             {
                 <div class="form-group">
                     <label class="control-label col-sm-3">Users per page</label>
                     <div class="col-sm-8">
-                        @Html.TextBoxWithNumber("UsersPerPage", Model.UsersPerPage ?? 10)
+                        @Html.TextBoxWithNumber("UsersPerPage", Model.UsersPerPage)
                         @Html.ValidationMessageFor(model => model.UsersPerPage, "", new { @class = "text-danger" })
                     </div>
                 </div>
@@ -143,12 +137,12 @@
             <div class="form-group">
                 <label class="control-label col-sm-3">Tickets per page</label>
                 <div class="col-sm-8">
-                    @Html.TextBoxWithNumber("TicketsPerPage", Model.TicketsPerPage ?? 10)
+                    @Html.TextBoxWithNumber("TicketsPerPage", Model.TicketsPerPage)
                     @Html.ValidationMessageFor(model => model.TicketsPerPage, "", new { @class = "text-danger" })
                 </div>
             </div>
 
-            @if (isCurrentUserAdmin)
+            @if (identityHelper.IsCurrentUserAnAdministrator())
             {
                 <div class="form-group">
                     <label class="control-label col-sm-3">Categories</label>
@@ -157,7 +151,7 @@
                         <ul id="sortable">
                             @foreach (var category in Model.Categories)
                             {
-                                @Html.SortableCategoryItem(category.CategoryID, category.Name)
+                                @Html.SortableCategoryItem(category.CategoryId, category.Name)
                             }
                         </ul>
                         @Html.SortableCategoryLastItem()
@@ -165,7 +159,7 @@
                 </div>
             }
 
-            @if (isCurrentUserAdmin)
+            @if (identityHelper.IsCurrentUserAnAdministrator())
             {
                 <div class="form-group">
                     <label class="control-label col-sm-3">Tickets summary</label>

@@ -278,7 +278,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="HelperMethods.cs" />
+    <Compile Include="Infrastructure\HelperMethods.cs" />
+    <Compile Include="Infrastructure\IdentityHelper.cs" />
     <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
     <Compile Include="Infrastructure\NinjectResolver.cs" />
     <Compile Include="Migrations\Configuration.cs" />

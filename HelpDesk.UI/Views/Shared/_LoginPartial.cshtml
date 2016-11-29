@@ -1,14 +1,13 @@
-﻿@{
-    string currentUserId = User.Identity.GetUserId();
-}
+﻿@using HelpDesk.DAL.Concrete;
+@using Microsoft.AspNet.Identity;
+@using Microsoft.AspNet.Identity.Owin;
+@using HelpDesk.DAL.Entities;
+@using HelpDesk.UI.Infrastructure;
 
 @{
-    UserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<UserManager>();
-    bool? isCurrentUserAdmin = null;
-    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
-    {
-        isCurrentUserAdmin = true;
-    }
+    //UserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<UserManager>();
+    //User currentUser = userManager.FindById(User.Identity.GetUserId());
+    IdentityHelper identityHelper = new IdentityHelper();
 }
 
 @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
@@ -17,7 +16,7 @@
 
     <ul class="nav navbar-nav navbar-right">
         <li>
-            @Html.ActionLink(userManager.FindById(currentUserId).FirstName + " " + userManager.FindById(currentUserId).LastName, "Edit", "Users", new { id = currentUserId }, null)
+            @Html.ActionLink(@*userManager.FindById(currentUserId)*@identityHelper.CurrentUser.FirstName + " " + identityHelper.CurrentUser.LastName, "Edit", "Users", new { id = identityHelper.CurrentUser.Id }, null)
         </li>
         <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
     </ul>

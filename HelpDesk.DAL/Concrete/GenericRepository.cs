@@ -42,6 +42,11 @@ namespace HelpDesk.DAL.Concrete
             return dbSet.Find(id);
         }
 
+        public virtual T GetById(string id)
+        {
+            return dbSet.Find(id);
+        }
+
         public virtual void Insert(T entity)
         {
             dbSet.Add(entity);
