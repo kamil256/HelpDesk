@@ -36,10 +36,10 @@ namespace HelpDesk.DAL.Entities
             return new Ticket
             {
                 TicketId = this.TicketId,
+                CreateDate = this.CreateDate,
                 CreatorId = this.CreatorId,
                 RequesterId = this.RequesterId,
-                AssignedUserId = this.AssignedUserId,
-                CreateDate = this.CreateDate,
+                AssignedUserId = this.AssignedUserId,                
                 Status = this.Status,
                 CategoryId = this.CategoryId,
                 Title = this.Title,

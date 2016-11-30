@@ -16,47 +16,26 @@ using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Entities;
 using HelpDesk.UI.ViewModels.Tickets;
+using HelpDesk.UI.Infrastructure;
 
 namespace HelpDesk.UI.Controllers.MVC
 {
     [Authorize(Roles = "Admin")]
     public class TicketsController : Controller
     {
-        private UserManager UserManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<UserManager>();
-            }
-        }
-
-        private RoleManager RoleManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<RoleManager>();
-            }
-        }
-
-        private User CurrentUser
-        {
-            get
-            {
-                return UserManager.FindByNameAsync(User.Identity.Name).Result;
-            }
-        }
-
-        private IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly IdentityHelper identityHelper;
 
         public TicketsController(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
+            this.identityHelper = new IdentityHelper();
         }
 
         [OverrideAuthorization]
         public ViewResult Index()
         {
-            return View("Index");
+            return View();
         }
 
         [OverrideAuthorization]
@@ -64,9 +43,8 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             CreateViewModel model = new CreateViewModel
             {
-                Requester = CurrentUser,
-                RequesterId = CurrentUser.Id,
-                Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order))
+                Requester = identityHelper.CurrentUser,                
+                Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order))
             };
             return View(model);
         }
@@ -74,36 +52,30 @@ namespace HelpDesk.UI.Controllers.MVC
         [HttpPost]
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
-        public async Task<ActionResult> Create([Bind(Include = "RequestedByID,CategoryID,Title,Content")] CreateViewModel model)
+        public async Task<ActionResult> Create([Bind(Include = "RequesterId,CategoryId,Title,Content")] CreateViewModel model)
         {
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                Ticket ticket = new Ticket
                 {
-                    Ticket ticket = new Ticket
-                    {
-                        CreatorId = CurrentUser.Id,
-                        RequesterId = model.RequesterId,
-                        CreateDate = DateTime.Now,
-                        Status = "New",
-                        CategoryId = model.CategoryId,
-                        Title = model.Title,
-                        Content = model.Content
-                    };
-                    unitOfWork.TicketRepository.Insert(ticket);
-                    unitOfWork.Save();
-
-                    TempData["Success"] = "Successfully added new ticket!";
-                    return RedirectToAction("Index");
-                }
+                    CreateDate = DateTime.Now,
+                    CreatorId = identityHelper.CurrentUser.Id,
+                    RequesterId = model.RequesterId,
+                    Status = "New",
+                    CategoryId = model.CategoryId,
+                    Title = model.Title,
+                    Content = model.Content
+                };
+                unitOfWork.TicketRepository.Insert(ticket);
+                unitOfWork.Save();
+                return RedirectToAction("Index");
             }
-            catch
+            else
             {
-                ModelState.AddModelError("", "Cannot create ticket. Try again!");
+                model.Requester = await identityHelper.UserManager.FindByIdAsync(model.RequesterId);
+                model.Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order));
+                return View(model);
             }
-            model.Requester = await UserManager.FindByIdAsync(model.RequesterId);
-            model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
-            return View(model);
         }
 
         [OverrideAuthorization]
@@ -114,7 +86,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 return HttpNotFound();
             }
-            if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatorId != CurrentUser.Id)
+            if (!await identityHelper.UserManager.IsInRoleAsync(identityHelper.CurrentUser.Id, "Admin") && ticket.CreatorId != identityHelper.CurrentUser.Id)
             {
                 TempData["Fail"] = "You can't modify ticket which you didn't create!";
                 return RedirectToAction("Index", "Home");
@@ -134,10 +106,10 @@ namespace HelpDesk.UI.Controllers.MVC
                 Requester = ticket.Requester,                
                 AssignedUser = ticket.AssignedUser
             };
-            string adminRoleId = RoleManager.FindByName("Admin").Id;
-            model.Administrators = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
+            string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
+            model.Administrators = identityHelper.UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
             model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
-            ViewBag.IsCurrentUserAdmin = await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin");
+            ViewBag.IsCurrentUserAdmin = await identityHelper.UserManager.IsInRoleAsync(identityHelper.CurrentUser.Id, "Admin");
             return View(model);
         }
 
@@ -178,7 +150,7 @@ namespace HelpDesk.UI.Controllers.MVC
             foreach (var log in ticketsHistoryList)
             {
                 log.Date = DateTime.Now;
-                log.AuthorId = CurrentUser.Id;
+                log.AuthorId = identityHelper.CurrentUser.Id;
                 log.TicketId = currentTicket.TicketId;
                 unitOfWork.TicketsHistoryRepository.Insert(log);
             }
@@ -195,14 +167,14 @@ namespace HelpDesk.UI.Controllers.MVC
                 return HttpNotFound();
             }
 
-            model.Requester = await UserManager.FindByIdAsync(model.RequesterId);
-            if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
+            model.Requester = await identityHelper.UserManager.FindByIdAsync(model.RequesterId);
+            if (await identityHelper.UserManager.IsInRoleAsync(identityHelper.CurrentUser.Id, "Admin"))
             {
-                model.AssignedUser = await UserManager.FindByIdAsync(model.AssignedUserId);
+                model.AssignedUser = await identityHelper.UserManager.FindByIdAsync(model.AssignedUserId);
             }
             else
             {
-                if (ticket.CreatorId != CurrentUser.Id)
+                if (ticket.CreatorId != identityHelper.CurrentUser.Id)
                 {
                     TempData["Fail"] = "You can't modify ticket which you didn't create!";
                     return RedirectToAction("Index", "Home");
@@ -250,10 +222,10 @@ namespace HelpDesk.UI.Controllers.MVC
             model.Creator = ticket.Creator;
             model.CreateDate = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss");
 
-            string adminRoleId = RoleManager.FindByName("Admin").Id;
-            model.Administrators = UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
+            string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
+            model.Administrators = identityHelper.UserManager.Users.Where(u => u.Roles.FirstOrDefault(x => x.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
             model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order));
-            ViewBag.IsCurrentUserAdmin = await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin");
+            ViewBag.IsCurrentUserAdmin = await identityHelper.UserManager.IsInRoleAsync(identityHelper.CurrentUser.Id, "Admin");
             return View(model);
         }
 
@@ -267,7 +239,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 if (ticket == null)
                     throw new Exception($"Ticket id {id} doesn't exist");
 
-                if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && ticket.CreatorId != CurrentUser.Id && ticket.RequesterId != CurrentUser.Id)
+                if (!await identityHelper.UserManager.IsInRoleAsync(identityHelper.CurrentUser.Id, "Admin") && ticket.CreatorId != identityHelper.CurrentUser.Id && ticket.RequesterId != identityHelper.CurrentUser.Id)
                     return new HttpUnauthorizedResult();
 
                 HistoryViewModel model = new HistoryViewModel
@@ -277,7 +249,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 };
                 foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketId }, orderBy: x => x.OrderByDescending(l => l.Date)))
                 {
-                    User author = UserManager.FindById(log.AuthorId);
+                    User author = identityHelper.UserManager.FindById(log.AuthorId);
                     model.Logs.Add(new HistoryViewModel.Log
                     {
                         Date = log.Date,
@@ -306,7 +278,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 return HttpNotFound();
             }
-            if (!(await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin")) && ticket.CreatorId != CurrentUser.Id)
+            if (!(await identityHelper.UserManager.IsInRoleAsync(identityHelper.CurrentUser.Id, "Admin")) && ticket.CreatorId != identityHelper.CurrentUser.Id)
                 return RedirectToAction("Index");
             try
             {
@@ -322,25 +294,6 @@ namespace HelpDesk.UI.Controllers.MVC
                 TempData["Fail"] = "Cannot delete ticket. Try again!";
             }
             return RedirectToAction("Index");
-        }
-
-        // todo: move to UsersController or use Web Api instead if possible
-        [OverrideAuthorization]
-        public JsonResult FindUsers(string search)
-        {
-            var result = from x in UserManager.Users.Where
-                         (
-                              u => (u.FirstName + " " + u.LastName).ToLower().Contains(search.ToLower()) ||
-                              u.Email.ToLower().Contains(search.ToLower())
-                         )
-                         select new
-                         {
-                             UserID = x.Id,
-                             FirstName = x.FirstName,
-                             LastName = x.LastName,
-                             Email = x.Email
-                         };
-            return Json(result);
         }
 
         public FileResult DownloadTicketsAsCSV()
@@ -359,7 +312,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             try
             {
-                User user = await UserManager.FindByIdAsync(userId);
+                User user = await identityHelper.UserManager.FindByIdAsync(userId);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 Ticket oldTicket = (Ticket)ticket.Clone();
 
@@ -384,7 +337,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             try
             {
-                User user = await UserManager.FindByIdAsync(userId);
+                User user = await identityHelper.UserManager.FindByIdAsync(userId);
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 Ticket oldTicket = (Ticket)ticket.Clone();
 
@@ -412,7 +365,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 Ticket oldTicket = (Ticket)ticket.Clone();
                 
-                ticket.AssignedUserId = CurrentUser.Id;
+                ticket.AssignedUserId = identityHelper.CurrentUser.Id;
                 ticket.Status = "Closed";
                 unitOfWork.TicketRepository.Update(ticket);
 

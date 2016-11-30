@@ -4,6 +4,69 @@
     ViewBag.Title = "New ticket";
 }
 
+<script>
+    function TicketsViewModel() {
+        var self = this;
+
+        self.requester =
+        {
+            UserId: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.Id}'") : null)),
+            FirstName: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.FirstName}'") : null)),
+            LastName: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.LastName}'") : null)),
+            Email: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.Email}'") : null))
+        };
+
+        self.requesterNameAndEmail = ko.computed(function () {
+            return self.requester.UserId() ? self.requester.FirstName() + " " + self.requester.LastName() + " (" + self.requester.Email() + ")" : "-";
+        });
+
+        self.searchedUser = ko.observable("");
+        self.users = ko.observableArray([]);
+        self.numberOfUsersToDisplay = ko.computed(function () {
+            return self.users().length;
+        });
+        self.numberOfUsersFound = ko.observable(0);
+        self.selectedUser = ko.observable();
+        self.getUsers = function () {
+            $.ajax("/api/Users",
+            {
+                type: "GET",
+                data:
+                {
+                    search: self.searchedUser(),
+                    advancedSearch: false,
+                    page: 1,
+                    usersPerPage: 1
+                },
+                success: function (data) {
+                    self.users(data.Users);
+                    self.numberOfUsersFound(data.NumberOfUsers);
+                }
+            });
+        };
+
+        self.changeRequester = function () {
+            if (self.selectedUser()) {
+                self.requester.UserId(self.selectedUser().UserId);
+                self.requester.FirstName(self.selectedUser().FirstName);
+                self.requester.LastName(self.selectedUser().LastName);
+                self.requester.Email(self.selectedUser().Email);
+            }
+            else {
+                self.requester.UserId(null);
+                self.requester.FirstName(null);
+                self.requester.LastName(null);
+                self.requester.Email(null);
+            }
+        }
+    }
+
+    $(document).ready(function () {
+        ko.applyBindings(new TicketsViewModel());
+
+    });
+</script>
+
 <header>
     <div class="container">
         <h1>Add new ticket</h1>
@@ -31,31 +94,32 @@
     @using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()
+
         <div class="form-horizontal details-panel col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8" style="padding: 15px 0; padding-top: 30px;">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             
             <div class="form-group">
-                @Html.LabelFor(model => model.RequestedByID, new { @class = "control-label col-sm-3" })
+                @Html.LabelFor(model => model.RequesterId, new { @class = "control-label col-sm-3" })
                 <div class="col-sm-8 input-with-button">
-                    @Html.HiddenFor(model => model.RequestedByID)
-                    <input id="change-requestor-inp" value='@(Model.RequestedBy != null ? $"{Model.RequestedBy.FirstName} {Model.RequestedBy.LastName} ({Model.RequestedBy.Email})" : "-")' class="form-control" disabled="disabled" />
-                    <button id="change-requestor-btn" type="button" class="btn btn-default btn-search" data-ticket-title="new">
+                    <input type="hidden" name="RequesterId" data-bind="value: requester.UserId" />
+                    <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
+                    <button type="button" data-bind="click: function(data, event) { openChangeRequesterDialog(event); }" class="btn btn-default btn-search">
                         <span class="glyphicon glyphicon-search"></span>
                     </button>
-                    @Html.ValidationMessageFor(model => model.RequestedByID, "", new { @class = "text-danger" })
+                    @Html.ValidationMessageFor(model => model.Requester, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.CategoryID, new { @class = "control-label col-sm-3" })
+                @Html.LabelFor(model => model.CategoryId, new { @class = "control-label col-sm-3" })
                 <div class="col-sm-8">
                     @Html.DropDownListFor(
-                        expression: model => model.CategoryID,
-                        selectList: new SelectList(Model.Categories.Select(c => new { CategoryID = c.CategoryID, Name = c.Name }), "CategoryID", "Name"),
+                        expression: model => model.CategoryId,
+                        selectList: new SelectList(Model.Categories.Select(c => new { CategoryID = c.CategoryId, Name = c.Name }), "CategoryID", "Name"),
                         optionLabel: "-",
                         htmlAttributes: new { @class = "form-control" }
                     )
-                    @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
+                    @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
                 </div>
             </div>
 
@@ -84,4 +148,41 @@
     }
 </section>
 
-@Html.Partial("_ChangeRequestorPartial")
+<script>
+    function openChangeRequesterDialog(event)
+    {
+        $("#change-requester-dialog").dialog(
+        {
+            autoOpen: false,
+            modal: true,
+            resizable: false
+        }).dialog('open');
+    }
+</script>
+
+<div id="change-requester-dialog" class="dialog">
+    <h4>Change requester</h4>
+
+    <div class="form-group">
+        <label class="control-label">Find user by name or email</label>
+        <div class="input-with-button">
+            <input data-bind="value: searchedUser" class="form-control" />
+            <button data-bind="click: getUsers" class="btn btn-default btn-search">
+                <span class="glyphicon glyphicon-search"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Select user</label>
+        <select size="10" data-bind="options: users, value: selectedUser, optionsText: function(item) { return item.FirstName + ' ' + item.LastName + ' (' + item.Email + ')' }, optionsCaption: '-'" class="form-control"></select>
+        <img id="change-requestor-img" src="http://i.stack.imgur.com/r6tWv.gif" style="display: none" />
+    </div>
+
+    <p>Displaying <span data-bind="text: numberOfUsersToDisplay"></span> users of <span data-bind="text: numberOfUsersFound"></span> found</p>
+
+    <div class="button-group">
+        <button data-bind="click: function() { changeRequester(); $('#change-requester-dialog').dialog('close'); }" class="btn btn-blue">Ok</button>
+        <button data-bind="click: function() { $('#change-requester-dialog').dialog('close'); }" class="btn btn-blue">Cancel</button>
+    </div>
+</div>

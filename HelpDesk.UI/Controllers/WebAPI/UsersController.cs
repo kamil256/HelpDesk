@@ -51,7 +51,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
 
         [OverrideAuthorization]
         [HttpGet]
-        public HttpResponseMessage GetUsers(string role = null, string search = null, string sortBy = null, bool descSort = false, int page = 0)
+        public HttpResponseMessage GetUsers(string role = null, string search = null, bool advancedSearch = true, string sortBy = null, bool descSort = false, int page = 0, int? usersPerPage = null)
         {
             List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
 
@@ -63,13 +63,18 @@ namespace HelpDesk.UI.Controllers.WebAPI
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                filters.Add(u => u.FirstName.ToLower().Contains(search.ToLower()) ||
-                                 u.LastName.ToLower().Contains(search.ToLower()) ||
-                                 u.Email.ToLower().Contains(search.ToLower()) ||
-                                 u.Phone.ToLower().Contains(search.ToLower()) ||
-                                 u.MobilePhone.ToLower().Contains(search.ToLower()) ||
-                                 u.Company.ToLower().Contains(search.ToLower()) ||
-                                 u.Department.ToLower().Contains(search.ToLower()));
+                if (!advancedSearch)
+                    filters.Add(u => u.FirstName.ToLower().Contains(search.ToLower()) ||
+                                     u.LastName.ToLower().Contains(search.ToLower()) ||
+                                     u.Email.ToLower().Contains(search.ToLower()));
+                else
+                    filters.Add(u => u.FirstName.ToLower().Contains(search.ToLower()) ||
+                                     u.LastName.ToLower().Contains(search.ToLower()) ||
+                                     u.Email.ToLower().Contains(search.ToLower()) ||
+                                     u.Phone.ToLower().Contains(search.ToLower()) ||
+                                     u.MobilePhone.ToLower().Contains(search.ToLower()) ||
+                                     u.Company.ToLower().Contains(search.ToLower()) ||
+                                     u.Department.ToLower().Contains(search.ToLower()));
             }
 
             Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
@@ -133,7 +138,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     break;
             }
 
-            int usersPerPage = CurrentUser.Settings.UsersPerPage;
+            usersPerPage = usersPerPage ?? CurrentUser.Settings.UsersPerPage;
             int numberOfUsers = UserManager.Users.Count();
             int numberOfPages;
 
@@ -149,8 +154,8 @@ namespace HelpDesk.UI.Controllers.WebAPI
 
             if (page != 0)
             {
-                numberOfPages = (int)Math.Ceiling((decimal)numberOfUsers / usersPerPage);
-                users = users.Skip((page - 1) * usersPerPage).Take(usersPerPage);
+                numberOfPages = (int)Math.Ceiling((decimal)numberOfUsers / (int)usersPerPage);
+                users = users.Skip((page - 1) * (int)usersPerPage).Take((int)usersPerPage);
             }
             else
             {
@@ -174,7 +179,8 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     Role = u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null ? "Admin" : "User",
                     TicketsCount = u.CreatedTickets.Count
                 }),
-                NumberOfPages = numberOfPages
+                NumberOfPages = numberOfPages,
+                NumberOfUsers = numberOfUsers
             });
         }
     }
