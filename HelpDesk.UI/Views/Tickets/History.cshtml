@@ -4,16 +4,6 @@
     ViewBag.Title = "Ticket details";
 }
 
-@{
-    UserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<UserManager>();
-    string currentUserId = User.Identity.GetUserId();
-    bool isCurrentUserAdmin = false;
-    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
-    {
-        isCurrentUserAdmin = true;
-    }
-}
-
 <header style="margin: 0;">
     <div class="container">
         <h1>Ticket details</h1>
