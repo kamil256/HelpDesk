@@ -317,7 +317,6 @@
         {
             @Html.AntiForgeryToken()
 
-            <input type="hidden" id="@Model.TicketId" name="id" />
             @Html.HiddenFor(model => model.TicketId)
 
             <div class="button-group">

@@ -17,41 +17,20 @@ using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
 using HelpDesk.DAL.Abstract;
 using HelpDesk.UI.ViewModels.Users;
+using HelpDesk.UI.Infrastructure;
 
 namespace HelpDesk.UI.Controllers.MVC
 {
     [Authorize(Roles = "Admin")]
     public class UsersController : Controller
     {
-        private UserManager UserManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<UserManager>();
-            }
-        }
-
-        private RoleManager RoleManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().GetUserManager<RoleManager>();
-            }
-        }
-
-        private User CurrentUser
-        {
-            get
-            {
-                return UserManager.FindByNameAsync(User.Identity.Name).Result;
-            }
-        }
-
-        private IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly IdentityHelper identityHelper;
 
         public UsersController(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
+            this.identityHelper = new IdentityHelper();
         }
 
         public ViewResult Index()
@@ -68,48 +47,38 @@ namespace HelpDesk.UI.Controllers.MVC
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind(Include = "FirstName,LastName,Email,Password,ConfirmPassword,Phone,MobilePhone,Company,Department,Role")] CreateViewModel model)
         {
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                User user = new User
                 {
-                    User user = new User
-                    {
-                        UserName = model.Email,
-                        Email = model.Email,
-                        FirstName = model.FirstName,
-                        LastName = model.LastName,
-                        Phone = model.Phone,
-                        MobilePhone = model.MobilePhone,
-                        Company = model.Company,
-                        Department = model.Department,
-                        Settings = new Settings()
-                    };
-                    IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-                    if (result.Succeeded)
-                    {
-                        IdentityResult result2 = UserManager.AddToRole(user.Id, model.Role);
-                        if (result2.Succeeded)
-                        {
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            foreach (string error in result2.Errors)
-                                ModelState.AddModelError("", error);
-
-                        }
-                    }
+                    UserName = model.Email,
+                    Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Phone = model.Phone,
+                    MobilePhone = model.MobilePhone,
+                    Company = model.Company,
+                    Department = model.Department,
+                    Settings = new Settings()
+                };
+                IdentityResult createUserResult = await identityHelper.UserManager.CreateAsync(user, model.Password);
+                if (createUserResult.Succeeded)
+                {
+                    IdentityResult addUserToRoleResult;
+                    if (model.Role == "Admin")
+                        addUserToRoleResult = identityHelper.UserManager.AddToRole(user.Id, "Admin");
                     else
-                    {
-                        foreach (string error in result.Errors)
-                            ModelState.AddModelError("", error);
+                        addUserToRoleResult = identityHelper.UserManager.AddToRole(user.Id, "User");
 
-                    }
+                    if (addUserToRoleResult.Succeeded)
+                        return RedirectToAction("Index");
+                    else
+                        foreach (string error in addUserToRoleResult.Errors)
+                            ModelState.AddModelError("", error);
                 }
-            }
-            catch
-            {
-                ModelState.AddModelError("", "Cannot add new user. Try again!");
+                else
+                    foreach (string error in createUserResult.Errors)
+                        ModelState.AddModelError("", error);
             }
             return View(model);
         }
@@ -117,90 +86,74 @@ namespace HelpDesk.UI.Controllers.MVC
         [OverrideAuthorization]
         public async Task<ActionResult> Edit(string id)
         {
-            try
+            User user;
+            if (identityHelper.IsCurrentUserAnAdministrator())
             {
-                User user;
-                if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
-                    user = await UserManager.FindByIdAsync(id);
-                else
-                    user = CurrentUser;
+                user = await identityHelper.UserManager.FindByIdAsync(id);
                 if (user == null)
-                    throw new Exception($"User id {id} doesn't exist");
-                EditViewModel model = new EditViewModel
-                {
-                    UserId = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    Phone = user.Phone,
-                    MobilePhone = user.MobilePhone,
-                    Company = user.Company,
-                    Department = user.Department,
-                    Role = (await UserManager.IsInRoleAsync(user.Id, "Admin")) ? "Admin" : "User"
-                };
-                return View(model);
+                    return RedirectToAction("Index");
             }
-            catch
+            else
+                user = identityHelper.CurrentUser;
+            EditViewModel model = new EditViewModel
             {
-                TempData["Fail"] = "Poblem with editing user. Try again!";
-                return RedirectToAction("Index", "Home");
-            }
+                UserId = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Phone = user.Phone,
+                MobilePhone = user.MobilePhone,
+                Company = user.Company,
+                Department = user.Department,
+                Role = identityHelper.UserManager.IsInRole(user.Id, "Admin") ? "Admin" : "User"
+            };
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
-        public async Task<ActionResult> Edit([Bind(Include = "UserID,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] EditViewModel model)
+        public async Task<ActionResult> Edit([Bind(Include = "UserId,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] EditViewModel model)
         {
             User user;
-            try
+            if (identityHelper.IsCurrentUserAnAdministrator())
             {
-                if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
-                    user = await UserManager.FindByIdAsync(model.UserId);
-                else
-                {
-                    user = CurrentUser;
-                    ModelState.Remove("Role");
-                }
-
+                user = await identityHelper.UserManager.FindByIdAsync(model.UserId);
                 if (user == null)
-                    throw new Exception($"User id {model.UserId} doesn't exist");
-
-                if (ModelState.IsValid)
-                {
-                    user.FirstName = model.FirstName;
-                    user.LastName = model.LastName;
-                    user.UserName = model.Email;
-                    user.Email = model.Email;
-                    user.Phone = model.Phone;
-                    user.MobilePhone = model.MobilePhone;
-                    user.Company = model.Company;
-                    user.Department = model.Department;
-
-                    IdentityResult userUpdateResult = await UserManager.UpdateAsync(user);
-                    if (userUpdateResult.Succeeded)
-                    {
-                        if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
-                        {
-                            UserManager.RemoveFromRoles(user.Id, UserManager.GetRoles(user.Id).ToArray<string>());
-                            if (model.Role == "Admin")
-                                UserManager.AddToRole(user.Id, "Admin");
-                            else
-                                UserManager.AddToRole(user.Id, "User");
-                        }
-                        TempData["Success"] = "Successfully edited user!";
-                        return RedirectToAction("Index");
-                    }
-                    else
-                        foreach (string error in userUpdateResult.Errors)
-                            ModelState.AddModelError("", error);
-                }
-
+                    return RedirectToAction("Index");
             }
-            catch
+            else
             {
-                TempData["Fail"] = "Poblem with editing user. Try again!";
-                return RedirectToAction("Index", "Home");
+                user = identityHelper.CurrentUser;
+                ModelState.Remove("Role");
+            }
+            if (ModelState.IsValid)
+            {
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.UserName = model.Email;
+                user.Email = model.Email;
+                user.Phone = model.Phone;
+                user.MobilePhone = model.MobilePhone;
+                user.Company = model.Company;
+                user.Department = model.Department;
+
+                IdentityResult userUpdateResult = await identityHelper.UserManager.UpdateAsync(user);
+                if (userUpdateResult.Succeeded)
+                {
+                    if (identityHelper.IsCurrentUserAnAdministrator())
+                    {
+                        identityHelper.UserManager.RemoveFromRoles(user.Id, identityHelper.UserManager.GetRoles(user.Id).ToArray<string>());
+                        if (model.Role == "Admin")
+                            identityHelper.UserManager.AddToRole(user.Id, "Admin");
+                        else
+                            identityHelper.UserManager.AddToRole(user.Id, "User");
+                    }
+                    return RedirectToAction("Index");
+                }
+                else
+                    foreach (string error in userUpdateResult.Errors)
+                        ModelState.AddModelError("", error);
             }
             return View(model);
         }
@@ -208,192 +161,144 @@ namespace HelpDesk.UI.Controllers.MVC
         [OverrideAuthorization]
         public async Task<ActionResult> ChangePassword(string id)
         {
-            try
+            User user;
+            if (identityHelper.IsCurrentUserAnAdministrator())
             {
-                User user;
-                if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
-                    user = await UserManager.FindByIdAsync(id);
-                else
-                    user = CurrentUser;
+                user = await identityHelper.UserManager.FindByIdAsync(id);
                 if (user == null)
-                    throw new Exception($"User id {id} doesn't exist");
-                ChangePasswordViewModel model = new ChangePasswordViewModel
-                {
-                    UserId = user.Id
-                };
-                return View(model);
+                    return RedirectToAction("Index");
             }
-            catch
+            else
+                user = identityHelper.CurrentUser;
+
+            ChangePasswordViewModel model = new ChangePasswordViewModel
             {
-                TempData["Fail"] = "Poblem with editing user. Try again!";
-                return RedirectToAction("Index", "Home");
-            }
+                UserId = user.Id
+            };
+
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
-        public async Task<ActionResult> ChangePassword([Bind(Include = "UserID,CurrentPassword,Password,ConfirmPassword")] ChangePasswordViewModel model)
+        public async Task<ActionResult> ChangePassword([Bind(Include = "UserId,CurrentPassword,NewPassword,ConfirmPassword")] ChangePasswordViewModel model)
         {
             User user;
-            try
+            if (identityHelper.IsCurrentUserAnAdministrator())
             {
-                if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
-                    user = await UserManager.FindByIdAsync(model.UserId);
-                else
-                {
-                    user = CurrentUser;
-                    ModelState.Remove("Role");
-                }
+                user = await identityHelper.UserManager.FindByIdAsync(model.UserId);
                 if (user == null)
-                    throw new Exception($"User id {model.UserId} doesn't exist");
-
-                bool editingLoggedInUser = user.Email == User.Identity.Name;
-
-                bool correctPassword = UserManager.CheckPassword(user, model.CurrentPassword);
-                if (!correctPassword)
-                    ModelState.AddModelError("CurrentPassword", "Incorrect current password.");
-
-
-                if (ModelState.IsValid)
-                {
-                    IdentityResult changePasswordResult = await UserManager.ChangePasswordAsync(user.Id, model.CurrentPassword, model.NewPassword);
-                    if (changePasswordResult.Succeeded)
-                    {
-                        if (editingLoggedInUser)
-                        {
-                            IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
-                            AuthManager.SignOut();
-                            AuthManager.SignIn(await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
-                        }
-                        TempData["Success"] = "Successfully changed password!";
-                        return RedirectToAction("Index", "Home");
-                    }
-                    else
-                        foreach (string error in changePasswordResult.Errors)
-                            ModelState.AddModelError("", error);
-
-                }
+                    return RedirectToAction("Index");
             }
-            catch
+            else
             {
-                TempData["Fail"] = "Poblem with editing user. Try again!";
-                return RedirectToAction("Index", "Home");
+                user = identityHelper.CurrentUser;
+            }
+
+            //bool editingLoggedInUser = user.Email == User.Identity.Name;
+
+            //bool passwordIsCorrect = UserManager.CheckPassword(user, model.CurrentPassword);
+            //if (!passwordIsCorrect)
+            //    ModelState.AddModelError("CurrentPassword", "Incorrect current password.");
+
+
+            if (ModelState.IsValid)
+            {
+                IdentityResult changePasswordResult = await identityHelper.UserManager.ChangePasswordAsync(user.Id, model.CurrentPassword, model.NewPassword);
+                if (changePasswordResult.Succeeded)
+                {
+                    //if (editingLoggedInUser)
+                    //{
+                    //    IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
+                    //    AuthManager.SignOut();
+                    //    AuthManager.SignIn(await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
+                    //}
+                    //TempData["Success"] = "Successfully changed password!";
+                    return RedirectToAction("Index", "Home");
+                }
+                //else
+                //    foreach (string error in changePasswordResult.Errors)
+                //        ModelState.AddModelError("", error);
+
             }
             return View(model);
         }
 
         public async Task<ActionResult> Tickets(string id)
         {
-            try
+            User user;
+            if (identityHelper.IsCurrentUserAnAdministrator())
             {
-                User user;
-                if (await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin"))
-                    user = await UserManager.FindByIdAsync(id);
-                else
-                    user = CurrentUser;
+                user = await identityHelper.UserManager.FindByIdAsync(id);
                 if (user == null)
-                    throw new Exception($"User id {id} doesn't exist");
-
-                EditViewModel model = new EditViewModel();
-                model.UserId = user.Id;
-                model.FirstName = user.FirstName;
-                model.LastName = user.LastName;
-                //model.Tickets = unitOfWork.TicketRepository.Get(filters: new List<Expression<Func<Ticket, bool>>> { t => t.CreatorId == id }, orderBy: t => t.OrderByDescending(x => x.CreateDate)).Select(t => new ViewModels.Tickets.TicketDTO
-                //{
-                //    TicketId = t.TicketId,
-                //    CreateDate = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
-                //    CreatorName = t.Creator != null ? t.Creator.FirstName + " " + t.Creator.LastName : null,
-                //    RequesterName = t.Requester != null ? t.Requester.FirstName + " " + t.Requester.LastName : null,
-                //    AssignedUserName = t.AssignedUser != null ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : null,
-                //    CreatorId = t.CreatorId,
-                //    RequesterId = t.RequesterId,
-                //    AssignedUserId = t.AssignedUserId,
-                //    Title = t.Title,
-                //    Category = t.Category?.Name,
-                //    Status = t.Status
-                //});
-                return View("Tickets", model);
+                    return RedirectToAction("Index");
             }
-            catch
+            else
             {
-                TempData["Fail"] = "Poblem with editing user. Try again!";
-                return RedirectToAction("Index", "Home");
+                user = identityHelper.CurrentUser;
             }
+            return View("Tickets", (object)user.Id);
         }
 
         [OverrideAuthorization]
         public async Task<ActionResult> History(string id)
         {
-            
-            try
+            User user;
+            if (identityHelper.IsCurrentUserAnAdministrator())
             {
-                User user = await UserManager.FindByIdAsync(id);
+                user = await identityHelper.UserManager.FindByIdAsync(id);
                 if (user == null)
-                    throw new Exception($"User id {id} doesn't exist");
-
-                if (!await UserManager.IsInRoleAsync(CurrentUser.Id, "Admin") && user.Id != CurrentUser.Id)
-                    return new HttpUnauthorizedResult();
-
-                HistoryViewModel model = new HistoryViewModel
-                {
-                    UserId = id,
-                    Logs = new List<HistoryViewModel.Log>()
-                };
-                foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.AuthorId == user.Id }, orderBy: x => x.OrderByDescending(l => l.Date)))
-                {
-                    model.Logs.Add(new HistoryViewModel.Log
-                    {
-                        Date = log.Date,
-                        TicketId = log.TicketId,
-                        Column = log.Column,
-                        NewValue = log.NewValue
-                    });
-                }
-                return View(model);
+                    return RedirectToAction("Index");
             }
-            catch
+            else
             {
-                TempData["Fail"] = "Poblem with reading user history. Try again!";
-                return RedirectToAction("Index", "Home");
+                user = identityHelper.CurrentUser;
             }
 
+            HistoryViewModel model = new HistoryViewModel
+            {
+                UserId = id,
+                Logs = new List<HistoryViewModel.Log>()
+            };
+            foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.AuthorId == user.Id }, orderBy: q => q.OrderByDescending(l => l.Date)))
+            {
+                model.Logs.Add(new HistoryViewModel.Log
+                {
+                    Date = log.Date,
+                    TicketId = log.TicketId,
+                    Column = log.Column,
+                    NewValue = log.NewValue
+                });
+            }
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(string id)
+        public async Task<ActionResult> Delete(string userId)
         {
-            try
             {
-                User user = await UserManager.Users.Include(u => u.CreatedTickets)
-                                                      .Include(u => u.RequestedTickets)
-                                                      .Include(u => u.AssignedTickets)
-                                                      .Include(u => u.Settings)
-                                                      .SingleOrDefaultAsync(u => u.Id == id);
+                User user = await identityHelper.UserManager.Users.Include(u => u.CreatedTickets)
+                                                                  .Include(u => u.RequestedTickets)
+                                                                  .Include(u => u.AssignedTickets)
+                                                                  .Include(u => u.Settings)
+                                                                  .SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null)
-                    return HttpNotFound();
+                    RedirectToAction("Index");
 
-                IdentityResult userDeletionResult = await UserManager.DeleteAsync(user);
+                IdentityResult userDeleteResult = await identityHelper.UserManager.DeleteAsync(user);
 
-                if (userDeletionResult.Succeeded)
+                if (userDeleteResult.Succeeded)
                 {
                     if (user.UserName == User.Identity.Name)
                     {
-                        IAuthenticationManager AuthManager = HttpContext.GetOwinContext().Authentication;
-                        AuthManager.SignOut();
+                        IAuthenticationManager AuthenticationManager = HttpContext.GetOwinContext().Authentication;
+                        AuthenticationManager.SignOut();
                     }
-                    else
-                        TempData["Success"] = "Successfully deleted user!";
                 }
-                else
-                    TempData["Fail"] = "Cannot delete user. Try again!";
+                return RedirectToAction("Index");
             }
-            catch
-            {
-                TempData["Fail"] = "Cannot delete user. Try again!";
-            }
-            return RedirectToAction("Index");
-        }        
+        }    
     }
 }

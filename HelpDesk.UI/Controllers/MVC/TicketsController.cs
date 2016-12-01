@@ -43,7 +43,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             CreateViewModel model = new CreateViewModel
             {
-                Requester = identityHelper.CurrentUser,                
+                Requester = identityHelper.CurrentUser,
                 Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order))
             };
             return View(model);
@@ -101,8 +101,8 @@ namespace HelpDesk.UI.Controllers.MVC
                 Title = ticket.Title,
                 Content = ticket.Content,
                 Solution = ticket.Solution,
-                Creator = ticket.Creator,                
-                Requester = ticket.Requester,                
+                Creator = ticket.Creator,
+                Requester = ticket.Requester,
                 AssignedUser = ticket.AssignedUser
             };
             string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
@@ -141,7 +141,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
             if (currentTicket.Content != updatedTicket.Content)
                 ticketsHistoryList.Add(new TicketsHistory { Column = "content", NewValue = updatedTicket.Content });
-            
+
             if (currentTicket.Solution != updatedTicket.Solution)
                 ticketsHistoryList.Add(new TicketsHistory { Column = "solution", NewValue = updatedTicket.Solution });
 
@@ -227,41 +227,31 @@ namespace HelpDesk.UI.Controllers.MVC
         [OverrideAuthorization]
         public async Task<ActionResult> History(int id)
         {
+            Ticket ticket = unitOfWork.TicketRepository.GetById(id);
+            if (ticket == null)
+                throw new Exception($"Ticket id {id} doesn't exist");
 
-            try
+            if (!await identityHelper.UserManager.IsInRoleAsync(identityHelper.CurrentUser.Id, "Admin") && ticket.CreatorId != identityHelper.CurrentUser.Id && ticket.RequesterId != identityHelper.CurrentUser.Id)
+                return new HttpUnauthorizedResult();
+
+            HistoryViewModel model = new HistoryViewModel
             {
-                Ticket ticket = unitOfWork.TicketRepository.GetById(id);
-                if (ticket == null)
-                    throw new Exception($"Ticket id {id} doesn't exist");
-
-                if (!await identityHelper.UserManager.IsInRoleAsync(identityHelper.CurrentUser.Id, "Admin") && ticket.CreatorId != identityHelper.CurrentUser.Id && ticket.RequesterId != identityHelper.CurrentUser.Id)
-                    return new HttpUnauthorizedResult();
-
-                HistoryViewModel model = new HistoryViewModel
-                {
-                    TicketId = id,
-                    Logs = new List<HistoryViewModel.Log>()
-                };
-                foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketId }, orderBy: x => x.OrderByDescending(l => l.Date)))
-                {
-                    User author = identityHelper.UserManager.FindById(log.AuthorId);
-                    model.Logs.Add(new HistoryViewModel.Log
-                    {
-                        Date = log.Date,
-                        AuthorId = log.AuthorId,
-                        AuthorName = author != null ? $"{author.FirstName} {author.LastName}" : null,
-                        Column = log.Column,
-                        NewValue = log.NewValue
-                    });
-                }
-                return View(model);
-            }
-            catch
+                TicketId = id,
+                Logs = new List<HistoryViewModel.Log>()
+            };
+            foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketId }, orderBy: q => q.OrderByDescending(l => l.Date)))
             {
-                TempData["Fail"] = "Poblem with reading user history. Try again!";
-                return RedirectToAction("Index", "Home");
+                User author = identityHelper.UserManager.FindById(log.AuthorId);
+                model.Logs.Add(new HistoryViewModel.Log
+                {
+                    Date = log.Date,
+                    AuthorId = log.AuthorId,
+                    AuthorName = author != null ? $"{author.FirstName} {author.LastName}" : null,
+                    Column = log.Column,
+                    NewValue = log.NewValue
+                });
             }
-
+            return View(model);
         }
 
         [HttpPost]

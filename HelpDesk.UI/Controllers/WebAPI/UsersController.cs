@@ -1,6 +1,7 @@
 ﻿using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
+using HelpDesk.UI.Infrastructure;
 using HelpDesk.UI.ViewModels.Users;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -18,35 +19,13 @@ namespace HelpDesk.UI.Controllers.WebAPI
 {
     public class UsersController : ApiController
     {
-        private UserManager UserManager
-        {
-            get
-            {
-                return HttpContext.Current.Request.GetOwinContext().GetUserManager<UserManager>();
-            }
-        }
-
-        private RoleManager RoleManager
-        {
-            get
-            {
-                return HttpContext.Current.Request.GetOwinContext().GetUserManager<RoleManager>();
-            }
-        }
-
-        private User CurrentUser
-        {
-            get
-            {
-                return UserManager.FindByNameAsync(User.Identity.Name).Result;
-            }
-        }
-
-        private IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly IdentityHelper identityHelper;
 
         public UsersController()
         {
             this.unitOfWork = new UnitOfWork();
+            this.identityHelper = new IdentityHelper();
         }
 
         [OverrideAuthorization]
@@ -57,7 +36,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
 
             if (!string.IsNullOrEmpty(role))
             {
-                string roleId = RoleManager.FindByName(role).Id;
+                string roleId = identityHelper.RoleManager.FindByName(role).Id;
                 filters.Add(u => u.Roles.FirstOrDefault(r => r.RoleId == roleId) != null);
             }
 
@@ -138,11 +117,11 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     break;
             }
 
-            usersPerPage = usersPerPage ?? CurrentUser.Settings.UsersPerPage;
-            int numberOfUsers = UserManager.Users.Count();
+            usersPerPage = usersPerPage ?? identityHelper.CurrentUser.Settings.UsersPerPage;
+            int numberOfUsers = identityHelper.UserManager.Users.Count();
             int numberOfPages;
 
-            IQueryable<User> users = UserManager.Users;
+            IQueryable<User> users = identityHelper.UserManager.Users;
 
             if (filters != null)
                 foreach (var filter in filters)
@@ -162,7 +141,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 numberOfPages = 1;
             }
 
-            string adminRoleId = RoleManager.FindByName("Admin").Id;
+            string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
 
             return Request.CreateResponse(HttpStatusCode.OK, new
             {

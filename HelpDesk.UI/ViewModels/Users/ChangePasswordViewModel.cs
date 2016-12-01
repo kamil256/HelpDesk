@@ -20,7 +20,7 @@ namespace HelpDesk.UI.ViewModels.Users
         public string NewPassword { get; set; }
 
         [Required]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Compare("NewPassword", ErrorMessage = "The password and confirmation password do not match.")]
         [Display(Name = "Confirm new password")]
         public string ConfirmPassword { get; set; }
     }
