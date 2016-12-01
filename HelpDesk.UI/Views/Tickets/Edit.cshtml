@@ -1,18 +1,83 @@
-﻿@model HelpDesk.UI.ViewModels.Tickets.EditViewModel
+﻿@using HelpDesk.UI.Infrastructure;
+
+@model HelpDesk.UI.ViewModels.Tickets.EditViewModel
 
 @{
     ViewBag.Title = "Ticket details";
+    IdentityHelper identityHelper = new IdentityHelper();
 }
 
-@{
-    UserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<UserManager>();
-    string currentUserId = User.Identity.GetUserId();
-    bool isCurrentUserAdmin = false;
-    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
+<script>
+    function TicketsViewModel()
     {
-        isCurrentUserAdmin = true;
+        var self = this;
+
+        self.requester =
+        {
+            UserId: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.Id}'") : null)),
+            FirstName: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.FirstName}'") : null)),
+            LastName: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.LastName}'") : null)),
+            Email: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.Email}'") : null))
+        };
+
+        self.requesterNameAndEmail = ko.computed(function()
+        {
+            return self.requester.UserId() ? self.requester.FirstName() + " " + self.requester.LastName() + " (" + self.requester.Email() + ")" : "-";
+        });
+
+        self.searchedUser = ko.observable("");
+        self.users = ko.observableArray([]);
+        self.numberOfUsersToDisplay = ko.computed(function()
+        {
+            return self.users().length;
+        });
+        self.numberOfUsersFound = ko.observable(0);
+        self.selectedUser = ko.observable();
+        self.getUsers = function()
+        {
+            $.ajax("/api/Users",
+            {
+                type: "GET",
+                data:
+                {
+                    search: self.searchedUser(),
+                    advancedSearch: false,
+                    page: 1,
+                    usersPerPage: 1
+                },
+                success: function(data)
+                {
+                    self.users(data.Users);
+                    self.numberOfUsersFound(data.NumberOfUsers);
+                }
+            });
+        };
+
+        self.changeRequester = function()
+        {
+            if (self.selectedUser())
+            {
+                self.requester.UserId(self.selectedUser().UserId);
+                self.requester.FirstName(self.selectedUser().FirstName);
+                self.requester.LastName(self.selectedUser().LastName);
+                self.requester.Email(self.selectedUser().Email);
+            }
+            else
+            {
+                self.requester.UserId(null);
+                self.requester.FirstName(null);
+                self.requester.LastName(null);
+                self.requester.Email(null);
+            }
+        }
     }
-}
+
+    $(document).ready(function()
+    {
+        ko.applyBindings(new TicketsViewModel());
+
+    });
+</script>
 
 <header style="margin: 0">
     <div class="container">
@@ -39,8 +104,8 @@
     </style>
 
     <ul class="horizontal-menu">
-        <li class="selected"><a href='@Url.Action("Edit", new { id = Model.TicketID })'>Details</a></li>
-        <li><a href='@Url.Action("History", new { id = Model.TicketID })'>History</a></li>
+        <li class="selected"><a href='@Url.Action("Edit", new { id = Model.TicketId })'>Details</a></li>
+        <li><a href='@Url.Action("History", new { id = Model.TicketId })'>History</a></li>
     </ul>
 </section>
 
@@ -52,35 +117,34 @@
         @Html.AntiForgeryToken()
         <div class="form-horizontal details-panel col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8" style="padding: 15px 0;  padding-top: 30px;">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.HiddenFor(model => model.TicketID)
-
+            
             <div class="form-group">
                 @Html.Label("ID", new { @class = "control-label col-sm-3" })
                 <div class="col-sm-8">
                     <p class="form-control-static">
-                        @Html.DisplayFor(model => model.TicketID)
-                        @Html.HiddenFor(model => model.TicketID)
+                        @Html.DisplayFor(model => model.TicketId)
+                        @Html.HiddenFor(model => model.TicketId)
                     </p>
-                    @Html.ValidationMessageFor(model => model.TicketID, "", new { @class = "text-danger" })
+                    @Html.ValidationMessageFor(model => model.TicketId, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.CreatedOn, new { @class = "control-label col-sm-3" })
+                @Html.LabelFor(model => model.CreateDate, new { @class = "control-label col-sm-3" })
                 <div class="col-sm-8">
                     <p class="form-control-static">
-                        @Model.CreatedOn
+                        @Model.CreateDate
                     </p>
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.CreatedBy, new { @class = "control-label col-sm-3" })
+                @Html.LabelFor(model => model.Creator, new { @class = "control-label col-sm-3" })
                 <div class="col-sm-8">
                     <p class="form-control-static">
-                        @if (Model.CreatedBy != null)
+                        @if (Model.Creator != null)
                         {
-                            <a href='@Url.Action("Edit", "Users", new { id = Model.CreatedBy.Id })'>@Model.CreatedBy.FirstName @Model.CreatedBy.LastName (@Model.CreatedBy.Email)</a>
+                            <a href='@Url.Action("Edit", "Users", new { id = Model.Creator.Id })'>@Model.Creator.FirstName @Model.Creator.LastName (@Model.Creator.Email)</a>
                         }
                         else
                         {
@@ -91,31 +155,32 @@
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.RequestedByID, new { @class = "control-label col-sm-3" })
+                @Html.LabelFor(model => model.RequesterId, new { @class = "control-label col-sm-3" })
                 <div class="col-sm-8 input-with-button">
-                    @Html.HiddenFor(model => model.RequestedByID)
-                    <input id="change-requestor-inp" value='@(Model.RequestedBy != null ? $"{Model.RequestedBy.FirstName} {Model.RequestedBy.LastName} ({Model.RequestedBy.Email})" : "-")' class="form-control" disabled="disabled" />
-                    <button id="change-requestor-btn" type="button" class="btn btn-default btn-search" data-ticket-title="@Model.Title">
+                    <input type="hidden" name="RequesterId" data-bind="value: requester.UserId" />
+                    <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
+                    <button type="button" data-bind="click: function(data, event) { openChangeRequesterDialog(event); }" class="btn btn-default btn-search">
                         <span class="glyphicon glyphicon-search"></span>
                     </button>
+                    @Html.ValidationMessageFor(model => model.Requester, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.AssignedToID, new { @class = "control-label col-sm-3" })
+                @Html.LabelFor(model => model.AssignedUserId, new { @class = "control-label col-sm-3" })
                 <div class="col-sm-8">
-                    @if (ViewBag.IsCurrentUserAdmin)
+                    @if (identityHelper.IsCurrentUserAnAdministrator())
                     {
                         @Html.DropDownListFor(
-                                 expression: model => model.AssignedToID,
-                                 selectList: new SelectList(Model.Admins.Select(u => new { UserID = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserID", "Name"),
+                                 expression: model => model.AssignedUserId,
+                                 selectList: new SelectList(Model.Administrators.Select(u => new { UserId = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserId", "Name"),
                                  optionLabel: "-",
                                  htmlAttributes: new { @class = "form-control" }
                              )
                     }
                     else
                     {
-                        <input value='@(Model.AssignedTo != null ? $"{Model.AssignedTo.FirstName} {Model.AssignedTo.LastName} ({Model.AssignedTo.Email})" : "-")' class="form-control" disabled="disabled" />
+                        <input value='@(Model.AssignedUser != null ? $"{Model.AssignedUser.FirstName} {Model.AssignedUser.LastName} ({Model.AssignedUser.Email})" : "-")' class="form-control" disabled="disabled" />
                     }
                 </div>
             </div>
@@ -123,27 +188,27 @@
             <div class="form-group">
                 @Html.LabelFor(model => model.Status, new { @class = "control-label col-sm-3" })
                 <div class="col-sm-8">
-                    @if (isCurrentUserAdmin)
+                    @if (identityHelper.IsCurrentUserAnAdministrator())
                     {
                         @Html.DropDownListFor(model => model.Status, new SelectList(new[] { "New", "In progress", "Solved", "Closed" }), new { @class = "form-control" })
                     }
                     else
                     {
-                        <input value='@(Model.Status)' class="form-control" disabled="disabled" />
+                        <input value='@Model.Status' class="form-control" disabled="disabled" />
                     }
                     @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
                 </div>
             </div>
             
             <div class="form-group">
-                @Html.LabelFor(model => model.CategoryID, new { @class = "control-label col-sm-3" })
+                @Html.LabelFor(model => model.CategoryId, new { @class = "control-label col-sm-3" })
                 <div class="col-sm-8">
                     @Html.DropDownListFor(
-                        expression: model => model.CategoryID,
-                        selectList: new SelectList(Model.Categories.Select(c => new { CategoryID = c.CategoryID, Name = c.Name }), "CategoryID", "Name"),
+                        expression: model => model.CategoryId,
+                        selectList: new SelectList(Model.Categories.Select(c => new { CategoryId = c.CategoryId, Name = c.Name }), "CategoryId", "Name"),
                         optionLabel: "-",
                         htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
+                    @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
                 </div>
             </div>
 
@@ -169,7 +234,7 @@
                     @{ 
                         Dictionary<string, object> htmlAttributes = new Dictionary<string, object>();
                         htmlAttributes["class"] = "form-control";
-                        if (!isCurrentUserAdmin)
+                        if (!identityHelper.IsCurrentUserAnAdministrator())
                         {
                             htmlAttributes["disabled"] = "disabled";
                         }
@@ -182,9 +247,9 @@
             <div class="form-group">
                 <div class="col-sm-offset-3 col-sm-8">
                     <input type="submit" value="Save" class="btn btn-blue" />
-                    @if (isCurrentUserAdmin)
+                    @if (identityHelper.IsCurrentUserAnAdministrator())
                     {
-                        <button data-ticket-id="@Model.TicketID" data-ticket-title="@Model.Title" type="button" class="btn btn-danger delete-ticket-btn">Delete</button>
+                        <button data-bind="click: function(data, event) { openDeleteTicketDialog(event); }" type="button" class="btn btn-danger">Delete</button>
                     }
                 </div>
             </div>
@@ -192,9 +257,73 @@
     }
 </div>
 
-@Html.Partial("_ChangeRequestorPartial")
+<script>
+    function openChangeRequesterDialog(event)
+    {
+        $("#change-requester-dialog").dialog(
+        {
+            autoOpen: false,
+            modal: true,
+            resizable: false
+        }).dialog('open');
+    }
+</script>
 
-@if (isCurrentUserAdmin)
-{   
-    @Html.Partial("_DeleteTicketPartial")
+<div id="change-requester-dialog" class="dialog">
+    <h4>Change requester</h4>
+
+    <div class="form-group">
+        <label class="control-label">Find user by name or email</label>
+        <div class="input-with-button">
+            <input data-bind="value: searchedUser" class="form-control" />
+            <button data-bind="click: getUsers" class="btn btn-default btn-search">
+                <span class="glyphicon glyphicon-search"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Select user</label>
+        <select size="10" data-bind="options: users, value: selectedUser, optionsText: function(item) { return item.FirstName + ' ' + item.LastName + ' (' + item.Email + ')' }, optionsCaption: '-'" class="form-control"></select>
+        <img id="change-requestor-img" src="http://i.stack.imgur.com/r6tWv.gif" style="display: none" />
+    </div>
+
+    <p>Displaying <span data-bind="text: numberOfUsersToDisplay"></span> users of <span data-bind="text: numberOfUsersFound"></span> found</p>
+
+    <div class="button-group">
+        <button data-bind="click: function() { changeRequester(); $('#change-requester-dialog').dialog('close'); }" class="btn btn-blue">Ok</button>
+        <button data-bind="click: function() { $('#change-requester-dialog').dialog('close'); }" class="btn btn-blue">Cancel</button>
+    </div>
+</div>
+
+@if (identityHelper.IsCurrentUserAnAdministrator())
+{
+    <script>
+        function openDeleteTicketDialog(event)
+        {
+            $("#delete-ticket-dialog").dialog(
+            {
+                autoOpen: false,
+                modal: true,
+                resizable: false
+            }).dialog('open');
+        }
+    </script>
+
+    <div id="delete-ticket-dialog" class="dialog">
+        <h4>Are you sure you want to delete ticket?</h4>
+
+        @using (Html.BeginForm("Delete", "Tickets"))
+        {
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" id="@Model.TicketId" name="id" />
+            @Html.HiddenFor(model => model.TicketId)
+
+            <div class="button-group">
+                <input type="submit" value="Yes" class="btn btn-blue" />
+                <input data-bind="click: function() { $('#delete-ticket-dialog').dialog('close'); }" type="button" value="No" class="btn btn-blue" />
+            </div>
+        }
+    </div>
 }
