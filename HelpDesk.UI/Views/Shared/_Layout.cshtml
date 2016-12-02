@@ -1,16 +1,7 @@
 ﻿@using HelpDesk.UI.Infrastructure;
-@using Microsoft.AspNet.Identity;
-@using Microsoft.AspNet.Identity.Owin;
-@using HelpDesk.DAL.Concrete;
 
-@{ 
-    UserManager userManager = HttpContext.Current.GetOwinContext().GetUserManager<UserManager>();
-    string currentUserId = User.Identity.GetUserId();
-    bool? isCurrentUserAdmin = null;
-    if (User.Identity.IsAuthenticated && userManager.IsInRole(currentUserId, "Admin"))
-    {
-        isCurrentUserAdmin = true;
-    }
+@{
+    IdentityHelper identityHelper = new IdentityHelper();
 }
 
 <!DOCTYPE html>
@@ -55,7 +46,13 @@
 </head>
 <body>
     <div class="navbar navbar-inverse">
-        @if (User.Identity.IsAuthenticated)
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="navbar-header">
+                @Html.ActionLink("Help Desk", "Index", "Home", null, new { @class = "navbar-brand" })
+            </div>
+        }
+        else
         {
             <div class="container">
                 <div class="navbar-header">
@@ -68,7 +65,7 @@
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        @if (isCurrentUserAdmin == true)
+                        @if (identityHelper.IsCurrentUserAnAdministrator())
                         {
                             <li class='@(ViewBag.Title == "New user" ? "active" : null)'>@Html.ActionLink("New user", "Create", "Users")</li>
                             <li class='@(ViewBag.Title == "Users" ? "active" : null)'>@Html.ActionLink("Users", "Index", "Users")</li>
@@ -77,7 +74,18 @@
                         <li class='@(ViewBag.Title == "Tickets" ? "active" : null)'>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
                         <li class='@(ViewBag.Title == "Settings" ? "active" : null)'>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
                     </ul>
-                    @Html.Partial("_LoginPartial")
+                    
+                    @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>
+                                @Html.ActionLink(identityHelper.CurrentUser.FirstName + " " + identityHelper.CurrentUser.LastName, "Edit", "Users", new { id = identityHelper.CurrentUser.Id }, null)
+                            </li>
+                            <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+                        </ul>
+                    }
                 </div>
             </div>
         }
@@ -85,6 +93,33 @@
 
     @RenderBody()
         
-    @Html.Partial("_FooterPartial")  
+    <footer>
+        <div class="footer-content">
+            <div class="footer-group">
+                <div class="footer-element">
+                    <span class="glyphicon glyphicon-map-marker"></span>
+                </div>
+                <div class="footer-element">
+                    Ulica 1, Wrocław
+                </div>
+            </div>
+            <div class="footer-group">
+                <div class="footer-element">
+                    <span class="glyphicon glyphicon-phone-alt"></span>
+                </div>
+                <div class="footer-element">
+                    +48 123 456 789
+                </div>
+            </div>
+            <div class="footer-group">
+                <div class="footer-element">
+                    <span class="glyphicon glyphicon-envelope"></span>
+                </div>
+                <div class="footer-element">
+                    <a href="mailto:support@ringnet.com">support@company.com</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
