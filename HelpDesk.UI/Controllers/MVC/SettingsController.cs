@@ -113,7 +113,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     }
                     unitOfWork.SettingsRepository.Update(settings);
                     unitOfWork.Save();
-                    TempData["Success"] = "You have successfully saved your settings.";
+                    TempData["Success"] = "Successfully saved settings.";
                     return RedirectToAction("Index");
                 }
             }
