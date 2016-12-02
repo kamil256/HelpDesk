@@ -101,10 +101,10 @@
 
     @if (TempData["Fail"] != null)
     {
-        <div class="alert alert-danger">glyphicon glyphicon-exclamation-sign
+        <div class="alert alert-danger">
             <a href="#" class="close" @*data-dismiss="alert"*@ aria-label="close">&times;</a>
             <span class="glyphicon glyphicon-exclamation-sign"></span> @(TempData["Fail"])
-</div>
+        </div>
     }
 
     <script>

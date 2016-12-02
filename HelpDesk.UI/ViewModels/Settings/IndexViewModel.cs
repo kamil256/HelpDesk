@@ -23,7 +23,7 @@ namespace HelpDesk.UI.ViewModels.Settings
         [RegularExpression("([1-9][0-9]*)")]
         public int TicketsPerPage { get; set; }
 
-        public Category[] Categories { get; set; }
+        public List<Category> Categories { get; set; }
 
         // TODO: when I change categories Id to string, it can be changed to int?[] not set to zero in view
         public int[] CategoriesId { get; set; }

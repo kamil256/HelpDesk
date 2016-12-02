@@ -27,7 +27,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             this.unitOfWork = unitOfWork;
             this.identityHelper = new IdentityHelper();
-        }
+        }        
 
         public ViewResult Index()
         {
@@ -43,7 +43,7 @@ namespace HelpDesk.UI.Controllers.MVC
             if (identityHelper.IsCurrentUserAnAdministrator())
             {
                 model.UsersPerPage = settings.UsersPerPage;
-                model.Categories = unitOfWork.CategoryRepository.Get(orderBy: query => query.OrderBy(category => category.Order)).ToArray();
+                model.Categories = unitOfWork.CategoryRepository.Get(orderBy: query => query.OrderBy(category => category.Order)).ToList();
             }
 
             return View(model);
@@ -59,63 +59,83 @@ namespace HelpDesk.UI.Controllers.MVC
                 ModelState.Remove("CategoriesId");
                 ModelState.Remove("CategoriesName");
             }
-
-            if (ModelState.IsValid)
-            {
-                Settings settings = unitOfWork.SettingsRepository.GetById(identityHelper.CurrentUser.Id);
-                settings.NewTicketsNotifications = model.NewTicketsNotifications;
-                settings.SolvedTicketsNotifications = model.SolvedTicketsNotifications;
-                settings.TicketsPerPage = model.TicketsPerPage;
-
-                if (identityHelper.IsCurrentUserAnAdministrator())
-                {
-                    settings.UsersPerPage = model.UsersPerPage;
-
-                    IEnumerable<Category> existingCategories = unitOfWork.CategoryRepository.Get(includeProperties: "Tickets");
-
-                    List<Category> newCategories = new List<Category>();
-                    for (int i = 0; i < (model.CategoriesId?.Length ?? 0); i++)
-                    {
-                        newCategories.Add(new Category
-                        {
-                            CategoryId = model.CategoriesId[i],
-                            Name = model.CategoriesName[i],
-                            Order = i
-                        });
-                    }
-
-                    foreach (Category existingCategory in existingCategories)
-                    {
-                        if (newCategories.SingleOrDefault(c => c.CategoryId == existingCategory.CategoryId) == null)
-                            unitOfWork.CategoryRepository.Delete(existingCategory);
-                    }
-                    
-                    foreach (Category newCategory in newCategories)
-                    {
-                        Category category = existingCategories.SingleOrDefault(c => c.CategoryId == newCategory.CategoryId);
-                        if (category == null)
-                            unitOfWork.CategoryRepository.Insert(new Category
-                            {
-                                Name = newCategory.Name,
-                                Order = newCategory.Order
-                            });
-                        else
-                        {
-                            category.Name = newCategory.Name;
-                            category.Order = newCategory.Order;
-                            unitOfWork.CategoryRepository.Update(category);
-                        }
-                    }
-                }
-                unitOfWork.SettingsRepository.Update(settings);
-                unitOfWork.Save();
-                return RedirectToAction("Index", "Home");
-            }
             else
             {
-                model.Categories = unitOfWork.CategoryRepository.Get(orderBy: x => x.OrderBy(c => c.Order)).ToArray();
-                return View(model);
+                model.Categories = new List<Category>();
+                for (int i = 0; i < (model.CategoriesId?.Length ?? 0); i++)
+                {
+                    model.Categories.Add(new Category
+                    {
+                        CategoryId = model.CategoriesId[i],
+                        Name = model.CategoriesName[i],
+                        Order = i
+                    });
+                }
             }
+
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    Settings settings = unitOfWork.SettingsRepository.GetById(identityHelper.CurrentUser.Id);
+                    settings.NewTicketsNotifications = model.NewTicketsNotifications;
+                    settings.SolvedTicketsNotifications = model.SolvedTicketsNotifications;
+                    settings.TicketsPerPage = model.TicketsPerPage;
+
+                    if (identityHelper.IsCurrentUserAnAdministrator())
+                    {
+                        settings.UsersPerPage = model.UsersPerPage;
+
+                        IEnumerable<Category> existingCategories = unitOfWork.CategoryRepository.Get(includeProperties: "Tickets");
+
+                        foreach (Category existingCategory in existingCategories)
+                        {
+                            if (model.Categories.SingleOrDefault(c => c.CategoryId == existingCategory.CategoryId) == null)
+                                unitOfWork.CategoryRepository.Delete(existingCategory);
+                        }
+
+                        foreach (Category newCategory in model.Categories)
+                        {
+                            Category category = existingCategories.SingleOrDefault(c => c.CategoryId == newCategory.CategoryId);
+                            if (category == null)
+                                unitOfWork.CategoryRepository.Insert(new Category
+                                {
+                                    Name = newCategory.Name,
+                                    Order = newCategory.Order
+                                });
+                            else
+                            {
+                                category.Name = newCategory.Name;
+                                category.Order = newCategory.Order;
+                                unitOfWork.CategoryRepository.Update(category);
+                            }
+                        }
+                    }
+                    unitOfWork.SettingsRepository.Update(settings);
+                    unitOfWork.Save();
+                    TempData["Success"] = "You have successfully saved your settings.";
+                    return RedirectToAction("Index");
+                }
+            }
+            catch
+            {
+                TempData["Fail"] = "Unable to save settings. Try again, and if the problem persists contact your system administrator.";
+            }
+
+            return View(model);
+        }
+
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            if (filterContext.ExceptionHandled)
+            {
+                return;
+            }
+            filterContext.Result = new ViewResult
+            {
+                ViewName = "~/Views/Shared/Error.aspx"
+            };
+            filterContext.ExceptionHandled = true;
         }
     }    
 }
