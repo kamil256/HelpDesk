@@ -97,11 +97,8 @@ header hr {
 /* ----- success and fail messages ----- */
 
 .alert {
-    display: inline-block; 
-    position: absolute; 
-    right: 20px;
-    top: 70px; 
-    z-index: 1001;
+    border-radius: 0;
+    margin: 0;
 }
 
 /* ----- filtering form ----- */
