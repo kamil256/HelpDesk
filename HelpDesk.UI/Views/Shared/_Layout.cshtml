@@ -95,16 +95,16 @@
     {
         <div class="alert alert-success">
             <a href="#" class="close" @*data-dismiss="alert"*@ aria-label="close">&times;</a>
-            @(TempData["Success"])
+            <span class="glyphicon glyphicon-info-sign"></span> @(TempData["Success"])
         </div>
     }    
 
     @if (TempData["Fail"] != null)
     {
-        <div class="alert alert-danger">
+        <div class="alert alert-danger">glyphicon glyphicon-exclamation-sign
             <a href="#" class="close" @*data-dismiss="alert"*@ aria-label="close">&times;</a>
-            @(TempData["Fail"])
-        </div>
+            <span class="glyphicon glyphicon-exclamation-sign"></span> @(TempData["Fail"])
+</div>
     }
 
     <script>
