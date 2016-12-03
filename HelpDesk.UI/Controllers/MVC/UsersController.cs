@@ -350,6 +350,19 @@ namespace HelpDesk.UI.Controllers.MVC
                 TempData["Fail"] = "Unable to delete user. Try again, and if the problem persists contact your system administrator.";
             }
             return RedirectToAction("Index");
-        }    
+        }
+
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            if (filterContext.ExceptionHandled)
+            {
+                return;
+            }
+            filterContext.Result = new ViewResult
+            {
+                ViewName = "~/Views/Shared/Error.aspx"
+            };
+            filterContext.ExceptionHandled = true;
+        }
     }
 }
