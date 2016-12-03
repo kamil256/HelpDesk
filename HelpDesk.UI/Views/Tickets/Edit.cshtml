@@ -162,7 +162,7 @@
                     <button type="button" data-bind="click: function(data, event) { openChangeRequesterDialog(event); }" class="btn btn-default btn-search">
                         <span class="glyphicon glyphicon-search"></span>
                     </button>
-                    @Html.ValidationMessageFor(model => model.Requester, "", new { @class = "text-danger" })
+                    @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
                 </div>
             </div>
 
@@ -176,12 +176,13 @@
                                  selectList: new SelectList(Model.Administrators.Select(u => new { UserId = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserId", "Name"),
                                  optionLabel: "-",
                                  htmlAttributes: new { @class = "form-control" }
-                             )
+                        )
+                        @Html.ValidationMessageFor(model => model.AssignedUserId, "", new { @class = "text-danger" })
                     }
                     else
                     {
                         <input value='@(Model.AssignedUser != null ? $"{Model.AssignedUser.FirstName} {Model.AssignedUser.LastName} ({Model.AssignedUser.Email})" : "-")' class="form-control" disabled="disabled" />
-                    }
+                    }                    
                 </div>
             </div>
 

@@ -119,6 +119,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
 
             usersPerPage = usersPerPage ?? identityHelper.CurrentUser.Settings.UsersPerPage;
             int numberOfUsers = identityHelper.UserManager.Users.Count();
+            int numberOfUsersFound = numberOfUsers;
             int numberOfPages;
 
             IQueryable<User> users = identityHelper.UserManager.Users;
@@ -126,7 +127,10 @@ namespace HelpDesk.UI.Controllers.WebAPI
             if (filters != null)
                 foreach (var filter in filters)
                     if (filter != null)
+                    {
                         users = users.Where(filter);
+                        numberOfUsersFound = users.Count();
+                    }
 
             if (orderBy != null)
                 users = orderBy(users);
@@ -159,7 +163,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     TicketsCount = u.CreatedTickets.Count
                 }),
                 NumberOfPages = numberOfPages,
-                NumberOfUsers = numberOfUsers
+                NumberOfUsers = numberOfUsersFound
             });
         }
     }

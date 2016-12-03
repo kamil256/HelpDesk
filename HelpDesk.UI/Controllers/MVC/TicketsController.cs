@@ -54,40 +54,53 @@ namespace HelpDesk.UI.Controllers.MVC
         [OverrideAuthorization]
         public async Task<ActionResult> Create([Bind(Include = "RequesterId,CategoryId,Title,Content")] CreateViewModel model)
         {
-            if (ModelState.IsValid)
+            if (model.RequesterId != null && await identityHelper.UserManager.FindByIdAsync(model.RequesterId) == null)
+                ModelState.AddModelError("RequesterId", "Selected user doesn't exist.");
+            if (model.CategoryId != null && unitOfWork.CategoryRepository.GetById((int)model.CategoryId) == null)
+                ModelState.AddModelError("CategoryId", "Selected category doesn't exist.");
+
+            try
             {
-                Ticket ticket = new Ticket
+                if (ModelState.IsValid)
                 {
-                    CreateDate = DateTime.Now,
-                    CreatorId = identityHelper.CurrentUser.Id,
-                    RequesterId = model.RequesterId,
-                    Status = "New",
-                    CategoryId = model.CategoryId,
-                    Title = model.Title,
-                    Content = model.Content
-                };
-                unitOfWork.TicketRepository.Insert(ticket);
-                unitOfWork.Save();
-                return RedirectToAction("Index");
+                    Ticket ticket = new Ticket
+                    {
+                        CreateDate = DateTime.Now,
+                        CreatorId = identityHelper.CurrentUser.Id,
+                        RequesterId = model.RequesterId,
+                        Status = "New",
+                        CategoryId = model.CategoryId,
+                        Title = model.Title,
+                        Content = model.Content
+                    };
+                    unitOfWork.TicketRepository.Insert(ticket);
+                    unitOfWork.Save();
+                    TempData["Success"] = "Successfully created new ticket.";
+                    return RedirectToAction("Index");
+                }
             }
-            else
+            catch
             {
-                model.Requester = await identityHelper.UserManager.FindByIdAsync(model.RequesterId);
-                model.Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order));
-                return View(model);
+                TempData["Fail"] = "Unable to create new ticket. Try again, and if the problem persists contact your system administrator.";
             }
+
+            model.Requester = await identityHelper.UserManager.FindByIdAsync(model.RequesterId);
+            model.Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order));
+            return View(model);
         }
 
         [OverrideAuthorization]
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(int id = 0)
         {
-            Ticket ticket = unitOfWork.TicketRepository.GetById(id ?? 0);
+            Ticket ticket = unitOfWork.TicketRepository.GetById(id);
             if (ticket == null)
             {
+                TempData["Fail"] = "Unable to display ticket details. Try again, and if the problem persists contact your system administrator.";
                 return RedirectToAction("Index");
             }
             if (!identityHelper.IsCurrentUserAnAdministrator() && ticket.CreatorId != identityHelper.CurrentUser.Id && ticket.RequesterId != identityHelper.CurrentUser.Id)
             {
+                TempData["Fail"] = "You can't display details of ticket which you didn't create or request.";
                 return RedirectToAction("Index");
             }
             EditViewModel model = new EditViewModel
@@ -111,49 +124,6 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
-        private void updateTicketHistory(Ticket currentTicket, Ticket updatedTicket)
-        {
-            List<TicketsHistory> ticketsHistoryList = new List<TicketsHistory>();
-
-            if (currentTicket.RequesterId != updatedTicket.RequesterId)
-            {
-                string requesterName = updatedTicket.Requester != null ? $"{updatedTicket.Requester.FirstName} {updatedTicket.Requester.LastName}" : "";
-                ticketsHistoryList.Add(new TicketsHistory { Column = "requester", NewValue = requesterName });
-            }
-
-            if (currentTicket.AssignedUserId != updatedTicket.AssignedUserId)
-            {
-                string assignedUserName = updatedTicket.AssignedUser != null ? $"{updatedTicket.AssignedUser.FirstName} {updatedTicket.AssignedUser.LastName}" : "";
-                ticketsHistoryList.Add(new TicketsHistory { Column = "assigned user", NewValue = assignedUserName });
-            }
-
-            if (currentTicket.Status != updatedTicket.Status)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "status", NewValue = updatedTicket.Status });
-
-            if (currentTicket.CategoryId != updatedTicket.CategoryId)
-            {
-                string categoryName = updatedTicket.Category != null ? updatedTicket.Category.Name : "";
-                ticketsHistoryList.Add(new TicketsHistory { Column = "category", NewValue = categoryName });
-            }
-
-            if (currentTicket.Title != updatedTicket.Title)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "title", NewValue = updatedTicket.Title });
-
-            if (currentTicket.Content != updatedTicket.Content)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "content", NewValue = updatedTicket.Content });
-
-            if (currentTicket.Solution != updatedTicket.Solution)
-                ticketsHistoryList.Add(new TicketsHistory { Column = "solution", NewValue = updatedTicket.Solution });
-
-            foreach (var log in ticketsHistoryList)
-            {
-                log.Date = DateTime.Now;
-                log.AuthorId = identityHelper.CurrentUser.Id;
-                log.TicketId = currentTicket.TicketId;
-                unitOfWork.TicketsHistoryRepository.Insert(log);
-            }
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
@@ -162,77 +132,88 @@ namespace HelpDesk.UI.Controllers.MVC
             Ticket ticket = unitOfWork.TicketRepository.GetById(model.TicketId);
             if (ticket == null)
             {
+                TempData["Fail"] = "Unable to edit ticket. Try again, and if the problem persists contact your system administrator.";
                 return RedirectToAction("Index");
             }
             if (!identityHelper.IsCurrentUserAnAdministrator() && ticket.CreatorId != identityHelper.CurrentUser.Id && ticket.RequesterId != identityHelper.CurrentUser.Id)
             {
+                TempData["Fail"] = "You can't display details of ticket which you didn't create or request.";
                 return RedirectToAction("Index");
             }
 
-            model.Requester = await identityHelper.UserManager.FindByIdAsync(model.RequesterId);
-            if (identityHelper.IsCurrentUserAnAdministrator())
+            if (model.RequesterId != null && await identityHelper.UserManager.FindByIdAsync(model.RequesterId) == null)
+                ModelState.AddModelError("RequesterId", "Selected user doesn't exist.");
+            if (model.AssignedUserId != null && await identityHelper.UserManager.FindByIdAsync(model.AssignedUserId) == null)
+                ModelState.AddModelError("AssignedUserId", "Selected user doesn't exist.");
+            if (model.Status != "New" && model.Status != "In progress" && model.Status != "Solved" && model.Status != "Closed")
+                ModelState.AddModelError("Status", $"Status \"{model.Status}\" is incorrect.");
+            if (model.CategoryId != null && unitOfWork.CategoryRepository.GetById((int)model.CategoryId) == null)
+                ModelState.AddModelError("CategoryId", "Selected category doesn't exist.");
+
+            
+            if (!identityHelper.IsCurrentUserAnAdministrator())
             {
-                model.AssignedUser = await identityHelper.UserManager.FindByIdAsync(model.AssignedUserId);
+                ModelState.Remove("AssignedUserId");
+                model.AssignedUserId = ticket.AssignedUserId;
+                model.AssignedUser = ticket.AssignedUser;
+
+                ModelState.Remove("Status");
+                model.Status = ticket.Status;
+
+                ModelState.Remove("Solution");
+                model.Solution = ticket.Solution;
             }
-            else
+
+            try
             {
-                if (ticket.CreatorId != identityHelper.CurrentUser.Id && ticket.RequesterId != identityHelper.CurrentUser.Id)
+                if (ModelState.IsValid)
                 {
+                    Ticket oldTicket = (Ticket)ticket.Clone();
+
+                    ticket.RequesterId = model.RequesterId;
+                    ticket.AssignedUserId = model.AssignedUserId;
+                    ticket.Status = model.Status;
+                    ticket.CategoryId = model.CategoryId;
+                    ticket.Title = model.Title;
+                    ticket.Content = model.Content;
+                    ticket.Solution = model.Solution;
+                    unitOfWork.TicketRepository.Update(ticket);
+
+                    updateTicketHistory(oldTicket, ticket);
+                    unitOfWork.Save();
+                    TempData["Success"] = "Successfully edited ticket.";
                     return RedirectToAction("Index");
                 }
-                else
-                {
-                    ModelState.Remove("AssignedUserId");
-                    model.AssignedUserId = ticket.AssignedUserId;
-                    model.AssignedUser = ticket.AssignedUser;
-
-                    ModelState.Remove("Status");
-                    model.Status = ticket.Status;
-
-                    ModelState.Remove("Solution");
-                    model.Solution = ticket.Solution;
-                }
             }
-
-            if (ModelState.IsValid)
+            catch
             {
-                Ticket oldTicket = (Ticket)ticket.Clone();
-
-                ticket.RequesterId = model.RequesterId;
-                ticket.AssignedUserId = model.AssignedUserId;
-                ticket.Status = model.Status;
-                ticket.CategoryId = model.CategoryId;
-                ticket.Title = model.Title;
-                ticket.Content = model.Content;
-                ticket.Solution = model.Solution;
-                unitOfWork.TicketRepository.Update(ticket);
-
-                updateTicketHistory(oldTicket, ticket);
-                unitOfWork.Save();
-
-                return RedirectToAction("Index");
+                TempData["Fail"] = "Unable to edit ticket. Try again, and if the problem persists contact your system administrator.";
             }
-            else
-            {
-                model.Creator = ticket.Creator;
-                model.CreateDate = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss");
+            model.Creator = ticket.Creator;
+            model.CreateDate = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss");
+            model.Requester = await identityHelper.UserManager.FindByIdAsync(model.RequesterId);
+            model.AssignedUser = await identityHelper.UserManager.FindByIdAsync(model.AssignedUserId);
 
-                string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
-                model.Administrators = identityHelper.UserManager.Users.Where(u => u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
-                model.Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order));
-                return View(model);
-            }
+            string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
+            model.Administrators = identityHelper.UserManager.Users.Where(u => u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null).OrderBy(u => u.FirstName);
+            model.Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order));
+            return View(model);
         }
 
         [OverrideAuthorization]
-        public async Task<ActionResult> History(int id)
+        public ActionResult History(int id = 0)
         {
             Ticket ticket = unitOfWork.TicketRepository.GetById(id);
             if (ticket == null)
-                throw new Exception($"Ticket id {id} doesn't exist");
-
-            if (!await identityHelper.UserManager.IsInRoleAsync(identityHelper.CurrentUser.Id, "Admin") && ticket.CreatorId != identityHelper.CurrentUser.Id && ticket.RequesterId != identityHelper.CurrentUser.Id)
-                return new HttpUnauthorizedResult();
+            {
+                TempData["Fail"] = "Unable to display ticket history. Try again, and if the problem persists contact your system administrator.";
+                return RedirectToAction("Index");
+            }
+            if (!identityHelper.IsCurrentUserAnAdministrator() && ticket.CreatorId != identityHelper.CurrentUser.Id && ticket.RequesterId != identityHelper.CurrentUser.Id)
+            {
+                TempData["Fail"] = "You can't display history of ticket which you didn't create or request.";
+                return RedirectToAction("Index");
+            }
 
             HistoryViewModel model = new HistoryViewModel
             {
@@ -256,20 +237,27 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int ticketId)
+        public ActionResult Delete(int ticketId = 0)
         {
             Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
             if (ticket == null)
             {
+                TempData["Fail"] = "Unable to delete ticket. Try again, and if the problem persists contact your system administrator.";
                 return RedirectToAction("Index");
             }
-            if (!identityHelper.IsCurrentUserAnAdministrator() && ticket.CreatorId != identityHelper.CurrentUser.Id && ticket.RequesterId != identityHelper.CurrentUser.Id)
-                return RedirectToAction("Index");
 
-            foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { t => t.TicketId == ticketId }))
-                unitOfWork.TicketsHistoryRepository.Delete(log);
-            unitOfWork.TicketRepository.Delete(ticketId);
-            unitOfWork.Save();
+            try
+            {
+                foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { t => t.TicketId == ticketId }))
+                    unitOfWork.TicketsHistoryRepository.Delete(log);
+                unitOfWork.TicketRepository.Delete(ticketId);
+                unitOfWork.Save();
+                TempData["Success"] = "Successfully deleted ticket.";
+            }
+            catch
+            {
+                TempData["Fail"] = "Unable to delete ticket. Try again, and if the problem persists contact your system administrator.";
+            }
             return RedirectToAction("Index");
         }
 
@@ -355,6 +343,49 @@ namespace HelpDesk.UI.Controllers.MVC
                 TempData["Fail"] = "Cannot close ticket. Try again!";
             }
             return Json(new { });
+        }
+
+        private void updateTicketHistory(Ticket currentTicket, Ticket updatedTicket)
+        {
+            List<TicketsHistory> ticketsHistoryList = new List<TicketsHistory>();
+
+            if (currentTicket.RequesterId != updatedTicket.RequesterId)
+            {
+                string requesterName = updatedTicket.Requester != null ? $"{updatedTicket.Requester.FirstName} {updatedTicket.Requester.LastName}" : "";
+                ticketsHistoryList.Add(new TicketsHistory { Column = "requester", NewValue = requesterName });
+            }
+
+            if (currentTicket.AssignedUserId != updatedTicket.AssignedUserId)
+            {
+                string assignedUserName = updatedTicket.AssignedUser != null ? $"{updatedTicket.AssignedUser.FirstName} {updatedTicket.AssignedUser.LastName}" : "";
+                ticketsHistoryList.Add(new TicketsHistory { Column = "assigned user", NewValue = assignedUserName });
+            }
+
+            if (currentTicket.Status != updatedTicket.Status)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "status", NewValue = updatedTicket.Status });
+
+            if (currentTicket.CategoryId != updatedTicket.CategoryId)
+            {
+                string categoryName = updatedTicket.Category != null ? updatedTicket.Category.Name : "";
+                ticketsHistoryList.Add(new TicketsHistory { Column = "category", NewValue = categoryName });
+            }
+
+            if (currentTicket.Title != updatedTicket.Title)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "title", NewValue = updatedTicket.Title });
+
+            if (currentTicket.Content != updatedTicket.Content)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "content", NewValue = updatedTicket.Content });
+
+            if (currentTicket.Solution != updatedTicket.Solution)
+                ticketsHistoryList.Add(new TicketsHistory { Column = "solution", NewValue = updatedTicket.Solution });
+
+            foreach (var log in ticketsHistoryList)
+            {
+                log.Date = DateTime.Now;
+                log.AuthorId = identityHelper.CurrentUser.Id;
+                log.TicketId = currentTicket.TicketId;
+                unitOfWork.TicketsHistoryRepository.Insert(log);
+            }
         }
     }
 }
