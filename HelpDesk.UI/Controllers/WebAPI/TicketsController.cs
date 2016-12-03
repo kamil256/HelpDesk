@@ -13,60 +13,40 @@ using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
 using HelpDesk.DAL.Abstract;
 using HelpDesk.UI.ViewModels.Tickets;
+using HelpDesk.UI.Infrastructure;
 
 namespace HelpDesk.UI.Controllers.WebAPI
 {
     [Authorize(Roles = "Admin")]
     public class TicketsController : ApiController
     {
-        private UserManager UserManager
-        {
-            get
-            {
-                return HttpContext.Current.Request.GetOwinContext().GetUserManager<UserManager>();
-            }
-        }
+        private readonly IUnitOfWork unitOfWork;
+        private readonly IdentityHelper identityHelper;
 
-        private RoleManager RoleManager
-        {
-            get
-            {
-                return HttpContext.Current.Request.GetOwinContext().GetUserManager<RoleManager>();
-            }
-        }
-
-        private User CurrentUser
-        {
-            get
-            {
-                return UserManager.FindByNameAsync(User.Identity.Name).Result;
-            }
-        }
-
-        private IUnitOfWork unitOfWork;
-
-        public TicketsController()//IUnitOfWork unitOfWork)
+        public TicketsController()
         {
             this.unitOfWork = new UnitOfWork();
+            identityHelper = new IdentityHelper();
         }
-
-        [Authorize]
+                
         [HttpGet]
-        public HttpResponseMessage GetTickets(string userId = null, string status = null, string assignedToID = null, int? categoryID = null, string search = null, bool advancedSearch = false, string sortBy = null, bool descSort = false, int page = 0)
+        [OverrideAuthentication]
+        [Authorize]
+        public HttpResponseMessage GetTickets(string userId = null, string status = null, string assignedToId = null, int? categoryId = null, string search = null, bool advancedSearch = false, string sortBy = null, bool descSort = false, int page = 0)
         {
             List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
-            if (!UserManager.IsInRole(CurrentUser.Id, "Admin"))
-                filters.Add(ticket => ticket.CreatorId == CurrentUser.Id);
+            if (!identityHelper.IsCurrentUserAnAdministrator())
+                filters.Add(ticket => ticket.CreatorId == identityHelper.CurrentUser.Id || ticket.RequesterId == identityHelper.CurrentUser.Id);
             else
             {
                 if (userId != null)
-                    filters.Add(ticket => ticket.CreatorId == userId);
+                    filters.Add(ticket => ticket.CreatorId == userId || ticket.RequesterId == userId);
                 if (status != null)
                     filters.Add(ticket => ticket.Status == status);
-                if (assignedToID != null)
-                    filters.Add(ticket => ticket.AssignedUserId == assignedToID);
-                if (categoryID != null)
-                    filters.Add(ticket => ticket.CategoryId == categoryID);
+                if (assignedToId != null)
+                    filters.Add(ticket => ticket.AssignedUserId == assignedToId);
+                if (categoryId != null)
+                    filters.Add(ticket => ticket.CategoryId == categoryId);
             }
 
             if (!string.IsNullOrEmpty(search))
@@ -116,7 +96,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     break;
             }
 
-            int ticketsPerPage = CurrentUser.Settings.TicketsPerPage;
+            int ticketsPerPage = identityHelper.CurrentUser.Settings.TicketsPerPage;
             int numberOfTickets = unitOfWork.TicketRepository.Get(filters: filters).Count();
             int numberOfPages;
 

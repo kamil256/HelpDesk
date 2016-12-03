@@ -41,8 +41,8 @@
                 data:
                 {
                     Status: self.filter.status(),
-                    AssignedToID: self.filter.assignedTo() ? self.filter.assignedTo().UserId : null,
-                    CategoryID: self.filter.category() ? self.filter.category().CategoryId : null,
+                    AssignedToId: self.filter.assignedTo() ? self.filter.assignedTo().UserId : null,
+                    CategoryId: self.filter.category() ? self.filter.category().CategoryId : null,
                     Search: self.filter.search(),
                     AdvancedSearch: self.filter.advancedSearch(),
                     SortBy: self.filter.sortBy(),
@@ -53,6 +53,10 @@
                 {
                     self.tickets(data.Tickets);
                     self.numberOfPages(data.NumberOfPages);
+                },
+                error: function()
+                {
+                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
                 }
             });
         };

@@ -39,6 +39,10 @@
                 {
                     self.users(data.Users);
                     self.numberOfPages(data.NumberOfPages);
+                },
+                error: function()
+                {
+                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
                 }
             });
         };
