@@ -13,6 +13,7 @@ namespace HelpDesk.UI.ViewModels.Tickets
     {
         public int TicketId { get; set; }
 
+        [DisplayName("Create date")]
         public string CreateDate { get; set; }
 
         [DisplayName("Requester")]
