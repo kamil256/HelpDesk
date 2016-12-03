@@ -76,6 +76,10 @@
                     for (var i = 0; i < data.Users.length; i++)
                         data.Users[i].Name = data.Users[i].FirstName + " " + data.Users[i].LastName;
                     self.administrators(data.Users);
+                },
+                error: function()
+                {
+                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
                 }
             });
         };
@@ -88,6 +92,10 @@
                 success: function(data)
                 {
                     self.categories(data);
+                },
+                error: function()
+                {
+                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
                 }
             });
         };
@@ -109,6 +117,10 @@
                     if (data.Fail)
                         displayNewFailMessage(data.Fail);
                     self.getTickets();
+                },
+                error: function()
+                {
+                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
                 }
             });            
         };
@@ -133,6 +145,10 @@
                     if (data.Fail)
                         displayNewFailMessage(data.Fail);
                     self.getTickets();
+                },
+                error: function()
+                {
+                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
                 }
             });
         };
@@ -153,6 +169,10 @@
                     if (data.Fail)
                         displayNewFailMessage(data.Fail);
                     self.getTickets();
+                },
+                error: function()
+                {
+                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
                 }
             });            
         };
