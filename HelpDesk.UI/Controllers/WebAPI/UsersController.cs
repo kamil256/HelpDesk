@@ -137,7 +137,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
 
             if (page != 0)
             {
-                numberOfPages = (int)Math.Ceiling((decimal)numberOfUsers / (int)usersPerPage);
+                numberOfPages = (int)Math.Ceiling((decimal)numberOfUsersFound / (int)usersPerPage);
                 users = users.Skip((page - 1) * (int)usersPerPage).Take((int)usersPerPage);
             }
             else
@@ -163,7 +163,8 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     TicketsCount = u.CreatedTickets.Count
                 }),
                 NumberOfPages = numberOfPages,
-                NumberOfUsers = numberOfUsersFound
+                NumberOfUsers = numberOfUsers,
+                NumberOfUsersFound = numberOfUsersFound
             });
         }
     }
