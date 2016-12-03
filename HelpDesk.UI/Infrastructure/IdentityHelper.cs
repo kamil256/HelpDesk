@@ -31,17 +31,28 @@ namespace HelpDesk.UI.Infrastructure
         {
             get
             {
-                if (currentUser == null)
-                    currentUser = UserManager.FindByName(HttpContext.Current.User.Identity.Name);
+                if (HttpContext.Current.User.Identity.IsAuthenticated)
+                {
+                    if (currentUser == null)
+                        currentUser = UserManager.FindByName(HttpContext.Current.User.Identity.Name);
+
+                }
+                else
+                    currentUser = null;
                 return currentUser;
             }
         }
 
         public bool IsCurrentUserAnAdministrator()
         {
-            if (isCurrentUserAnAdministrator == null)
-                isCurrentUserAnAdministrator = UserManager.IsInRole(CurrentUser.Id, "Admin");
-            return (bool)isCurrentUserAnAdministrator;
+            if (HttpContext.Current.User.Identity.IsAuthenticated)
+            {
+                if (isCurrentUserAnAdministrator == null)
+                    isCurrentUserAnAdministrator = UserManager.IsInRole(CurrentUser.Id, "Admin");
+            }
+            else
+                isCurrentUserAnAdministrator = null;
+            return isCurrentUserAnAdministrator ?? false;
         }
 
         private User currentUser = null;

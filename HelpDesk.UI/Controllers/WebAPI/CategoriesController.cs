@@ -12,6 +12,7 @@ using System.Web.Http;
 
 namespace HelpDesk.UI.Controllers.WebAPI
 {
+    [Authorize]
     public class CategoriesController : ApiController
     {
         private IUnitOfWork unitOfWork;
@@ -21,7 +22,6 @@ namespace HelpDesk.UI.Controllers.WebAPI
             this.unitOfWork = new UnitOfWork();
         }
 
-        [OverrideAuthorization]
         [HttpGet]
         public IEnumerable<CategoryDTO> GetCategories()
         {

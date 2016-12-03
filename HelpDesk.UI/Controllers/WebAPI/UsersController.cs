@@ -28,7 +28,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
             this.identityHelper = new IdentityHelper();
         }
 
-        [OverrideAuthorization]
+        [Authorize]
         [HttpGet]
         public HttpResponseMessage GetUsers(string role = null, string search = null, bool advancedSearch = true, string sortBy = null, bool descSort = false, int page = 0, int? usersPerPage = null)
         {

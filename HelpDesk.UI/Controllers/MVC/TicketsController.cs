@@ -32,13 +32,13 @@ namespace HelpDesk.UI.Controllers.MVC
             this.identityHelper = new IdentityHelper();
         }
 
-        [OverrideAuthorization]
+        [Authorize]
         public ViewResult Index()
         {
             return View();
         }
 
-        [OverrideAuthorization]
+        [Authorize]
         public ViewResult Create()
         {
             CreateViewModel model = new CreateViewModel
@@ -51,7 +51,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [OverrideAuthorization]
+        [Authorize]
         public async Task<ActionResult> Create([Bind(Include = "RequesterId,CategoryId,Title,Content")] CreateViewModel model)
         {
             if (model.RequesterId != null && await identityHelper.UserManager.FindByIdAsync(model.RequesterId) == null)
@@ -89,7 +89,7 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
-        [OverrideAuthorization]
+        [Authorize]
         public ActionResult Edit(int id = 0)
         {
             Ticket ticket = unitOfWork.TicketRepository.GetById(id);
@@ -126,7 +126,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [OverrideAuthorization]
+        [Authorize]
         public async Task<ActionResult> Edit([Bind(Include = "TicketId,RequesterId,AssignedUserId,Status,CategoryId,Title,Content,Solution")] EditViewModel model)
         {
             Ticket ticket = unitOfWork.TicketRepository.GetById(model.TicketId);
@@ -200,7 +200,7 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
-        [OverrideAuthorization]
+        [Authorize]
         public ActionResult History(int id = 0)
         {
             Ticket ticket = unitOfWork.TicketRepository.GetById(id);
@@ -275,10 +275,26 @@ namespace HelpDesk.UI.Controllers.MVC
         [HttpPost]
         public async Task<JsonResult> AssignUserToTicket(string userId, int ticketId)
         {
+            User user = await identityHelper.UserManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Json(new
+                {
+                    Fail = "Cannot assign ticket to user which doesn't exist. Try again, and if the problem persists contact your system administrator."
+                });
+            }
+
+            Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
+            if (ticket == null)
+            {
+                return Json(new
+                {
+                    Fail = "Cannot assign user to ticket which doesn't exist. Try again, and if the problem persists contact your system administrator."
+                });
+            }
+
             try
             {
-                User user = await identityHelper.UserManager.FindByIdAsync(userId);
-                Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 Ticket oldTicket = (Ticket)ticket.Clone();
 
                 ticket.AssignedUserId = user.Id;
@@ -287,23 +303,44 @@ namespace HelpDesk.UI.Controllers.MVC
 
                 updateTicketHistory(oldTicket, ticket);
                 unitOfWork.Save();
-
-                TempData["Success"] = "Successfully assigned user to ticket!";
             }
             catch
             {
-                TempData["Fail"] = "Cannot assign user to ticket. Try again!";
+                return Json(new
+                {
+                    Fail = "Cannot assign user to ticket. Try again, and if the problem persists contact your system administrator."
+                });
             }
-            return Json(new { });
+
+            return Json(new
+            {
+                Success = "Successfully assigned user to ticket."
+            });
         }
 
         [HttpPost]
         public async Task<JsonResult> SolveTicket(string userId, int ticketId, string solution)
         {
+            User user = await identityHelper.UserManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Json(new
+                {
+                    Fail = "Cannot solve ticket by user which doesn't exist. Try again, and if the problem persists contact your system administrator."
+                });
+            }
+
+            Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
+            if (ticket == null)
+            {
+                return Json(new
+                {
+                    Fail = "Cannot solve ticket which doesn't exist. Try again, and if the problem persists contact your system administrator."
+                });
+            }
+
             try
             {
-                User user = await identityHelper.UserManager.FindByIdAsync(userId);
-                Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 Ticket oldTicket = (Ticket)ticket.Clone();
 
                 ticket.AssignedUserId = user.Id;
@@ -311,23 +348,37 @@ namespace HelpDesk.UI.Controllers.MVC
                 ticket.Solution = solution;
                 unitOfWork.TicketRepository.Update(ticket);
 
-                updateTicketHistory(oldTicket, ticket);                
+                updateTicketHistory(oldTicket, ticket);
                 unitOfWork.Save();
-                TempData["Success"] = "Successfully solved ticket!";
             }
             catch
-            {
-                TempData["Fail"] = "Cannot solve ticket. Try again!";
+            { 
+                return Json(new
+                {
+                    Fail = "Cannot solve ticket. Try again, and if the problem persists contact your system administrator."
+                });
             }
-            return Json(new { });
+
+            return Json(new
+            {
+                Success = "Successfully solved ticket."
+            });
         }
 
         [HttpPost]
         public JsonResult CloseTicket(int ticketId)
         {
+            Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
+            if (ticket == null)
+            {
+                return Json(new
+                {
+                    Fail = "Cannot close ticket which doesn't exist. Try again, and if the problem persists contact your system administrator."
+                });
+            }
+
             try
             {
-                Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
                 Ticket oldTicket = (Ticket)ticket.Clone();
                 
                 ticket.AssignedUserId = identityHelper.CurrentUser.Id;
@@ -336,13 +387,19 @@ namespace HelpDesk.UI.Controllers.MVC
 
                 updateTicketHistory(oldTicket, ticket);                
                 unitOfWork.Save();
-                TempData["Success"] = "Successfully closed ticket!";
             }
             catch
             {
-                TempData["Fail"] = "Cannot close ticket. Try again!";
+                return Json(new
+                {
+                    Fail = "Cannot close ticket. Try again, and if the problem persists contact your system administrator."
+                });
             }
-            return Json(new { });
+
+            return Json(new
+            {
+                Success = "Successfully closed ticket."
+            });
         }
 
         private void updateTicketHistory(Ticket currentTicket, Ticket updatedTicket)

@@ -50,7 +50,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
             this.unitOfWork = new UnitOfWork();
         }
 
-        [OverrideAuthorization]
+        [Authorize]
         [HttpGet]
         public HttpResponseMessage GetTickets(string userId = null, string status = null, string assignedToID = null, int? categoryID = null, string search = null, bool advancedSearch = false, string sortBy = null, bool descSort = false, int page = 0)
         {

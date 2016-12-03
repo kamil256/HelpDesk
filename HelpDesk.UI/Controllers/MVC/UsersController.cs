@@ -83,7 +83,7 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
-        [OverrideAuthorization]
+        [Authorize]
         public async Task<ActionResult> Edit(string id)
         {
             User user;
@@ -112,7 +112,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [OverrideAuthorization]
+        [Authorize]
         public async Task<ActionResult> Edit([Bind(Include = "UserId,FirstName,LastName,Email,Phone,MobilePhone,Company,Department,Role")] EditViewModel model)
         {
             User user;
@@ -158,7 +158,7 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
-        [OverrideAuthorization]
+        [Authorize]
         public async Task<ActionResult> ChangePassword(string id)
         {
             User user;
@@ -181,7 +181,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [OverrideAuthorization]
+        [Authorize]
         public async Task<ActionResult> ChangePassword([Bind(Include = "UserId,CurrentPassword,NewPassword,ConfirmPassword")] ChangePasswordViewModel model)
         {
             User user;
@@ -241,7 +241,7 @@ namespace HelpDesk.UI.Controllers.MVC
             return View("Tickets", (object)user.Id);
         }
 
-        [OverrideAuthorization]
+        [Authorize]
         public async Task<ActionResult> History(string id)
         {
             User user;
