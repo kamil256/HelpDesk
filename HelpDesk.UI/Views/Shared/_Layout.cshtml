@@ -90,28 +90,21 @@
             </div>
         }
     </div>
-    <div id="messages">
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success">
-                <a href="#" class="close" @*data-dismiss="alert"*@ aria-label="close">&times;</a>
-                <span class="glyphicon glyphicon-info-sign"></span> @(TempData["Success"])
-            </div>
-        }
 
-        @if (TempData["Fail"] != null)
-        {
-            <div class="alert alert-danger">
-                <a href="#" class="close" @*data-dismiss="alert"*@ aria-label="close">&times;</a>
-                <span class="glyphicon glyphicon-exclamation-sign"></span> @(TempData["Fail"])
-            </div>
-        }
+    <div id="messages">
     </div>
 
     <script>
         $(document).ready(function()
         {
-            $(".alert").show("slow");
+            @if (TempData["Success"] != null)
+            {
+                @: displayNewSuccessMessage("@(TempData["Success"])");
+            }
+            @if (TempData["Fail"] != null)
+            {
+                @: displayNewFailMessage("@(TempData["Fail"])");
+            }
         });
 
         function displayNewSuccessMessage(message)
@@ -140,6 +133,8 @@
 
             messages.appendChild(div);
             $(div).show("slow");
+
+            setTimeout(function() { $(div).hide("slow") }, 10000);
         }
 
         function displayNewFailMessage(message)
@@ -168,12 +163,9 @@
 
             messages.appendChild(div);
             $(div).show("slow");
-        }
 
-        $(".close").click(function(e)
-        {
-            $(".alert").hide("slow");
-        });
+            setTimeout(function() { $(div).hide("slow") }, 10000);
+        } 
     </script>
 
     @RenderBody()
