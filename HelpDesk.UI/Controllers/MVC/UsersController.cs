@@ -234,6 +234,10 @@ namespace HelpDesk.UI.Controllers.MVC
                     TempData["Fail"] = "Unable to change user's password. Try again, and if the problem persists contact your system administrator.";
                     return RedirectToAction("Index");
                 }
+                if (user.Id != identityHelper.CurrentUser.Id)
+                {
+                    ModelState.Remove("CurrentPassword");
+                }
             }
             else
                 user = identityHelper.CurrentUser;
@@ -242,15 +246,45 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 if (ModelState.IsValid)
                 {
-                    IdentityResult changePasswordResult = await identityHelper.UserManager.ChangePasswordAsync(user.Id, model.CurrentPassword, model.NewPassword);
-                    if (changePasswordResult.Succeeded)
+                    if (identityHelper.IsCurrentUserAnAdministrator() && user.Id != identityHelper.CurrentUser.Id)
                     {
-                        TempData["Success"] = "Successfully changed password!";
-                        return RedirectToAction("ChangePassword", new { id = user.Id });
+                        IdentityResult validatePasswordResult = await identityHelper.UserManager.PasswordValidator.ValidateAsync(model.NewPassword);
+                        if (validatePasswordResult.Succeeded)
+                        {
+                            user.PasswordHash = identityHelper.UserManager.PasswordHasher.HashPassword(model.NewPassword);
+                            IdentityResult updateSecurityStampResult = await identityHelper.UserManager.UpdateSecurityStampAsync(user.Id);
+                            if (updateSecurityStampResult.Succeeded)
+                            {
+                                IdentityResult changePasswordResult = await identityHelper.UserManager.UpdateAsync(user);
+                                if (changePasswordResult.Succeeded)
+                                {
+                                    TempData["Success"] = "Successfully changed password!";
+                                    return RedirectToAction("ChangePassword", new { id = user.Id });
+                                }
+                                else
+                                    foreach (string error in validatePasswordResult.Errors)
+                                        ModelState.AddModelError("", error);
+                            }
+                            else
+                                foreach (string error in validatePasswordResult.Errors)
+                                    ModelState.AddModelError("", error);
+                        }
+                        else
+                            foreach (string error in validatePasswordResult.Errors)
+                                ModelState.AddModelError("", error);
                     }
                     else
-                        foreach (string error in changePasswordResult.Errors)
-                            ModelState.AddModelError("", error);
+                    {
+                        IdentityResult changePasswordResult = await identityHelper.UserManager.ChangePasswordAsync(user.Id, model.CurrentPassword, model.NewPassword);
+                        if (changePasswordResult.Succeeded)
+                        {
+                            TempData["Success"] = "Successfully changed password!";
+                            return RedirectToAction("ChangePassword", new { id = user.Id });
+                        }
+                        else
+                            foreach (string error in changePasswordResult.Errors)
+                                ModelState.AddModelError("", error);
+                    }
                 }
             }
             catch
