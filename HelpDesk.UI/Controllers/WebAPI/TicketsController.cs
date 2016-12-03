@@ -30,7 +30,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
         }
                 
         [HttpGet]
-        [OverrideAuthentication]
+        [OverrideAuthorization]
         [Authorize]
         public HttpResponseMessage GetTickets(string userId = null, string status = null, string assignedToId = null, int? categoryId = null, string search = null, bool advancedSearch = false, string sortBy = null, bool descSort = false, int page = 0)
         {

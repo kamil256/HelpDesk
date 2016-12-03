@@ -17,6 +17,7 @@ using System.Web.Http;
 
 namespace HelpDesk.UI.Controllers.WebAPI
 {
+    [Authorize(Roles = "Admin")]
     public class UsersController : ApiController
     {
         private readonly IUnitOfWork unitOfWork;
@@ -28,8 +29,9 @@ namespace HelpDesk.UI.Controllers.WebAPI
             this.identityHelper = new IdentityHelper();
         }
 
-        [Authorize]
         [HttpGet]
+        [OverrideAuthorization]
+        [Authorize]
         public HttpResponseMessage GetUsers(string role = null, string search = null, bool advancedSearch = true, string sortBy = null, bool descSort = false, int page = 0, int? usersPerPage = null)
         {
             List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();

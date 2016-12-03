@@ -7,9 +7,11 @@ using System.Web.Mvc;
 
 namespace HelpDesk.UI.Controllers.MVC
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class HomeController : Controller
     {
+        [OverrideAuthorization]
+        [Authorize]
         public ActionResult Index()
         {
             return View();

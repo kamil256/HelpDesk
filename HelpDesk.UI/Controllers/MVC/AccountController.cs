@@ -18,6 +18,7 @@ using System.Web.Security;
 
 namespace HelpDesk.UI.Controllers.MVC
 {
+    [Authorize(Roles = "Admin")]
     public class AccountController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
@@ -29,6 +30,7 @@ namespace HelpDesk.UI.Controllers.MVC
             this.identityHelper = new IdentityHelper();
         }
 
+        [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
             LoginViewModel model = new LoginViewModel
@@ -40,6 +42,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<ActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
@@ -58,6 +61,8 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
+        [OverrideAuthorization]
+        [Authorize]
         public ActionResult LogOff()
         {
             IAuthenticationManager authenticationManager = HttpContext.GetOwinContext().Authentication;

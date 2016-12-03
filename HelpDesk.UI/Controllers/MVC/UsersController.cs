@@ -277,7 +277,12 @@ namespace HelpDesk.UI.Controllers.MVC
             else
                 user = identityHelper.CurrentUser;
 
-            return View("Tickets", (object)user.Id);
+            TicketsViewModel model = new TicketsViewModel
+            {
+                UserId = user.Id
+            };
+
+            return View("Tickets", model);
         }
 
         [OverrideAuthorization]

@@ -32,12 +32,14 @@ namespace HelpDesk.UI.Controllers.MVC
             this.identityHelper = new IdentityHelper();
         }
 
+        [OverrideAuthorization]
         [Authorize]
         public ViewResult Index()
         {
             return View();
         }
 
+        [OverrideAuthorization]
         [Authorize]
         public ViewResult Create()
         {
@@ -51,6 +53,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [OverrideAuthorization]
         [Authorize]
         public async Task<ActionResult> Create([Bind(Include = "RequesterId,CategoryId,Title,Content")] CreateViewModel model)
         {
@@ -89,6 +92,7 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
+        [OverrideAuthorization]
         [Authorize]
         public ActionResult Edit(int id = 0)
         {
@@ -126,6 +130,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [OverrideAuthorization]
         [Authorize]
         public async Task<ActionResult> Edit([Bind(Include = "TicketId,RequesterId,AssignedUserId,Status,CategoryId,Title,Content,Solution")] EditViewModel model)
         {
@@ -200,6 +205,7 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
+        [OverrideAuthorization]
         [Authorize]
         public ActionResult History(int id = 0)
         {

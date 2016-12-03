@@ -17,7 +17,7 @@ using System.Web.Mvc;
 
 namespace HelpDesk.UI.Controllers.MVC
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class SettingsController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
@@ -27,8 +27,10 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             this.unitOfWork = unitOfWork;
             this.identityHelper = new IdentityHelper();
-        }        
+        }
 
+        [OverrideAuthorization]
+        [Authorize]
         public ViewResult Index()
         {
             Settings settings = identityHelper.CurrentUser.Settings;
@@ -43,7 +45,7 @@ namespace HelpDesk.UI.Controllers.MVC
             if (identityHelper.IsCurrentUserAnAdministrator())
             {
                 model.UsersPerPage = settings.UsersPerPage;
-                model.Categories = unitOfWork.CategoryRepository.Get(orderBy: query => query.OrderBy(category => category.Order)).ToList();
+                model.Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order)).ToList();
             }
 
             return View(model);
@@ -51,6 +53,8 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [OverrideAuthorization]
+        [Authorize]
         public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,CategoriesId,CategoriesName")] IndexViewModel model)
         {
             if (!identityHelper.IsCurrentUserAnAdministrator())

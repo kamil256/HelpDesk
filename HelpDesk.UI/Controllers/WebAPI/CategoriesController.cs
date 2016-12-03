@@ -12,7 +12,7 @@ using System.Web.Http;
 
 namespace HelpDesk.UI.Controllers.WebAPI
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class CategoriesController : ApiController
     {
         private IUnitOfWork unitOfWork;
@@ -23,14 +23,15 @@ namespace HelpDesk.UI.Controllers.WebAPI
         }
 
         [HttpGet]
+        [OverrideAuthorization]
+        [Authorize]
         public IEnumerable<CategoryDTO> GetCategories()
         {
-            return unitOfWork.CategoryRepository.Get(orderBy: o => o.OrderBy(c => c.Order))
-                                                .Select(c => new CategoryDTO
-                                                {
-                                                    CategoryId = c.CategoryId,
-                                                    Name = c.Name
-                                                });
+            return unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order)).Select(c => new CategoryDTO
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name
+            });
         }
     }
 }

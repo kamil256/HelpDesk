@@ -41,6 +41,10 @@
                 success: function (data) {
                     self.users(data.Users);
                     self.numberOfUsersFound(data.NumberOfUsersFound);
+                },
+                error: function()
+                {
+                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
                 }
             });
         };

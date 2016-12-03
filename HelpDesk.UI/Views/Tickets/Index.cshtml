@@ -353,11 +353,14 @@
                         <!-- /ko -->*@
                     </div>
 
-                    <div class="hidden-xs" style="width: 180px; display: table-cell; aborder-left: 1px dashed gray; vertical-align: bottom">
-                        <button title="Close ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-inverse pull-right" style="width: 50px; margin: 10px 10px 10px 0;"><span class="glyphicon glyphicon-remove"></span>@*Close*@</button>
-                        <button title="Solve ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-success pull-right" style="width: 50px; margin: 10px 3px 10px 0;"><span class="glyphicon glyphicon-ok"></span>@*Solve*@</button>
-                        <button title="Assign admin to ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-primary pull-right" style="width: 50px; margin: 10px 3px 10px 0;">+<span class="glyphicon glyphicon-user"></span>@*Assign*@</button>
-                    </div>
+                    @if (identityHelper.IsCurrentUserAnAdministrator())
+                    {
+                        <div class="hidden-xs" style="width: 180px; display: table-cell; aborder-left: 1px dashed gray; vertical-align: bottom">
+                            <button title="Close ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-inverse pull-right" style="width: 50px; margin: 10px 10px 10px 0;"><span class="glyphicon glyphicon-remove"></span>@*Close*@</button>
+                            <button title="Solve ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-success pull-right" style="width: 50px; margin: 10px 3px 10px 0;"><span class="glyphicon glyphicon-ok"></span>@*Solve*@</button>
+                            <button title="Assign admin to ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-primary pull-right" style="width: 50px; margin: 10px 3px 10px 0;">+<span class="glyphicon glyphicon-user"></span>@*Assign*@</button>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -378,6 +381,8 @@
     @Html.Partial("_CloseTicketPartial")
 }*@
 
+@if (identityHelper.IsCurrentUserAnAdministrator())
+{
 <script>
     function openAssignUserDialog(event)
     {
@@ -464,3 +469,4 @@
     </div>
 </div>
 <!-- /ko -->
+}
