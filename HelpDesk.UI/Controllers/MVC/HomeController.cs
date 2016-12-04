@@ -49,7 +49,7 @@ namespace HelpDesk.UI.Controllers.MVC
             model.Last7DaysTicketsByStatusCounts.Add("Closed", unitOfWork.TicketRepository.Count(t => t.CreateDate >= sevenDaysAgo && t.Status == "Closed"));
 
             model.Last30DaysTicketsByStatusCounts = new Dictionary<string, int>();
-            model.Last30DaysTicketsByStatusCounts.Add("New", unitOfWork.TicketRepository.Count(t => t.CreateDate >= thirtyDaysAgo && t.Status == "New"));
+            model.Last30DaysTicketsByStatusCounts.Add("New", unitOfWork.TicketRepository.Count(t => t.CreateDate < sevenDaysAgo && t.CreateDate >= thirtyDaysAgo && t.Status == "New"));
             model.Last30DaysTicketsByStatusCounts.Add("In progress", unitOfWork.TicketRepository.Count(t => t.CreateDate >= thirtyDaysAgo && t.Status == "In progress"));
             model.Last30DaysTicketsByStatusCounts.Add("Solved", unitOfWork.TicketRepository.Count(t => t.CreateDate >= thirtyDaysAgo && t.Status == "Solved"));
             model.Last30DaysTicketsByStatusCounts.Add("Closed", unitOfWork.TicketRepository.Count(t => t.CreateDate >= thirtyDaysAgo && t.Status == "Closed"));
