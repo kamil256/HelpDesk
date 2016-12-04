@@ -104,6 +104,12 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     else
                         orderBy = query => query.OrderBy(u => u.Roles.FirstOrDefault().RoleId);
                     break;
+                case "Last activity":
+                    if (descSort)
+                        orderBy = query => query.OrderByDescending(u => u.LastActivity);
+                    else
+                        orderBy = query => query.OrderBy(u => u.LastActivity);
+                    break;
                 case "Tickets":
                     if (descSort)
                         orderBy = query => query.OrderByDescending(u => u.CreatedTickets.Count);
@@ -147,11 +153,9 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 numberOfPages = 1;
             }
 
-            string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
-
             return Request.CreateResponse(HttpStatusCode.OK, new
             {
-                Users = users.Select(u => new UserDTO
+                Users = users.AsEnumerable().Select(u => new UserDTO
                 {
                     UserId = u.Id,
                     FirstName = u.FirstName,
@@ -161,7 +165,8 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     MobilePhone = u.MobilePhone,
                     Company = u.Company,
                     Department = u.Department,
-                    Role = u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null ? "Admin" : "User",
+                    Role = identityHelper.UserManager.IsInRole(u.Id, "Admin") ? "Admin" : "User",
+                    LastActivity = u.LastActivity != null ? ((DateTime)u.LastActivity).ToString("yyyy-MM-dd HH:mm") : "Never",
                     TicketsCount = u.CreatedTickets.Union(u.RequestedTickets).Distinct().Count()
                 }),
                 NumberOfPages = numberOfPages,

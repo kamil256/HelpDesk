@@ -34,8 +34,11 @@ namespace HelpDesk.UI.Infrastructure
                 if (HttpContext.Current.User.Identity.IsAuthenticated)
                 {
                     if (currentUser == null)
+                    {
                         currentUser = UserManager.FindByName(HttpContext.Current.User.Identity.Name);
-
+                        currentUser.LastActivity = DateTime.Now;
+                        UserManager.Update(currentUser);
+                    }
                 }
                 else
                     currentUser = null;

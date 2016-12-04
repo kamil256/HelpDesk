@@ -120,7 +120,8 @@ namespace HelpDesk.UI.Controllers.MVC
                 MobilePhone = user.MobilePhone,
                 Company = user.Company,
                 Department = user.Department,
-                Role = identityHelper.UserManager.IsInRole(user.Id, "Admin") ? "Admin" : "User"
+                Role = identityHelper.UserManager.IsInRole(user.Id, "Admin") ? "Admin" : "User",
+                LastActivity = user.LastActivity != null ? ((DateTime)user.LastActivity).ToString("yyyy-MM-dd HH:mm") : "Never"
             };
             return View(model);
         }
@@ -191,6 +192,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 TempData["Fail"] = "Unable to edit user. Try again, and if the problem persists contact your system administrator.";
             }
+            model.LastActivity = user.LastActivity != null ? ((DateTime)user.LastActivity).ToString("yyyy-MM-dd HH:mm") : "Never";
             return View(model);
         }
 

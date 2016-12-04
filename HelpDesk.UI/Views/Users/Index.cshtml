@@ -4,7 +4,7 @@
         var self = this;
 
         self.users = ko.observableArray([]);
-        self.sortingOptions = ko.observableArray(["First name", "Last name", "Email", "Phone", "Mobile phone", "Company", "Department", "Role", "Tickets"]);
+        self.sortingOptions = ko.observableArray(["First name", "Last name", "Email", "Phone", "Mobile phone", "Company", "Department", "Role", "Last activity", "Tickets"]);
 
         self.numberOfPages = ko.observable();
         self.pages = ko.computed(function()
@@ -133,7 +133,11 @@
                 -webkit-transition: height 5s;*/
             }
 
-            .user-item .col-xs-5 /*:not(:last-child)*/ {
+            .user-item .col-xs-4 /*:not(:last-child)*/ {
+                border-right: 1px solid lightgray;
+            }
+
+            .user-item .col-xs-2:not(:last-child) {
                 border-right: 1px solid lightgray;
             }
 
@@ -157,15 +161,19 @@
 
                     <div><p style="font-size: 20px; margin-bottom: 10px; margin-top: 5px;" data-bind="text: FirstName + ' ' + LastName"></p></div>
                     <div class="row">
-                        <div class="col-xs-5">
+                        <div class="col-xs-4">
                             <p><span class="cat">Email:</span> <span class="val" data-bind="text: Email"></span></p>
                             <p><span class="cat">Phone:</span> <span class="val" data-bind="text: Phone"></span></p>
                             <p><span class="cat">Mobile phone:</span> <span class="val" data-bind="text: MobilePhone"></span></p>
                         </div>
-                        <div class="col-xs-5">
+                        <div class="col-xs-4">
                             <p><span class="cat">Company:</span> <span class="val" data-bind="text: Company"></span></p>
                             <p><span class="cat">Department:</span> <span class="val" data-bind="text: Department"></span></p>
                             <p><span class="cat">Role:</span> <span class="val" data-bind="text: Role"></span></p>
+                        </div>
+                        <div class="col-xs-2">
+                            <p class="cat">Last activity:</p>
+                            <p style="line-height: 48px; vertical-align: middle; font-size: 16px" data-bind="text: LastActivity"></p>
                         </div>
                         <div class="col-xs-2">
                             <p class="cat">Tickets:</p>
