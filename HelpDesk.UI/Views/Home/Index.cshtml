@@ -2,4 +2,782 @@
     ViewBag.Title = "Index";
 }
 
-<h1>Dashboard under construction...</h1>
+<!-- Styles -->
+<style>
+    #chartdiv1, #chartdiv2, #chartdiv3, #chartdiv4,#chartdiv5,#chartdiv6,#chartdiv7,#chartdiv8  {
+        width: 100%;
+        height: 300px;
+    }
+
+    .amcharts-export-menu-top-right {
+        top: 10px;
+        right: 0;
+    }
+</style>
+
+<style>
+    /*@@media (min-width: 768px) {*/
+        .details-panel {
+            background-color: #F5F5F5;
+            box-shadow: gray 0 0 10px;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 0px;
+        }
+    /*}*/
+
+    /*@@media (max-width: 767px) {
+        .details-panel {
+            padding: 0 !important;
+        }
+    }*/
+</style>
+
+
+
+<!-- Resources -->
+<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+<script src="https://www.amcharts.com/lib/3/pie.js"></script>
+<script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+
+<!-- Chart code -->
+<script>
+    /**
+ * Use addInitHandler to do operations on the chart object
+ * before it is drawn
+ */
+    AmCharts.addInitHandler(function(chart)
+    {
+        // set base values
+        var categoryWidth = 40;
+
+        // calculate bottom margin based on number of data points
+        var chartHeight = categoryWidth * chart.dataProvider.length;
+
+        // set the value
+        chart.div.style.height = chartHeight + 'px';
+
+    }, ['serial']);
+
+    var chart8 = AmCharts.makeChart("chartdiv8",
+        {
+            "autoMargins": false,
+            "marginTop": "0",
+            "marginBottom": "0",
+            "marginLeft": "0",
+            "marginRight": "0",
+            "pullOutRadius": "0",
+            "type": "pie",
+            "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
+            "innerRadius": "60%",
+            "labelsEnabled": false,
+            "colors": [
+                "orangered",
+                "dodgerblue",
+                "forestgreen",
+                "#555"
+            ],
+            "titleField": "category",
+            "valueField": "column-1",
+            "allLabels": [],
+            "balloon": {},
+            "legend": {
+                "enabled": true,
+                "align": "center",
+                "markerType": "circle"
+            },
+            "titles": [],
+            "dataProvider": [
+                {
+                    "category": "New",
+                    "column-1": 8
+                },
+                {
+                    "category": "In progress",
+                    "column-1": 6
+                },
+                {
+                    "category": "Solved",
+                    "column-1": "20"
+                },
+                {
+                    "category": "Closed",
+                    "column-1": "1"
+                }
+            ]
+        });
+
+    var chart4 = AmCharts.makeChart("chartdiv4",
+        {
+    "autoMargins": false,
+    "marginTop": "0",
+    "marginBottom": "0",
+    "marginLeft": "0",
+    "marginRight": "0",
+    "pullOutRadius": "0",
+        "type": "pie",
+        "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
+        "innerRadius": "60%",
+        "labelsEnabled": false,
+        "colors": [
+            "orangered",
+            "dodgerblue",
+            "forestgreen",
+            "#555"
+        ],
+        "titleField": "category",
+        "valueField": "column-1",
+        "allLabels": [],
+        "balloon": {},
+        "legend": {
+            "enabled": true,
+            "align": "center",
+            "markerType": "circle"
+        },
+        "titles": [],
+        "dataProvider": [
+            {
+                "category": "New",
+                "column-1": 8
+            },
+            {
+                "category": "In progress",
+                "column-1": 6
+            },
+            {
+                "category": "Solved",
+                "column-1": "20"
+            },
+            {
+                "category": "Closed",
+                "column-1": "1"
+            }
+        ]
+        });
+
+    var chart5 = AmCharts.makeChart("chartdiv5",
+        {
+            "autoMargins": false,
+            "marginTop": "0",
+            "marginBottom": "0",
+            "marginLeft": "0",
+            "marginRight": "0",
+            "pullOutRadius": "0",
+            "type": "pie",
+            "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
+            "innerRadius": "60%",
+            "labelsEnabled": false,
+            "colors": [
+                "orangered",
+                "dodgerblue",
+                "forestgreen",
+                "#555"
+            ],
+            "titleField": "category",
+            "valueField": "column-1",
+            "allLabels": [],
+            "balloon": {},
+            "legend": {
+                "enabled": true,
+                "align": "center",
+                "markerType": "circle"
+            },
+            "titles": [],
+            "dataProvider": [
+                {
+                    "category": "New",
+                    "column-1": 8
+                },
+                {
+                    "category": "In progress",
+                    "column-1": 6
+                },
+                {
+                    "category": "Solved",
+                    "column-1": "20"
+                },
+                {
+                    "category": "Closed",
+                    "column-1": "1"
+                }
+            ]
+        });
+
+    var chart6 = AmCharts.makeChart("chartdiv6",
+        {
+            "autoMargins": false,
+            "marginTop": "0",
+            "marginBottom": "0",
+            "marginLeft": "0",
+            "marginRight": "0",
+            "pullOutRadius": "0",
+            "type": "pie",
+            "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
+            "innerRadius": "60%",
+            "labelsEnabled": false,
+            "colors": [
+                "orangered",
+                "dodgerblue",
+                "forestgreen",
+                "#555"
+            ],
+            "titleField": "category",
+            "valueField": "column-1",
+            "allLabels": [],
+            "balloon": {},
+            "legend": {
+                "enabled": true,
+                "align": "center",
+                "markerType": "circle"
+            },
+            "titles": [],
+            "dataProvider": [
+                {
+                    "category": "New",
+                    "column-1": 8
+                },
+                {
+                    "category": "In progress",
+                    "column-1": 6
+                },
+                {
+                    "category": "Solved",
+                    "column-1": "20"
+                },
+                {
+                    "category": "Closed",
+                    "column-1": "1"
+                }
+            ]
+        });
+
+
+    var chart1 = AmCharts.makeChart("chartdiv1",
+        {
+            "type": "serial",
+            "rotate": true,
+            "theme": "light",
+            //"marginRight": 70,
+            "dataProvider":
+                [{
+                    "country": "USA",
+                    "visits": 3025,
+                    "color": "#FF0F00"
+                },
+            {
+                "country": "China",
+                "visits": 1882,
+                "color": "#FF6600"
+            },
+            {
+                "country": "Japan",
+                "visits": 1809,
+                "color": "#FF9E01"
+            },
+            {
+                "country": "Germany",
+                "visits": 1322,
+                "color": "#FCD202"
+            },
+            {
+                "country": "UK",
+                "visits": 1122,
+                "color": "#F8FF01"
+            },
+            {
+                "country": "France",
+                "visits": 1114,
+                "color": "#B0DE09"
+            },
+            {
+                "country": "India",
+                "visits": 984,
+                "color": "#04D215"
+            },
+            {
+                "country": "Spain",
+                "visits": 711,
+                "color": "#0D8ECF"
+            },
+            {
+                "country": "Netherlands",
+                "visits": 665,
+                "color": "#0D52D1"
+            },
+            {
+                "country": "Russia",
+                "visits": 580,
+                "color": "#2A0CD0"
+            },
+            {
+                "country": "South Korea",
+                "visits": 443,
+                "color": "#8A0CCF"
+            },
+            {
+                "country": "Canada",
+                "visits": 441,
+                "color": "#CD0D74"
+            }],
+            "valueAxes":
+                [{
+                    "axisAlpha": 0,
+                    "position": "left",
+                    "title": "",
+                    "showFirstLabel": false
+                }],
+            "startDuration": 1,
+            "graphs":
+                [{
+                    "balloonText": "<b>[[value]]</b>",
+                    //"fillColorsField": "color",
+                    "fillAlphas": 0.9,
+                    "lineAlpha": 0.2,
+                    "type": "column",
+                    "valueField": "visits"
+                }],
+            "chartCursor":
+                {
+                    "categoryBalloonEnabled": false,
+                    "cursorAlpha": 0,
+                    "zoomable": false
+                },
+            "categoryField": "country",
+            "categoryAxis":
+                {
+                    "gridPosition": "start",
+                    "inside": true,
+                    "labelRotation": 45
+                },
+            "titles": [
+		{
+		    "id": "Title-1",
+		    "size": 15,
+		    "text": "December 2016"
+		}
+            ]
+        });
+
+    var chart2 = AmCharts.makeChart("chartdiv2",
+        {
+            "type": "serial",
+            "rotate": true,
+            "theme": "light",
+            //"marginRight": 70,
+            "dataProvider":
+                [{
+                    "country": "USA",
+                    "visits": 3025,
+                    "color": "#FF0F00"
+                },
+            {
+                "country": "China",
+                "visits": 1882,
+                "color": "#FF6600"
+            },
+            {
+                "country": "Japan",
+                "visits": 1809,
+                "color": "#FF9E01"
+            },
+            {
+                "country": "Germany",
+                "visits": 1322,
+                "color": "#FCD202"
+            },
+            {
+                "country": "UK",
+                "visits": 1122,
+                "color": "#F8FF01"
+            },
+            {
+                "country": "France",
+                "visits": 1114,
+                "color": "#B0DE09"
+            },
+            {
+                "country": "India",
+                "visits": 984,
+                "color": "#04D215"
+            },
+            {
+                "country": "Spain",
+                "visits": 711,
+                "color": "#0D8ECF"
+            },
+            {
+                "country": "Netherlands",
+                "visits": 665,
+                "color": "#0D52D1"
+            },
+            {
+                "country": "Russia",
+                "visits": 580,
+                "color": "#2A0CD0"
+            },
+            {
+                "country": "South Korea",
+                "visits": 443,
+                "color": "#8A0CCF"
+            },
+            {
+                "country": "Canada",
+                "visits": 441,
+                "color": "#CD0D74"
+            }],
+            "valueAxes":
+                [{
+                    "axisAlpha": 0,
+                    "position": "left",
+                    "title": "",
+                    "showFirstLabel": false
+                }],
+            "startDuration": 1,
+            "graphs":
+                [{
+                    "balloonText": "<b>[[value]]</b>",
+                    //"fillColorsField": "color",
+                    "fillAlphas": 0.9,
+                    "lineAlpha": 0.2,
+                    "type": "column",
+                    "valueField": "visits"
+                }],
+            "chartCursor":
+                {
+                    "categoryBalloonEnabled": false,
+                    "cursorAlpha": 0,
+                    "zoomable": false
+                },
+            "categoryField": "country",
+            "categoryAxis":
+                {
+                    "gridPosition": "start",
+                    "inside": true,
+                    "labelRotation": 45
+                },
+            "titles": [
+		{
+		    "id": "Title-1",
+		    "size": 15,
+		    "text": "November 2016"
+		}
+            ]
+        });
+
+    var chart3 = AmCharts.makeChart("chartdiv3",
+        {
+            "type": "serial",
+            "rotate": true,
+            "theme": "light",
+            //"marginRight": 70,
+            "dataProvider":
+                [{
+                    "country": "USA",
+                    "visits": 3025,
+                    "color": "#FF0F00"
+                },
+            {
+                "country": "China",
+                "visits": 1882,
+                "color": "#FF6600"
+            },
+            {
+                "country": "Japan",
+                "visits": 1809,
+                "color": "#FF9E01"
+            },
+            {
+                "country": "Germany",
+                "visits": 1322,
+                "color": "#FCD202"
+            },
+            {
+                "country": "UK",
+                "visits": 1122,
+                "color": "#F8FF01"
+            },
+            {
+                "country": "France",
+                "visits": 1114,
+                "color": "#B0DE09"
+            },
+            {
+                "country": "India",
+                "visits": 984,
+                "color": "#04D215"
+            },
+            {
+                "country": "Spain",
+                "visits": 711,
+                "color": "#0D8ECF"
+            },
+            {
+                "country": "Netherlands",
+                "visits": 665,
+                "color": "#0D52D1"
+            },
+            {
+                "country": "Russia",
+                "visits": 580,
+                "color": "#2A0CD0"
+            },
+            {
+                "country": "South Korea",
+                "visits": 443,
+                "color": "#8A0CCF"
+            },
+            {
+                "country": "Canada",
+                "visits": 441,
+                "color": "#CD0D74"
+            }],
+            "valueAxes":
+                [{
+                    "axisAlpha": 0,
+                    "position": "left",
+                    "title": "",
+                    "showFirstLabel": false
+                }],
+            "startDuration": 1,
+            "graphs":
+                [{
+                    "balloonText": "<b>[[value]]</b>",
+                    //"fillColorsField": "color",
+                    "fillAlphas": 0.9,
+                    "lineAlpha": 0.2,
+                    "type": "column",
+                    "valueField": "visits"
+                }],
+            "chartCursor":
+                {
+                    "categoryBalloonEnabled": false,
+                    "cursorAlpha": 0,
+                    "zoomable": false
+                },
+            "categoryField": "country",
+            "categoryAxis":
+                {
+                    "gridPosition": "start",
+                    "inside": true,
+                    "labelRotation": 45
+                },
+            "titles": [
+		{
+		    "id": "Title-1",
+		    "size": 15,
+		    "text": "October 2016"
+		}
+            ]
+        });
+    var chart7 = AmCharts.makeChart("chartdiv7",
+        {
+            "type": "serial",
+            "rotate": true,
+            "theme": "light",
+            //"marginRight": 70,
+            "dataProvider":
+                [{
+                    "country": "USA",
+                    "visits": 3025,
+                    "color": "#FF0F00"
+                },
+            {
+                "country": "China",
+                "visits": 1882,
+                "color": "#FF6600"
+            },
+            {
+                "country": "Japan",
+                "visits": 1809,
+                "color": "#FF9E01"
+            },
+            {
+                "country": "Germany",
+                "visits": 1322,
+                "color": "#FCD202"
+            },
+            {
+                "country": "UK",
+                "visits": 1122,
+                "color": "#F8FF01"
+            },
+            {
+                "country": "France",
+                "visits": 1114,
+                "color": "#B0DE09"
+            },
+            {
+                "country": "India",
+                "visits": 984,
+                "color": "#04D215"
+            },
+            {
+                "country": "Spain",
+                "visits": 711,
+                "color": "#0D8ECF"
+            },
+            {
+                "country": "Netherlands",
+                "visits": 665,
+                "color": "#0D52D1"
+            },
+            {
+                "country": "Russia",
+                "visits": 580,
+                "color": "#2A0CD0"
+            },
+            {
+                "country": "South Korea",
+                "visits": 443,
+                "color": "#8A0CCF"
+            },
+            {
+                "country": "Canada",
+                "visits": 441,
+                "color": "#CD0D74"
+            }],
+            "valueAxes":
+                [{
+                    "axisAlpha": 0,
+                    "position": "left",
+                    "title": "",
+                    "showFirstLabel": false
+                }],
+            "startDuration": 1,
+            "graphs":
+                [{
+                    "balloonText": "<b>[[value]]</b>",
+                    //"fillColorsField": "color",
+                    "fillAlphas": 0.9,
+                    "lineAlpha": 0.2,
+                    "type": "column",
+                    "valueField": "visits"
+                }],
+            "chartCursor":
+                {
+                    "categoryBalloonEnabled": false,
+                    "cursorAlpha": 0,
+                    "zoomable": false
+                },
+            "categoryField": "country",
+            "categoryAxis":
+                {
+                    "gridPosition": "start",
+                    "inside": true,
+                    "labelRotation": 45
+                },
+            "titles": [
+		{
+		    "id": "Title-1",
+		    "size": 15,
+		    "text": "October 2016"
+		}
+            ]
+        });
+</script>
+
+<!-- HTML -->
+<header style="margin: 0">
+    <div class="container">
+        <h1>Dashboard</h1>
+    </div>
+</header>
+
+<section class="container">
+    
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="details-panel">
+                        <h4 style="text-align: center">Total tickets</h4>
+                        <h1 style="text-align: center">243</h1>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="details-panel">
+                        <h4 style="text-align: center">Total categories</h4>
+                        <h1 style="text-align: center">14</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="details-panel">
+                        <h4 style="text-align: center">Total users</h4>
+                        <h1 style="text-align: center">57</h1>
+                    </div>
+                </div>                
+                <div class="col-xs-6">
+                    <div class="details-panel">
+                        <h4 style="text-align: center">Logged in users</h4>
+                        <h1 style="text-align: center">4</h1>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+
+
+            
+
+    @*<div class="details-panel">
+        <h3 style="text-align: center">From the beginning</h3>
+        <div class="row">
+            <div class="col-sm-6">
+                <div id="chartdiv7"></div>
+            </div>
+
+            <div class="col-sm-6">
+                <div id="chartdiv8"></div>
+            </div>
+        </div>
+    </div>*@
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="details-panel">
+                <h4 style="text-align: center">Last 7 days</h4>
+                <div id="chartdiv4"></div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="details-panel">
+                <h4 style="text-align: center">Last 30 days</h4>
+                <div id="chartdiv5"></div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="details-panel">
+                <h4 style="text-align: center">Older than 30 days</h4>
+                <div id="chartdiv6"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="details-panel">
+        <h4 style="text-align: center">Last 3 months</h4>
+        <div class="row">
+            <div class="col-sm-4">
+                <div id="chartdiv1"></div>
+            </div>
+
+            <div class="col-sm-4">
+                <div id="chartdiv2"></div>
+            </div>
+
+            <div class="col-sm-4">
+                <div id="chartdiv3"></div>
+            </div>
+        </div>
+    </div>
+</section>

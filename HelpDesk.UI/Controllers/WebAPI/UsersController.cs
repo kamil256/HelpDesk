@@ -162,7 +162,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     Company = u.Company,
                     Department = u.Department,
                     Role = u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null ? "Admin" : "User",
-                    TicketsCount = u.CreatedTickets.Count
+                    TicketsCount = u.CreatedTickets.Union(u.RequestedTickets).Distinct().Count()
                 }),
                 NumberOfPages = numberOfPages,
                 NumberOfUsers = numberOfUsers,
