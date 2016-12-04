@@ -1,7 +1,13 @@
-﻿using HelpDesk.UI.Infrastructure;
+﻿using HelpDesk.DAL.Abstract;
+using HelpDesk.DAL.Entities;
+using HelpDesk.UI.Infrastructure;
+using HelpDesk.UI.ViewModels.Home;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -10,24 +16,93 @@ namespace HelpDesk.UI.Controllers.MVC
     [Authorize(Roles = "Admin")]
     public class HomeController : Controller
     {
+        private readonly IUnitOfWork unitOfWork;
+        private readonly IdentityHelper identityHelper;
+
+        public HomeController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+            identityHelper = new IdentityHelper();
+        }
+
         [OverrideAuthorization]
         [Authorize]
         public ActionResult Index()
         {
-            return View();
+            IndexViewModel model = new IndexViewModel();
+
+            string adminRoleId = identityHelper.RoleManager.Roles.Single(r => r.Name == "Admin").Id;
+
+            DateTime tenMinutesAgo = DateTime.Now.AddMinutes(-10);
+            DateTime sevenDaysAgo = DateTime.Now.AddDays(-7);
+            DateTime thirtyDaysAgo = DateTime.Now.AddDays(-30);
+
+            model.TotalTicketsCount = unitOfWork.TicketRepository.Count();
+            model.TotalUsersCount = identityHelper.UserManager.Users.Count();
+            model.TotalAdministratorsCount = identityHelper.UserManager.Users.Count(u => u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
+            model.LoggedInUsersCount = identityHelper.UserManager.Users.Count(u => u.LastActivity >= tenMinutesAgo);
+
+            model.Last7DaysTicketsByStatusCounts = new Dictionary<string, int>();
+            model.Last7DaysTicketsByStatusCounts.Add("New", unitOfWork.TicketRepository.Count(t => t.CreateDate >= sevenDaysAgo && t.Status == "New"));
+            model.Last7DaysTicketsByStatusCounts.Add("In progress", unitOfWork.TicketRepository.Count(t => t.CreateDate >= sevenDaysAgo && t.Status == "In progress"));
+            model.Last7DaysTicketsByStatusCounts.Add("Solved", unitOfWork.TicketRepository.Count(t => t.CreateDate >= sevenDaysAgo && t.Status == "Solved"));
+            model.Last7DaysTicketsByStatusCounts.Add("Closed", unitOfWork.TicketRepository.Count(t => t.CreateDate >= sevenDaysAgo && t.Status == "Closed"));
+
+            model.Last30DaysTicketsByStatusCounts = new Dictionary<string, int>();
+            model.Last30DaysTicketsByStatusCounts.Add("New", unitOfWork.TicketRepository.Count(t => t.CreateDate >= thirtyDaysAgo && t.Status == "New"));
+            model.Last30DaysTicketsByStatusCounts.Add("In progress", unitOfWork.TicketRepository.Count(t => t.CreateDate >= thirtyDaysAgo && t.Status == "In progress"));
+            model.Last30DaysTicketsByStatusCounts.Add("Solved", unitOfWork.TicketRepository.Count(t => t.CreateDate >= thirtyDaysAgo && t.Status == "Solved"));
+            model.Last30DaysTicketsByStatusCounts.Add("Closed", unitOfWork.TicketRepository.Count(t => t.CreateDate >= thirtyDaysAgo && t.Status == "Closed"));
+
+            model.OlderThan30DaysTicketsByStatusCounts = new Dictionary<string, int>();
+            model.OlderThan30DaysTicketsByStatusCounts.Add("New", unitOfWork.TicketRepository.Count(t => t.CreateDate < thirtyDaysAgo && t.Status == "New"));
+            model.OlderThan30DaysTicketsByStatusCounts.Add("In progress", unitOfWork.TicketRepository.Count(t => t.CreateDate < thirtyDaysAgo && t.Status == "In progress"));
+            model.OlderThan30DaysTicketsByStatusCounts.Add("Solved", unitOfWork.TicketRepository.Count(t => t.CreateDate < thirtyDaysAgo && t.Status == "Solved"));
+            model.OlderThan30DaysTicketsByStatusCounts.Add("Closed", unitOfWork.TicketRepository.Count(t => t.CreateDate < thirtyDaysAgo && t.Status == "Closed"));
+
+            DateTime currentMonthDate = DateTime.Now;
+            model.CurrentMonthName = currentMonthDate.ToString("MMMM", CultureInfo.InvariantCulture);
+            model.YearInCurrentMonth = currentMonthDate.Year;
+            model.CurrentMonthTicketsByCategoryCounts = unitOfWork.CategoryRepository.Get().Select(c => new IndexViewModel.Category { Name = c.Name, TicketsCount = c.Tickets.Count(t => t.CreateDate.Month == currentMonthDate.Month) }).ToList();
+            model.CurrentMonthTicketsByCategoryCounts.Add(new IndexViewModel.Category
+            {
+                Name = "No category",
+                TicketsCount = unitOfWork.TicketRepository.Count(t => t.Category == null && t.CreateDate.Month == currentMonthDate.Month)
+            });
+            model.CurrentMonthTicketsByCategoryCounts = model.CurrentMonthTicketsByCategoryCounts.OrderByDescending(c => c.TicketsCount).ToList();
+
+            DateTime lastMonthDate = DateTime.Now.AddMonths(-1);
+            model.LastMonthName = lastMonthDate.ToString("MMMM", CultureInfo.InvariantCulture);
+            model.YearInLastMonth = lastMonthDate.Year;
+            model.LastMonthTicketsByCategoryCounts = unitOfWork.CategoryRepository.Get().Select(c => new IndexViewModel.Category { Name = c.Name, TicketsCount = c.Tickets.Count(t => t.CreateDate.Month == lastMonthDate.Month) }).ToList();
+            model.LastMonthTicketsByCategoryCounts.Add(new IndexViewModel.Category
+            {
+                Name = "No category",
+                TicketsCount = unitOfWork.TicketRepository.Count(t => t.Category == null && t.CreateDate.Month == lastMonthDate.Month)
+            });
+            model.LastMonthTicketsByCategoryCounts = model.LastMonthTicketsByCategoryCounts.OrderByDescending(c => c.TicketsCount).ToList();
+
+            DateTime monthBeforeLastDate = DateTime.Now.AddMonths(-2);
+            model.MonthBeforeLastName = monthBeforeLastDate.ToString("MMMM", CultureInfo.InvariantCulture);
+            model.YearInMonthBeforeLast = monthBeforeLastDate.Year;
+            model.MonthBeforeLastTicketsByCategoryCounts = unitOfWork.CategoryRepository.Get().Select(c => new IndexViewModel.Category { Name = c.Name, TicketsCount = c.Tickets.Count(t => t.CreateDate.Month == monthBeforeLastDate.Month) }).ToList();
+            model.MonthBeforeLastTicketsByCategoryCounts.Add(new IndexViewModel.Category
+            {
+                Name = "No category",
+                TicketsCount = unitOfWork.TicketRepository.Count(t => t.Category == null && t.CreateDate.Month == monthBeforeLastDate.Month)
+            });
+            model.MonthBeforeLastTicketsByCategoryCounts = model.MonthBeforeLastTicketsByCategoryCounts.OrderByDescending(c => c.TicketsCount).ToList();
+
+            return View(model);
         }
 
         protected override void OnException(ExceptionContext filterContext)
         {
-            if (filterContext.ExceptionHandled)
+            if (!filterContext.ExceptionHandled)
             {
-                return;
+                filterContext.Result = new RedirectResult("~/Content/Error.html");
+                filterContext.ExceptionHandled = true;
             }
-            filterContext.Result = new ViewResult
-            {
-                ViewName = "~/Views/Shared/Error.aspx"
-            };
-            filterContext.ExceptionHandled = true;
         }
     }
 }

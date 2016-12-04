@@ -72,15 +72,11 @@ namespace HelpDesk.UI.Controllers.MVC
 
         protected override void OnException(ExceptionContext filterContext)
         {
-            if (filterContext.ExceptionHandled)
+            if (!filterContext.ExceptionHandled)
             {
-                return;
+                filterContext.Result = new RedirectResult("~/Content/Error.html");
+                filterContext.ExceptionHandled = true;
             }
-            filterContext.Result = new ViewResult
-            {
-                ViewName = "~/Views/Shared/Error.aspx"
-            };
-            filterContext.ExceptionHandled = true;
         }
     }
 }

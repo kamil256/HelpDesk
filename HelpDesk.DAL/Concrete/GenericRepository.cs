@@ -37,6 +37,14 @@ namespace HelpDesk.DAL.Concrete
             return query;
         }
 
+        public int Count(Expression<Func<T, bool>> filter = null)
+        {
+            IQueryable<T> query = dbSet;
+            if (filter != null)
+                query = query.Where(filter);
+            return query.Count();
+        }
+
         public virtual T GetById(int id)
         {
             return dbSet.Find(id);

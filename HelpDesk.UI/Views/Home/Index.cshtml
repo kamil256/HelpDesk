@@ -1,10 +1,12 @@
-﻿@{
+﻿@model HelpDesk.UI.ViewModels.Home.IndexViewModel
+
+@{
     ViewBag.Title = "Index";
 }
 
 <!-- Styles -->
 <style>
-    #chartdiv1, #chartdiv2, #chartdiv3, #chartdiv4,#chartdiv5,#chartdiv6,#chartdiv7,#chartdiv8  {
+    /*#chartdiv1,*/ #chartdiv2, #chartdiv3, #chartdiv4,#chartdiv5,#chartdiv6,#chartdiv7,#chartdiv8  {
         width: 100%;
         height: 300px;
     }
@@ -12,6 +14,9 @@
     .amcharts-export-menu-top-right {
         top: 10px;
         right: 0;
+    }
+    .amcharts-main-div a {
+        visibility: hidden;
     }
 </style>
 
@@ -56,10 +61,31 @@
         var categoryWidth = 40;
 
         // calculate bottom margin based on number of data points
-        var chartHeight = categoryWidth * chart.dataProvider.length;
-
+        var chartWidth = categoryWidth * chart.dataProvider.length;
         // set the value
-        chart.div.style.height = chartHeight + 'px';
+        chart.div.style.height = 90 + 1.22 * chartWidth + 'px';
+
+    }, ['serial']);
+
+    AmCharts.addInitHandler(function(chart)
+    {
+        // set base values
+        //var categoryWidth = 25;
+        //var containerHeight = 500;
+
+        // calculate bottom margin based on number of data points
+        //var chartHeight = categoryWidth * chart.dataProvider.length;
+        //var marginBottom = containerHeight - chartHeight;
+
+        //console.log(chart);
+
+        // set the bottom margin
+        //if (0 < marginBottom)
+        //{
+           // chart.autoMargins = false;
+           // chart.valueAxes[0].ignoreAxisWidth = true;
+           // chart.marginBottom = 400;//marginBottom;
+        //}
 
     }, ['serial']);
 
@@ -139,22 +165,23 @@
             "markerType": "circle"
         },
         "titles": [],
-        "dataProvider": [
+        "dataProvider":
+        [
             {
                 "category": "New",
-                "column-1": 8
+                "column-1": '@Model.Last7DaysTicketsByStatusCounts["New"]'
             },
             {
                 "category": "In progress",
-                "column-1": 6
+                "column-1": '@Model.Last7DaysTicketsByStatusCounts["In progress"]'
             },
             {
                 "category": "Solved",
-                "column-1": "20"
+                "column-1": '@Model.Last7DaysTicketsByStatusCounts["Solved"]'
             },
             {
                 "category": "Closed",
-                "column-1": "1"
+                "column-1": '@Model.Last7DaysTicketsByStatusCounts["Closed"]'
             }
         ]
         });
@@ -190,20 +217,20 @@
             "dataProvider": [
                 {
                     "category": "New",
-                    "column-1": 8
+                    "column-1": '@Model.Last30DaysTicketsByStatusCounts["New"]'
                 },
-                {
-                    "category": "In progress",
-                    "column-1": 6
-                },
-                {
-                    "category": "Solved",
-                    "column-1": "20"
-                },
-                {
-                    "category": "Closed",
-                    "column-1": "1"
-                }
+            {
+                "category": "In progress",
+                "column-1": '@Model.Last30DaysTicketsByStatusCounts["In progress"]'
+            },
+            {
+                "category": "Solved",
+                "column-1": '@Model.Last30DaysTicketsByStatusCounts["Solved"]'
+            },
+            {
+                "category": "Closed",
+                "column-1": '@Model.Last30DaysTicketsByStatusCounts["Closed"]'
+            }
             ]
         });
 
@@ -235,94 +262,88 @@
                 "markerType": "circle"
             },
             "titles": [],
-            "dataProvider": [
+            "dataProvider":
+            [
                 {
                     "category": "New",
-                    "column-1": 8
+                    "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["New"]'
                 },
                 {
                     "category": "In progress",
-                    "column-1": 6
+                    "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["In progress"]'
                 },
                 {
                     "category": "Solved",
-                    "column-1": "20"
+                    "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["Solved"]'
                 },
                 {
                     "category": "Closed",
-                    "column-1": "1"
+                    "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["Closed"]'
                 }
             ]
         });
 
 
     var chart1 = AmCharts.makeChart("chartdiv1",
+        //{
+        //    "type": "serial",
+        //    "categoryField": "category",
+        //    "rotate": true,
+        //    "startDuration": 1,
+        //    "categoryWidth": "5",
+        //    "categoryAxis": {
+        //        "gridPosition": "start",
+        //        "inside": true
+        //    },
+        //    "trendLines": [],
+        //    "graphs": [
+        //        {
+        //            "balloonText": "[[title]] of [[category]]:[[value]]",
+        //            "fillAlphas": 1,
+        //            "id": "AmGraph-1",
+        //            "title": "graph 1",
+        //            "type": "column",
+        //            "valueField": "column-1"
+        //        }
+        //    ],
+        //    "guides": [],
+        //    "valueAxes": [
+        //        {
+        //            "id": "ValueAxis-1",
+        //            "stackType": "regular",
+        //            "title": "Axis title"
+        //        }
+        //    ],
+        //    "allLabels": [],
+        //    "balloon": {},
+        //    "legend": {
+        //        "enabled": true,
+        //        "useGraphSettings": true
+        //    },
+        //    "titles": [
+        //        {
+        //            "id": "Title-1",
+        //            "size": 15,
+        //            "text": "Chart Title"
+        //        }
+        //    ],
+        //    "dataProvider": [
+        //        {
+        //            "category": "category 1",
+        //            "column-1": 8
+        //        },
+        //        {
+        //            "category": "category 2",
+        //            "column-1": 6
+        //        }
+        //    ]
+        //}
         {
             "type": "serial",
             "rotate": true,
             "theme": "light",
             //"marginRight": 70,
-            "dataProvider":
-                [{
-                    "country": "USA",
-                    "visits": 3025,
-                    "color": "#FF0F00"
-                },
-            {
-                "country": "China",
-                "visits": 1882,
-                "color": "#FF6600"
-            },
-            {
-                "country": "Japan",
-                "visits": 1809,
-                "color": "#FF9E01"
-            },
-            {
-                "country": "Germany",
-                "visits": 1322,
-                "color": "#FCD202"
-            },
-            {
-                "country": "UK",
-                "visits": 1122,
-                "color": "#F8FF01"
-            },
-            {
-                "country": "France",
-                "visits": 1114,
-                "color": "#B0DE09"
-            },
-            {
-                "country": "India",
-                "visits": 984,
-                "color": "#04D215"
-            },
-            {
-                "country": "Spain",
-                "visits": 711,
-                "color": "#0D8ECF"
-            },
-            {
-                "country": "Netherlands",
-                "visits": 665,
-                "color": "#0D52D1"
-            },
-            {
-                "country": "Russia",
-                "visits": 580,
-                "color": "#2A0CD0"
-            },
-            {
-                "country": "South Korea",
-                "visits": 443,
-                "color": "#8A0CCF"
-            },
-            {
-                "country": "Canada",
-                "visits": 441,
-                "color": "#CD0D74"
-            }],
+            "dataProvider": [],
             "valueAxes":
                 [{
                     "axisAlpha": 0,
@@ -350,17 +371,21 @@
             "categoryAxis":
                 {
                     "gridPosition": "start",
-                    "inside": true,
-                    "labelRotation": 45
+                    "inside": true
                 },
             "titles": [
 		{
 		    "id": "Title-1",
 		    "size": 15,
-		    "text": "December 2016"
+		    "text": "@Model.CurrentMonthName @Model.YearInCurrentMonth"
 		}
             ]
         });
+
+    @foreach (var x in Model.CurrentMonthTicketsByCategoryCounts)
+    {
+        @: chart1.dataProvider.push({ country: "@x.Name", visits: "@x.TicketsCount", color: "red" });
+    }
 
     var chart2 = AmCharts.makeChart("chartdiv2",
         {
@@ -369,66 +394,7 @@
             "theme": "light",
             //"marginRight": 70,
             "dataProvider":
-                [{
-                    "country": "USA",
-                    "visits": 3025,
-                    "color": "#FF0F00"
-                },
-            {
-                "country": "China",
-                "visits": 1882,
-                "color": "#FF6600"
-            },
-            {
-                "country": "Japan",
-                "visits": 1809,
-                "color": "#FF9E01"
-            },
-            {
-                "country": "Germany",
-                "visits": 1322,
-                "color": "#FCD202"
-            },
-            {
-                "country": "UK",
-                "visits": 1122,
-                "color": "#F8FF01"
-            },
-            {
-                "country": "France",
-                "visits": 1114,
-                "color": "#B0DE09"
-            },
-            {
-                "country": "India",
-                "visits": 984,
-                "color": "#04D215"
-            },
-            {
-                "country": "Spain",
-                "visits": 711,
-                "color": "#0D8ECF"
-            },
-            {
-                "country": "Netherlands",
-                "visits": 665,
-                "color": "#0D52D1"
-            },
-            {
-                "country": "Russia",
-                "visits": 580,
-                "color": "#2A0CD0"
-            },
-            {
-                "country": "South Korea",
-                "visits": 443,
-                "color": "#8A0CCF"
-            },
-            {
-                "country": "Canada",
-                "visits": 441,
-                "color": "#CD0D74"
-            }],
+                [],
             "valueAxes":
                 [{
                     "axisAlpha": 0,
@@ -463,10 +429,15 @@
 		{
 		    "id": "Title-1",
 		    "size": 15,
-		    "text": "November 2016"
+		    "text": "@Model.LastMonthName @Model.YearInLastMonth"
 		}
             ]
         });
+
+    @foreach (var x in Model.LastMonthTicketsByCategoryCounts)
+    {
+        @: chart2.dataProvider.push({ country: "@x.Name", visits: "@x.TicketsCount", color: "red" });
+    }
 
     var chart3 = AmCharts.makeChart("chartdiv3",
         {
@@ -475,66 +446,7 @@
             "theme": "light",
             //"marginRight": 70,
             "dataProvider":
-                [{
-                    "country": "USA",
-                    "visits": 3025,
-                    "color": "#FF0F00"
-                },
-            {
-                "country": "China",
-                "visits": 1882,
-                "color": "#FF6600"
-            },
-            {
-                "country": "Japan",
-                "visits": 1809,
-                "color": "#FF9E01"
-            },
-            {
-                "country": "Germany",
-                "visits": 1322,
-                "color": "#FCD202"
-            },
-            {
-                "country": "UK",
-                "visits": 1122,
-                "color": "#F8FF01"
-            },
-            {
-                "country": "France",
-                "visits": 1114,
-                "color": "#B0DE09"
-            },
-            {
-                "country": "India",
-                "visits": 984,
-                "color": "#04D215"
-            },
-            {
-                "country": "Spain",
-                "visits": 711,
-                "color": "#0D8ECF"
-            },
-            {
-                "country": "Netherlands",
-                "visits": 665,
-                "color": "#0D52D1"
-            },
-            {
-                "country": "Russia",
-                "visits": 580,
-                "color": "#2A0CD0"
-            },
-            {
-                "country": "South Korea",
-                "visits": 443,
-                "color": "#8A0CCF"
-            },
-            {
-                "country": "Canada",
-                "visits": 441,
-                "color": "#CD0D74"
-            }],
+                [],
             "valueAxes":
                 [{
                     "axisAlpha": 0,
@@ -569,10 +481,16 @@
 		{
 		    "id": "Title-1",
 		    "size": 15,
-		    "text": "October 2016"
+		    "text": "@Model.MonthBeforeLastName @Model.YearInMonthBeforeLast"
 		}
             ]
         });
+
+    @foreach (var x in Model.MonthBeforeLastTicketsByCategoryCounts)
+    {
+        @: chart3.dataProvider.push({ country: "@x.Name", visits: "@x.TicketsCount", color: "red" });
+    }
+
     var chart7 = AmCharts.makeChart("chartdiv7",
         {
             "type": "serial",
@@ -695,13 +613,13 @@
                 <div class="col-xs-6">
                     <div class="details-panel">
                         <h4 style="text-align: center">Total tickets</h4>
-                        <h1 style="text-align: center">243</h1>
+                        <h1 style="text-align: center">@Model.TotalTicketsCount</h1>
                     </div>
                 </div>
                 <div class="col-xs-6">
                     <div class="details-panel">
-                        <h4 style="text-align: center">Total categories</h4>
-                        <h1 style="text-align: center">14</h1>
+                        <h4 style="text-align: center">Total users</h4>
+                        <h1 style="text-align: center">@Model.TotalUsersCount</h1>
                     </div>
                 </div>
             </div>
@@ -711,14 +629,14 @@
             <div class="row">
                 <div class="col-xs-6">
                     <div class="details-panel">
-                        <h4 style="text-align: center">Total users</h4>
-                        <h1 style="text-align: center">57</h1>
+                        <h4 style="text-align: center">Total administrators</h4>
+                        <h1 style="text-align: center">@Model.TotalAdministratorsCount</h1>
                     </div>
                 </div>                
                 <div class="col-xs-6">
                     <div class="details-panel">
                         <h4 style="text-align: center">Logged in users</h4>
-                        <h1 style="text-align: center">4</h1>
+                        <h1 style="text-align: center">@Model.LoggedInUsersCount</h1>
                     </div>
                 </div>                
             </div>
@@ -745,21 +663,51 @@
         <div class="col-sm-4">
             <div class="details-panel">
                 <h4 style="text-align: center">Last 7 days</h4>
-                <div id="chartdiv4"></div>
+                @if (@Model.Last7DaysTicketsByStatusCounts["New"] == 0 &&
+                     @Model.Last7DaysTicketsByStatusCounts["In progress"] == 0 &&
+                     @Model.Last7DaysTicketsByStatusCounts["Solved"] == 0 &&
+                     @Model.Last7DaysTicketsByStatusCounts["Closed"] == 0)
+                {
+                    <h1 style="margin: 0; line-height: 300px; vertical-align: middle; text-align: center;">No tickets</h1>
+                }
+                else
+                {
+                    <div id="chartdiv4"></div>
+                }
             </div>
         </div>
 
         <div class="col-sm-4">
             <div class="details-panel">
                 <h4 style="text-align: center">Last 30 days</h4>
-                <div id="chartdiv5"></div>
+                @if (@Model.Last30DaysTicketsByStatusCounts["New"] == 0 &&
+                     @Model.Last30DaysTicketsByStatusCounts["In progress"] == 0 &&
+                     @Model.Last30DaysTicketsByStatusCounts["Solved"] == 0 &&
+                     @Model.Last30DaysTicketsByStatusCounts["Closed"] == 0)
+                {
+                    <h1 style="margin: 0; line-height: 300px; vertical-align: middle; text-align: center;">No tickets</h1>
+                }
+                else
+                {
+                    <div id="chartdiv5"></div>
+                }                
             </div>
         </div>
 
         <div class="col-sm-4">
             <div class="details-panel">
                 <h4 style="text-align: center">Older than 30 days</h4>
-                <div id="chartdiv6"></div>
+                    @if (@Model.OlderThan30DaysTicketsByStatusCounts["New"] == 0 &&
+                         @Model.OlderThan30DaysTicketsByStatusCounts["In progress"] == 0 &&
+                         @Model.OlderThan30DaysTicketsByStatusCounts["Solved"] == 0 &&
+                         @Model.OlderThan30DaysTicketsByStatusCounts["Closed"] == 0)
+                    {
+                        <h1 style="margin: 0; line-height: 300px; vertical-align: middle; text-align: center;">No tickets</h1>
+                    }
+                    else
+                    {
+                        <div id="chartdiv6"></div>
+                    }                
             </div>
         </div>
     </div>
