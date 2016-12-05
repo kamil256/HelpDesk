@@ -163,7 +163,7 @@
                 <div class="col-sm-8 input-with-button">
                     <input type="hidden" name="RequesterId" data-bind="value: requester.UserId" />
                     <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
-                    <button type="button" data-bind="click: function(data, event) { openChangeRequesterDialog(event); }" class="btn btn-default btn-search">
+                    <button type="button" data-bind="click: function(data, event) { $('#change-requester-dialog').modal('show'); }" class="btn btn-default btn-search">
                         <span class="glyphicon glyphicon-search"></span>
                     </button>
                     @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
@@ -254,7 +254,7 @@
                     <input type="submit" value="Save" class="btn btn-blue" />
                     @if (identityHelper.IsCurrentUserAnAdministrator())
                     {
-                        <button data-bind="click: function(data, event) { openDeleteTicketDialog(event); }" type="button" class="btn btn-danger">Delete</button>
+                        <a href="#delete-ticket-dialog" class="btn btn-danger" data-toggle="modal">Delete</a>
                     }
                 </div>
             </div>
@@ -262,72 +262,66 @@
     }
 </div>
 
-<script>
-    function openChangeRequesterDialog(event)
-    {
-        $("#change-requester-dialog").dialog(
-        {
-            autoOpen: false,
-            modal: true,
-            resizable: false
-        }).dialog('open');
-    }
-</script>
+<div id="change-requester-dialog" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
+                <h4 class="modal-title">Change requester</h4>
+            </div>
 
-<div id="change-requester-dialog" class="dialog">
-    <h4>Change requester</h4>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="control-label">Find user by name or email</label>
+                    <div class="input-with-button">
+                        <input data-bind="value: searchedUser" class="form-control" />
+                        <button data-bind="click: getUsers" class="btn btn-default btn-search">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </div>
+                </div>
 
-    <div class="form-group">
-        <label class="control-label">Find user by name or email</label>
-        <div class="input-with-button">
-            <input data-bind="value: searchedUser" class="form-control" />
-            <button data-bind="click: getUsers" class="btn btn-default btn-search">
-                <span class="glyphicon glyphicon-search"></span>
-            </button>
+                <div class="form-group">
+                    <label>Select user</label>
+                    <select size="10" data-bind="options: users, value: selectedUser, optionsText: function(item) { return item.FirstName + ' ' + item.LastName + ' (' + item.Email + ')' }, optionsCaption: '-'" class="form-control"></select>
+                    <img id="change-requestor-img" src="http://i.stack.imgur.com/r6tWv.gif" style="display: none" />
+                </div>
+
+                <p>Displaying <span data-bind="text: numberOfUsersToDisplay"></span> users of <span data-bind="text: numberOfUsersFound"></span> found</p>
+            </div>
+
+            <div class="modal-footer">
+                <input data-bind="click: function() { changeRequester(); }" data-dismiss="modal" type="submit" value="Ok" class="btn btn-primary" />
+                <input data-dismiss="modal" type="button" value="No" class="btn btn-primary" />
+            </div>
         </div>
-    </div>
-
-    <div class="form-group">
-        <label>Select user</label>
-        <select size="10" data-bind="options: users, value: selectedUser, optionsText: function(item) { return item.FirstName + ' ' + item.LastName + ' (' + item.Email + ')' }, optionsCaption: '-'" class="form-control"></select>
-        <img id="change-requestor-img" src="http://i.stack.imgur.com/r6tWv.gif" style="display: none" />
-    </div>
-
-    <p>Displaying <span data-bind="text: numberOfUsersToDisplay"></span> users of <span data-bind="text: numberOfUsersFound"></span> found</p>
-
-    <div class="button-group">
-        <button data-bind="click: function() { changeRequester(); $('#change-requester-dialog').dialog('close'); }" class="btn btn-blue">Ok</button>
-        <button data-bind="click: function() { $('#change-requester-dialog').dialog('close'); }" class="btn btn-blue">Cancel</button>
     </div>
 </div>
 
 @if (identityHelper.IsCurrentUserAnAdministrator())
 {
-    <script>
-        function openDeleteTicketDialog(event)
-        {
-            $("#delete-ticket-dialog").dialog(
-            {
-                autoOpen: false,
-                modal: true,
-                resizable: false
-            }).dialog('open');
-        }
-    </script>
+    <div id="delete-ticket-dialog" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
+                    <h4 class="modal-title">Confirmation</h4>
+                </div>
 
-    <div id="delete-ticket-dialog" class="dialog">
-        <h4>Are you sure you want to delete ticket?</h4>
+                @using (Html.BeginForm("Delete", "Tickets"))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.TicketId)
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete ticket?</p>
+                    </div>
 
-        @using (Html.BeginForm("Delete", "Tickets"))
-        {
-            @Html.AntiForgeryToken()
-
-            @Html.HiddenFor(model => model.TicketId)
-
-            <div class="button-group">
-                <input type="submit" value="Yes" class="btn btn-blue" />
-                <input data-bind="click: function() { $('#delete-ticket-dialog').dialog('close'); }" type="button" value="No" class="btn btn-blue" />
+                    <div class="modal-footer">
+                        <input type="submit" value="Yes" class="btn btn-danger" />
+                        <input data-dismiss="modal" type="button" value="No" class="btn btn-primary" />
+                    </div>
+                }
             </div>
-        }
+        </div>
     </div>
 }

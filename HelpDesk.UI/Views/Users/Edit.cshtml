@@ -143,7 +143,8 @@
                     <input type="submit" value="Save" class="btn btn-primary" />
                     @if (identityHelper.IsCurrentUserAnAdministrator())
                     {
-                        <button data-bind="click: function(data, event) { openDeleteUserDialog(event); }" type="button" class="btn btn-danger">Delete</button>
+                        @*<button data-bind="click: function(data, event) { $('#delete-user-dialog').modal('show');  }" type="button" class="btn btn-danger">Delete</button>*@
+                        <a href="#delete-user-dialog" class="btn btn-danger" data-toggle="modal">Delete</a>
                     }
                 </div>
             </div>
@@ -153,31 +154,28 @@
 
 @if (identityHelper.IsCurrentUserAnAdministrator())
 {
-    <script>
-        function openDeleteUserDialog(event)
-        {
-            $("#delete-user-dialog").dialog(
-            {
-                autoOpen: false,
-                modal: true,
-                resizable: false
-            }).dialog('open');
-        }
-    </script>
+    <div id="delete-user-dialog" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
+                    <h4 class="modal-title">Confirmation</h4>
+                </div>
 
-    <div id="delete-user-dialog" class="dialog">
-        <h4>Are you sure you want to delete user?</h4>
+                @using (Html.BeginForm("Delete", "Users"))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.UserId)
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete user?</p>
+                    </div>
 
-        @using (Html.BeginForm("Delete", "Users"))
-        {
-            @Html.AntiForgeryToken()
-
-            @Html.HiddenFor(model => model.UserId)
-
-            <div class="button-group">
-                <input type="submit" value="Yes" class="btn btn-blue" />
-                <input data-bind="click: function() { $('#delete-user-dialog').dialog('close'); }" type="button" value="No" class="btn btn-blue" />
+                    <div class="modal-footer">
+                        <input type="submit" value="Yes" class="btn btn-danger" />
+                        <input data-dismiss="modal" type="button" value="No" class="btn btn-primary" />
+                    </div>
+                }
             </div>
-        }
+        </div>
     </div>
 }

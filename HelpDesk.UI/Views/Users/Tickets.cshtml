@@ -332,9 +332,9 @@
                                                                 @if (identityHelper.IsCurrentUserAnAdministrator())
                                                                 {
                                                                     <div class="hidden-xs" style="width: 180px; display: table-cell; aborder-left: 1px dashed gray; vertical-align: bottom">
-                                                                        <button title="Close ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openCloseTicketDialog(event); }" class="btn btn-sm btn-inverse pull-right" style="width: 50px; margin: 10px 10px 10px 0;"><span class="glyphicon glyphicon-remove"></span>@*Close*@</button>
-                                                                        <button title="Solve ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openSolveTicketDialog(event); }" class="btn btn-sm btn-success pull-right" style="width: 50px; margin: 10px 3px 10px 0;"><span class="glyphicon glyphicon-ok"></span>@*Solve*@</button>
-                                                                        <button title="Assign admin to ticket" data-bind="click: function(data, event) { $root.currentTicket(data); openAssignUserDialog(event); }" class="btn btn-sm btn-primary pull-right" style="width: 50px; margin: 10px 3px 10px 0;">+<span class="glyphicon glyphicon-user"></span>@*Assign*@</button>
+                                                                        <button title="Close ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#close-ticket-dialog').modal('show'); }" class="btn btn-sm btn-inverse pull-right" style="width: 50px; margin: 10px 10px 10px 0;"><span class="glyphicon glyphicon-remove"></span>@*Close*@</button>
+                                                                        <button title="Solve ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#solve-ticket-dialog').modal('show'); }" class="btn btn-sm btn-success pull-right" style="width: 50px; margin: 10px 3px 10px 0;"><span class="glyphicon glyphicon-ok"></span>@*Solve*@</button>
+                                                                        <button title="Assign administrator to ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#assign-user-dialog').modal('show'); @*openAssignUserDialog(event);*@ }" class="btn btn-sm btn-primary pull-right" style="width: 50px; margin: 10px 3px 10px 0;">+<span class="glyphicon glyphicon-user"></span>@*Assign*@</button>
                                                                     </div>
                                                                 }
                                                             </div>
@@ -342,100 +342,86 @@
                                                     </div>
 
     <!-- ko if: pages().length >= 2 -->
-    <ul data-bind="foreach: pages" class="pagination" style="margin: 0;">
-        <li data-bind="css: { active: $data == $root.filter.page() }">
-            <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
-        </li>
-    </ul>
+        <ul data-bind="foreach: pages" class="pagination" style="margin: 0;">
+            <li data-bind="css: { active: $data == $root.filter.page() }">
+                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
+            </li>
+        </ul>
     <!-- /ko -->
 </section>
 
 @if (identityHelper.IsCurrentUserAnAdministrator())
 {
-<script>
-    function openAssignUserDialog(event)
-    {
-        event.stopPropagation();
-        $("#assign-user-dialog").dialog(
-        {
-            autoOpen: false,
-            modal: true,
-            resizable: false
-        }).dialog('open');
-    }
-</script>
+    <!-- ko if: currentTicket() -->
+        <div id="assign-user-dialog" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
+                        <h4 class="modal-title">Assign administrator to ticket</h4>
+                    </div>
 
-<!-- ko if: currentTicket() -->
-<div id="assign-user-dialog" class="dialog">
-    <h4>Assign user to ticket <i data-bind="text: currentTicket().Title"></i></h4>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="control-label">Administrator</label>
+                            <select data-bind="options: administrators, optionsText: 'Name', value: currentUser" class="form-control"></select>
+                        </div>
+                    </div>
 
-    <div class="form-group">
-        <label class="control-label">User</label>
-        <select data-bind="options: administrators, optionsText: 'Name', value: currentUser" class="form-control"></select>
-    </div>
+                    <div class="modal-footer">
+                        <button data-bind="click: function() { assignUser(); }" data-dismiss="modal" class="btn btn-primary">Ok</button>
+                        <button data-dismiss="modal" class="btn btn-primary">Cancel</button>                    
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div id="solve-ticket-dialog" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
+                        <h4 class="modal-title">Solve ticket</h4>
+                    </div>
 
-    <div class="button-group">
-        <button data-bind="click: function() { assignUser(); $('#assign-user-dialog').dialog('close'); }" class="btn btn-blue">Ok</button>
-        <button data-bind="click: function() { $('#assign-user-dialog').dialog('close'); }" class="btn btn-blue">Cancel</button>
-    </div>
-</div>
-<!-- /ko -->
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="control-label">Administrator</label>
+                            <select data-bind="options: administrators, optionsText: 'Name', value: currentUser" class="form-control"></select>
+                        </div>
 
-<script>
-    function openSolveTicketDialog(event)
-    {
-        event.stopPropagation();
-        $("#solve-ticket-dialog").dialog(
-        {
-            autoOpen: false,
-            modal: true,
-            resizable: false
-        }).dialog('open');
-    }
-</script>
+                        <div class="form-group">
+                            <label class="control-label">Solution</label>
+                            <textarea data-bind="value: solution" cols="10" rows="7" class="form-control"></textarea>
+                        </div>
+                    </div>
 
-<!-- ko if: currentTicket() -->
-<div id="solve-ticket-dialog" class="dialog">
-    <h4>Solve ticket <i data-bind="text: currentTicket().Title"></i></h4>
+                    <div class="modal-footer">
+                        <button data-dismiss="modal" data-bind="click: function() { solveTicket(); }" class="btn btn-blue">Ok</button>
+                        <button data-dismiss="modal" class="btn btn-blue">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="form-group">
-        <label class="control-label">Solving user</label>
-        <select data-bind="options: administrators, optionsText: 'Name', value: currentUser" class="form-control"></select>
-    </div>
+        <div id="close-ticket-dialog" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
+                        <h4 class="modal-title">Close ticket</h4>
+                    </div>
 
-    <div class="form-group">
-        <label class="control-label">Solution</label>
-        <textarea data-bind="value: solution" cols="10" rows="7" class="form-control"></textarea>
-    </div>
+                    <div class="modal-body">
+                        Are you sure you want to close ticket?
+                    </div>
 
-    <div class="button-group">
-        <button data-bind="click: function() { solveTicket(); $('#solve-ticket-dialog').dialog('close'); }" class="btn btn-blue">Ok</button>
-        <button data-bind="click: function() { $('#solve-ticket-dialog').dialog('close'); }" class="btn btn-blue">Cancel</button>
-    </div>
-</div>
-<!-- /ko -->
-
-<script>
-    function openCloseTicketDialog(event)
-    {
-        event.stopPropagation();
-        $("#close-ticket-dialog").dialog(
-        {
-            autoOpen: false,
-            modal: true,
-            resizable: false
-        }).dialog('open');
-    }
-</script>
-
-<!-- ko if: currentTicket() -->
-<div id="close-ticket-dialog" class="dialog">
-    <h4>Close ticket <i data-bind="text: currentTicket().Title"></i></h4>
-
-    <div class="button-group">
-        <button data-bind="click: function() { closeTicket(); $('#close-ticket-dialog').dialog('close'); }" class="btn btn-blue">Ok</button>
-        <button data-bind="click: function() { $('#close-ticket-dialog').dialog('close'); }" class="btn btn-blue">Cancel</button>
-    </div>
-</div>
-<!-- /ko -->
+                    <div class="modal-footer">
+                        <button data-dismiss="modal" data-bind="click: function() { closeTicket(); }" class="btn btn-blue">Yes</button>
+                        <button data-dismiss="modal" class="btn btn-blue">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- /ko -->
 }
