@@ -9,10 +9,11 @@ namespace HelpDesk.UI.ViewModels.Home
     {
         public int TotalTicketsCount { get; set; }        
         public int TotalUsersCount { get; set; }
-        public int TotalAdministratorsCount { get; set; }
         public int LoggedInUsersCount { get; set; }
+
         public int CreatedTickets { get; set; }
         public int RequestedTickets { get; set; }
+        public int SolvedTicketsPercentage { get; set; }
 
         public Dictionary<string, int> Last7DaysTicketsByStatusCounts { get; set; }
         public Dictionary<string, int> Last30DaysTicketsByStatusCounts { get; set; }

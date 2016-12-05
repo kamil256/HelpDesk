@@ -42,13 +42,15 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 model.TotalTicketsCount = unitOfWork.TicketRepository.Count();
                 model.TotalUsersCount = identityHelper.UserManager.Users.Count();
-                model.TotalAdministratorsCount = identityHelper.UserManager.Users.Count(u => u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
                 model.LoggedInUsersCount = identityHelper.UserManager.Users.Count(u => u.LastActivity >= tenMinutesAgo);
             }
             else
             {
                 model.CreatedTickets = unitOfWork.TicketRepository.Count(t => t.CreatorId == identityHelper.CurrentUser.Id);
                 model.RequestedTickets = unitOfWork.TicketRepository.Count(t => t.RequesterId == identityHelper.CurrentUser.Id);
+                int solvedTickets = unitOfWork.TicketRepository.Count(t => (t.CreatorId == identityHelper.CurrentUser.Id || t.RequesterId == identityHelper.CurrentUser.Id) && t.Status == "Solved");
+                int totalTicketsCount = unitOfWork.TicketRepository.Count(t => t.CreatorId == identityHelper.CurrentUser.Id || t.RequesterId == identityHelper.CurrentUser.Id);
+                model.SolvedTicketsPercentage = totalTicketsCount == 0 ? 0 : (int)Math.Round((double)solvedTickets / totalTicketsCount * 100);
             }
 
             model.Last7DaysTicketsByStatusCounts = new Dictionary<string, int>();
@@ -152,13 +154,13 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
-        protected override void OnException(ExceptionContext filterContext)
-        {
-            if (!filterContext.ExceptionHandled)
-            {
-                filterContext.Result = new RedirectResult("~/Content/Error.html");
-                filterContext.ExceptionHandled = true;
-            }
-        }
+        //protected override void OnException(ExceptionContext filterContext)
+        //{
+        //    if (!filterContext.ExceptionHandled)
+        //    {
+        //        filterContext.Result = new RedirectResult("~/Content/Error.html");
+        //        filterContext.ExceptionHandled = true;
+        //    }
+        //}
     }
 }

@@ -375,9 +375,27 @@
 <section class="container">
     
     <div class="row">
-        <div class="col-sm-6">
+        <div class="col-md-6">
             <div class="row">
-                <div class="col-xs-6">
+                <div class="col-sm-6">
+                    <div class="details-panel">
+                        <h4 id="date" style="text-align: center"></h4>
+                        <h1 id="time" style="text-align: center"></h1>
+
+                        <script>
+                            var displayDateAndTime = function()
+                            {
+                                var date = new Date();
+                                $("#date").text(date.toDateString());
+                                $("#time").text(date.toLocaleTimeString());
+                            }
+
+                            setInterval(displayDateAndTime, 1000);
+                            displayDateAndTime();
+                        </script>
+                    </div>
+                </div>
+                <div class="col-sm-6">
                     <div class="details-panel">
                         @if (identityHelper.IsCurrentUserAnAdministrator())
                         {
@@ -388,10 +406,15 @@
                         {
                             <h4 style="text-align: center">Created tickets</h4>
                             <h1 style="text-align: center">@Model.CreatedTickets</h1>
-                        }
+                        }                        
                     </div>
                 </div>
-                <div class="col-xs-6">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-sm-6">
                     <div class="details-panel">
                         @if (identityHelper.IsCurrentUserAnAdministrator())
                         {
@@ -402,40 +425,23 @@
                         {
                             <h4 style="text-align: center">Requested tickets</h4>
                             <h1 style="text-align: center">@Model.RequestedTickets</h1>
-                        }
+                        }                        
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6">
-            <div class="row">
-                @if (identityHelper.IsCurrentUserAnAdministrator())
-                {
-                    <div class="col-xs-6">
-                        <div class="details-panel">
-                            <h4 style="text-align: center">Administrators</h4>
-                            <h1 style="text-align: center">@Model.TotalAdministratorsCount</h1>
-                        </div>
-                    </div>
-                    <div class="col-xs-6">
-                        <div class="details-panel">
+                <div class="col-sm-6">
+                    <div class="details-panel">
+                        @if (identityHelper.IsCurrentUserAnAdministrator())
+                        {
                             <h4 style="text-align: center">Logged in users</h4>
                             <h1 style="text-align: center">@Model.LoggedInUsersCount</h1>
-                        </div>
+                        }
+                        else
+                        {
+                            <h4 style="text-align: center">Solved tickets</h4>
+                            <h1 style="text-align: center">@Model.SolvedTicketsPercentage%</h1>
+                        }                        
                     </div>
-                }
-                else
-                {
-                    <div class="col-xs-12">
-                        <div class="details-panel">
-                            <h4 style="text-align: center">Last tickets</h4>
-                            <p style="text-align: center"><a>Nie działa komp</a></p>
-                            <p style="text-align: center"><a>Problem z monitorem</a></p>
-                        </div>
-                    </div>
-
-                }
+                </div>
             </div>
         </div>
     </div>
@@ -459,7 +465,7 @@
 
         <div class="col-sm-4">
             <div class="details-panel">
-                <h4 style="text-align: center">8 - 30 days ago@*Last 30 days*@</h4>
+                <h4 style="text-align: center">8 - 30 days ago</h4>
                 @if (@Model.Last30DaysTicketsByStatusCounts["New"] == 0 &&
                      @Model.Last30DaysTicketsByStatusCounts["In progress"] == 0 &&
                      @Model.Last30DaysTicketsByStatusCounts["Solved"] == 0 &&
@@ -470,7 +476,7 @@
                 else
                 {
                     <div id="chartdiv5"></div>
-                }                
+                }
             </div>
         </div>
 
@@ -487,11 +493,11 @@
                     else
                     {
                         <div id="chartdiv6"></div>
-                    }                
+                    }
             </div>
         </div>
     </div>
-    
+
     <div class="details-panel">
         <h4 style="text-align: center">Last 3 months</h4>
         <div class="row">
