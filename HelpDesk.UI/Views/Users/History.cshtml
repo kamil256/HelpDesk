@@ -46,7 +46,7 @@
                         <b>@log.Date.ToString()</b>
                     </div>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        User changed @log.Column of ticket @Html.ActionLink("#" + log.TicketId.ToString(), "Edit", "Tickets", new { id = log.TicketId }, null) to <span style="color: gray">@log.NewValue</span>
+                        User changed @log.Column of ticket @Html.ActionLink("#" + log.TicketId.ToString(), "Edit", "Tickets", new { id = log.TicketId }, null) to <span style="color: gray">"@log.NewValue"</span>
                     </div>
                 </div>
             }
