@@ -1,7 +1,11 @@
-﻿@model HelpDesk.UI.ViewModels.Home.IndexViewModel
+﻿@using HelpDesk.UI.Infrastructure
+
+@model HelpDesk.UI.ViewModels.Home.IndexViewModel
 
 @{
     ViewBag.Title = "Index";
+    IdentityHelper identityHelper = new IdentityHelper();
+    int MaximumCategoriesCount = Math.Max(Model.CurrentMonthTicketsByCategoryCounts.Count, Math.Max(Model.LastMonthTicketsByCategoryCounts.Count, Model.MonthBeforeLastTicketsByCategoryCounts.Count));
 }
 
 <!-- Styles -->
@@ -48,51 +52,51 @@
 
     var chart4 = AmCharts.makeChart("chartdiv4",
         {
-    "autoMargins": false,
-    "marginTop": "0",
-    "marginBottom": "0",
-    "marginLeft": "0",
-    "marginRight": "0",
-    "pullOutRadius": "0",
-        "type": "pie",
-        "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
-        "innerRadius": "60%",
-        "labelsEnabled": false,
-        "colors": [
-            "orangered",
-            "dodgerblue",
-            "forestgreen",
-            "#555"
-        ],
-        "titleField": "category",
-        "valueField": "column-1",
-        "allLabels": [],
-        "balloon": {},
-        "legend": {
-            "enabled": true,
-            "align": "center",
-            "markerType": "circle"
-        },
-        "titles": [],
-        "dataProvider":
-        [
-            {
-                "category": "New",
-                "column-1": '@Model.Last7DaysTicketsByStatusCounts["New"]'
+            "autoMargins": false,
+            "marginTop": "0",
+            "marginBottom": "0",
+            "marginLeft": "0",
+            "marginRight": "0",
+            "pullOutRadius": "0",
+            "type": "pie",
+            "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
+            "innerRadius": "60%",
+            "labelsEnabled": false,
+            "colors": [
+                "orangered",
+                "dodgerblue",
+                "forestgreen",
+                "#555"
+            ],
+            "titleField": "category",
+            "valueField": "column-1",
+            "allLabels": [],
+            "balloon": {},
+            "legend": {
+                "enabled": true,
+                "align": "center",
+                "markerType": "circle"
             },
-            {
-                "category": "In progress",
-                "column-1": '@Model.Last7DaysTicketsByStatusCounts["In progress"]'
-            },
-            {
-                "category": "Solved",
-                "column-1": '@Model.Last7DaysTicketsByStatusCounts["Solved"]'
-            },
-            {
-                "category": "Closed",
-                "column-1": '@Model.Last7DaysTicketsByStatusCounts["Closed"]'
-            }
-        ]
+            "titles": [],
+            "dataProvider":
+            [
+                {
+                    "category": "New",
+                    "column-1": '@Model.Last7DaysTicketsByStatusCounts["New"]'
+                },
+                {
+                    "category": "In progress",
+                    "column-1": '@Model.Last7DaysTicketsByStatusCounts["In progress"]'
+                },
+                {
+                    "category": "Solved",
+                    "column-1": '@Model.Last7DaysTicketsByStatusCounts["Solved"]'
+                },
+                {
+                    "category": "Closed",
+                    "column-1": '@Model.Last7DaysTicketsByStatusCounts["Closed"]'
+                }
+            ]
         });
 
     var chart5 = AmCharts.makeChart("chartdiv5",
@@ -238,10 +242,15 @@
             ]
         });
 
+    @while (Model.CurrentMonthTicketsByCategoryCounts.Count < MaximumCategoriesCount)
+    {
+        Model.CurrentMonthTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
+    }
     @foreach (var x in Model.CurrentMonthTicketsByCategoryCounts)
     {
         @: chart1.dataProvider.push({ country: "@x.Name", visits: "@x.TicketsCount", color: "red" });
     }
+
 
     var chart2 = AmCharts.makeChart("chartdiv2",
         {
@@ -290,6 +299,10 @@
             ]
         });
 
+    @while (Model.LastMonthTicketsByCategoryCounts.Count < MaximumCategoriesCount)
+    {
+        Model.LastMonthTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
+    }
     @foreach (var x in Model.LastMonthTicketsByCategoryCounts)
     {
         @: chart2.dataProvider.push({ country: "@x.Name", visits: "@x.TicketsCount", color: "red" });
@@ -342,6 +355,10 @@
             ]
         });
 
+    @while (Model.MonthBeforeLastTicketsByCategoryCounts.Count < MaximumCategoriesCount)
+    {
+        Model.MonthBeforeLastTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
+    }
     @foreach (var x in Model.MonthBeforeLastTicketsByCategoryCounts)
     {
         @: chart3.dataProvider.push({ country: "@x.Name", visits: "@x.TicketsCount", color: "red" });
@@ -362,14 +379,30 @@
             <div class="row">
                 <div class="col-xs-6">
                     <div class="details-panel">
-                        <h4 style="text-align: center">Tickets</h4>
-                        <h1 style="text-align: center">@Model.TotalTicketsCount</h1>
+                        @if (identityHelper.IsCurrentUserAnAdministrator())
+                        {
+                            <h4 style="text-align: center">Tickets</h4>
+                            <h1 style="text-align: center">@Model.TotalTicketsCount</h1>
+                        }
+                        else
+                        {
+                            <h4 style="text-align: center">Created tickets</h4>
+                            <h1 style="text-align: center">@Model.CreatedTickets</h1>
+                        }
                     </div>
                 </div>
                 <div class="col-xs-6">
                     <div class="details-panel">
-                        <h4 style="text-align: center">Users</h4>
-                        <h1 style="text-align: center">@Model.TotalUsersCount</h1>
+                        @if (identityHelper.IsCurrentUserAnAdministrator())
+                        {
+                            <h4 style="text-align: center">Users</h4>
+                            <h1 style="text-align: center">@Model.TotalUsersCount</h1>
+                        }
+                        else
+                        {
+                            <h4 style="text-align: center">Requested tickets</h4>
+                            <h1 style="text-align: center">@Model.RequestedTickets</h1>
+                        }
                     </div>
                 </div>
             </div>
@@ -377,22 +410,35 @@
 
         <div class="col-sm-6">
             <div class="row">
-                <div class="col-xs-6">
-                    <div class="details-panel">
-                        <h4 style="text-align: center">Administrators</h4>
-                        <h1 style="text-align: center">@Model.TotalAdministratorsCount</h1>
+                @if (identityHelper.IsCurrentUserAnAdministrator())
+                {
+                    <div class="col-xs-6">
+                        <div class="details-panel">
+                            <h4 style="text-align: center">Administrators</h4>
+                            <h1 style="text-align: center">@Model.TotalAdministratorsCount</h1>
+                        </div>
                     </div>
-                </div>                
-                <div class="col-xs-6">
-                    <div class="details-panel">
-                        <h4 style="text-align: center">Logged in users</h4>
-                        <h1 style="text-align: center">@Model.LoggedInUsersCount</h1>
+                    <div class="col-xs-6">
+                        <div class="details-panel">
+                            <h4 style="text-align: center">Logged in users</h4>
+                            <h1 style="text-align: center">@Model.LoggedInUsersCount</h1>
+                        </div>
                     </div>
-                </div>                
+                }
+                else
+                {
+                    <div class="col-xs-12">
+                        <div class="details-panel">
+                            <h4 style="text-align: center">Last tickets</h4>
+                            <p style="text-align: center"><a>Nie działa komp</a></p>
+                            <p style="text-align: center"><a>Problem z monitorem</a></p>
+                        </div>
+                    </div>
+
+                }
             </div>
         </div>
     </div>
-
     <div class="row">
         <div class="col-sm-4">
             <div class="details-panel">
