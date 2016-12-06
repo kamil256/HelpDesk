@@ -33,6 +33,11 @@ namespace HelpDesk.UI.Controllers.MVC
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("LogOff");
+            }
+
             LoginViewModel model = new LoginViewModel
             {
                 ReturnUrl = returnUrl
