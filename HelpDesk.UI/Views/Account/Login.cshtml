@@ -4,30 +4,103 @@
     ViewBag.Title = "Log in";
 }
 
-<div class="login-window">
-    <h3>Log in to Help Desk</h3>
-    <div>
-        @using (Html.BeginForm("Login", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post))
-        {
-            @Html.AntiForgeryToken()
+<style>
+    .login-window {
 
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    }
+    .login-window > h3 {
+        color: white;
+    }
+    body {
+        /*background-color: red;*/
+        background: radial-gradient(ellipse, rgba(1, 108, 190, 0.8)/*#016cbe*/, rgba(1, 38, 108, 0.8)/*#01266c*/);/*, rgba(1, 38, 108);*/
+    }
 
-            <div class="form-group">
-                @Html.LabelFor(m => m.Email, new { @class = "control-label" })
-                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
-                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+    .modal {
+  text-align: center;
+  padding: 0!important;
+}
+
+.modal:before {
+  content: '';
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+  margin-right: -4px;
+}
+
+.modal-dialog {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
+  max-width: 400px;
+  margin-bottom: 200px;
+}
+</style>
+
+@*<div class="login-window">
+            <h3>Log in to Help Desk</h3>
+            <div>
+                @using (Html.BeginForm("Login", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post))
+            {
+                    @Html.AntiForgeryToken()
+
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Email, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Password, new { @class = "control-label" })
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Log in" class="btn btn-primary" />
+                    </div>
+                }
+            </div>
+        </div>*@
+
+<div id="login-dialog" class="modal" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Log in to Help Desk</h4>
             </div>
 
-            <div class="form-group">
-                @Html.LabelFor(m => m.Password, new { @class = "control-label" })
-                @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
-                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
-            </div>
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
 
-            <div class="form-group">
-                <input type="submit" value="Log in" class="btn btn-blue" />
-            </div>
-        }
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Email, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Password, new { @class = "control-label" })
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <input type="submit" value="Log in" class="btn btn-primary" />
+                </div>
+            }
+        </div>
     </div>
 </div>
+
+<script>
+    $("#login-dialog").modal('show');
+</script>

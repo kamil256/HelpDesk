@@ -45,6 +45,8 @@
     </style>
 </head>
 <body>
+@if (User.Identity.IsAuthenticated)
+{
     <div class="navbar navbar-inverse">
         @if (!User.Identity.IsAuthenticated)
         {
@@ -90,6 +92,7 @@
             </div>
         }
     </div>
+}
 
     <div id="messages">
     </div>

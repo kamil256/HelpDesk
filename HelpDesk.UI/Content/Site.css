@@ -8,9 +8,17 @@ body {
 }
 
 /* ----- login window ----- */
+.login-window {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    margin-top: -160px;
+    margin-left: -120px;
+
+}
 .login-window h3 {
     margin: 0;
-    padding: 90px 0 20px;
+    padding-bottom: 20px;
     text-align: center;        
 }
 .login-window > div {
