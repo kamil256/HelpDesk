@@ -7,6 +7,14 @@
         self.currentTicket = ko.observable();
         self.currentUser = ko.observable();
 
+        self.markSearch = function(text)
+        {
+            if (self.filter.search() && self.filter.search() != "")
+                return text.replace(new RegExp("(" + self.filter.search() + ")", 'gi'), "<mark>$1</mark>");
+            else
+                return text;
+        };
+
         self.numberOfPages = ko.observable();
         self.pages = ko.computed(function()
         {
@@ -35,6 +43,7 @@
 
         self.getTickets = function()
         {
+            self.currentSearch = self.filter.search();
             $.ajax("/api/Tickets",
             {
                 type: "GET",
@@ -51,7 +60,10 @@
                 },
                 success: function(data)
                 {
-                    self.tickets(data.Tickets);
+                    //if (self.filter.search() && self.filter.search() != "")
+                    //    for (var i = 0; i < data.Tickets.length; i++)
+                    //        data.Tickets[i].Title = self.markSearch(data.Tickets[i].Title);
+                    self.tickets(data.Tickets);                    
                     self.numberOfPages(data.NumberOfPages);
                 },
                 error: function()
@@ -319,7 +331,7 @@
                     </div>
 
                     <div style="padding: 10px; display: table-cell;">
-                        <div><p style="font-size: 22px; margin-bottom: 10px;" data-bind="text: Title"></p></div>
+                        <div><p style="font-size: 22px; margin-bottom: 10px;" data-bind="html: $root.markSearch(Title)"></p></div>
                         @*<p>*@
                             @*Created at*@ <p><span style="color: gray">Date:</span> <span data-bind="text: formatDate(CreateDate)"></span> @*by*@</p>
                             @*<b>

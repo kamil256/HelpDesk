@@ -6,6 +6,14 @@
         self.users = ko.observableArray([]);
         self.sortingOptions = ko.observableArray(["First name", "Last name", "Email", "Phone", "Mobile phone", "Company", "Department", "Role", "Last activity", "Tickets"]);
 
+        self.markSearch = function(text)
+        {
+            if (self.filter.search() && self.filter.search() != "")
+                return text.replace(new RegExp("(" + self.filter.search() + ")", 'gi'), "<mark>$1</mark>");
+            else
+                return text;
+        };
+
         self.numberOfPages = ko.observable();
         self.pages = ko.computed(function()
         {
@@ -37,6 +45,13 @@
                 },
                 success: function(data)
                 {
+                    //if (self.filter.search() && self.filter.search() != "")
+                    //    for (var i = 0; i < data.Users.length; i++)
+                    //    {
+                    //        data.Users[i].FirstName = self.markSearch(data.Users[i].FirstName);
+                    //        data.Users[i].LastName = self.markSearch(data.Users[i].LastName);
+                    //        data.Users[i].Email = self.markSearch(data.Users[i].Email);
+                    //    }
                     self.users(data.Users);
                     self.numberOfPages(data.NumberOfPages);
                 },
@@ -159,10 +174,10 @@
             <div @*class="col-lg-6"*@>
                 <div class="user-item" data-bind="click: function() { document.location.href = '/Users/Edit/' + UserId; }" style="clear: both; box-shadow: gray 0 0 10px; background-color: #F5F5F5; border-radius: 5px; padding:10px; margin-bottom: 10px;">
 
-                    <div><p style="font-size: 20px; margin-bottom: 10px; margin-top: 5px;" data-bind="text: FirstName + ' ' + LastName"></p></div>
+                    <div><p style="font-size: 20px; margin-bottom: 10px; margin-top: 5px;" data-bind="html: $root.markSearch(FirstName + ' ' + LastName)"></p></div>
                     <div class="row">
                         <div class="col-xs-6 col-sm-4">
-                            <p><span class="cat">Email:</span> <span class="val" data-bind="text: Email"></span></p>
+                            <p><span class="cat">Email:</span> <span class="val" data-bind="html: $root.markSearch(Email)"></span></p>
                             <p><span class="cat">Phone:</span> <span class="val" data-bind="text: Phone"></span></p>
                             <p><span class="cat">Mobile phone:</span> <span class="val" data-bind="text: MobilePhone"></span></p>
                         </div>

@@ -76,6 +76,13 @@ header hr {
     margin-right: 15px;
 }
 
+/* search text*/
+mark {
+    background-color: yellow;
+    padding: 0.2em 0;
+}
+
+
 /* ----- blue button ----- */
 
 .btn-blue {
