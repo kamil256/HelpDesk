@@ -180,6 +180,12 @@ namespace HelpDesk.UI.Controllers.MVC
                                 TempData["Fail"] = "Unable to edit user role. Try again, and if the problem persists contact your system administrator.";
                         }
 
+                        if (user.Id == identityHelper.CurrentUser.Id)
+                        {
+                            HttpContext.GetOwinContext().Authentication.SignOut();
+                            HttpContext.GetOwinContext().Authentication.SignIn(await identityHelper.UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie));
+                        }
+
                         TempData["Success"] = "Successfully edited user.";
                         return RedirectToAction("Edit", new { id = user.Id });
                     }
