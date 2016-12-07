@@ -233,37 +233,25 @@
     IdentityHelper identityHelper = new IdentityHelper();
 }
 
-<header style="margin: 0;">
-    <div class="container">
-        <h1>User details</h1>
-    </div>
+<header>
+    <h1>@ViewBag.Title</h1>
 </header>
 
-<section class="container" style="padding: 0;">
-    <style>
-        @@media (min-width: 768px) {
-            .details-panel {
-                background-color: #F5F5F5;
-                box-shadow: gray 0 0 10px;
-                border-radius: 5px;
-                padding: 30px 0;
-            }
-        }
-            @@media (max-width: 767px) {
-                .details-panel {
-                    padding: 0 !important;
-                }
-            }
-    </style>
+<nav class="container horizontal-menu hidden-xs">
+    @Html.ActionLink("Personal information", "Edit", new { id = Model.UserId }, new { @class = "selected" })
+    @Html.ActionLink("Change password", "ChangePassword", new { id = Model.UserId })
+    @Html.ActionLink("Tickets", "Tickets", new { id = Model.UserId })
+    @Html.ActionLink("History", "History", new { id = Model.UserId })
+</nav>
 
-    <ul class="horizontal-menu">
-        <li><a href='@Url.Action("Edit", new { id = Model.UserId })'>Personal information</a></li>
-        <li><a href='@Url.Action("ChangePassword", new { id = Model.UserId })'>Change password</a></li>
-        <li class="selected"><a href='@Url.Action("Tickets", new { id = Model.UserId })'>Tickets</a></li>
-        <li><a href='@Url.Action("History", new { id = Model.UserId })'>History</a></li>
-    </ul>
-</section>
-<section class="container">
+<nav class="container btn-group horizontal-menu-xs visible-xs">
+    <a href="@Url.Action("Edit", new { id = Model.UserId })" class="btn btn-primary glyphicon glyphicon-pencil"></a>
+    <a href="@Url.Action("ChangePassword", new { id = Model.UserId })" class="btn btn-default glyphicon glyphicon-lock"></a>
+    <a href="@Url.Action("Tickets", new { id = Model.UserId })" class="btn btn-default glyphicon glyphicon-list"></a>
+    <a href="@Url.Action("History", new { id = Model.UserId })" class="btn btn-default glyphicon glyphicon-time"></a>
+</nav>
+
+<main class="container">
     <style>
         .ticket-item:hover {
             background-color: #F5EECD !important;
@@ -348,7 +336,7 @@
             </li>
         </ul>
     <!-- /ko -->
-</section>
+</main>
 
 @if (identityHelper.IsCurrentUserAnAdministrator())
 {
