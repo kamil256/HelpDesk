@@ -163,9 +163,7 @@
                 <div class="col-sm-8 input-with-button">
                     <input type="hidden" name="RequesterId" data-bind="value: requester.UserId" />
                     <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
-                    <button type="button" data-bind="click: function(data, event) { $('#change-requester-dialog').modal('show'); }" class="btn btn-default btn-search">
-                        <span class="glyphicon glyphicon-search"></span>
-                    </button>
+                    <button type="button" data-bind="click: function(data, event) { $('#change-requester-dialog').modal('show'); }" class="btn btn-default btn-search glyphicon glyphicon-search"></button>
                     @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
                 </div>
             </div>

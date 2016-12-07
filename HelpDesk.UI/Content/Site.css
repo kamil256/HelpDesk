@@ -28,7 +28,7 @@ h1 {
 body > header {
     background-color: #00AAFF; 
     color: white;
-    margin-bottom: 40px;
+    margin-bottom: 25px;
     padding: 30px 0;
 }
 body > header > h1 {
@@ -46,7 +46,12 @@ body > header > h1 {
 body > main > .row > div > .panel {
     background-color: #F5F5F5;
     box-shadow: gray 0 0 10px;
+    margin-top: 15px;
     padding-top: 15px;
+}
+body > main > .row > div > .panel > .id {
+    color: gray;
+    text-align: center;
 }
 
 /*section > hr {
@@ -364,43 +369,25 @@ fieldset[disabled] .btn-inverse.focus {
 
 /* ----- horizontal menu  ----- */
 
-ul.horizontal-menu {
-    list-style-type: none;
-    margin: 10px 0 20px;
-    padding: 0;
+nav.horizontal-menu {
     text-align: center;
 }
-ul.horizontal-menu > li {
+nav.horizontal-menu > a {
     display: inline-block;
     font-weight: bold;
-    
-}
-ul.horizontal-menu > li > a {
-    color: #428bca;
-    display: block;
-    margin: 0 5px;
-    padding: 15px 15px;
+    margin: 0px 0;
+    padding: 10px 15px;
     text-decoration: none;
-}
-ul.horizontal-menu > li.selected > a, ul.horizontal-menu > li > a:hover {
+}    nav.horizontal-menu > a.selected, nav.horizontal-menu > a:hover {
     border-bottom: 2px solid #428bca;
 }
-@media (max-width: 767px) {
-    ul.horizontal-menu {
-        background-color: #DDD;        
-        margin-top: 0;
-    }
-    ul.horizontal-menu > li {
-        
-        display: block;        
-    }
-    ul.horizontal-menu > li > a {
-        color: #555;
-        margin: 0;
-    }
-    ul.horizontal-menu > li.selected > a, ul.horizontal-menu > li > a:hover {
-        background-color: #555;
-        border-width: 0;
-        color: #DDD;
-    }
+
+/* ----- mobile horizontal menu  ----- */
+
+nav.horizontal-menu-xs {
+    text-align: center;
+}
+nav.horizontal-menu-xs > a {
+    display: inline-block;
+    width: 25%;
 }
