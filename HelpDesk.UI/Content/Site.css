@@ -6,29 +6,14 @@ html {
 body {
     background-color: #F0F0F0;
 }
-
-/* ----- login window ----- */
-.login-window {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    margin-top: -160px;
-    margin-left: -120px;
-
-}
-.login-window h3 {
+h1 {
     margin: 0;
-    padding-bottom: 20px;
-    text-align: center;        
 }
-.login-window > div {
-    background-color: white;
-    border: 1px solid #BBB;
-    border-radius: 10px;
-    box-shadow: #777 0 0 10px;
-    margin: 0 auto;        
-    padding: 20px;
-    width: 350px;
+
+/* ----- validation errors -----*/
+
+.input-validation-error {
+    border-color: #A94442;
 }
 
 /* ----- navbar ----- */
@@ -40,21 +25,39 @@ body {
 
  /* ----- header ----- */ 
 
-header {
-    background-color: #00ABEC; 
+body > header {
+    background-color: #00AAFF; 
     color: white;
     margin-bottom: 40px;
     padding: 30px 0;
 }
-header h1 {
-    margin: 0;
+body > header > h1 {
     text-align: center; 
 }
-header hr {
+/*header hr {
     border-color: #3F95C4; 
     margin: 20px 0 30px; 
     border-top-left-radius: 200px 1px; 
     border-top-right-radius: 200px 1px;
+}*/
+
+/* ----- main ----- */
+
+body > main > .row > div > .panel {
+    background-color: #F5F5F5;
+    box-shadow: gray 0 0 10px;
+    padding-top: 15px;
+}
+
+section > hr {
+    border-color: #D0D0D0/*#3F95C4*/; 
+    margin: 30px 0; 
+    border-top-left-radius: 200px 1px; 
+    border-top-right-radius: 200px 1px;
+}
+section > h4 {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 /* ----- search button ----- */
@@ -206,18 +209,7 @@ mark {
     color: #555;
 }
 
-/* ----- content ----- */
 
-section > hr {
-    border-color: #D0D0D0/*#3F95C4*/; 
-    margin: 30px 0; 
-    border-top-left-radius: 200px 1px; 
-    border-top-right-radius: 200px 1px;
-}
-section > h4 {
-    text-align: center;
-    margin-bottom: 20px;
-}
 
 /* ----- footer ----- */
 
