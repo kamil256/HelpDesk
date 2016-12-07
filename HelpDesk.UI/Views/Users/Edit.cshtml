@@ -7,13 +7,6 @@
     IdentityHelper identityHelper = new IdentityHelper();
 }
 
-<script>
-    $(document).ready(function()
-    {
-        ko.applyBindings();
-    });
-</script>
-
 <header>
     <h1>@ViewBag.Title</h1>
 </header>
@@ -36,9 +29,9 @@
     <div class="row">
         <div class="col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
             <div class="panel panel-default">
-                <p class="id">#6cadae2d-4ec6-4418-af97-5e61b77c2ad4</p>
-
                 <div class="panel-body">
+                    <p class="id">#@Model.UserId</p>
+
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
                     @using (Html.BeginForm("Edit", "Users", FormMethod.Post, new { @class = "form-horizontal" }))

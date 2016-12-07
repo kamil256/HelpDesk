@@ -47,9 +47,9 @@ body > main > .row > div > .panel {
     background-color: #F5F5F5;
     box-shadow: gray 0 0 10px;
     margin-top: 15px;
-    padding-top: 15px;
+    /*padding-top: 15px;*/
 }
-body > main > .row > div > .panel > .id {
+body > main > .row > div > .panel > .panel-body > .id {
     color: gray;
     text-align: center;
 }
