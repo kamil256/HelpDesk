@@ -49,8 +49,8 @@ body > main > .row > div > .panel {
     padding-top: 15px;
 }
 
-section > hr {
-    border-color: #D0D0D0/*#3F95C4*/; 
+/*section > hr {
+    border-color: #D0D0D0*//*#3F95C4*//*; 
     margin: 30px 0; 
     border-top-left-radius: 200px 1px; 
     border-top-right-radius: 200px 1px;
@@ -58,11 +58,28 @@ section > hr {
 section > h4 {
     text-align: center;
     margin-bottom: 20px;
+}*/
+
+/* ----- input with search button ----- */
+
+.input-with-button {
+    position: relative;
+}
+.input-with-button > input {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    width: calc(100% - 40px);
+}
+.input-with-button > button {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 40px;
 }
 
-/* ----- search button ----- */
-
-.form-group > div.col-md-6 {
+/*.form-group > div.col-md-6 {
     padding-right: 0;
     margin-right: 15px;
 }
@@ -77,23 +94,12 @@ section > h4 {
     right: 0;
     top: 0;
     margin-right: 15px;
-}
+}*/
 
 /* search text*/
 mark {
     background-color: yellow;
     padding: 0.2em 0;
-}
-
-
-/* ----- blue button ----- */
-
-.btn-blue {
-    background-color: #428bca; 
-    border-color: #2D5F8A/*#428bca*/; 
-}
-.btn-blue, .btn-blue:hover, .btn-blue:focus {
-    color: white;
 }
 
 /* ----- dialog ----- */
