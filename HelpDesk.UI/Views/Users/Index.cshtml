@@ -1,4 +1,8 @@
-﻿<script>
+﻿@{
+    ViewBag.Title = "List of users";
+}
+
+<script>
     function UsersViewModel()
     {
         var self = this;
@@ -45,13 +49,6 @@
                 },
                 success: function(data)
                 {
-                    //if (self.filter.search() && self.filter.search() != "")
-                    //    for (var i = 0; i < data.Users.length; i++)
-                    //    {
-                    //        data.Users[i].FirstName = self.markSearch(data.Users[i].FirstName);
-                    //        data.Users[i].LastName = self.markSearch(data.Users[i].LastName);
-                    //        data.Users[i].Email = self.markSearch(data.Users[i].Email);
-                    //    }
                     self.users(data.Users);
                     self.numberOfPages(data.NumberOfPages);
                 },
@@ -89,34 +86,28 @@
     });
 </script>
 
-@{
-    ViewBag.Title = "Users";
-}
-
 <header>
-    <div class="container">
-        <h1>List of users</h1>
-        <hr />
+    <h1>@ViewBag.Title</h1>
 
+    <div class="container">
+        <hr />
         <div class="row">
             <div class="form-group col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
                 <label class="control-label">Search</label>
                 <div class="input-with-button">
                     <input data-bind="value: filter.search" class="form-control" />
-                    <button data-bind="click: function() { filter.page(1); getUsers(); }" class="btn btn-default btn-search">
-                        <span class="glyphicon glyphicon-search"></span>
-                    </button>
+                    <button data-bind="click: function() { filter.page(1); getUsers(); }" class="btn btn-default btn-search glyphicon glyphicon-search"></button>
                 </div>
             </div>
-        </div>        
+        </div>
     </div>
 </header>
 
-<section class="container">
+<main class="container">
     <h3 data-bind="visible: !users() || users().length === 0">No users found...</h3>
     
     <div data-bind="visible: users() && users().length != 0">
-        <div class="form-inline pull-right" style="margin-bottom: 20px">
+        <div class="sort-by form-inline pull-right">
             <div class="form-group">
                 <label class="control-label">Sort by</label>
                 <select data-bind="options: sortingOptions, value: filter.sortBy, event: { change: function() { filter.page(1); getUsers(); } }" class="form-control"></select>
@@ -130,171 +121,41 @@
             </div>
         </div>
 
-
-
-
-
-        <style>
-            .user-item:hover {
-                background-color: #F5EECD !important;
-                cursor: pointer;
-                /*border-radius: 10px;*/
-                /*outline: 1px solid #E3D179;*/
-            }
-
-            .user-item p {
-                margin-bottom: 3px;
-                /*transition: height 5s;
-                -webkit-transition: height 5s;*/
-            }
-
-            .user-item .col-xs-6:nth-child(2) {
-                border-left: 1px solid lightgray;
-            }
-
-            .user-item .col-sm-2 {
-                border-left: 1px solid lightgray;
-            }
-
-            .user-item .cat {
-                color: gray;
-                font-size: 14px;
-                /*font-variant: small-caps;*/
-            }
-
-            .user-item .val {
-                /*font-weight: bold;*/
-                font-size: 14px;
-            }
-        </style>
-
-
-
-        <div data-bind="foreach: users" style="margin-bottom: 20px;">
-            <div @*class="col-lg-6"*@>
-                <div class="user-item" data-bind="click: function() { document.location.href = '/Users/Edit/' + UserId; }" style="clear: both; box-shadow: gray 0 0 10px; background-color: #F5F5F5; border-radius: 5px; padding:10px; margin-bottom: 10px;">
-
-                    <div><p style="font-size: 20px; margin-bottom: 10px; margin-top: 5px;" data-bind="html: $root.markSearch(FirstName + ' ' + LastName)"></p></div>
+        <div class="users-list" data-bind="foreach: users">            
+            <div class="panel panel-default" data-bind="click: function() { document.location.href = '/Users/Edit/' + UserId; }">
+                <div class="panel-body">
+                    <p data-bind="html: $root.markSearch(FirstName + ' ' + LastName)"></p>
                     <div class="row">
                         <div class="col-xs-6 col-sm-4">
-                            <p><span class="cat">Email:</span> <span class="val" data-bind="html: $root.markSearch(Email)"></span></p>
-                            <p><span class="cat">Phone:</span> <span class="val" data-bind="text: Phone"></span></p>
-                            <p><span class="cat">Mobile phone:</span> <span class="val" data-bind="text: MobilePhone"></span></p>
+                            <p><span class="category">Email:</span> <span class="value" data-bind="html: $root.markSearch(Email)"></span></p>
+                            <p><span class="category">Phone:</span> <span class="value" data-bind="text: Phone"></span></p>
+                            <p><span class="category">Mobile phone:</span> <span class="value" data-bind="text: MobilePhone"></span></p>
                         </div>
+
                         <div class="col-xs-6 col-sm-4">
-                            <p><span class="cat">Company:</span> <span class="val" data-bind="text: Company"></span></p>
-                            <p><span class="cat">Department:</span> <span class="val" data-bind="text: Department"></span></p>
-                            <p><span class="cat">Role:</span> <span class="val" data-bind="text: Role"></span></p>
+                            <p><span class="category">Company:</span> <span class="value" data-bind="text: Company"></span></p>
+                            <p><span class="category">Department:</span> <span class="value" data-bind="text: Department"></span></p>
+                            <p><span class="category">Role:</span> <span class="value" data-bind="text: Role"></span></p>
                         </div>
+
                         <div class="hidden-xs col-sm-2">
-                            <p class="cat">Last activity:</p>
-                            <p style="line-height: 48px; vertical-align: middle; font-size: 16px" data-bind="text: LastActivity"></p>
+                            <p class="category">Last activity:</p>
+                            <p data-bind="text: LastActivity"></p>
                         </div>
+
                         <div class="hidden-xs col-sm-2">
-                            <p class="cat">Tickets:</p>
-                            <p style="font-size: 34px" data-bind="text: TicketsCount"></p>
+                            <p class="category">Tickets:</p>
+                            <p data-bind="text: TicketsCount"></p>
                         </div>
                     </div>
-                    @*<p>
-                            Created at <b data-bind="text: formatDate(CreatedOn)"></b> by
-                            <b>
-                                <!-- ko if: (CreatedBy) -->
-                                <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + CreatedById; }, text: CreatedBy"></a>
-                                <!-- /ko -->
-                                <!-- ko if: (!CreatedBy) -->
-                                <span data-bind="visible: !CreatedBy">deleted user</span>
-                                <!-- /ko -->
-                            </b>
-                            for
-                            <b>
-                                <!-- ko if: (RequestedBy) -->
-                                <a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequestedById; }, text: RequestedBy"></a>
-                                <!-- /ko -->
-                                <!-- ko if: (!RequestedBy) -->
-                                <span data-bind="visible: !RequestedBy">deleted user</span>
-                                <!-- /ko -->
-                            </b>
-                        </p>
-                        <p>Category: <b data-bind="text: Category ? Category : 'none'"></b></p>
-                        <p class="visible-xs">
-                            Status: <b data-bind="text: Status, css: { 'status-new': Status == 'New',
-                                                                               'status-in-progress': Status == 'In progress',
-                                                                               'status-solved': Status == 'Solved',
-                                                                               'status-closed': Status == 'Closed' }"></b>
-                        </p>
-                        <!-- ko if: (AssignedTo) -->
-                        <p data-bind="visible: AssignedTo">Assigned to: <b><a href="#" data-bind="click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + AssignedToId; }, text: AssignedTo"></a></b></p>
-                        <!-- /ko -->*@
-                </div>
-
-
+                </div>  
             </div>
         </div>
 
-
-        @*<table class="table">
-                <thead>
-                    <tr>
-                        <th>
-                            <a href="#" data-bind="click: sort">First name</a>
-                            <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'First name'"></span>
-                        </th>
-                        <th>
-                            <a href="#" data-bind="click: sort">Last name</a>
-                            <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Last name'"></span>
-                        </th>
-                        <th>
-                            <a href="#" data-bind="click: sort">Email</a>
-                            <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Email'"></span>
-                        </th>
-                        <th class="hidden-xs hidden-sm">
-                            <a href="#" data-bind="click: sort">Phone</a>
-                            <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Phone'"></span>
-                        </th>
-                        <th class="hidden-xs hidden-sm">
-                            <a href="#" data-bind="click: sort">Mobile phone</a>
-                            <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Mobile phone'"></span>
-                        </th>
-                        <th class="hidden-xs hidden-sm">
-                            <a href="#" data-bind="click: sort">Company</a>
-                            <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Company'"></span>
-                        </th>
-                        <th class="hidden-xs hidden-sm">
-                            <a href="#" data-bind="click: sort">Department</a>
-                            <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Department'"></span>
-                        </th>
-                        <th>
-                            <a href="#" data-bind="click: sort">Role</a>
-                            <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Role'"></span>
-                        </th>
-                        <th class="ticket-col">
-                            <a href="#" data-bind="click: sort">Tickets</a>
-                            <span data-bind="text: getSortSymbol, visible: filter.sortBy() === 'Tickets'"></span>
-                        </th>
-                    </tr>
-                </thead>
-
-                <tbody data-bind="foreach: users">
-                    <tr data-bind="click: function() { document.location.href = '/Users/Edit/' + UserId; }">
-                        <td data-bind="text: FirstName"></td>
-                        <td data-bind="text: LastName"></td>
-                        <td data-bind="text: Email"></td>
-                        <td data-bind="text: Phone" class="hidden-xs hidden-sm"></td>
-                        <td data-bind="text: MobilePhone" class="hidden-xs hidden-sm"></td>
-                        <td data-bind="text: Company" class="hidden-xs hidden-sm"></td>
-                        <td data-bind="text: Department" class="hidden-xs hidden-sm"></td>
-                        <td data-bind="text: Role"></td>
-                        <td data-bind="text: Tickets" class="ticket-col"></td>
-                    </tr>
-                </tbody>
-            </table>*@
-
-        <!-- ko if: pages().length >= 2 -->
-        <ul data-bind="foreach: pages" class="pagination" style="margin: 0;">
+        <ul class="pagination" data-bind="visible: pages().length >= 2, foreach: pages">
             <li data-bind="css: { active: $data == $root.filter.page() }">
-                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getUsers(); }" href="#"></a>
+                <a href="#" data-bind="text: $data, click: function() { $root.filter.page($data); $root.getUsers(); }"></a>
             </li>
         </ul>
-        <!-- /ko -->
     </div>
-</section>
+</main>

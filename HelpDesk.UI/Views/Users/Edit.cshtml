@@ -142,10 +142,10 @@
                     <h4 class="modal-title">Confirmation</h4>
                 </div>
 
-                @using (Html.BeginForm("Delete", "Users"))
+                @using (Html.BeginForm("Delete", "Users", new { Model.UserId }))
                 {
                     @Html.AntiForgeryToken()
-                    @Html.HiddenFor(model => model.UserId)
+                    
                     <div class="modal-body">
                         <p>Are you sure you want to delete user?</p>
                     </div>

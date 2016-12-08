@@ -10,7 +10,7 @@
         <h4 class="modal-title">Log in to Help Desk</h4>
     </div>
 
-    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post))
+    @using (Html.BeginForm("Login", "Account", new { Model.ReturnUrl }))
     {
         @Html.AntiForgeryToken()
 

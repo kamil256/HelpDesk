@@ -6,11 +6,15 @@ html {
 body {
     background-color: #F0F0F0;
 }
-h1 {
+h1, p {
     margin: 0;
 }
+.panel {
+    background-color: #F5F5F5;
+    box-shadow: gray 0 0 10px;
+}
 
-/* ----- validation errors -----*/
+/* ----- validation errors ----- */
 
 .input-validation-error {
     border-color: #A94442;
@@ -44,8 +48,8 @@ body > header > div > hr {
 /* ----- main ----- */
 
 body > main > .row > div > .panel {
-    background-color: #F5F5F5;
-    box-shadow: gray 0 0 10px;
+    /*background-color: #F5F5F5;
+    box-shadow: gray 0 0 10px;*/
     margin-top: 15px;
     /*padding-top: 15px;*/
 }
@@ -53,17 +57,6 @@ body > main > .row > div > .panel > .panel-body > .id {
     color: gray;
     text-align: center;
 }
-
-/*section > hr {
-    border-color: #D0D0D0*//*#3F95C4*//*; 
-    margin: 30px 0; 
-    border-top-left-radius: 200px 1px; 
-    border-top-right-radius: 200px 1px;
-}
-section > h4 {
-    text-align: center;
-    margin-bottom: 20px;
-}*/
 
 /* ----- input with search button ----- */
 
@@ -84,43 +77,11 @@ section > h4 {
     width: 40px;
 }
 
-/*.form-group > div.col-md-6 {
-    padding-right: 0;
-    margin-right: 15px;
-}
-.input-with-button {
-    position: relative;
-    padding-right: 35px;
-}
-.input-with-button .btn-search {
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-    margin-right: 15px;
-}*/
+/* ----- mark searched text ----- */
 
-/* search text*/
 mark {
     background-color: yellow;
     padding: 0.2em 0;
-}
-
-/* ----- dialog ----- */
-
-.dialog {
-    display: none;
-}
-.dialog > h4 {
-    margin: 0 0 20px 0;
-    text-align: center;
-}
-.dialog > h4 > i {
-    color: #666;
-}
-.dialog .button-group {
-    text-align: center;
 }
 
 /* ----- success and fail messages ----- */
@@ -140,73 +101,7 @@ mark {
     margin-top: 5px;
 }
 
-/* ----- list of users and tickets table ----- */
-
-.table th, .table td {
-    /*border-color: #AAA !important;*/
-}
-.table th {
-    background-color: #4694D7;
-    color: white;
-}
-.table th a {
-    color: white;
-    text-decoration: underline;
-}
-.table tr:nth-child(2n+1) {
-    background-color: #EAEAEA;
-}
-.table tr:nth-child(2n) {
-    background-color: #E6E6E6;
-}
-.table tbody tr:hover {
-    background-color: #F5EECD;
-    cursor: pointer;
-    outline: 1px solid #E3D179;
-}
-.table td {
-    /*padding-top: 15px !important;
-    padding-bottom: 15px !important;*/
-    vertical-align: middle/*text-top*/ !important;
-}
-.table .btn {
-    width: 60px;
-    /*margin-bottom: 4px;*/
-}
-.table .btn-col {
-    min-width: 204px;
-}
-.table .ticket-col {
-    text-align: center;
-}
-@media (max-width: 1199px) {
-    .table .btn-col {
-        width: 76px;
-    }
-}
-/*.status {
-    color: white;
-    border-radius: 5px;
-    font-weight: bold;
-    padding: 10px;
-}
-.status-new {
-    background-color: orangered;
-}
-.status-in-progress {
-    background-color: dodgerblue;
-}
-.status-solved {
-    background-color: forestgreen;
-}
-.status-closed {
-    background-color: #555;
-}*/
-.status {
-    /*border-radius: 5px;*/
-    /*font-weight: bold;*/
-    /*padding: 10px;*/
-}
+/* ----- status ----- */
 .status-new {
     color: orangered;
 }
@@ -219,8 +114,6 @@ mark {
 .status-closed {
     color: #555;
 }
-
-
 
 /* ----- footer ----- */
 
@@ -278,25 +171,67 @@ footer .designer {
 
 .validation-summary-errors > ul {
     list-style-type: none;
-
 }
 
-/* ----- to keep form-inline in xs  ----- */
+/* ----- sorting  ----- */
 
+.sort-by {    
+    margin-bottom: 15px;
+}
 @media (max-width: 767px) {
-  .form-inline .form-control {
+  .sort-by .form-control {
     display: inline-block;
     width: auto;
     vertical-align: middle;
   }
 }
 @media (max-width: 767px) {
-  .form-inline .form-group, .form-inline .checkbox {
+  .sort-by .form-group, .sort-by .checkbox {
     display: inline-block;
     margin-bottom: 0;
     margin-top: 0px;    
     vertical-align: middle;
   }
+}
+
+/* ----- users list ----- */
+.users-list {
+    clear: both;
+    margin-bottom: 15px;
+}
+.users-list > .panel {
+    margin-bottom: 10px;
+}
+.users-list > .panel:hover {
+    background-color: #F5EECD !important;
+    cursor: pointer;
+}
+.users-list > .panel > .panel-body > p {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+.users-list > .panel > .panel-body > .row > div:nth-child(2), .users-list > .panel > .panel-body > .row > .col-sm-2 {
+    border-left: 1px solid lightgray;
+}
+.users-list .category {
+    color: gray;
+}
+.users-list .category, .users-list .value {
+    font-size: 14px;
+}
+.users-list > .panel > .panel-body > .row > div:nth-child(3) > p:nth-child(2) {
+    font-size: 16px;
+    line-height: 48px; 
+    vertical-align: middle; 
+}
+.users-list > .panel > .panel-body > .row > div:nth-child(4) > p:nth-child(2) {
+    font-size: 34px;
+}
+
+/* ----- pagination ----- */
+
+.pagination {
+    margin: 0;
 }
 
 /* ----- inverse button  ----- */

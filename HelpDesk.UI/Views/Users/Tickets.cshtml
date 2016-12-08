@@ -1,4 +1,11 @@
-﻿@model HelpDesk.UI.ViewModels.Users.TicketsViewModel
+﻿@using HelpDesk.UI.Infrastructure;
+
+@model HelpDesk.UI.ViewModels.Users.TicketsViewModel
+
+@{
+    ViewBag.Title = "Edit user";
+    IdentityHelper identityHelper = new IdentityHelper();
+}
 
 <script>
     function TicketsViewModel()
@@ -225,13 +232,6 @@
         ko.applyBindings(new TicketsViewModel());
     });
 </script>
-
-@using HelpDesk.UI.Infrastructure;
-
-@{
-    ViewBag.Title = "Edit user";
-    IdentityHelper identityHelper = new IdentityHelper();
-}
 
 <header>
     <h1>@ViewBag.Title</h1>
