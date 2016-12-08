@@ -5,18 +5,17 @@
 }
 
 <style>
-    .login-window {
+    /*.login-window {
 
-    }
+    }*/
     .login-window > h3 {
         color: white;
     }
     body {
-        /*background-color: red;*/
-        background: radial-gradient(ellipse, rgba(1, 108, 190, 0.8)/*#016cbe*/, rgba(1, 38, 108, 0.8)/*#01266c*/);/*, rgba(1, 38, 108);*/
+        background: radial-gradient(ellipse, rgba(1, 108, 190, 0.8), rgba(1, 38, 108, 0.8));
     }
 
-    .modal {
+/*.modal {
   text-align: center;
   padding: 0!important;
 }
@@ -35,6 +34,25 @@
   vertical-align: middle;
   max-width: 400px;
   margin-bottom: 200px;
+}*/
+
+.modal {
+  text-align: center;
+}
+
+@@media screen and (min-width: 768px) { 
+  .modal:before {
+    display: inline-block;
+    vertical-align: middle;
+    content: " ";
+    height: 100%;
+  }
+}
+
+.modal-dialog {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
 }
 </style>
 
@@ -66,7 +84,7 @@
             </div>
         </div>*@
 
-<div id="login-dialog" class="modal" data-backdrop="static" data-keyboard="false">
+@*<div id="login-dialog" class="modal" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -99,8 +117,53 @@
             }
         </div>
     </div>
-</div>
+</div>*@
 
-<script>
-    $("#login-dialog").modal('show');
-</script>
+<style>
+    html, body {
+        height: 100%;
+    }
+.panel {
+    width: 400px;
+}
+@@media screen and (max-width: 430px) {
+    .panel {
+        width: 100%;    
+}
+}
+</style>
+
+<div style="display: table; width: 100%; height: 100%;">
+    <div style="display: table-cell;  vertical-align: middle; padding-left: 15px; padding-right: 15px;">
+        <div class="panel panel-default center-block">
+            <div class="panel-heading">
+                <h4 class="modal-title">Log in to Help Desk</h4>
+            </div>
+
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="panel-body">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Email, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Password, new { @class = "control-label" })
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="panel-footer text-right">
+                    <input type="submit" value="Log in" class="btn btn-primary" />
+                </div>
+            }
+        </div>
+    </div>
+</div>
