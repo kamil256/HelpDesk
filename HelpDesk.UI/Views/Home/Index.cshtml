@@ -3,7 +3,7 @@
 @model HelpDesk.UI.ViewModels.Home.IndexViewModel
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Dashboard";
     IdentityHelper identityHelper = new IdentityHelper();
     int MaximumCategoriesCount = Math.Max(Model.CurrentMonthTicketsByCategoryCounts.Count, Math.Max(Model.LastMonthTicketsByCategoryCounts.Count, Model.MonthBeforeLastTicketsByCategoryCounts.Count));
 }
@@ -368,11 +368,8 @@
     }
 </script>
 
-<!-- HTML -->
-<header style="margin: 0">
-    <div class="container">
-        <h1>Dashboard</h1>
-    </div>
+<header>
+    <h1>@ViewBag.Title</h1>
 </header>
 
 <section class="container">
