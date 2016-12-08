@@ -228,6 +228,63 @@ footer .designer {
     font-size: 34px;
 }
 
+/* ----- tickets list ----- */
+.tickets-list {
+    clear: both;
+    margin: 15px 0;
+}
+.tickets-list > .panel {
+    margin-bottom: 10px;
+}
+.tickets-list > .panel > .panel-body {
+    display: table;
+    padding: 0;
+    width: 100%;
+}
+.tickets-list > .panel:hover {
+    background-color: #F5EECD !important;
+    cursor: pointer;
+}
+.tickets-list > .panel > .panel-body > div {
+    display: table-cell;
+}
+.tickets-list > .panel > .panel-body > div:first-child {
+    border-right: 1px dashed gray;
+    text-align: center;
+    vertical-align: middle;   
+    width: 150px; 
+}
+.tickets-list > .panel > .panel-body > div:nth-child(2) {
+    padding: 10px;    
+}
+.tickets-list > .panel > .panel-body > div:nth-child(3) {
+    vertical-align: bottom;
+    width: 180px; 
+}
+.tickets-list > .panel > .panel-body > div:nth-child(3) > button {
+    width: 50px;
+}
+.tickets-list > .panel > .panel-body > div:nth-child(3) > button:nth-child(1) {
+    margin: 10px 10px 10px 0;
+}
+.tickets-list > .panel > .panel-body > div:nth-child(3) > button:nth-child(2) {
+    margin: 10px 3px 10px 0;
+}
+.tickets-list > .panel > .panel-body > div:nth-child(3) > button:nth-child(3) {
+    margin: 10px 3px 10px 0;
+}
+.tickets-list > .panel > .panel-body > div:first-child > p:nth-child(2) {
+    font-size: 20px;
+    font-weight: bold;
+}
+.tickets-list > .panel > .panel-body > div:nth-child(2) > p:first-child {
+    font-size: 22px; 
+    margin-bottom: 10px;
+}
+.tickets-list .id {
+    color: gray;
+}
+
 /* ----- pagination ----- */
 
 .pagination {
