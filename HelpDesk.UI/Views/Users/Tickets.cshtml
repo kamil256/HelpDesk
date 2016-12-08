@@ -3,7 +3,7 @@
 @model HelpDesk.UI.ViewModels.Users.TicketsViewModel
 
 @{
-    ViewBag.Title = "Edit user";
+    ViewBag.Title = "User details";
     IdentityHelper identityHelper = new IdentityHelper();
 }
 
@@ -238,17 +238,17 @@
 </header>
 
 <nav class="container horizontal-menu hidden-xs">
-    @Html.ActionLink("Personal information", "Edit", new { id = Model.UserId }, new { @class = "selected" })
+    @Html.ActionLink("Personal information", "Edit", new { id = Model.UserId })
     @Html.ActionLink("Change password", "ChangePassword", new { id = Model.UserId })
-    @Html.ActionLink("Tickets", "Tickets", new { id = Model.UserId })
+    @Html.ActionLink("Tickets", "Tickets", new { id = Model.UserId }, new { @class = "selected" })
     @Html.ActionLink("History", "History", new { id = Model.UserId })
 </nav>
 
 <nav class="container btn-group horizontal-menu-xs visible-xs">
     <a href="@Url.Action("Edit", new { id = Model.UserId })" class="btn btn-primary glyphicon glyphicon-pencil"></a>
-    <a href="@Url.Action("ChangePassword", new { id = Model.UserId })" class="btn btn-default glyphicon glyphicon-lock"></a>
-    <a href="@Url.Action("Tickets", new { id = Model.UserId })" class="btn btn-default glyphicon glyphicon-list"></a>
-    <a href="@Url.Action("History", new { id = Model.UserId })" class="btn btn-default glyphicon glyphicon-time"></a>
+    <a href="@Url.Action("ChangePassword", new { id = Model.UserId })" class="btn btn-primary glyphicon glyphicon-lock"></a>
+    <a href="@Url.Action("Tickets", new { id = Model.UserId })" class="btn btn-primary glyphicon glyphicon-list active"></a>
+    <a href="@Url.Action("History", new { id = Model.UserId })" class="btn btn-primary glyphicon glyphicon-time"></a>
 </nav>
 
 <main class="container">
