@@ -191,6 +191,7 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\header.css" />
+    <Content Include="Content\Login.css" />
     <Content Include="Content\PagedList.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\themes\base\accordion.css" />
@@ -318,6 +319,7 @@
     <Content Include="Views\Users\ChangePassword.cshtml" />
     <Content Include="Views\Users\History.cshtml" />
     <Content Include="Views\Tickets\History.cshtml" />
+    <Content Include="Views\Shared\_LoginLayout.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

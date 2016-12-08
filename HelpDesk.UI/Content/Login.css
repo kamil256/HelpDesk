@@ -1,0 +1,12 @@
+﻿body {
+    background: radial-gradient(ellipse, rgba(1, 108, 190, 0.8), rgba(1, 38, 108, 0.8));
+}
+.login-panel {
+    box-shadow: #222 0 0 10px;
+    left: 50%;
+    margin-left: -150px;
+    margin-top: -200px;
+    position: fixed;
+    top: 50%;
+    width: 300px;
+}
