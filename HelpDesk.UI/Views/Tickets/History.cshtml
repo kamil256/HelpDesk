@@ -4,57 +4,43 @@
     ViewBag.Title = "Ticket details";
 }
 
-<header style="margin: 0;">
-    <div class="container">
-        <h1>Ticket details</h1>
-    </div>
+<header>
+    <h1>@ViewBag.Title</h1>
 </header>
 
+<nav class="container horizontal-menu hidden-xs">
+    @Html.ActionLink("Details", "Edit", new { id = Model.TicketId })
+    @Html.ActionLink("History", "History", new { id = Model.TicketId }, new { @class = "selected" })
+</nav>
 
+<nav class="tickets-menu container btn-group horizontal-menu-xs visible-xs">
+    <a href="@Url.Action("Edit", new { id = Model.TicketId })" class="btn btn-primary glyphicon glyphicon-pencil"></a>
+    <a href="@Url.Action("History", new { id = Model.TicketId })" class="btn btn-primary glyphicon glyphicon-time active"></a>
+</nav>
 
-<section class="container" style="padding: 0;">
-    <style>
-        @@media (min-width: 768px) {
-            .details-panel {
-                background-color: #F5F5F5;
-                box-shadow: gray 0 0 10px;
-                border-radius: 5px;
-                padding: 30px 0;
-            }
-            }
-        @@media (max-width: 767px) {
-            .details-panel {
-                padding: 0 !important;
-            }
-        }        
-    </style>
-
-    <ul class="horizontal-menu">
-        <li><a href='@Url.Action("Edit", new { id = Model.TicketId })'>Details</a></li>
-        <li class="selected"><a href='@Url.Action("History", new { id = Model.TicketId })'>History</a></li>
-    </ul>
-</section>
-<section class="container">
-    <div class="details-panel" style="padding: 15px 15px;  padding-top: 30px; font-family: Courier">
-        @foreach (var log in Model.Logs)
-        {
-            <div class="row">
-                <div class="col-sm-4 col-md-3 col-lg-2">
-                    <b>@log.Date.ToString()</b>
+<main class="container">
+    <div class="history-panel panel panel-default">
+        <div class="panel-body">
+            @foreach (var log in Model.Logs)
+            {
+                <div class="row">
+                    <div class="col-sm-4 col-md-3 col-lg-2">
+                        <b>@log.Date.ToString()</b>
+                    </div>
+                    <div class="col-sm-8 col-md-9 col-lg-10">
+                        User
+                        @if (log.AuthorName != null)
+                        {
+                            @Html.ActionLink(log.AuthorName, "Edit", "Users", new { id = log.AuthorId }, null)
+                        }
+                        else
+                        {
+                            <span style="color: gray">deleted user</span>
+                        }
+                        changed @log.Column to <span class="new-value">"@log.NewValue"</span>
+                    </div>
                 </div>
-                <div class="col-sm-8 col-md-9 col-lg-10">
-                    User 
-                    @if (log.AuthorName != null)
-                    {
-                        @Html.ActionLink(log.AuthorName, "Edit", "Users", new { id = log.AuthorId }, null)
-                    }
-                    else
-                    {
-                        <span style="color: gray">deleted user</span>
-                    }
-                    changed @log.Column to <span style="color: gray">"@log.NewValue"</span>
-                </div>
-            </div>
-        }
-    </div>          
-</section>
+            }
+        </div>
+    </div>
+</main>
