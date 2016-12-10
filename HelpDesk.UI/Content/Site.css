@@ -47,7 +47,7 @@ body > header > div > hr {
 
 /* ----- main ----- */
 
-body > main > .row > div > .panel {
+body > main > .row > div > .panel, .history-panel {
     /*background-color: #F5F5F5;
     box-shadow: gray 0 0 10px;*/
     margin-top: 15px;
@@ -56,6 +56,12 @@ body > main > .row > div > .panel {
 body > main > .row > div > .panel > .panel-body > .id {
     color: gray;
     text-align: center;
+}
+.history-panel .panel-body {
+    font-family: "Courier";
+}
+.history-panel .new-value {
+    color: gray;
 }
 
 /* ----- input with search button ----- */
@@ -382,4 +388,9 @@ nav.horizontal-menu-xs {
 nav.horizontal-menu-xs > a {
     display: inline-block;
     width: 25%;
+}
+
+nav.tickets-menu > a {
+    display: inline-block;
+    width: 50%;
 }

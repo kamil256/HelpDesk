@@ -4,41 +4,27 @@
     ViewBag.Title = "User details";
 }
 
-<header style="margin: 0;">
-    <div class="container">
-        <h1>User details</h1>
-    </div>
+<header>
+    <h1>@ViewBag.Title</h1>
 </header>
 
+<nav class="container horizontal-menu hidden-xs">
+    @Html.ActionLink("Personal information", "Edit", new { id = Model.UserId })
+    @Html.ActionLink("Change password", "ChangePassword", new { id = Model.UserId })
+    @Html.ActionLink("Tickets", "Tickets", new { id = Model.UserId })
+    @Html.ActionLink("History", "History", new { id = Model.UserId }, new { @class = "selected" })
+</nav>
 
+<nav class="container btn-group horizontal-menu-xs visible-xs">
+    <a href="@Url.Action("Edit", new { id = Model.UserId })" class="btn btn-primary glyphicon glyphicon-pencil"></a>
+    <a href="@Url.Action("ChangePassword", new { id = Model.UserId })" class="btn btn-primary glyphicon glyphicon-lock"></a>
+    <a href="@Url.Action("Tickets", new { id = Model.UserId })" class="btn btn-primary glyphicon glyphicon-list"></a>
+    <a href="@Url.Action("History", new { id = Model.UserId })" class="btn btn-primary glyphicon glyphicon-time active"></a>
+</nav>
 
-<section class="container" style="padding: 0;">
-    <style>
-        @@media (min-width: 768px) {
-            .details-panel {
-                background-color: #F5F5F5;
-                box-shadow: gray 0 0 10px;
-                border-radius: 5px;
-                padding: 30px 0;
-            }
-            }
-        @@media (max-width: 767px) {
-            .details-panel {
-                padding: 0 !important;
-            }
-        }        
-    </style>
-
-    <ul class="horizontal-menu">
-        <li><a href='@Url.Action("Edit", new { id = Model.UserId })'>Personal information</a></li>
-        <li><a href='@Url.Action("ChangePassword", new { id = Model.UserId })'>Change password</a></li>
-        <li><a href='@Url.Action("Tickets", new { id = Model.UserId })'>Tickets</a></li>
-        <li class="selected"><a href='@Url.Action("History", new { id = Model.UserId })'>History</a></li>
-    </ul>
-</section>
-<section class="container">
-    <div class="details-panel" style="padding: 15px 15px;  padding-top: 25px;">
-        <div style="font-family: Courier;">
+<main class="container">
+    <div class="history-panel panel panel-default">
+        <div class="panel-body">
             @foreach (var log in Model.Logs)
             {
                 <div class="row">
@@ -46,10 +32,10 @@
                         <b>@log.Date.ToString()</b>
                     </div>
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        User changed @log.Column of ticket @Html.ActionLink("#" + log.TicketId.ToString(), "Edit", "Tickets", new { id = log.TicketId }, null) to <span style="color: gray">"@log.NewValue"</span>
+                        User changed @log.Column of ticket @Html.ActionLink("#" + log.TicketId.ToString(), "Edit", "Tickets", new { id = log.TicketId }, null) to <span class="new-value">"@log.NewValue"</span>
                     </div>
                 </div>
             }
-        </div>
-    </div>          
-</section>
+        </div>        
+    </div>
+</main>
