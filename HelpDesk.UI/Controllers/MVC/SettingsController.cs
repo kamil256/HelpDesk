@@ -55,26 +55,17 @@ namespace HelpDesk.UI.Controllers.MVC
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
         [Authorize]
-        public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,CategoriesId,CategoriesName")] IndexViewModel model)
+        public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,Categories")] IndexViewModel model)
         {
             if (!identityHelper.IsCurrentUserAnAdministrator())
             {
                 ModelState.Remove("UsersPerPage");
-                ModelState.Remove("CategoriesId");
-                ModelState.Remove("CategoriesName");
+                ModelState.Remove("Categories");
             }
             else
             {
-                model.Categories = new List<Category>();
-                for (int i = 0; i < (model.CategoriesId?.Length ?? 0); i++)
-                {
-                    model.Categories.Add(new Category
-                    {
-                        CategoryId = model.CategoriesId[i],
-                        Name = model.CategoriesName[i],
-                        Order = i
-                    });
-                }
+                int order = 0;
+                model.Categories.ForEach(c => c.Order = order++);
             }
 
             try

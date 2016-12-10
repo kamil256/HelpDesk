@@ -394,3 +394,71 @@ nav.tickets-menu > a {
     display: inline-block;
     width: 50%;
 }
+
+/* ----- Categories ----- */
+ul#sortable-categories {
+    display: inline-block;
+    list-style-type: none;    
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+ul#sortable-categories > li, #new-category {
+    background-color: #ddd;
+    border: 1px solid rgb(204, 204, 204);
+    border-radius: 3px;
+    margin: 5px 0;
+    overflow: auto;
+    width: 100%;
+}
+ul#sortable-categories > li > div:nth-child(1), ul#sortable-categories > li > div:nth-child(3) {
+    line-height: 34px; 
+    text-align: center;
+    vertical-align: middle;     
+    width: 24px;
+} 
+ul#sortable-categories > li > div:nth-child(2) {
+    width: calc(100% - 48px);
+}
+#new-category {
+    margin: 10px 0 0 0;
+}
+#new-category > div:nth-child(1) {
+    width: calc(100% - 24px);
+}
+#new-category > div:nth-child(2) {
+    line-height: 34px; 
+    text-align: center;
+    vertical-align: middle;     
+    width: 24px;
+}
+#sortable-categories > li {
+    cursor: move;
+}
+#sortable-categories span.glyphicon-remove, #new-category span.glyphicon-plus {
+    cursor: pointer;
+}
+#sortable-categories span.glyphicon-remove:hover, #new-category span.glyphicon-plus:hover {
+    text-shadow: 0 0 2px blue;
+}
+#sortable-categories span.glyphicon-remove {
+    color: red;
+}
+#new-category span.glyphicon-plus {
+    color: green;
+}
+
+/* ----- Numeric input ----- */
+.numeric-input input {
+    width: 70px;
+    text-align: center;
+}
+.numeric-input .glyphicon {
+    padding: 0 5px;
+    cursor: pointer;
+    line-height: 34px;
+    vertical-align: middle;
+}
+.numeric-input .glyphicon:hover {
+    text-shadow: 0 0 2px blue;
+}
