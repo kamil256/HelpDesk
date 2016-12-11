@@ -18,33 +18,42 @@ var settingsViewModel = function()
 
     self.decrementUsersPerPage = function(data, event)
     {
+        event.preventDefault();
         if (isNaN(self.usersPerPage()))
             self.usersPerPage(10);
         if (self.usersPerPage() > 1)
             self.usersPerPage(self.usersPerPage() - 1);
-    }
+    };
 
     self.incrementUsersPerPage = function(data, event)
     {
+        event.preventDefault();
         if (isNaN(self.usersPerPage()))
             self.usersPerPage(10);
         self.usersPerPage(self.usersPerPage() + 1);
-    }
+    };
 
     self.decrementTicketsPerPage = function(data, event)
     {
+        event.preventDefault();
         if (isNaN(self.ticketsPerPage()))
             self.ticketsPerPage(10);
         if (self.ticketsPerPage() > 1)
             self.ticketsPerPage(self.ticketsPerPage() - 1);
-    }
+    };
 
     self.incrementTicketsPerPage = function(data, event)
     {
+        event.preventDefault();
         if (isNaN(self.ticketsPerPage()))
             self.ticketsPerPage(10);
         self.ticketsPerPage(self.ticketsPerPage() + 1);
-    }
+    };
+
+    self.preventTextHighlightOnMouseDown = function(event)
+    {
+        event.preventDefault();
+    };
 
     self.categories = ko.observableArray([]);
 
@@ -115,13 +124,13 @@ $(document).ready(function()
                                 <div class="col-sm-8">
                                     <div class="numeric-input">
                                         <div class="pull-left">
-                                            <span data-bind="click: decrementUsersPerPage" class="glyphicon glyphicon-chevron-left"></span>
+                                            <span data-bind="event: { mousedown: decrementUsersPerPage }" class="glyphicon glyphicon-chevron-left"></span>
                                         </div>
                                         <div class="pull-left">
                                             <input data-bind="value: usersPerPage" class="form-control" name="UsersPerPage" />
                                         </div>
                                         <div class="pull-left">
-                                            <span data-bind="click: incrementUsersPerPage" class="glyphicon glyphicon-chevron-right"></span>
+                                            <span data-bind="event: { mousedown: incrementUsersPerPage }" class="glyphicon glyphicon-chevron-right"></span>
                                         </div>
                                     </div>
                                     @Html.ValidationMessageFor(model => model.UsersPerPage, "", new { @class = "text-danger" })
@@ -134,13 +143,13 @@ $(document).ready(function()
                             <div class="col-sm-8">
                                 <div class="numeric-input">
                                     <div class="pull-left">
-                                        <span data-bind="click: decrementTicketsPerPage" class="glyphicon glyphicon-chevron-left"></span>
+                                        <span data-bind="event: { mousedown: decrementTicketsPerPage }" class="glyphicon glyphicon-chevron-left"></span>
                                     </div>
                                     <div class="pull-left">
                                         <input data-bind="value: ticketsPerPage" class="form-control" name="TicketsPerPage" />
                                     </div>
                                     <div class="pull-left">
-                                        <span data-bind="click: incrementTicketsPerPage" class="glyphicon glyphicon-chevron-right"></span>
+                                        <span data-bind="event: { mousedown: incrementTicketsPerPage }" class="glyphicon glyphicon-chevron-right"></span>
                                     </div>
                                 </div>
                                 @Html.ValidationMessageFor(model => model.TicketsPerPage, "", new { @class = "text-danger" })
