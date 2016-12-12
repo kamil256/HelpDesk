@@ -8,363 +8,181 @@
     int MaximumCategoriesCount = Math.Max(Model.CurrentMonthTicketsByCategoryCounts.Count, Math.Max(Model.LastMonthTicketsByCategoryCounts.Count, Model.MonthBeforeLastTicketsByCategoryCounts.Count));
 }
 
-<!-- Styles -->
-<style>
-    /*#chartdiv1,*/ #chartdiv2, #chartdiv3, #chartdiv4,#chartdiv5,#chartdiv6,#chartdiv7,#chartdiv8  {
-        width: 100%;
-        height: 300px;
-    }
-
-    .amcharts-export-menu-top-right {
-        top: 10px;
-        right: 0;
-    }
-    .amcharts-main-div a {
-        visibility: hidden;
-    }
-</style>
-
-<style>
-    .details-panel {
-        background-color: #F5F5F5;
-        box-shadow: gray 0 0 10px;
-        border-radius: 5px;
-        padding: 10px;
-        margin-top: 20px;
-        margin-bottom: 0px;
-    }
-</style>
-
-<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
-<script src="https://www.amcharts.com/lib/3/serial.js"></script>
-<script src="https://www.amcharts.com/lib/3/pie.js"></script>
-<script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
-<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
-<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
-
 <script>
-    AmCharts.addInitHandler(function(chart)
+    AmCharts.addInitHandler(function(chart) { setSerialChartWidth(chart) }, ['serial']);
+
+    var setSerialChartWidth = function(chart)
     {
         var categoryWidth = 40;
         var chartWidth = categoryWidth * chart.dataProvider.length;
         chart.div.style.height = 90 + 1.22 * chartWidth + 'px';
-    }, ['serial']);
+    };
 
-    var chart4 = AmCharts.makeChart("chartdiv4",
+    var pieChart =
+    {
+        "startDuration": 0,
+        "autoMargins": false,
+        "marginTop": "0",
+        "marginBottom": "0",
+        "marginLeft": "0",
+        "marginRight": "0",
+        "pullOutRadius": "0",
+        "type": "pie",
+        "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
+        "innerRadius": "60%",
+        "labelsEnabled": false,
+        "colors": [
+            "orangered",
+            "dodgerblue",
+            "forestgreen",
+            "#555"
+        ],
+        "titleField": "category",
+        "valueField": "column-1",
+        "allLabels": [],
+        "balloon": {},
+        "legend": {
+            "enabled": true,
+            "align": "center",
+            "markerType": "circle"
+        },
+        "titles": []
+    };
+
+    var pieChart1 = AmCharts.makeChart("pieChart1", JSON.parse(JSON.stringify(pieChart)));
+    pieChart1.dataProvider =
+    [
         {
-            "startDuration": 0,
-            "autoMargins": false,
-            "marginTop": "0",
-            "marginBottom": "0",
-            "marginLeft": "0",
-            "marginRight": "0",
-            "pullOutRadius": "0",
-            "type": "pie",
-            "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
-            "innerRadius": "60%",
-            "labelsEnabled": false,
-            "colors": [
-                "orangered",
-                "dodgerblue",
-                "forestgreen",
-                "#555"
-            ],
-            "titleField": "category",
-            "valueField": "column-1",
-            "allLabels": [],
-            "balloon": {},
-            "legend": {
-                "enabled": true,
-                "align": "center",
-                "markerType": "circle"
-            },
-            "titles": [],
-            "dataProvider":
-            [
-                {
-                    "category": "New",
-                    "column-1": '@Model.Last7DaysTicketsByStatusCounts["New"]'
-                },
-                {
-                    "category": "In progress",
-                    "column-1": '@Model.Last7DaysTicketsByStatusCounts["In progress"]'
-                },
-                {
-                    "category": "Solved",
-                    "column-1": '@Model.Last7DaysTicketsByStatusCounts["Solved"]'
-                },
-                {
-                    "category": "Closed",
-                    "column-1": '@Model.Last7DaysTicketsByStatusCounts["Closed"]'
-                }
-            ]
-        });
-
-    var chart5 = AmCharts.makeChart("chartdiv5",
+            "category": "New",
+            "column-1": '@Model.Last7DaysTicketsByStatusCounts["New"]'
+        },
         {
-            "startDuration": 0,
-            "autoMargins": false,
-            "marginTop": "0",
-            "marginBottom": "0",
-            "marginLeft": "0",
-            "marginRight": "0",
-            "pullOutRadius": "0",
-            "type": "pie",
-            "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
-            "innerRadius": "60%",
-            "labelsEnabled": false,
-            "colors": [
-                "orangered",
-                "dodgerblue",
-                "forestgreen",
-                "#555"
-            ],
-            "titleField": "category",
-            "valueField": "column-1",
-            "allLabels": [],
-            "balloon": {},
-            "legend": {
-                "enabled": true,
-                "align": "center",
-                "markerType": "circle"
-            },
-            "titles": [],
-            "dataProvider": [
-                {
-                    "category": "New",
-                    "column-1": '@Model.Last30DaysTicketsByStatusCounts["New"]'
-                },
-            {
-                "category": "In progress",
-                "column-1": '@Model.Last30DaysTicketsByStatusCounts["In progress"]'
-            },
-            {
-                "category": "Solved",
-                "column-1": '@Model.Last30DaysTicketsByStatusCounts["Solved"]'
-            },
-            {
-                "category": "Closed",
-                "column-1": '@Model.Last30DaysTicketsByStatusCounts["Closed"]'
-            }
-            ]
-        });
-
-    var chart6 = AmCharts.makeChart("chartdiv6",
+            "category": "In progress",
+            "column-1": '@Model.Last7DaysTicketsByStatusCounts["In progress"]'
+        },
         {
-            "startDuration": 0,
-            "autoMargins": false,
-            "marginTop": "0",
-            "marginBottom": "0",
-            "marginLeft": "0",
-            "marginRight": "0",
-            "pullOutRadius": "0",
-            "type": "pie",
-            "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
-            "innerRadius": "60%",
-            "labelsEnabled": false,
-            "colors": [
-                "orangered",
-                "dodgerblue",
-                "forestgreen",
-                "#555"
-            ],
-            "titleField": "category",
-            "valueField": "column-1",
-            "allLabels": [],
-            "balloon": {},
-            "legend": {
-                "enabled": true,
-                "align": "center",
-                "markerType": "circle"
-            },
-            "titles": [],
-            "dataProvider":
-            [
-                {
-                    "category": "New",
-                    "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["New"]'
-                },
-                {
-                    "category": "In progress",
-                    "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["In progress"]'
-                },
-                {
-                    "category": "Solved",
-                    "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["Solved"]'
-                },
-                {
-                    "category": "Closed",
-                    "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["Closed"]'
-                }
-            ]
-        });
-
-
-    var chart1 = AmCharts.makeChart("chartdiv1",
+            "category": "Solved",
+            "column-1": '@Model.Last7DaysTicketsByStatusCounts["Solved"]'
+        },
         {
-            "type": "serial",
-            "rotate": true,
-            "theme": "light",
-            //"marginRight": 70,
-            "dataProvider": [],
-            "valueAxes":
-                [{
-                    "axisAlpha": 0,
-                    "position": "left",
-                    "title": "",
-                    "showFirstLabel": false
-                }],
-            "startDuration": 0,
-            "graphs":
-                [{
-                    "balloonText": "<b>[[value]]</b>",
-                    //"fillColorsField": "color",
-                    "fillAlphas": 0.9,
-                    "lineAlpha": 0.2,
-                    "type": "column",
-                    "valueField": "visits"
-                }],
-            "chartCursor":
-                {
-                    "categoryBalloonEnabled": false,
-                    "cursorAlpha": 0,
-                    "zoomable": false
-                },
-            "categoryField": "country",
-            "categoryAxis":
-                {
-                    "gridPosition": "start",
-                    "inside": true
-                },
-            "titles": [
-		{
-		    "id": "Title-1",
-		    "size": 15,
-		    "text": "@Model.CurrentMonthName @Model.YearInCurrentMonth"
-		}
-            ]
-        });
+            "category": "Closed",
+            "column-1": '@Model.Last7DaysTicketsByStatusCounts["Closed"]'
+        }
+    ];
 
+    var pieChart2 = AmCharts.makeChart("pieChart2", JSON.parse(JSON.stringify(pieChart)));
+    pieChart2.dataProvider =
+    [
+        {
+            "category": "New",
+            "column-1": '@Model.Last30DaysTicketsByStatusCounts["New"]'
+        },
+        {
+            "category": "In progress",
+            "column-1": '@Model.Last30DaysTicketsByStatusCounts["In progress"]'
+        },
+        {
+            "category": "Solved",
+            "column-1": '@Model.Last30DaysTicketsByStatusCounts["Solved"]'
+        },
+        {
+            "category": "Closed",
+            "column-1": '@Model.Last30DaysTicketsByStatusCounts["Closed"]'
+        }
+    ];
+
+    var pieChart3 = AmCharts.makeChart("pieChart3", JSON.parse(JSON.stringify(pieChart)));
+    pieChart3.dataProvider =
+    [
+        {
+            "category": "New",
+            "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["New"]'
+        },
+        {
+            "category": "In progress",
+            "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["In progress"]'
+        },
+        {
+            "category": "Solved",
+            "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["Solved"]'
+        },
+        {
+            "category": "Closed",
+            "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["Closed"]'
+        }
+    ];
+
+    var serialChart =
+    {
+        "type": "serial",
+        "rotate": true,
+        "theme": "light",
+        "dataProvider": [],
+        "valueAxes":
+        [{
+            "axisAlpha": 0,
+            "position": "left",
+            "showFirstLabel": false
+        }],
+        "startDuration": 0,
+        "graphs":
+        [{
+            "balloonText": "<b>[[value]]</b>",
+            "fillAlphas": 0.9,
+            "lineAlpha": 0.2,
+            "type": "column",
+            "valueField": "tickets"
+        }],
+        "chartCursor":
+        {
+            "categoryBalloonEnabled": false,
+            "cursorAlpha": 0,
+            "zoomable": false
+        },
+        "categoryField": "category",
+        "categoryAxis":
+        {
+            "gridPosition": "start",
+            "inside": true
+        },
+        "titles":
+        [{
+            "id": "Title-1",
+            "size": 15
+        }]
+    };
+
+    var serialChart1 = AmCharts.makeChart("serialChart1", JSON.parse(JSON.stringify(serialChart)));
+    serialChart1.titles[0].text = "@Model.CurrentMonthName @Model.YearInCurrentMonth";
     @while (Model.CurrentMonthTicketsByCategoryCounts.Count < MaximumCategoriesCount)
     {
         Model.CurrentMonthTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
     }
     @foreach (var x in Model.CurrentMonthTicketsByCategoryCounts)
     {
-        @: chart1.dataProvider.push({ country: "@x.Name", visits: "@x.TicketsCount", color: "red" });
+        @: serialChart1.dataProvider.push({ category: "@x.Name", tickets: "@x.TicketsCount", color: "red" });
     }
 
-
-    var chart2 = AmCharts.makeChart("chartdiv2",
-        {
-            "type": "serial",
-            "rotate": true,
-            "theme": "light",
-            //"marginRight": 70,
-            "dataProvider":
-                [],
-            "valueAxes":
-                [{
-                    "axisAlpha": 0,
-                    "position": "left",
-                    "title": "",
-                    "showFirstLabel": false
-                }],
-            "startDuration": 0,
-            "graphs":
-                [{
-                    "balloonText": "<b>[[value]]</b>",
-                    //"fillColorsField": "color",
-                    "fillAlphas": 0.9,
-                    "lineAlpha": 0.2,
-                    "type": "column",
-                    "valueField": "visits"
-                }],
-            "chartCursor":
-                {
-                    "categoryBalloonEnabled": false,
-                    "cursorAlpha": 0,
-                    "zoomable": false
-                },
-            "categoryField": "country",
-            "categoryAxis":
-                {
-                    "gridPosition": "start",
-                    "inside": true,
-                    "labelRotation": 45
-                },
-            "titles": [
-		{
-		    "id": "Title-1",
-		    "size": 15,
-		    "text": "@Model.LastMonthName @Model.YearInLastMonth"
-		}
-            ]
-        });
-
+    var serialChart2 = AmCharts.makeChart("serialChart2", JSON.parse(JSON.stringify(serialChart)));
+    serialChart2.titles[0].text = "@Model.LastMonthName @Model.YearInLastMonth";
     @while (Model.LastMonthTicketsByCategoryCounts.Count < MaximumCategoriesCount)
     {
         Model.LastMonthTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
     }
     @foreach (var x in Model.LastMonthTicketsByCategoryCounts)
     {
-        @: chart2.dataProvider.push({ country: "@x.Name", visits: "@x.TicketsCount", color: "red" });
+        @: serialChart2.dataProvider.push({ category: "@x.Name", tickets: "@x.TicketsCount", color: "red" });
     }
 
-    var chart3 = AmCharts.makeChart("chartdiv3",
-        {
-            "type": "serial",
-            "rotate": true,
-            "theme": "light",
-            //"marginRight": 70,
-            "dataProvider":
-                [],
-            "valueAxes":
-                [{
-                    "axisAlpha": 0,
-                    "position": "left",
-                    "title": "",
-                    "showFirstLabel": false
-                }],
-            "startDuration": 0,
-            "graphs":
-                [{
-                    "balloonText": "<b>[[value]]</b>",
-                    //"fillColorsField": "color",
-                    "fillAlphas": 0.9,
-                    "lineAlpha": 0.2,
-                    "type": "column",
-                    "valueField": "visits"
-                }],
-            "chartCursor":
-                {
-                    "categoryBalloonEnabled": false,
-                    "cursorAlpha": 0,
-                    "zoomable": false
-                },
-            "categoryField": "country",
-            "categoryAxis":
-                {
-                    "gridPosition": "start",
-                    "inside": true,
-                    "labelRotation": 45
-                },
-            "titles": [
-		{
-		    "id": "Title-1",
-		    "size": 15,
-		    "text": "@Model.MonthBeforeLastName @Model.YearInMonthBeforeLast"
-		}
-            ]
-        });
-
+    var serialChart3 = AmCharts.makeChart("serialChart3", JSON.parse(JSON.stringify(serialChart)));
+    serialChart3.titles[0].text = "@Model.MonthBeforeLastName @Model.YearInMonthBeforeLast";
     @while (Model.MonthBeforeLastTicketsByCategoryCounts.Count < MaximumCategoriesCount)
     {
         Model.MonthBeforeLastTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
     }
     @foreach (var x in Model.MonthBeforeLastTicketsByCategoryCounts)
     {
-        @: chart3.dataProvider.push({ country: "@x.Name", visits: "@x.TicketsCount", color: "red" });
+        @: serialChart3.dataProvider.push({ category: "@x.Name", tickets: "@x.TicketsCount", color: "red" });
     }
 </script>
 
@@ -372,15 +190,14 @@
     <h1>@ViewBag.Title</h1>
 </header>
 
-<section class="container">
-    
+<main class="container">    
     <div class="row">
         <div class="col-md-6">
             <div class="row">
                 <div class="col-sm-6">
-                    <div class="details-panel">
-                        <h4 id="date" style="text-align: center"></h4>
-                        <h1 id="time" style="text-align: center"></h1>
+                    <div class="well well-sm">
+                        <h4 id="date" class="text-center"></h4>
+                        <h1 id="time" class="text-center"></h1>
 
                         <script>
                             var displayDateAndTime = function()
@@ -396,17 +213,17 @@
                     </div>
                 </div>
                 <div class="col-sm-6">
-                    <div class="details-panel">
+                    <div class="well well-sm">
                         @if (identityHelper.IsCurrentUserAnAdministrator())
                         {
-                            <h4 style="text-align: center">Tickets</h4>
-                            <h1 style="text-align: center">@Model.TotalTicketsCount</h1>
+                            <h4 class="text-center">Tickets</h4>
+                            <h1 class="text-center">@Model.TotalTicketsCount</h1>
                         }
                         else
                         {
-                            <h4 style="text-align: center">Created tickets</h4>
-                            <h1 style="text-align: center">@Model.CreatedTickets</h1>
-                        }                        
+                            <h4 class="text-center">Created tickets</h4>
+                            <h1 class="text-center">@Model.CreatedTickets</h1>
+                        }
                     </div>
                 </div>
             </div>
@@ -415,103 +232,108 @@
         <div class="col-md-6">
             <div class="row">
                 <div class="col-sm-6">
-                    <div class="details-panel">
+                    <div class="well well-sm">
                         @if (identityHelper.IsCurrentUserAnAdministrator())
                         {
-                            <h4 style="text-align: center">Users</h4>
-                            <h1 style="text-align: center">@Model.TotalUsersCount</h1>
+                            <h4 class="text-center">Users</h4>
+                            <h1 class="text-center">@Model.TotalUsersCount</h1>
                         }
                         else
                         {
-                            <h4 style="text-align: center">Requested tickets</h4>
-                            <h1 style="text-align: center">@Model.RequestedTickets</h1>
-                        }                        
+                            <h4 class="text-center">Requested tickets</h4>
+                            <h1 class="text-center">@Model.RequestedTickets</h1>
+                        }
                     </div>
                 </div>
                 <div class="col-sm-6">
-                    <div class="details-panel">
+                    <div class="well well-sm">
                         @if (identityHelper.IsCurrentUserAnAdministrator())
                         {
-                            <h4 style="text-align: center">Logged in users</h4>
-                            <h1 style="text-align: center">@Model.LoggedInUsersCount</h1>
+                            <h4 class="text-center">Logged in users</h4>
+                            <h1 class="text-center">@Model.LoggedInUsersCount</h1>
                         }
                         else
                         {
-                            <h4 style="text-align: center">Solved tickets</h4>
-                            <h1 style="text-align: center">@Model.SolvedTicketsPercentage%</h1>
-                        }                        
+                            <h4 class="text-center">Solved tickets</h4>
+                            <h1 class="text-center">@Model.SolvedTicketsPercentage%</h1>
+                        }
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="row">
         <div class="col-sm-4">
-            <div class="details-panel">
-                <h4 style="text-align: center">Last 7 days</h4>
+            <div class="well well-sm">
+                <h4 class="text-center">Last 7 days</h4>
                 @if (@Model.Last7DaysTicketsByStatusCounts["New"] == 0 &&
                      @Model.Last7DaysTicketsByStatusCounts["In progress"] == 0 &&
                      @Model.Last7DaysTicketsByStatusCounts["Solved"] == 0 &&
                      @Model.Last7DaysTicketsByStatusCounts["Closed"] == 0)
                 {
-                    <h1 style="margin: 0; line-height: 300px; vertical-align: middle; text-align: center;">No tickets</h1>
+                    <h1 class="no-chart-message">No tickets</h1>
                 }
                 else
                 {
-                    <div id="chartdiv4"></div>
+                    <div id="pieChart1"></div>
                 }
             </div>
         </div>
 
         <div class="col-sm-4">
-            <div class="details-panel">
-                <h4 style="text-align: center">8 - 30 days ago</h4>
+            <div class="well well-sm">
+                <h4 class="text-center">8 - 30 days ago</h4>
                 @if (@Model.Last30DaysTicketsByStatusCounts["New"] == 0 &&
                      @Model.Last30DaysTicketsByStatusCounts["In progress"] == 0 &&
                      @Model.Last30DaysTicketsByStatusCounts["Solved"] == 0 &&
                      @Model.Last30DaysTicketsByStatusCounts["Closed"] == 0)
                 {
-                    <h1 style="margin: 0; line-height: 300px; vertical-align: middle; text-align: center;">No tickets</h1>
+                    <h1 class="no-chart-message">No tickets</h1>
                 }
                 else
                 {
-                    <div id="chartdiv5"></div>
+                    <div id="pieChart2"></div>
                 }
             </div>
         </div>
 
         <div class="col-sm-4">
-            <div class="details-panel">
-                <h4 style="text-align: center">Older than 30 days</h4>
-                    @if (@Model.OlderThan30DaysTicketsByStatusCounts["New"] == 0 &&
-                         @Model.OlderThan30DaysTicketsByStatusCounts["In progress"] == 0 &&
-                         @Model.OlderThan30DaysTicketsByStatusCounts["Solved"] == 0 &&
-                         @Model.OlderThan30DaysTicketsByStatusCounts["Closed"] == 0)
-                    {
-                        <h1 style="margin: 0; line-height: 300px; vertical-align: middle; text-align: center;">No tickets</h1>
-                    }
-                    else
-                    {
-                        <div id="chartdiv6"></div>
-                    }
+            <div class="well well-sm">
+                <h4 class="text-center">Older than 30 days</h4>
+                @if (@Model.OlderThan30DaysTicketsByStatusCounts["New"] == 0 &&
+                     @Model.OlderThan30DaysTicketsByStatusCounts["In progress"] == 0 &&
+                     @Model.OlderThan30DaysTicketsByStatusCounts["Solved"] == 0 &&
+                     @Model.OlderThan30DaysTicketsByStatusCounts["Closed"] == 0)
+                {
+                    <h1 class="no-chart-message">No tickets</h1>
+                }
+                else
+                {
+                    <div id="pieChart3"></div>
+                }
             </div>
         </div>
     </div>
 
-    <div class="details-panel">
-        <h4 style="text-align: center">Last 3 months</h4>
-        <div class="row">
-            <div class="col-sm-4">
-                <div id="chartdiv1"></div>
-            </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="well well-sm">
+                <h4 class="text-center">Last 3 months</h4>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div id="serialChart1"></div>
+                    </div>
 
-            <div class="col-sm-4">
-                <div id="chartdiv2"></div>
-            </div>
+                    <div class="col-sm-4">
+                        <div id="serialChart2"></div>
+                    </div>
 
-            <div class="col-sm-4">
-                <div id="chartdiv3"></div>
+                    <div class="col-sm-4">
+                        <div id="serialChart3"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</section>
+</main>
