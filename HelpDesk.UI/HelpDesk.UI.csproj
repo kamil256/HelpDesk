@@ -320,6 +320,7 @@
     <Content Include="Views\Users\History.cshtml" />
     <Content Include="Views\Tickets\History.cshtml" />
     <Content Include="Views\Shared\_LoginLayout.cshtml" />
+    <Content Include="Views\Shared\_Footer.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

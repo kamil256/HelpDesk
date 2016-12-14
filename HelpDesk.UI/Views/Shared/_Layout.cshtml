@@ -15,10 +15,10 @@
     <link href="~/Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     
-    <script src="~/Scripts/modernizr-2.6.2.js"></script>
+    @*<script src="~/Scripts/modernizr-2.6.2.js"></script>*@
     <script src="~/Scripts/jquery-1.12.4.min.js"></script>
-    <script src="~/Scripts/jquery-ui-1.12.0.min.js"></script>
-    <script src="~/Scripts/jquery.ui.touch-punch.min.js"></script>
+    @*<script src="~/Scripts/jquery-ui-1.12.0.min.js"></script>
+    <script src="~/Scripts/jquery.ui.touch-punch.min.js"></script>*@
     <script src="~/Scripts/jquery.validate.min.js"></script>
     <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
@@ -29,25 +29,6 @@
     <script src="https://www.amcharts.com/lib/3/serial.js"></script>
     <script src="https://www.amcharts.com/lib/3/pie.js"></script>
     <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
-
-    <style>
-        .ui-widget-overlay {
-            background: black !important;
-            opacity: .60 !important;
-        }
-        .ui-dialog {
-            width: 410px !important;
-            padding: 20px;
-            /*text-align: left;*/
-            background: white;
-            /*margin: 0 auto;*/
-            box-shadow: 0 0 10px #777;
-            border-radius: 5px;
-        }
-        .ui-dialog-titlebar {
-            display: none !important;
-        }
-    </style>
 </head>
 <body>
 @if (User.Identity.IsAuthenticated)
@@ -178,33 +159,6 @@
 
     @RenderBody()
         
-    <footer style="z-index: 1051">
-        <div class="footer-content">
-            <div class="footer-group">
-                <div class="footer-element">
-                    <span class="glyphicon glyphicon-map-marker"></span>
-                </div>
-                <div class="footer-element">
-                    Ulica 1, Wrocław
-                </div>
-            </div>
-            <div class="footer-group">
-                <div class="footer-element">
-                    <span class="glyphicon glyphicon-phone-alt"></span>
-                </div>
-                <div class="footer-element">
-                    +48 123 456 789
-                </div>
-            </div>
-            <div class="footer-group">
-                <div class="footer-element">
-                    <span class="glyphicon glyphicon-envelope"></span>
-                </div>
-                <div class="footer-element">
-                    <a href="mailto:support@ringnet.com">support@company.com</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    @Html.Partial("_Footer")
 </body>
 </html>
