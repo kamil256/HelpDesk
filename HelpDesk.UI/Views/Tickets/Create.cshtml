@@ -78,62 +78,60 @@
 <main class="container">
     <div class="row">
         <div class="col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="well">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
     
-                    @using (Html.BeginForm("Create", "Tickets", FormMethod.Post, new { @class = "form-horizontal" }))
-                    {
-                        @Html.AntiForgeryToken()
+                @using (Html.BeginForm("Create", "Tickets", FormMethod.Post, new { @class = "form-horizontal" }))
+                {
+                    @Html.AntiForgeryToken()
             
-                        <div class="form-group">
-                            @Html.LabelFor(model => model.RequesterId, new { @class = "control-label col-sm-3" })
-                            <input type="hidden" name="RequesterId" data-bind="value: requester.UserId" />
-                            <div class="col-sm-8 "> 
-                                <div class="input-with-button">
-                                    <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
-                                    <button type="button" data-bind="click: function(data, event) { $('#change-requester-dialog').modal('show'); }" class="btn btn-default btn-search glyphicon glyphicon-search"></button>
-                                </div>
-                                @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.RequesterId, new { @class = "control-label col-sm-3" })
+                        <input type="hidden" name="RequesterId" data-bind="value: requester.UserId" />
+                        <div class="col-sm-8 "> 
+                            <div class="input-with-button">
+                                <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
+                                <button type="button" data-bind="click: function(data, event) { $('#change-requester-dialog').modal('show'); }" class="btn btn-default btn-search glyphicon glyphicon-search"></button>
                             </div>
+                            @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            @Html.LabelFor(model => model.CategoryId, new { @class = "control-label col-sm-3" })
-                            <div class="col-sm-8">
-                                @Html.DropDownListFor(
-                                    expression: model => model.CategoryId,
-                                    selectList: new SelectList(Model.Categories.Select(c => new { CategoryID = c.CategoryId, Name = c.Name }), "CategoryID", "Name"),
-                                    optionLabel: "-",
-                                    htmlAttributes: new { @class = "form-control" }
-                                )
-                                @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
-                            </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CategoryId, new { @class = "control-label col-sm-3" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(
+                                expression: model => model.CategoryId,
+                                selectList: new SelectList(Model.Categories.Select(c => new { CategoryID = c.CategoryId, Name = c.Name }), "CategoryID", "Name"),
+                                optionLabel: "-",
+                                htmlAttributes: new { @class = "form-control" }
+                            )
+                            @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
                         </div>
+                    </div>
 
-                        <div class="form-group wide-form-group">
-                            @Html.LabelFor(model => model.Title, new { @class = "control-label col-sm-3" })
-                            <div class="col-sm-8">
-                                @Html.TextBoxFor(model => model.Title, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
-                            </div>
+                    <div class="form-group wide-form-group">
+                        @Html.LabelFor(model => model.Title, new { @class = "control-label col-sm-3" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.Title, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
                         </div>
+                    </div>
 
-                        <div class="form-group wide-form-group">
-                            @Html.LabelFor(model => model.Content, new { @class = "control-label col-sm-3" })
-                            <div class="col-sm-8">
-                                @Html.TextAreaFor(model => model.Content, 7, 10, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
-                            </div>
+                    <div class="form-group wide-form-group">
+                        @Html.LabelFor(model => model.Content, new { @class = "control-label col-sm-3" })
+                        <div class="col-sm-8">
+                            @Html.TextAreaFor(model => model.Content, 7, 10, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <div class="col-sm-offset-3 col-sm-8">
-                                <input type="submit" value="Create" class="btn btn-primary" />
-                            </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-8">
+                            <input type="submit" value="Create" class="btn btn-primary" />
                         </div>
-                    }
-                </div>
+                    </div>
+                }
             </div>
         </div>
     </div>

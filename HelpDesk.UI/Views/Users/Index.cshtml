@@ -107,6 +107,12 @@
     <h3 data-bind="visible: !users() || users().length === 0">No users found...</h3>
     
     <div data-bind="visible: users() && users().length != 0">
+        <ul class="pagination pull-left" data-bind="visible: pages().length >= 2, foreach: pages">
+            <li data-bind="css: { active: $data == $root.filter.page() }">
+                <a href="#" data-bind="text: $data, click: function() { $root.filter.page($data); $root.getUsers(); }"></a>
+            </li>
+        </ul>
+
         <div class="sort-by form-inline pull-right">
             <div class="form-group">
                 <label class="control-label">Sort by</label>
@@ -122,33 +128,31 @@
         </div>
 
         <div class="users-list" data-bind="foreach: users">            
-            <div class="panel panel-default" data-bind="click: function() { document.location.href = '/Users/Edit/' + UserId; }">
-                <div class="panel-body">
-                    <p data-bind="html: $root.markSearch(FirstName + ' ' + LastName)"></p>
-                    <div class="row">
-                        <div class="col-xs-6 col-sm-4">
-                            <p><span class="category">Email:</span> <span class="value" data-bind="html: $root.markSearch(Email)"></span></p>
-                            <p><span class="category">Phone:</span> <span class="value" data-bind="text: Phone"></span></p>
-                            <p><span class="category">Mobile phone:</span> <span class="value" data-bind="text: MobilePhone"></span></p>
-                        </div>
-
-                        <div class="col-xs-6 col-sm-4">
-                            <p><span class="category">Company:</span> <span class="value" data-bind="text: Company"></span></p>
-                            <p><span class="category">Department:</span> <span class="value" data-bind="text: Department"></span></p>
-                            <p><span class="category">Role:</span> <span class="value" data-bind="text: Role"></span></p>
-                        </div>
-
-                        <div class="hidden-xs col-sm-2">
-                            <p class="category">Last activity:</p>
-                            <p data-bind="text: LastActivity"></p>
-                        </div>
-
-                        <div class="hidden-xs col-sm-2">
-                            <p class="category">Tickets:</p>
-                            <p data-bind="text: TicketsCount"></p>
-                        </div>
+            <div class="well" data-bind="click: function() { document.location.href = '/Users/Edit/' + UserId; }">
+                <p data-bind="html: $root.markSearch(FirstName + ' ' + LastName)"></p>
+                <div class="row">
+                    <div class="col-xs-6 col-sm-4">
+                        <p><span class="text-gray">Email:</span> <span class="value" data-bind="html: $root.markSearch(Email)"></span></p>
+                        <p><span class="text-gray">Phone:</span> <span class="value" data-bind="text: Phone"></span></p>
+                        <p><span class="text-gray">Mobile phone:</span> <span class="value" data-bind="text: MobilePhone"></span></p>
                     </div>
-                </div>  
+
+                    <div class="col-xs-6 col-sm-4">
+                        <p><span class="text-gray">Company:</span> <span class="value" data-bind="text: Company"></span></p>
+                        <p><span class="text-gray">Department:</span> <span class="value" data-bind="text: Department"></span></p>
+                        <p><span class="text-gray">Role:</span> <span class="value" data-bind="text: Role"></span></p>
+                    </div>
+
+                    <div class="hidden-xs col-sm-2">
+                        <p class="text-gray">Last activity:</p>
+                        <p data-bind="text: LastActivity"></p>
+                    </div>
+
+                    <div class="hidden-xs col-sm-2">
+                        <p class="text-gray">Tickets:</p>
+                        <p data-bind="text: TicketsCount"></p>
+                    </div>
+                </div>
             </div>
         </div>
 

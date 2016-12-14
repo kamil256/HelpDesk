@@ -5,18 +5,17 @@
     Layout = "~/Views/Shared/_LoginLayout.cshtml";
 }
 
-<div class="panel panel-default login-panel">
+<div class="panel panel-default log-in-panel">
     <div class="panel-heading">
         <h4 class="modal-title">Log in to Help Desk</h4>
     </div>
-
     @using (Html.BeginForm("Login", "Account", new { Model.ReturnUrl }))
     {
-        @Html.AntiForgeryToken()
-
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.AntiForgeryToken()        
 
         <div class="panel-body">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
             <div class="form-group">
                 @Html.LabelFor(m => m.Email, new { @class = "control-label" })
                 @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
@@ -27,7 +26,7 @@
                 @Html.LabelFor(m => m.Password, new { @class = "control-label" })
                 @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
                 @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
-            </div>
+            </div>            
         </div>
 
         <div class="panel-footer text-right">

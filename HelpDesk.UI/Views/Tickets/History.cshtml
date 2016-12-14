@@ -19,28 +19,26 @@
 </nav>
 
 <main class="container">
-    <div class="history-panel panel panel-default">
-        <div class="panel-body">
-            @foreach (var log in Model.Logs)
-            {
-                <div class="row">
-                    <div class="col-sm-4 col-md-3 col-lg-2">
-                        <b>@log.Date.ToString()</b>
-                    </div>
-                    <div class="col-sm-8 col-md-9 col-lg-10">
-                        User
-                        @if (log.AuthorName != null)
-                        {
-                            @Html.ActionLink(log.AuthorName, "Edit", "Users", new { id = log.AuthorId }, null)
-                        }
-                        else
-                        {
-                            <span style="color: gray">deleted user</span>
-                        }
-                        changed @log.Column to <span class="new-value">"@log.NewValue"</span>
-                    </div>
+    <div class="well">
+        @foreach (var log in Model.Logs)
+        {
+            <div class="row">
+                <div class="col-sm-4 col-md-3 col-lg-2">
+                    <b>@log.Date.ToString()</b>
                 </div>
-            }
-        </div>
+                <div class="col-sm-8 col-md-9 col-lg-10">
+                    User
+                    @if (log.AuthorName != null)
+                    {
+                        @Html.ActionLink(log.AuthorName, "Edit", "Users", new { id = log.AuthorId }, null)
+                    }
+                    else
+                    {
+                        <span style="color: gray">deleted user</span>
+                    }
+                    changed @log.Column to <span class="new-value">"@log.NewValue"</span>
+                </div>
+            </div>
+        }
     </div>
 </main>

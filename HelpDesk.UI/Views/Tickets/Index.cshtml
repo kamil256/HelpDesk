@@ -284,6 +284,12 @@
     <h3 data-bind="visible: !tickets() || tickets().length === 0">No tickets found...</h3>
 
     <div data-bind="visible: tickets() && tickets().length != 0">
+        <ul data-bind="visible: pages().length >= 2, foreach: pages" class="pagination pull-left">
+            <li data-bind="css: { active: $data == $root.filter.page() }">
+                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
+            </li>
+        </ul>
+
         <div class="sort-by form-inline pull-right">
             <div class="form-group">
                 <label class="control-label">Sort by</label>
@@ -299,39 +305,37 @@
         </div>
 
         <div class="tickets-list" data-bind="foreach: tickets">
-            <div class="panel panel-default" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }">
-                <div class="panel-body">
-                    <div class="hidden-xs">
-                        <p>#<span class="id" data-bind="text: TicketId"></span></p>
-                        <p data-bind="text: Status, css: { 'status-new': Status == 'New', 'status-in-progress': Status == 'In progress', 'status-solved': Status == 'Solved', 'status-closed': Status == 'Closed' }"></p>
-                    </div>
-
-                    <div>
-                        <p data-bind="html: $root.markSearch(Title)"></p>
-                        <p><span class="category">Date:</span> <span data-bind="text: formatDate(CreateDate)"></span></p>
-                        <p>
-                            <span class="category">User:</span>
-                            <span>
-                                <a href="#" data-bind="visible: RequesterName, click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequesterId; }, text: RequesterName"></a>
-                                <span data-bind="visible: !RequesterName">deleted user</span>
-                            </span>
-                        </p>
-                        <p><span class="category">Category:</span> <span data-bind="text: Category ? Category : 'none'"></span></p>
-                        <p class="visible-xs">
-                            <span class="category">Status:</span>
-                            <span data-bind="text: Status, css: { 'status-new': Status == 'New', 'status-in-progress': Status == 'In progress', 'status-solved': Status == 'Solved', 'status-closed': Status == 'Closed' }"></span>
-                        </p>
-                    </div>
-
-                    @if (identityHelper.IsCurrentUserAnAdministrator())
-                    {
-                        <div class="hidden-xs">
-                            <button title="Close ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#close-ticket-dialog').modal('show'); }" class="btn btn-sm btn-inverse pull-right"><span class="glyphicon glyphicon-remove"></span></button>
-                            <button title="Solve ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#solve-ticket-dialog').modal('show'); }" class="btn btn-sm btn-success pull-right"><span class="glyphicon glyphicon-ok"></span></button>
-                            <button title="Assign administrator to ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#assign-user-dialog').modal('show'); }" class="btn btn-sm btn-primary pull-right">+<span class="glyphicon glyphicon-user"></span></button>
-                        </div>
-                    }
+            <div class="well" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }">
+                <div class="hidden-xs">
+                    <p class="text-gray" data-bind="text: '#' + TicketId"></p>
+                    <p data-bind="text: Status, css: { 'color-status-new': Status == 'New', 'color-status-in-progress': Status == 'In progress', 'color-status-solved': Status == 'Solved', 'color-status-closed': Status == 'Closed' }"></p>
                 </div>
+
+                <div>
+                    <p data-bind="html: $root.markSearch(Title)"></p>
+                    <p><span class="text-gray">Date:</span> <span data-bind="text: formatDate(CreateDate)"></span></p>
+                    <p>
+                        <span class="text-gray">User:</span>
+                        <span>
+                            <a href="#" data-bind="visible: RequesterName, click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequesterId; }, text: RequesterName"></a>
+                            <span data-bind="visible: !RequesterName">deleted user</span>
+                        </span>
+                    </p>
+                    <p><span class="text-gray">Category:</span> <span data-bind="text: Category ? Category : 'none'"></span></p>
+                    <p class="visible-xs">
+                        <span class="text-gray">Status:</span>
+                        <span data-bind="text: Status, css: { 'color-status-new': Status == 'New', 'color-status-in-progress': Status == 'In progress', 'color-status-solved': Status == 'Solved', 'color-status-closed': Status == 'Closed' }"></span>
+                    </p>
+                </div>
+
+                @if (identityHelper.IsCurrentUserAnAdministrator())
+                {
+                    <div class="hidden-xs">
+                        <button title="Close ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#close-ticket-dialog').modal('show'); }" class="btn btn-sm btn-inverse pull-right"><span class="glyphicon glyphicon-remove"></span></button>
+                        <button title="Solve ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#solve-ticket-dialog').modal('show'); }" class="btn btn-sm btn-success pull-right"><span class="glyphicon glyphicon-ok"></span></button>
+                        <button title="Assign administrator to ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#assign-user-dialog').modal('show'); }" class="btn btn-sm btn-primary pull-right">+<span class="glyphicon glyphicon-user"></span></button>
+                    </div>
+                }
             </div>
         </div>
 
