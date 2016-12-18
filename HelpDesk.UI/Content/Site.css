@@ -128,7 +128,16 @@ footer > .footer-content > .footer-element > div.glyphicon {
 
 /* ----- success and fail messages ----- */
 
-.alert {
+#messages {
+    left: 0;
+    opacity: 0.9;
+    position: absolute; 
+    right: 0;
+    top: 52px;  
+    z-index: 1049;
+}
+
+#messages .alert {
     border-radius: 0;
     display: none;
     margin: 0;

@@ -88,73 +88,74 @@
         {
             @if (TempData["Success"] != null)
             {
-                @: displayNewSuccessMessage("@(TempData["Success"])");
+                @: displayNewSuccessMessage('@(TempData["Success"])');
             }
             @if (TempData["Fail"] != null)
             {
-                @: displayNewFailMessage("@(TempData["Fail"])");
+                @: displayNewFailMessage('@(TempData["Fail"])');
             }
+
+            $(window).scroll(function()
+            {
+                if ($(window).scrollTop() > 52)
+                    $('#messages').css(
+                    {
+                        'position': 'fixed',
+                        'top': '0'
+                    });
+                else
+                    $('#messages').css(
+                    {
+                        'position': 'absolute',
+                        'top': '52px'
+                    });
+            });
         });
 
-        function displayNewSuccessMessage(message)
+        function displayNewSuccessMessage(messageText)
         {
-            var messages = document.getElementById("messages");
-
-            var a = document.createElement("a");
-            a.setAttribute("href", "#");
-            a.setAttribute("aria-label", "close");
-            a.className = "close";
-            a.setAttribute("onclick", "$(this.parentElement).hide('slow'); ");
-            a.innerHTML = "&times";
-            
-            var span = document.createElement("span");
-            span.className = "glyphicon glyphicon-info-sign";
-
-            var span2 = document.createElement("span");
-            span2.textContent = " " + message;
-            
-            var div = document.createElement("div");
-            div.className = "alert alert-success";
-            
-            div.appendChild(a);
-            div.appendChild(span);
-            div.appendChild(span2);
-
-            messages.appendChild(div);
-            $(div).show("slow");
-
-            setTimeout(function() { $(div).hide("slow") }, 10000);
+            displayNewMessage(messageText, 'success');
         }
 
-        function displayNewFailMessage(message)
+        function displayNewFailMessage(messageText)
         {
-            var messages = document.getElementById("messages");
+            displayNewMessage(messageText, 'fail');
+        }
 
-            var a = document.createElement("a");
-            a.setAttribute("href", "#");
-            a.setAttribute("aria-label", "close");
-            a.className = "close";
-            a.setAttribute("onclick", "$(this.parentElement).hide('slow'); ");
-            a.innerHTML = "&times";
+        function displayNewMessage(messageText, messageType)
+        {
+            var closeButton = $('<a></a>');
+            closeButton.addClass('close');
+            closeButton.attr(
+            {
+                'href': '#',
+                'aria-label': 'close'
+            });
+            closeButton.click(function()
+            {
+                alert.hide('slow');
+            });
+            closeButton.html("&times;");
 
-            var span = document.createElement("span");
-            span.className = "glyphicon glyphicon-exclamation-sign";
+            var icon = $('<span></span>');
+            icon.addClass('glyphicon');
+            if (messageType === 'success')
+                icon.addClass('glyphicon-info-sign');
+            if (messageType === 'fail')
+                icon.addClass('glyphicon-exclamation-sign');
 
-            var span2 = document.createElement("span");
-            span2.textContent = " " + message;
+            var alert = $('<div></div>');
+            alert.addClass('alert');
+            if (messageType === 'success')
+                alert.addClass('alert-success');
+            if (messageType === 'fail')
+                alert.addClass('alert-danger');
+            alert.append(closeButton, icon, ' ' + messageText);
 
-            var div = document.createElement("div");
-            div.className = "alert alert-danger";
-
-            div.appendChild(a);
-            div.appendChild(span);
-            div.appendChild(span2);
-
-            messages.appendChild(div);
-            $(div).show("slow");
-
-            setTimeout(function() { $(div).hide("slow") }, 10000);
-        } 
+            $('#messages').append(alert);
+            alert.show('slow');
+            setTimeout(function() { $(alert).hide('slow') }, 10000);
+        }
     </script>
 
     @RenderBody()
