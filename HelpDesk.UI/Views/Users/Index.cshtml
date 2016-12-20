@@ -16,16 +16,7 @@
                 return text.replace(new RegExp("(" + self.filter.search() + ")", 'gi'), "<mark>$1</mark>");
             else
                 return text;
-        };
-
-        self.numberOfPages = ko.observable();
-        self.pages = ko.computed(function()
-        {
-            var pages = [];
-            for (var i = 1; i <= self.numberOfPages(); i++)
-                pages.push(i);
-            return pages;
-        });        
+        };      
 
         self.filter =
         {
@@ -34,6 +25,30 @@
             descSort: ko.observable(false),
             page: ko.observable(1)
         };
+
+        self.numberOfPages = ko.observable();
+        self.pages = ko.computed(function()
+        {
+            var pages = [];
+
+            var leftBound = self.filter.page() - 2;
+            var rightBound = self.filter.page() + 2;
+            while (leftBound < 1)
+            {
+                leftBound++;
+                rightBound++;
+            }
+            while (rightBound > self.numberOfPages())
+            {
+                rightBound--;
+                if (leftBound > 1)
+                    leftBound--;
+            }
+
+            for (var i = leftBound; i <= rightBound; i++)
+                pages.push(i);
+            return pages;
+        });
 
         self.getUsers = function()
         {
@@ -107,10 +122,22 @@
     <h3 data-bind="visible: !users() || users().length === 0">No users found...</h3>
     
     <div data-bind="visible: users() && users().length != 0">
-        <ul class="pagination pull-left" data-bind="visible: pages().length >= 2, foreach: pages">
-            <li data-bind="css: { active: $data == $root.filter.page() }">
-                <a href="#" data-bind="text: $data, click: function() { $root.filter.page($data); $root.getUsers(); }"></a>
+        <ul data-bind="visible: pages().length >= 2, foreach: pages" class="pagination pull-left">
+            <!-- ko if: $data == $root.pages()[0] -->
+            <li>
+                <a data-bind="click: function() { $root.filter.page(1); $root.getUsers(); }" href="#">&laquo;</a>
             </li>
+            <!-- /ko -->
+
+            <li data-bind="css: { active: $data == $root.filter.page() }">
+                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getUsers(); }" href="#"></a>
+            </li>
+
+            <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
+            <li>
+                <a data-bind="click: function() { $root.filter.page($root.numberOfPages()); $root.getUsers(); }" href="#">&raquo;</a>
+            </li>
+            <!-- /ko -->
         </ul>
 
         <div class="sort-by form-inline pull-right">
@@ -156,10 +183,22 @@
             </div>
         </div>
 
-        <ul class="pagination" data-bind="visible: pages().length >= 2, foreach: pages">
-            <li data-bind="css: { active: $data == $root.filter.page() }">
-                <a href="#" data-bind="text: $data, click: function() { $root.filter.page($data); $root.getUsers(); }"></a>
+        <ul data-bind="visible: pages().length >= 2, foreach: pages" class="pagination pull-left">
+            <!-- ko if: $data == $root.pages()[0] -->
+            <li>
+                <a data-bind="click: function() { $root.filter.page(1); $root.getUsers(); }" href="#">&laquo;</a>
             </li>
+            <!-- /ko -->
+
+            <li data-bind="css: { active: $data == $root.filter.page() }">
+                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getUsers(); }" href="#"></a>
+            </li>
+
+            <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
+            <li>
+                <a data-bind="click: function() { $root.filter.page($root.numberOfPages()); $root.getUsers(); }" href="#">&raquo;</a>
+            </li>
+            <!-- /ko -->
         </ul>
     </div>
 </main>

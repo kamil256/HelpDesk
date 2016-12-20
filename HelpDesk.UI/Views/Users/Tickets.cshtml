@@ -16,15 +16,6 @@
         self.currentTicket = ko.observable();
         self.currentUser = ko.observable();
 
-        self.numberOfPages = ko.observable();
-        self.pages = ko.computed(function()
-        {
-            var pages = [];
-            for (var i = 1; i <= self.numberOfPages(); i++)
-                pages.push(i);
-            return pages;
-        });
-
         self.statuses = ["All", "New", "In progress", "Solved", "Closed"];
         self.administrators = ko.observableArray([]);
         self.categories = ko.observableArray([]);
@@ -41,6 +32,30 @@
             descSort: ko.observable(true),
             page: ko.observable(1)
         };
+
+        self.numberOfPages = ko.observable();
+        self.pages = ko.computed(function()
+        {
+            var pages = [];
+
+            var leftBound = self.filter.page() - 2;
+            var rightBound = self.filter.page() + 2;
+            while (leftBound < 1)
+            {
+                leftBound++;
+                rightBound++;
+            }
+            while (rightBound > self.numberOfPages())
+            {
+                rightBound--;
+                if (leftBound > 1)
+                    leftBound--;
+            }
+
+            for (var i = leftBound; i <= rightBound; i++)
+                pages.push(i);
+            return pages;
+        });
 
         self.getTickets = function()
         {
@@ -256,9 +271,21 @@
 
     <div data-bind="visible: tickets() && tickets().length != 0">
         <ul data-bind="visible: pages().length >= 2, foreach: pages" class="pagination pull-left">
+            <!-- ko if: $data == $root.pages()[0] -->
+            <li>
+                <a data-bind="click: function() { $root.filter.page(1); $root.getTickets(); }" href="#">&laquo;</a>
+            </li>
+            <!-- /ko -->
+
             <li data-bind="css: { active: $data == $root.filter.page() }">
                 <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
             </li>
+
+            <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
+            <li>
+                <a data-bind="click: function() { $root.filter.page($root.numberOfPages()); $root.getTickets(); }" href="#">&raquo;</a>
+            </li>
+            <!-- /ko -->
         </ul>
 
         <div class="tickets-list" data-bind="foreach: tickets">
@@ -296,10 +323,22 @@
             </div>
         </div>
 
-        <ul data-bind="visible: pages().length >= 2, foreach: pages" class="pagination">
+        <ul data-bind="visible: pages().length >= 2, foreach: pages" class="pagination pull-left">
+            <!-- ko if: $data == $root.pages()[0] -->
+            <li>
+                <a data-bind="click: function() { $root.filter.page(1); $root.getTickets(); }" href="#">&laquo;</a>
+            </li>
+            <!-- /ko -->
+
             <li data-bind="css: { active: $data == $root.filter.page() }">
                 <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
             </li>
+
+            <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
+            <li>
+                <a data-bind="click: function() { $root.filter.page($root.numberOfPages()); $root.getTickets(); }" href="#">&raquo;</a>
+            </li>
+            <!-- /ko -->
         </ul>
     </div>
 </main>
