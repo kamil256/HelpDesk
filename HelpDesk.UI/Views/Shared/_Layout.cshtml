@@ -31,54 +31,58 @@
     <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
 </head>
 <body class="background-gray">
-@if (User.Identity.IsAuthenticated)
-{
-    <div class="navbar navbar-inverse">
-        @if (!User.Identity.IsAuthenticated)
-        {
-            <div class="navbar-header">
-                @Html.ActionLink("Help Desk", "Index", "Home", null, new { @class = "navbar-brand" })
-            </div>
-        }
-        else
-        {
-            <div class="container">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="navbar navbar-inverse">
+            @if (!User.Identity.IsAuthenticated)
+            {
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    @Html.ActionLink("Help Desk", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                    @Html.ActionLink("Help Desk", "Index", "Home", null, new { @class = "navbar-brand" })
                 </div>
-                <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        @if (identityHelper.IsCurrentUserAnAdministrator())
-                        {
-                            <li class='@(ViewBag.Title == "New user" ? "active" : null)'>@Html.ActionLink("New user", "Create", "Users")</li>
-                            <li class='@(ViewBag.Title == "Users" ? "active" : null)'>@Html.ActionLink("Users", "Index", "Users")</li>
-                        }
-                        <li class='@(ViewBag.Title == "New ticket" ? "active" : null)'>@Html.ActionLink("New ticket", "Create", "Tickets")</li>
-                        <li class='@(ViewBag.Title == "Tickets" ? "active" : null)'>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
-                        <li class='@(ViewBag.Title == "Settings" ? "active" : null)'>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
-                    </ul>
-                    
-                    @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
-                    {
-                        @Html.AntiForgeryToken()
-
-                        <ul class="nav navbar-nav navbar-right">
-                            <li>
-                                @Html.ActionLink(identityHelper.CurrentUser.FirstName + " " + identityHelper.CurrentUser.LastName, "Edit", "Users", new { id = identityHelper.CurrentUser.Id }, null)
-                            </li>
-                            <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+            }
+            else
+            {
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        @Html.ActionLink("Help Desk", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                    </div>
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            @if (identityHelper.IsCurrentUserAnAdministrator())
+                            {
+                                <li class='@(ViewBag.Title == "New user" ? "active" : null)'>@Html.ActionLink("New user", "Create", "Users")</li>
+                                <li class='@(ViewBag.Title == "Users" ? "active" : null)'>@Html.ActionLink("Users", "Index", "Users")</li>
+                            }
+                            <li class='@(ViewBag.Title == "New ticket" ? "active" : null)'>@Html.ActionLink("New ticket", "Create", "Tickets")</li>
+                            <li class='@(ViewBag.Title == "Tickets" ? "active" : null)'>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
+                            <li class='@(ViewBag.Title == "Settings" ? "active" : null)'>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
                         </ul>
-                    }
+                    
+                        @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <ul class="nav navbar-nav navbar-right">
+                                <li>
+                                    @Html.ActionLink(identityHelper.CurrentUser.FirstName + " " + identityHelper.CurrentUser.LastName, "Edit", "Users", new { id = identityHelper.CurrentUser.Id }, null)
+                                </li>
+                                <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+                            </ul>
+                        }
+                    </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
+    }
+
+    <div id="progressIndicator">
+        <img src="~/Content/images/ajax-loader.gif" width="100" height="100" />
     </div>
-}
 
     <div id="messages">
     </div>
@@ -155,6 +159,20 @@
             $('#messages').append(alert);
             alert.show('slow');
             setTimeout(function() { $(alert).hide('slow') }, 10000);
+        }
+
+        var numberOfSentAjaxRequests = 0;
+
+        function showProgressIndicator()
+        {
+            if (numberOfSentAjaxRequests++ === 0)
+                $('#progressIndicator').show();
+        }
+
+        function hideProgressIndicator()
+        {
+            if (--numberOfSentAjaxRequests === 0)
+                $('#progressIndicator').hide();
         }
     </script>
 

@@ -143,6 +143,20 @@ footer > .footer-content > .footer-element > div.glyphicon {
     margin: 0;
 }
 
+/* ----- progress indicator ----- */
+
+#progressIndicator {
+    background-color: black;
+    border-radius: 10px;
+    display: none;
+    left: calc(50% - 70px);
+    opacity: 0.85;
+    padding: 20px;
+    position: fixed;
+    top: calc(50% - 70px);
+    z-index: 1049;
+}
+
 /* ----- validation errors ----- */
 
 .validation-summary-errors > ul > li {

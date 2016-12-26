@@ -8,6 +8,29 @@
 }
 
 <script>
+    function sendAjaxRequest(url, method, data, onSuccess)
+    {
+        $.ajax(url,
+        {
+            type: method,
+            data: data,
+            success: function(response)
+            {
+                if (response.Success)
+                    displayNewSuccessMessage(response.Success);
+                if (response.Fail)
+                    displayNewFailMessage(response.Fail);
+                onSuccess(response);
+            },
+            error: function()
+            {
+                displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
+            },
+            beforeSend: showProgressIndicator,
+            complete: hideProgressIndicator
+        });
+    }
+
     function TicketsViewModel()
     {
         var self = this;
@@ -59,147 +82,119 @@
 
         self.getTickets = function()
         {
-            $.ajax("/api/Tickets",
+            var data =
             {
-                type: "GET",
-                data:
-                {
-                    UserId: '@Model.UserId',
-                    Status: self.filter.status(),
-                    AssignedToID: self.filter.assignedTo() ? self.filter.assignedTo().UserId : null,
-                    CategoryID: self.filter.category() ? self.filter.category().CategoryId : null,
-                    Search: self.filter.search(),
-                    AdvancedSearch: self.filter.advancedSearch(),
-                    SortBy: self.filter.sortBy,
-                    DescSort: self.filter.descSort,
-                    Page: self.filter.page()
-                },
-                success: function(data)
-                {
-                    self.tickets(data.Tickets);
-                    self.numberOfPages(data.NumberOfPages);
-                },
-                error: function()
-                {
-                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-                }
-            });
+                UserId: '@Model.UserId',
+                Status: self.filter.status(),
+                AssignedToId: self.filter.assignedTo() ? self.filter.assignedTo().UserId : null,
+                CategoryId: self.filter.category() ? self.filter.category().CategoryId : null,
+                Search: self.filter.search(),
+                AdvancedSearch: self.filter.advancedSearch(),
+                SortBy: self.filter.sortBy(),
+                DescSort: self.filter.descSort(),
+                Page: self.filter.page()
+            };
+            var onSuccess = function(response)
+            {
+                self.tickets(response.Tickets);
+                self.numberOfPages(response.NumberOfPages);
+            };
+            sendAjaxRequest("/api/Tickets", "GET", data, onSuccess);
         };
 
         self.getAdministrators = function()
         {
-            $.ajax("/api/Users",
+            var data =
             {
-                type: "GET",
-                data:
-                {
-                    Role: "Admin",
-                    Page: 0
-                },
-                success: function(data)
-                {
-                    for (var i = 0; i < data.Users.length; i++)
-                        data.Users[i].Name = data.Users[i].FirstName + " " + data.Users[i].LastName;
-                    self.administrators(data.Users);
-                },
-                error: function()
-                {
-                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-                }
-            });
+                Role: "Admin",
+                Page: 0
+            };
+            var onSuccess = function(response)
+            {
+                for (var i = 0; i < response.Users.length; i++)
+                    response.Users[i].Name = response.Users[i].FirstName + " " + response.Users[i].LastName;
+                self.administrators(response.Users);
+            };
+            sendAjaxRequest("/api/Users", "GET", data, onSuccess);
         };
 
         self.getCategories = function()
         {
-            $.ajax("/api/Categories",
+            var onSuccess = function(response)
             {
-                type: "GET",
-                success: function(data)
-                {
-                    self.categories(data);
-                },
-                error: function()
-                {
-                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-                }
-            });
+                self.categories(response);
+            };
+            sendAjaxRequest("/api/Categories", "GET", null, onSuccess);
         };
 
         self.assignUser = function()
         {
-            $.ajax("/Tickets/AssignUserToTicket",
+            var data =
             {
-                type: "POST",
-                data:
-                {
-                    ticketId: self.currentTicket().TicketId,
-                    userId: self.currentUser().UserId
-                },
-                success: function(data)
-                {
-                    if (data.Success)
-                        displayNewSuccessMessage(data.Success);
-                    if (data.Fail)
-                        displayNewFailMessage(data.Fail);
-                    self.getTickets();
-                },
-                error: function()
-                {
-                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-                }
-            });
+                ticketId: self.currentTicket().TicketId,
+                userId: self.currentUser().UserId
+            };
+            var onSuccess = function()
+            {
+                var updatedTickets = self.tickets();
+                for (var i = 0; i < updatedTickets.length; i++)
+                    if (updatedTickets[i].TicketId == data.ticketId)
+                    {
+                        updatedTickets[i].Status = 'In progress';
+                        updatedTickets[i].AssignedUserId = self.currentUser().UserId;
+                        updatedTickets[i].AssignedUserName = self.currentUser().Name;
+                        self.tickets([]);
+                        self.tickets(updatedTickets);
+                    }
+            }
+            sendAjaxRequest("/Tickets/AssignUserToTicket", "POST", data, onSuccess);
         };
 
         self.solution = ko.observable("");
 
         self.solveTicket = function()
         {
-            $.ajax("/Tickets/SolveTicket",
+            var data =
             {
-                type: "POST",
-                data:
-                {
-                    ticketId: self.currentTicket().TicketId,
-                    userId: self.currentUser().UserId,
-                    solution: self.solution
-                },
-                success: function(data)
-                {
-                    if (data.Success)
-                        displayNewSuccessMessage(data.Success);
-                    if (data.Fail)
-                        displayNewFailMessage(data.Fail);
-                    self.getTickets();
-                },
-                error: function()
-                {
-                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-                }
-            });
+                ticketId: self.currentTicket().TicketId,
+                userId: self.currentUser().UserId,
+                solution: self.solution()
+            };
+            var onSuccess = function()
+            {
+                var updatedTickets = self.tickets();
+                for (var i = 0; i < updatedTickets.length; i++)
+                    if (updatedTickets[i].TicketId == data.ticketId)
+                    {
+                        updatedTickets[i].Status = 'Solved';
+                        updatedTickets[i].AssignedUserId = self.currentUser().UserId;
+                        updatedTickets[i].AssignedUserName = self.currentUser().Name;
+                        updatedTickets[i].Solution = self.solution();
+                        self.tickets([]);
+                        self.tickets(updatedTickets);
+                    }
+            };
+            sendAjaxRequest("/Tickets/SolveTicket", "POST", data, onSuccess);
         };
 
         self.closeTicket = function()
         {
-            $.ajax("/Tickets/CloseTicket",
+            var data =
             {
-                type: "POST",
-                data:
-                {
-                    ticketId: self.currentTicket().TicketId
-                },
-                success: function(data)
-                {
-                    if (data.Success)
-                        displayNewSuccessMessage(data.Success);
-                    if (data.Fail)
-                        displayNewFailMessage(data.Fail);
-                    self.getTickets();
-                },
-                error: function()
-                {
-                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-                }
-            });
+                ticketId: self.currentTicket().TicketId
+            };
+            var onSuccess = function()
+            {
+                var updatedTickets = self.tickets();
+                for (var i = 0; i < updatedTickets.length; i++)
+                    if (updatedTickets[i].TicketId == data.ticketId)
+                    {
+                        updatedTickets[i].Status = 'Closed';
+                        self.tickets([]);
+                        self.tickets(updatedTickets);
+                    }
+            }
+            sendAjaxRequest("/Tickets/CloseTicket", "POST", data, onSuccess);
         };
 
         self.sort = function(data, event)

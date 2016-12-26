@@ -401,7 +401,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     Fail = "Cannot close ticket. Try again, and if the problem persists contact your system administrator."
                 });
             }
-
+            
             return Json(new
             {
                 Success = "Successfully closed ticket."

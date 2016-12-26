@@ -5,7 +5,31 @@
 }
 
 <script>
-    function TicketsViewModel() {
+    function sendAjaxRequest(url, method, data, onSuccess)
+    {
+        $.ajax(url,
+        {
+            type: method,
+            data: data,
+            success: function(response)
+            {
+                if (response.Success)
+                    displayNewSuccessMessage(response.Success);
+                if (response.Fail)
+                    displayNewFailMessage(response.Fail);
+                onSuccess(response);
+            },
+            error: function()
+            {
+                displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
+            },
+            beforeSend: showProgressIndicator,
+            complete: hideProgressIndicator
+        });
+    }
+
+    function TicketsViewModel()
+    {
         var self = this;
 
         self.requester =
@@ -16,47 +40,47 @@
             Email: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.Email}'") : null))
         };
 
-        self.requesterNameAndEmail = ko.computed(function () {
+        self.requesterNameAndEmail = ko.computed(function()
+        {
             return self.requester.UserId() ? self.requester.FirstName() + " " + self.requester.LastName() + " (" + self.requester.Email() + ")" : "-";
         });
 
         self.searchedUser = ko.observable("");
         self.users = ko.observableArray([]);
-        self.numberOfUsersToDisplay = ko.computed(function () {
+        self.numberOfUsersToDisplay = ko.computed(function()
+        {
             return self.users().length;
         });
         self.numberOfUsersFound = ko.observable(0);
         self.selectedUser = ko.observable();
-        self.getUsers = function () {
-            $.ajax("/api/Users",
+        self.getUsers = function()
+        {
+            var data =
             {
-                type: "GET",
-                data:
-                {
-                    search: self.searchedUser(),
-                    advancedSearch: false,
-                    page: 1,
-                    usersPerPage: 1
-                },
-                success: function (data) {
-                    self.users(data.Users);
-                    self.numberOfUsersFound(data.NumberOfUsersFound);
-                },
-                error: function()
-                {
-                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-                }
-            });
+                search: self.searchedUser(),
+                advancedSearch: false,
+                page: 1,
+                usersPerPage: 1
+            };
+            var onSuccess = function(response)
+            {
+                self.users(response.Users);
+                self.numberOfUsersFound(response.NumberOfUsersFound);
+            };
+            sendAjaxRequest("/api/Users", "GET", data, onSuccess);
         };
 
-        self.changeRequester = function () {
-            if (self.selectedUser()) {
+        self.changeRequester = function()
+        {
+            if (self.selectedUser())
+            {
                 self.requester.UserId(self.selectedUser().UserId);
                 self.requester.FirstName(self.selectedUser().FirstName);
                 self.requester.LastName(self.selectedUser().LastName);
                 self.requester.Email(self.selectedUser().Email);
             }
-            else {
+            else
+            {
                 self.requester.UserId(null);
                 self.requester.FirstName(null);
                 self.requester.LastName(null);

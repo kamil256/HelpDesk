@@ -8,6 +8,29 @@
 }
 
 <script>
+    function sendAjaxRequest(url, method, data, onSuccess)
+    {
+        $.ajax(url,
+        {
+            type: method,
+            data: data,
+            success: function(response)
+            {
+                if (response.Success)
+                    displayNewSuccessMessage(response.Success);
+                if (response.Fail)
+                    displayNewFailMessage(response.Fail);
+                onSuccess(response);
+            },
+            error: function()
+            {
+                displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
+            },
+            beforeSend: showProgressIndicator,
+            complete: hideProgressIndicator
+        });
+    }
+
     function TicketsViewModel()
     {
         var self = this;
@@ -35,26 +58,19 @@
         self.selectedUser = ko.observable();
         self.getUsers = function()
         {
-            $.ajax("/api/Users",
+            var data =
             {
-                type: "GET",
-                data:
-                {
-                    search: self.searchedUser(),
-                    advancedSearch: false,
-                    page: 1,
-                    usersPerPage: 1
-                },
-                success: function(data)
-                {
-                    self.users(data.Users);
-                    self.numberOfUsersFound(data.NumberOfUsersFound);
-                },
-                error: function()
-                {
-                    displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-                }
-            });
+                search: self.searchedUser(),
+                advancedSearch: false,
+                page: 1,
+                usersPerPage: 1
+            };
+            var onSuccess = function(response)
+            {
+                self.users(response.Users);
+                self.numberOfUsersFound(response.NumberOfUsersFound);
+            };
+            sendAjaxRequest("/api/Users", "GET", data, onSuccess);
         };
 
         self.changeRequester = function()
