@@ -38,6 +38,10 @@ form > .form-group:first-of-type {
     margin-top: 15px;
 }
 
+textarea {
+    resize: vertical;
+}
+
 /* ----- log in -----*/
 
 .log-in-panel {
