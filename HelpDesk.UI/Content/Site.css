@@ -154,7 +154,7 @@ footer > .footer-content > .footer-element > div.glyphicon {
     padding: 20px;
     position: fixed;
     top: calc(50% - 70px);
-    z-index: 1049;
+    z-index: 1051;
 }
 
 /* ----- validation errors ----- */
