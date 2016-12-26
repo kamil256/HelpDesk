@@ -143,6 +143,12 @@ footer > .footer-content > .footer-element > div.glyphicon {
     margin: 0;
 }
 
+/* ----- bootstrap modal ----- */
+
+body {
+    padding-right: 0 !important;
+}
+
 /* ----- progress indicator ----- */
 
 #progressIndicator {
