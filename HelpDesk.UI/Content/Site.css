@@ -183,10 +183,17 @@ body {
     position: relative;
 }
 
-.input-with-button > input {
+.input-with-button > input, .input-with-button > select {
     border-bottom-right-radius: 0;
-    border-top-right-radius: 0;
+    border-top-right-radius: 0;    
+}
+
+.input-with-button > input {
     width: calc(100% - 40px);
+}
+
+.input-with-button > select {
+    margin-right: 40px;
 }
 
 .input-with-button > button {
@@ -236,15 +243,6 @@ mark {
     .sort-by .form-control {
         display: inline-block;
         width: auto;
-        vertical-align: middle;
-    }
-}
-@media (max-width: 767px) {
-    .sort-by .form-group, .sort-by .checkbox {
-        display: inline-block;
-        margin-bottom: 0;
-        margin-top: 0px;    
-        vertical-align: middle;
     }
 }
 

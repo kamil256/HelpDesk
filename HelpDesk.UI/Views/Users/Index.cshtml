@@ -127,7 +127,7 @@
                 <label class="control-label">Search</label>
                 <div class="input-with-button">
                     <input data-bind="value: filter.search" class="form-control" />
-                    <button data-bind="click: function() { filter.page(1); getUsers(); }" class="btn btn-default btn-search glyphicon glyphicon-search"></button>
+                    <button data-bind="click: function() { filter.page(1); getUsers(); }" class="btn btn-default glyphicon glyphicon-search"></button>
                 </div>
             </div>
         </div>
@@ -156,18 +156,10 @@
             <!-- /ko -->
         </ul>
 
-        <div class="sort-by form-inline pull-right">
-            <div class="form-group">
-                <label class="control-label">Sort by</label>
-                <select data-bind="options: sortingOptions, value: filter.sortBy, event: { change: function() { filter.page(1); getUsers(); } }" class="form-control"></select>
-            </div>
-
-            <div class="checkbox">
-                <label>
-                    <input data-bind="value: filter.descSort, event: { change: function() { filter.descSort(!filter.descSort()); getUsers(); } }" type="checkbox" />
-                    Descending order
-                </label>
-            </div>
+        <div class="input-with-button sort-by form-inline pull-right">
+            <label class="control-label">Sort by</label>
+            <select data-bind="options: sortingOptions, value: filter.sortBy, event: { change: function() { filter.page(1); getUsers(); } }" class="form-control"></select>
+            <button data-bind="click: function() { filter.descSort(!filter.descSort()); filter.page(1); getUsers(); }, css: { 'glyphicon-sort-by-attributes': !filter.descSort(), 'glyphicon-sort-by-attributes-alt': filter.descSort() }" class="btn btn-default glyphicon"></button>
         </div>
 
         <div class="users-list" data-bind="foreach: users">            

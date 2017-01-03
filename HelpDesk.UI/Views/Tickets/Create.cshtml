@@ -115,7 +115,7 @@
                         <div class="col-sm-8 "> 
                             <div class="input-with-button">
                                 <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
-                                <button type="button" data-bind="click: function(data, event) { $('#change-requester-dialog').modal('show'); }" class="btn btn-default btn-search glyphicon glyphicon-search"></button>
+                                <button type="button" data-bind="click: function(data, event) { $('#change-requester-dialog').modal('show'); }" class="btn btn-default glyphicon glyphicon-search"></button>
                             </div>
                             @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
                         </div>
@@ -174,7 +174,7 @@
                     <label class="control-label">Find user by name or email</label>
                     <div class="input-with-button">
                         <input data-bind="value: searchedUser" class="form-control" />
-                        <button data-bind="click: getUsers" class="btn btn-default btn-search">
+                        <button data-bind="click: getUsers" class="btn btn-default">
                             <span class="glyphicon glyphicon-search"></span>
                         </button>
                     </div>
