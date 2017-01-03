@@ -177,6 +177,11 @@ body {
     border-color: #A94442;
 }
 
+.input-validation-error:focus {
+    border-color: #A94442;
+    box-shadow: 0 0 8px rgba(251, 68, 66, 0.6);
+}
+
 /* ----- input with search button ----- */
 
 .input-with-button {
