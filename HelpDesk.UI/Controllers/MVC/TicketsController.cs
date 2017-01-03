@@ -351,7 +351,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
                 ticket.AssignedUserId = user.Id;
                 ticket.Status = "Solved";
-                ticket.Solution = solution;
+                ticket.Solution = string.IsNullOrWhiteSpace(solution) ? null : solution;
                 unitOfWork.TicketRepository.Update(ticket);
 
                 updateTicketHistory(oldTicket, ticket);
