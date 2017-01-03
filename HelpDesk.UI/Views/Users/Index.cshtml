@@ -126,8 +126,8 @@
             <div class="form-group col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
                 <label class="control-label">Search</label>
                 <div class="input-with-button">
-                    <input data-bind="value: filter.search" class="form-control" />
-                    <button data-bind="click: function() { filter.page(1); getUsers(); }" class="btn btn-default glyphicon glyphicon-search"></button>
+                    <input data-bind="value: filter.search, event: { blur: function() { filter.search(filter.search().trim()); filter.page(1); getUsers(); } }" class="form-control" />
+                    <button class="btn btn-default glyphicon glyphicon-search"></button>
                 </div>
             </div>
         </div>

@@ -275,8 +275,8 @@
             <div class='@(identityHelper.IsCurrentUserAnAdministrator() ? "form-group col-sm-6 col-md-3" : "form-group col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4")'>
                 <label class="control-label">Search</label>
                 <div class="input-with-button">
-                    <input data-bind="value: filter.search" class="form-control" />
-                    <button data-bind="click: function() { filter.page(1); getTickets(); }" class="btn btn-default glyphicon glyphicon-search"></button>
+                    <input data-bind="value: filter.search, event: { blur: function() { filter.search(filter.search().trim()); filter.page(1); getTickets(); } }" class="form-control" />
+                    <button class="btn btn-default glyphicon glyphicon-search"></button>
                 </div>
                 <div class="checkbox">
                     <label class="control-label">
