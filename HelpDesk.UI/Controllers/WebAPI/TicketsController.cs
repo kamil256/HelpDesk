@@ -128,7 +128,9 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     Category = t.Category?.Name,
                     Status = t.Status
                 }),
-                NumberOfPages = numberOfPages
+                NumberOfPages = numberOfPages,
+                FoundItemsCount = numberOfTickets,
+                TotalItemsCount = unitOfWork.TicketRepository.Count()
             });
         }
     }

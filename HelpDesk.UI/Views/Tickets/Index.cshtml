@@ -78,6 +78,8 @@
                 pages.push(i);
             return pages;
         });
+        self.foundItemsCount = ko.observable();
+        self.totalItemsCount = ko.observable();
 
         self.getTickets = function()
         {
@@ -96,6 +98,8 @@
             {
                 self.tickets(response.Tickets);
                 self.numberOfPages(response.NumberOfPages);
+                self.foundItemsCount(response.FoundItemsCount);
+                self.totalItemsCount(response.TotalItemsCount);
             };
             sendAjaxRequest("/api/Tickets", "GET", data, onSuccess);
         };
@@ -315,7 +319,7 @@
             <label class="control-label">Sort by</label>
             <select data-bind="options: sortingOptions, value: filter.sortBy, event: { change: function() { filter.page(1); getTickets(); } }" class="form-control"></select>
             <button data-bind="click: function() { filter.descSort(!filter.descSort()); filter.page(1); getTickets(); }, css: { 'glyphicon-sort-by-attributes': !filter.descSort(), 'glyphicon-sort-by-attributes-alt': filter.descSort() }" class="btn btn-default glyphicon"></button>
-        </div>
+        </div>        
 
         <div class="tickets-list" data-bind="foreach: tickets">
             <div class="well" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }">
@@ -369,6 +373,8 @@
             </li>
             <!-- /ko -->
         </ul>
+
+        <p class="pull-right" style="line-height: 34px; vertical-align: middle">Page <span data-bind="text: filter.page"></span> of <span data-bind="text: numberOfPages"></span> (<span data-bind="text: foundItemsCount"></span> item<span data-bind="visible: foundItemsCount() != 1">s</span> found of <span data-bind="text: totalItemsCount"></span> total)</p>
     </div>
 </section>
 
