@@ -63,7 +63,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
 
             switch (sortBy)
             {
-                case "Requested by":
+                case "User":
                     if (descSort)
                         orderBy = query => query.OrderByDescending(t => t.Requester.FirstName + t.Requester.LastName);
                     else
@@ -87,7 +87,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     else
                         orderBy = query => query.OrderBy(t => t.Status);
                     break;
-                case "Created on":
+                case "Date":
                 default:
                     if (descSort)
                         orderBy = query => query.OrderByDescending(t => t.CreateDate);

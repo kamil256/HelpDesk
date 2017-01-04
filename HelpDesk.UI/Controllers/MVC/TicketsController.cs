@@ -270,7 +270,7 @@ namespace HelpDesk.UI.Controllers.MVC
         public FileResult DownloadTicketsAsCSV()
         {
             StringBuilder csv = new StringBuilder();
-            csv.AppendLine("Created on;Created by;Requested by;Assigned to;Status;Category;Title;Content;Solution");
+            csv.AppendLine("Create date;Creator;Requester;Assigned user;Status;Category;Title;Content;Solution");
             foreach (Ticket ticket in unitOfWork.TicketRepository.Get(orderBy: x => x.OrderByDescending(t => t.CreateDate)))
             {
                 csv.AppendLine($"{ticket.CreateDate};{ticket.Creator?.FirstName} {ticket.Creator?.LastName};{ticket.Requester?.FirstName} {ticket.Requester?.LastName};{ticket.AssignedUser?.FirstName} {ticket.AssignedUser?.LastName};{ticket.Status};{ticket.Category?.Name};{ticket.Title};{ticket.Content};{ticket.Solution};");

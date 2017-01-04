@@ -42,7 +42,7 @@
         self.statuses = ["All", "New", "In progress", "Solved", "Closed"];
         self.administrators = ko.observableArray([]);
         self.categories = ko.observableArray([]);
-        self.sortingOptions = ko.observableArray(["Created on", "Requested by", "Title", "Category", "Status"]);
+        self.sortingOptions = ko.observableArray(["Date", "User", "Title", "Category", "Status"]);
 
         self.filter =
         {
@@ -51,7 +51,7 @@
             category: ko.observable(),
             search: ko.observable(),
             advancedSearch: ko.observable(false),
-            sortBy: ko.observable("Created on"),
+            sortBy: ko.observable("Date"),
             descSort: ko.observable(true),
             page: ko.observable(1)
         };
