@@ -44,9 +44,9 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 if (status != null)
                     filters.Add(ticket => ticket.Status == status);
                 if (assignedToId != null)
-                    filters.Add(ticket => ticket.AssignedUserId == assignedToId);
+                    filters.Add(ticket => ticket.AssignedUserId == (assignedToId == "0" ? null : assignedToId));
                 if (categoryId != null)
-                    filters.Add(ticket => ticket.CategoryId == categoryId);
+                    filters.Add(ticket => ticket.CategoryId == (categoryId == 0 ? null : categoryId));
             }
 
             if (!string.IsNullOrEmpty(search))

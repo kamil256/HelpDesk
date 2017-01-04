@@ -116,6 +116,11 @@
                 for (var i = 0; i < response.Users.length; i++)
                     response.Users[i].Name = response.Users[i].FirstName + " " + response.Users[i].LastName;
                 self.administrators(response.Users);
+                self.administrators.unshift
+                ({
+                    UserId: '0',
+                    Name: '-'
+                });
             };
             sendAjaxRequest("/api/Users", "GET", data, onSuccess);
         };
@@ -125,6 +130,11 @@
             var onSuccess = function(response)
             {
                 self.categories(response);
+                self.categories.unshift(
+                {
+                    CategoryId: 0,
+                    Name: '-'
+                });
             };
             sendAjaxRequest("/api/Categories", "GET", null, onSuccess);
         };
