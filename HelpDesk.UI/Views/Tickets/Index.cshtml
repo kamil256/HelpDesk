@@ -345,10 +345,10 @@
                         <span class="text-gray">User:</span>
                         <span>
                             <a href="#" data-bind="visible: RequesterName, click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequesterId; }, text: RequesterName"></a>
-                            <span data-bind="visible: !RequesterName">deleted user</span>
+                            <span data-bind="visible: !RequesterName">-</span>
                         </span>
                     </p>
-                    <p><span class="text-gray">Category:</span> <span data-bind="text: Category ? Category : 'none'"></span></p>
+                    <p><span class="text-gray">Category:</span> <span data-bind="text: Category ? Category : '-'"></span></p>
                     <p class="visible-xs">
                         <span class="text-gray">Status:</span>
                         <span data-bind="text: Status, css: { 'color-status-new': Status == 'New', 'color-status-in-progress': Status == 'In progress', 'color-status-solved': Status == 'Solved', 'color-status-closed': Status == 'Closed' }"></span>
