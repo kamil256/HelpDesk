@@ -32,11 +32,12 @@
 
         self.users = ko.observableArray([]);
         self.sortingOptions = ko.observableArray(["First name", "Last name", "Email", "Phone", "Mobile phone", "Company", "Department", "Role", "Last activity", "Tickets"]);
+        self.currentSearch = ko.observable();
 
         self.markSearch = function(text)
         {
-            if (self.filter.search() && self.filter.search() != "")
-                return text.replace(new RegExp("(" + self.filter.search() + ")", 'gi'), "<mark>$1</mark>");
+            if (self.currentSearch() && self.currentSearch() != "")
+                return text.replace(new RegExp("(" + self.currentSearch() + ")", 'gi'), "<mark>$1</mark>");
             else
                 return text;
         };      
@@ -90,6 +91,7 @@
                 self.numberOfPages(response.NumberOfPages);
                 self.foundItemsCount(response.NumberOfUsersFound);
                 self.totalItemsCount(response.NumberOfUsers);
+                self.currentSearch(self.filter.search());
             };
             sendAjaxRequest("/api/Users", "GET", data, onSuccess);
         };
@@ -130,8 +132,8 @@
             <div class="form-group col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
                 <label class="control-label">Search</label>
                 <div class="input-with-button">
-                    <input data-bind="value: filter.search, event: { blur: function() { filter.search(filter.search().trim()); filter.page(1); getUsers(); } }" class="form-control" />
-                    <button class="btn btn-default glyphicon glyphicon-search"></button>
+                    <input data-bind="textInput: filter.search, event: { blur: function() { if (filter.search()) filter.search(filter.search().trim()); if (filter.search() != currentSearch()) { filter.page(1); getUsers(); } }, keydown: function(data, event) { if (event.keyCode === 13 || event.which === 13) { $(event.target).next().focus(); } else return true; } }" class="form-control" />
+                    <button class="btn btn-default glyphicon glyphicon-search" data-bind="event: { focus: function (data, event) { $(event.target).prev().focus(); } }"></button>
                 </div>
             </div>
         </div>
