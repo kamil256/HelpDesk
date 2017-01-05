@@ -360,6 +360,14 @@ mark {
     margin: 0 0 15px 0;
 }
 
+/* ----- paging and items search info ----- */
+
+.result-info {
+    line-height: 34px;
+    margin-bottom: 15px;
+    vertical-align: middle;
+}
+
 /* ----- inverse button  ----- */
 
 .btn-inverse {
