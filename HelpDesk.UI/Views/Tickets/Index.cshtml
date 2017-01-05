@@ -296,7 +296,7 @@
                 </div>
                 <div class="checkbox">
                     <label class="control-label">
-                        <input data-bind="value: filter.advancedSearch, event: { change: function() { filter.advancedSearch(!filter.advancedSearch()); } }" type="checkbox" />
+                        <input data-bind="value: filter.advancedSearch, event: { change: function() { filter.advancedSearch(!filter.advancedSearch()); filter.page(1); getTickets(); } }" type="checkbox" />
                         Also search in content and solution
                     </label>
                 </div>
