@@ -44,9 +44,9 @@
 
         self.filter =
         {
-            search: ko.observable(),
-            sortBy: ko.observable("Last name"),
-            descSort: ko.observable(false),
+            search: ko.observable(getCookie('user-search')),
+            sortBy: ko.observable(getCookie('user-sort-by') ? getCookie('user-sort-by') : 'Last name'),
+            descSort: ko.observable(getCookie('user-desc-sort') ? (getCookie('user-desc-sort') === 'true' ? true : false) : false),
             page: ko.observable(1)
         };
 
@@ -117,6 +117,34 @@
         self.getUsers();
     }
 
+    function getCookie(name)
+    {
+        name = name + "=";
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++)
+        {
+            var cookie = cookies[i];
+            while (cookie.charAt(0) == ' ')
+                cookie = cookie.substring(1);
+            if (cookie.indexOf(name) == 0)
+                return cookie.substring(name.length, cookie.length);
+        }
+        return null;
+    }
+
+    function setCookie(name, value)
+    {
+        if (value == 0 || value == false || value)
+            document.cookie = name + "=" + value + ";path=/";
+        else
+            deleteCookie(name);
+    }
+
+    function deleteCookie(name)
+    {
+        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+
     $(document).ready(function()
     {
         ko.applyBindings(new UsersViewModel());
@@ -132,7 +160,7 @@
             <div class="form-group col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
                 <label class="control-label">Search</label>
                 <div class="input-with-button">
-                    <input data-bind="textInput: filter.search, event: { blur: function() { if (filter.search()) filter.search(filter.search().trim()); if (filter.search() != currentSearch()) { filter.page(1); getUsers(); } }, keydown: function(data, event) { if (event.keyCode === 13 || event.which === 13) { $(event.target).next().focus(); } else return true; } }" class="form-control" />
+                    <input data-bind="textInput: filter.search, event: { blur: function() { if (filter.search()) filter.search(filter.search().trim()); if (filter.search() != currentSearch()) { setCookie('user-search', filter.search()); filter.page(1); getUsers(); } }, keydown: function(data, event) { if (event.keyCode === 13 || event.which === 13) { $(event.target).next().focus(); } else return true; } }" class="form-control" />
                     <button class="btn btn-default glyphicon glyphicon-search" data-bind="event: { focus: function (data, event) { $(event.target).prev().focus(); } }"></button>
                 </div>
             </div>
@@ -164,8 +192,8 @@
 
         <div class="input-with-button sort-by form-inline pull-right">
             <label class="control-label">Sort by</label>
-            <select data-bind="options: sortingOptions, value: filter.sortBy, event: { change: function() { filter.page(1); getUsers(); } }" class="form-control"></select>
-            <button data-bind="click: function() { filter.descSort(!filter.descSort()); filter.page(1); getUsers(); }, css: { 'glyphicon-sort-by-attributes': !filter.descSort(), 'glyphicon-sort-by-attributes-alt': filter.descSort() }" class="btn btn-default glyphicon"></button>
+            <select data-bind="options: sortingOptions, value: filter.sortBy, event: { change: function() { setCookie('user-sort-by', filter.sortBy()); filter.page(1); getUsers(); } }" class="form-control"></select>
+            <button data-bind="click: function() { filter.descSort(!filter.descSort()); setCookie('user-desc-sort', filter.descSort()); filter.page(1); getUsers(); }, css: { 'glyphicon-sort-by-attributes': !filter.descSort(), 'glyphicon-sort-by-attributes-alt': filter.descSort() }" class="btn btn-default glyphicon"></button>
         </div>
 
         <div class="users-list" data-bind="foreach: users">            

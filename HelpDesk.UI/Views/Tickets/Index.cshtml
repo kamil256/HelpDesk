@@ -1,4 +1,11 @@
-﻿<script>
+﻿@using HelpDesk.UI.Infrastructure;
+
+@{
+    ViewBag.Title = "List of tickets";
+    IdentityHelper identityHelper = new IdentityHelper();
+}
+
+<script>
     function sendAjaxRequest(url, method, data, onSuccess)
     {
         $.ajax(url,
@@ -46,16 +53,16 @@
 
         self.filter =
         {
-            status: ko.observable(),
+            status: ko.observable(getCookie('ticket-status')),
             assignedTo: ko.observable(),
             category: ko.observable(),
-            search: ko.observable(),
+            search: ko.observable(getCookie('ticket-search')),
             advancedSearch: ko.observable(false),
-            sortBy: ko.observable("Date"),
-            descSort: ko.observable(true),
+            sortBy: ko.observable(getCookie('ticket-sort-by') ? getCookie('ticket-sort-by') : 'Date'),
+            descSort: ko.observable(getCookie('ticket-desc-sort') ? (getCookie('ticket-desc-sort') === 'true' ? true : false) : true),
             page: ko.observable(1)
         };
-
+        
         self.numberOfPages = ko.observable();
         self.pages = ko.computed(function()
         {
@@ -123,6 +130,12 @@
                     UserId: '0',
                     Name: '-'
                 });
+
+                var userIdFromCookie = getCookie('ticket-assigned-user');
+                if (userIdFromCookie)
+                    for (var i = 0; i < self.administrators().length; i++)
+                        if (self.administrators()[i].UserId == userIdFromCookie)
+                            self.filter.assignedTo(self.administrators()[i]);
             };
             sendAjaxRequest("/api/Users", "GET", data, onSuccess);
         };
@@ -137,6 +150,14 @@
                     CategoryId: 0,
                     Name: '-'
                 });
+
+                var categoryFromCookie = getCookie('ticket-category');
+                if (categoryFromCookie)
+                    for (var i = 0; i < self.categories().length; i++)
+                        if (self.categories()[i].CategoryId == categoryFromCookie)
+                            self.filter.category(self.categories()[i]);
+
+                self.getTickets();
             };
             sendAjaxRequest("/api/Categories", "GET", null, onSuccess);
         };
@@ -229,9 +250,12 @@
                 return "\u25B2";
         });        
 
-        self.getTickets();
+        //self.getTickets(); // moved to getCategories
+        // getStatusFromCookie
         self.getAdministrators();
+        // getAdministratorFromCookie
         self.getCategories();
+        // ...
     }
 
     function formatDate(ticks)
@@ -251,18 +275,39 @@
         return year + "-" + month  + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
     }
 
+    function getCookie(name)
+    {
+        name = name + "=";
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++)
+        {
+            var cookie = cookies[i];
+            while (cookie.charAt(0) == ' ')
+                cookie = cookie.substring(1);
+            if (cookie.indexOf(name) == 0)
+                return cookie.substring(name.length, cookie.length);
+        }
+        return null;
+    }
+
+    function setCookie(name, value)
+    {
+        if (value == 0 || value == false || value)
+            document.cookie = name + "=" + value + ";path=/";
+        else
+            deleteCookie(name);
+    }
+
+    function deleteCookie(name)
+    {
+        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+
     $(document).ready(function()
     {
         ko.applyBindings(new TicketsViewModel());
     });    
 </script>
-
-@using HelpDesk.UI.Infrastructure;
-
-@{
-    ViewBag.Title = "List of tickets";
-    IdentityHelper identityHelper = new IdentityHelper();
-}
 
 <header>
     <h1>@ViewBag.Title</h1>
@@ -274,24 +319,24 @@
             {
                 <div class="form-group col-sm-6 col-md-3">
                     <label class="control-label">Status</label>
-                    <select data-bind="options: statuses, value: filter.status, optionsCaption: 'All', event: { change: function() { filter.page(1); getTickets(); } }" class="form-control"></select>
+                    <select data-bind="options: statuses, value: filter.status, optionsCaption: 'All', event: { change: function() { setCookie('ticket-status', filter.status()); filter.page(1); getTickets(); } }" class="form-control"></select>
                 </div>
 
                 <div class="form-group col-sm-6 col-md-3">
                     <label class="control-label">Assigned to</label>
-                    <select data-bind="options: administrators, value: filter.assignedTo, optionsCaption: 'All', optionsText: 'Name' , event: { change: function() { filter.page(1); getTickets(); } }" class="form-control"></select>
+                    <select data-bind="options: administrators, value: filter.assignedTo, optionsCaption: 'All', optionsText: 'Name' , event: { change: function() { setCookie('ticket-assigned-user', filter.assignedTo() ? filter.assignedTo().UserId : null); filter.page(1); getTickets(); } }" class="form-control"></select>
                 </div>
 
                 <div class="form-group col-sm-6 col-md-3">
                     <label class="control-label">Category</label>
-                    <select data-bind="options: categories, value: filter.category, optionsCaption: 'All', optionsText: 'Name', event: { change: function() { filter.page(1); getTickets(); } }" class="form-control"></select>
+                    <select data-bind="options: categories, value: filter.category, optionsCaption: 'All', optionsText: 'Name', event: { change: function() { setCookie('ticket-category', filter.category() ? filter.category().CategoryId : null); filter.page(1); getTickets(); } }" class="form-control"></select>
                 </div>
             }
 
             <div class='@(identityHelper.IsCurrentUserAnAdministrator() ? "form-group col-sm-6 col-md-3" : "form-group col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4")'>
                 <label class="control-label">Search</label>
                 <div class="input-with-button">
-                    <input data-bind="textInput: filter.search, event: { blur: function() { if (filter.search()) filter.search(filter.search().trim()); if (filter.search() != currentSearch()) { filter.page(1); getTickets(); } }, keydown: function(data, event) { if (event.keyCode === 13 || event.which === 13) { $(event.target).next().focus(); } else return true; } }" class="form-control" />
+                    <input data-bind="textInput: filter.search, event: { blur: function() { if (filter.search()) filter.search(filter.search().trim()); if (filter.search() != currentSearch()) { setCookie('ticket-search', filter.search()); filter.page(1); getTickets(); } }, keydown: function(data, event) { if (event.keyCode === 13 || event.which === 13) { $(event.target).next().focus(); } else return true; } }" class="form-control" />
                     <button class="btn btn-default glyphicon glyphicon-search" data-bind="event: { focus: function (data, event) { $(event.target).prev().focus(); } }"></button>
                 </div>
                 <div class="checkbox">
@@ -329,8 +374,8 @@
 
         <div class="input-with-button sort-by form-inline pull-right">
             <label class="control-label">Sort by</label>
-            <select data-bind="options: sortingOptions, value: filter.sortBy, event: { change: function() { filter.page(1); getTickets(); } }" class="form-control"></select>
-            <button data-bind="click: function() { filter.descSort(!filter.descSort()); filter.page(1); getTickets(); }, css: { 'glyphicon-sort-by-attributes': !filter.descSort(), 'glyphicon-sort-by-attributes-alt': filter.descSort() }" class="btn btn-default glyphicon"></button>
+            <select data-bind="options: sortingOptions, value: filter.sortBy, event: { change: function() { setCookie('ticket-sort-by', filter.sortBy()); filter.page(1); getTickets(); } }" class="form-control"></select>
+            <button data-bind="click: function() { filter.descSort(!filter.descSort()); setCookie('ticket-desc-sort', filter.descSort()); filter.page(1); getTickets(); }, css: { 'glyphicon-sort-by-attributes': !filter.descSort(), 'glyphicon-sort-by-attributes-alt': filter.descSort() }" class="btn btn-default glyphicon"></button>
         </div>        
 
         <div class="tickets-list" data-bind="foreach: tickets">
