@@ -1,4 +1,7 @@
 ﻿@using HelpDesk.UI.Infrastructure;
+@using HelpDesk.UI.ViewModels.Tickets
+
+@model IndexViewModel
 
 @{
     ViewBag.Title = "List of tickets";
@@ -44,11 +47,22 @@
                 return text.replace(new RegExp("(" + self.currentSearch() + ")", 'gi'), "<mark>$1</mark>");
             else
                 return text;
-        };        
+        };
 
         self.statuses = ["New", "In progress", "Solved", "Closed"];
+
         self.administrators = ko.observableArray([]);
+        @foreach (var administrator in Model.Administrators)
+        {
+            @: self.administrators.push({ UserId: '@administrator.UserId', Name: '@administrator.Name' });
+        }
+
         self.categories = ko.observableArray([]);
+        @foreach (var category in Model.Categories)
+        {
+            @: self.categories.push({ CategoryId: '@category.CategoryId', Name: '@category.Name' });
+        }
+
         self.sortingOptions = ko.observableArray(["Date", "User", "Title", "Category", "Status"]);
 
         self.filter =
@@ -62,12 +76,26 @@
             descSort: ko.observable(getCookie('ticket-desc-sort') ? (getCookie('ticket-desc-sort') === 'true' ? true : false) : true),
             page: ko.observable(1)
         };
-        
+
+        var userIdFromCookie = getCookie('ticket-assigned-user');
+        if (userIdFromCookie)
+            for (var i = 0; i < self.administrators().length; i++)
+                if (self.administrators()[i].UserId == userIdFromCookie)
+                    self.filter.assignedTo(self.administrators()[i]);
+
+        var categoryFromCookie = getCookie('ticket-category');
+        if (categoryFromCookie)
+            for (var i = 0; i < self.categories().length; i++)
+            {
+                if (self.categories()[i].CategoryId == categoryFromCookie)
+                    self.filter.category(self.categories()[i]);
+            }
+
         self.numberOfPages = ko.observable();
         self.pages = ko.computed(function()
         {
             var pages = [];
-            
+
             var leftBound = self.filter.page() - 2;
             var rightBound = self.filter.page() + 2;
             while (leftBound < 1)
@@ -91,7 +119,7 @@
 
         self.getTickets = function()
         {
-            var data = 
+            var data =
             {
                 Status: self.filter.status(),
                 AssignedToId: self.filter.assignedTo() ? self.filter.assignedTo().UserId : null,
@@ -111,55 +139,6 @@
                 self.currentSearch(self.filter.search());
             };
             sendAjaxRequest("/api/Tickets", "GET", data, onSuccess);
-        };
-
-        self.getAdministrators = function()
-        {
-            var data =
-            {
-                Role: "Admin",
-                Page: 0
-            };
-            var onSuccess = function(response)
-            {
-                for (var i = 0; i < response.Users.length; i++)
-                    response.Users[i].Name = response.Users[i].FirstName + " " + response.Users[i].LastName;
-                self.administrators(response.Users);
-                self.administrators.unshift
-                ({
-                    UserId: '0',
-                    Name: '-'
-                });
-
-                var userIdFromCookie = getCookie('ticket-assigned-user');
-                if (userIdFromCookie)
-                    for (var i = 0; i < self.administrators().length; i++)
-                        if (self.administrators()[i].UserId == userIdFromCookie)
-                            self.filter.assignedTo(self.administrators()[i]);
-            };
-            sendAjaxRequest("/api/Users", "GET", data, onSuccess);
-        };
-
-        self.getCategories = function()
-        {
-            var onSuccess = function(response)
-            {
-                self.categories(response);
-                self.categories.unshift(
-                {
-                    CategoryId: 0,
-                    Name: '-'
-                });
-
-                var categoryFromCookie = getCookie('ticket-category');
-                if (categoryFromCookie)
-                    for (var i = 0; i < self.categories().length; i++)
-                        if (self.categories()[i].CategoryId == categoryFromCookie)
-                            self.filter.category(self.categories()[i]);
-
-                self.getTickets();
-            };
-            sendAjaxRequest("/api/Categories", "GET", null, onSuccess);
         };
 
         self.assignUser = function()
@@ -229,7 +208,7 @@
                         self.tickets(updatedTickets);
                     }
             }
-            sendAjaxRequest("/Tickets/CloseTicket", "POST", data, onSuccess);         
+            sendAjaxRequest("/Tickets/CloseTicket", "POST", data, onSuccess);
         };
 
         self.sort = function(data, event)
@@ -248,13 +227,13 @@
                 return "\u25BC";
             else
                 return "\u25B2";
-        });        
+        });
 
-        //self.getTickets(); // moved to getCategories
+        self.getTickets(); // moved to getCategories
         // getStatusFromCookie
-        self.getAdministrators();
+        //self.getAdministrators();
         // getAdministratorFromCookie
-        self.getCategories();
+        //self.getCategories();
         // ...
     }
 
@@ -306,7 +285,7 @@
     $(document).ready(function()
     {
         ko.applyBindings(new TicketsViewModel());
-    });    
+    });
 </script>
 
 <header>

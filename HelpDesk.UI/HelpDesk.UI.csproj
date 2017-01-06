@@ -290,7 +290,9 @@
     <Compile Include="ViewModels\Settings\IndexViewModel.cs" />
     <Compile Include="ViewModels\Tickets\CreateViewModel.cs" />
     <Compile Include="ViewModels\Tickets\EditViewModel.cs" />
+    <Compile Include="ViewModels\Tickets\IndexViewModel.cs" />
     <Compile Include="ViewModels\Tickets\TicketDTO.cs" />
+    <Compile Include="ViewModels\Users\AdministratorDTO.cs" />
     <Compile Include="ViewModels\Users\ChangePasswordViewModel.cs" />
     <Compile Include="ViewModels\Account\LoginViewModel.cs" />
     <Compile Include="ViewModels\Users\CreateViewModel.cs" />

@@ -17,6 +17,8 @@ using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Entities;
 using HelpDesk.UI.ViewModels.Tickets;
 using HelpDesk.UI.Infrastructure;
+using HelpDesk.UI.ViewModels.Users;
+using HelpDesk.UI.ViewModels.Categories;
 
 namespace HelpDesk.UI.Controllers.MVC
 {
@@ -36,14 +38,39 @@ namespace HelpDesk.UI.Controllers.MVC
         [Authorize]
         public ViewResult Index()
         {
-            return View();
+            IndexViewModel model = new IndexViewModel();
+
+            string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
+            model.Administrators = identityHelper.UserManager.Users.Where(u => u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null).Select(u => new AdministratorDTO
+            {
+                UserId = u.Id,
+                Name = u.FirstName + " " + u.LastName
+            }).OrderBy(u => u.Name).ToList();
+            model.Administrators.Insert(0, new AdministratorDTO
+            {
+                UserId = "0",
+                Name = "-"
+            });
+
+            model.Categories = unitOfWork.CategoryRepository.Get().OrderBy(c => c.Order).Select(c => new CategoryDTO
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name
+            }).ToList();
+            model.Categories.Insert(0, new CategoryDTO
+            {
+                CategoryId = 0,
+                Name = "-"
+            });
+
+            return View(model);
         }
 
         [OverrideAuthorization]
         [Authorize]
         public ViewResult Create()
         {
-            CreateViewModel model = new CreateViewModel
+            ViewModels.Tickets.CreateViewModel model = new ViewModels.Tickets.CreateViewModel
             {
                 Requester = identityHelper.CurrentUser,
                 Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order))
@@ -55,7 +82,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
         [Authorize]
-        public async Task<ActionResult> Create([Bind(Include = "RequesterId,CategoryId,Title,Content")] CreateViewModel model)
+        public async Task<ActionResult> Create([Bind(Include = "RequesterId,CategoryId,Title,Content")] ViewModels.Tickets.CreateViewModel model)
         {
             if (model.RequesterId != null && await identityHelper.UserManager.FindByIdAsync(model.RequesterId) == null)
                 ModelState.AddModelError("RequesterId", "Selected user doesn't exist.");
@@ -107,7 +134,7 @@ namespace HelpDesk.UI.Controllers.MVC
                 TempData["Fail"] = "You can't display details of ticket which you didn't create or request.";
                 return RedirectToAction("Index");
             }
-            EditViewModel model = new EditViewModel
+            ViewModels.Tickets.EditViewModel model = new ViewModels.Tickets.EditViewModel
             {
                 TicketId = ticket.TicketId,
                 CreateDate = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss"),
@@ -132,7 +159,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
         [Authorize]
-        public async Task<ActionResult> Edit([Bind(Include = "TicketId,RequesterId,AssignedUserId,Status,CategoryId,Title,Content,Solution")] EditViewModel model)
+        public async Task<ActionResult> Edit([Bind(Include = "TicketId,RequesterId,AssignedUserId,Status,CategoryId,Title,Content,Solution")] ViewModels.Tickets.EditViewModel model)
         {
             Ticket ticket = unitOfWork.TicketRepository.GetById(model.TicketId);
             if (ticket == null)
@@ -221,15 +248,15 @@ namespace HelpDesk.UI.Controllers.MVC
                 return RedirectToAction("Index");
             }
 
-            HistoryViewModel model = new HistoryViewModel
+            ViewModels.Tickets.HistoryViewModel model = new ViewModels.Tickets.HistoryViewModel
             {
                 TicketId = id,
-                Logs = new List<HistoryViewModel.Log>()
+                Logs = new List<ViewModels.Tickets.HistoryViewModel.Log>()
             };
             foreach (var log in unitOfWork.TicketsHistoryRepository.Get(filters: new Expression<Func<TicketsHistory, bool>>[] { l => l.TicketId == ticket.TicketId }, orderBy: q => q.OrderByDescending(l => l.Date)))
             {
                 User author = identityHelper.UserManager.FindById(log.AuthorId);
-                model.Logs.Add(new HistoryViewModel.Log
+                model.Logs.Add(new ViewModels.Tickets.HistoryViewModel.Log
                 {
                     Date = log.Date,
                     AuthorId = log.AuthorId,
@@ -451,13 +478,13 @@ namespace HelpDesk.UI.Controllers.MVC
             }
         }
 
-        protected override void OnException(ExceptionContext filterContext)
-        {
-            if (!filterContext.ExceptionHandled)
-            {
-                filterContext.Result = new RedirectResult("~/Content/Error.html");
-                filterContext.ExceptionHandled = true;
-            }
-        }
+        //protected override void OnException(ExceptionContext filterContext)
+        //{
+        //    if (!filterContext.ExceptionHandled)
+        //    {
+        //        filterContext.Result = new RedirectResult("~/Content/Error.html");
+        //        filterContext.ExceptionHandled = true;
+        //    }
+        //}
     }
 }
