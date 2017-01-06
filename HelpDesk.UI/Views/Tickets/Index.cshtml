@@ -1,5 +1,6 @@
 ﻿@using HelpDesk.UI.Infrastructure;
 @using HelpDesk.UI.ViewModels.Tickets
+@using HelpDesk.DAL.Concrete;
 
 @model IndexViewModel
 
@@ -49,19 +50,9 @@
                 return text;
         };
 
-        self.statuses = ["New", "In progress", "Solved", "Closed"];
-
-        self.administrators = ko.observableArray([]);
-        @foreach (var administrator in Model.Administrators)
-        {
-            @: self.administrators.push({ UserId: '@administrator.UserId', Name: '@administrator.Name' });
-        }
-
-        self.categories = ko.observableArray([]);
-        @foreach (var category in Model.Categories)
-        {
-            @: self.categories.push({ CategoryId: '@category.CategoryId', Name: '@category.Name' });
-        }
+        self.statuses = [ 'New', 'In progress', 'Solved', 'Closed' ];
+        self.administrators = ko.observableArray(@Html.Raw(Json.Encode(@Model.Administrators)));
+        self.categories = ko.observableArray(@Html.Raw(Json.Encode(@Model.Categories)));
 
         self.sortingOptions = ko.observableArray(["Date", "User", "Title", "Category", "Status"]);
 
