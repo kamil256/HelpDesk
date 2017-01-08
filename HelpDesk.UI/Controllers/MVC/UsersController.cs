@@ -7,7 +7,6 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Linq.Expressions;
-using PagedList;
 using Microsoft.AspNet.Identity;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity.Owin;
@@ -306,6 +305,8 @@ namespace HelpDesk.UI.Controllers.MVC
         [Authorize]
         public async Task<ActionResult> Tickets(string id)
         {
+            TicketsViewModel model = new TicketsViewModel();
+
             User user;
             if (identityHelper.IsCurrentUserAnAdministrator())
             {
@@ -318,11 +319,19 @@ namespace HelpDesk.UI.Controllers.MVC
             }
             else
                 user = identityHelper.CurrentUser;
+            model.UserId = user.Id;
 
-            TicketsViewModel model = new TicketsViewModel
+            string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
+            model.Administrators = identityHelper.UserManager.Users.Where(u => u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null).Select(u => new AdministratorDTO
             {
-                UserId = user.Id
-            };
+                UserId = u.Id,
+                Name = u.FirstName + " " + u.LastName
+            }).OrderBy(u => u.Name).ToList();
+            model.Administrators.Insert(0, new AdministratorDTO
+            {
+                UserId = "0",
+                Name = "-"
+            });
 
             return View("Tickets", model);
         }

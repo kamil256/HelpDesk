@@ -32,7 +32,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
         [HttpGet]
         [OverrideAuthorization]
         [Authorize]
-        public HttpResponseMessage GetTickets(string userId = null, string status = null, string assignedToId = null, int? categoryId = null, string search = null, bool advancedSearch = false, string sortBy = null, bool descSort = false, int page = 0)
+        public HttpResponseMessage GetTickets(string userId = null, string status = null, string assignedToId = null, int? categoryId = null, string search = null, bool advancedSearch = false, string sortBy = "Date", bool descSort = true, int page = 0)
         {
             List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
             if (!identityHelper.IsCurrentUserAnAdministrator())
@@ -41,15 +41,15 @@ namespace HelpDesk.UI.Controllers.WebAPI
             {
                 if (userId != null)
                     filters.Add(ticket => ticket.CreatorId == userId || ticket.RequesterId == userId);
-                if (status != null)
+                if (status != null && new[] { "New", "In progress", "Solved", "Closed" }.Contains(status))
                     filters.Add(ticket => ticket.Status == status);
-                if (assignedToId != null)
+                if (assignedToId != null && (assignedToId == "0" || identityHelper.UserManager.FindById(assignedToId) != null))
                     filters.Add(ticket => ticket.AssignedUserId == (assignedToId == "0" ? null : assignedToId));
-                if (categoryId != null)
+                if (categoryId != null && (categoryId == 0 || unitOfWork.CategoryRepository.GetById(categoryId ?? 0) != null))
                     filters.Add(ticket => ticket.CategoryId == (categoryId == 0 ? null : categoryId));
             }
 
-            if (!string.IsNullOrEmpty(search))
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 if (!advancedSearch)
                     filters.Add(ticket => ticket.Title.ToLower().Contains(search.ToLower()));
@@ -126,7 +126,8 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     AssignedUserId = t.AssignedUserId,
                     Title = t.Title,
                     Category = t.Category?.Name,
-                    Status = t.Status
+                    Status = t.Status,
+                    Solution = t.Solution
                 }),
                 NumberOfPages = numberOfPages,
                 FoundItemsCount = numberOfTickets,

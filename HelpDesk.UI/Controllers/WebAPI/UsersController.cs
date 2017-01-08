@@ -32,7 +32,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
         [HttpGet]
         [OverrideAuthorization]
         [Authorize]
-        public HttpResponseMessage GetUsers(string role = null, string search = null, bool advancedSearch = true, string sortBy = null, bool descSort = false, int page = 0, int? usersPerPage = null)
+        public HttpResponseMessage GetUsers(string role = null, string search = null, bool advancedSearch = true, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
         {
             List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
 
@@ -127,8 +127,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
             }
 
             usersPerPage = usersPerPage ?? identityHelper.CurrentUser.Settings.UsersPerPage;
-            int numberOfUsers = identityHelper.UserManager.Users.Count();
-            int numberOfUsersFound = numberOfUsers;
+            int numberOfUsers;
             int numberOfPages;
 
             IQueryable<User> users = identityHelper.UserManager.Users;
@@ -136,17 +135,16 @@ namespace HelpDesk.UI.Controllers.WebAPI
             if (filters != null)
                 foreach (var filter in filters)
                     if (filter != null)
-                    {
                         users = users.Where(filter);
-                        numberOfUsersFound = users.Count();
-                    }
+
+            numberOfUsers = users.Count();
 
             if (orderBy != null)
                 users = orderBy(users);
 
             if (page != 0)
             {
-                numberOfPages = (int)Math.Ceiling((decimal)numberOfUsersFound / (int)usersPerPage);
+                numberOfPages = (int)Math.Ceiling((decimal)numberOfUsers / (int)usersPerPage);
                 users = users.Skip((page - 1) * (int)usersPerPage).Take((int)usersPerPage);
             }
             else
@@ -171,8 +169,8 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     TicketsCount = u.CreatedTickets.Union(u.RequestedTickets).Distinct().Count()
                 }),
                 NumberOfPages = numberOfPages,
-                NumberOfUsers = numberOfUsers,
-                NumberOfUsersFound = numberOfUsersFound
+                FoundItemsCount = numberOfUsers,
+                TotalItemsCount = identityHelper.UserManager.Users.Count()
             });
         }
     }

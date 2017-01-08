@@ -47,6 +47,10 @@ namespace HelpDesk.UI.Controllers.MVC
                 model.UsersPerPage = settings.UsersPerPage;
                 model.Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order)).ToList();
             }
+            else
+            {
+                model.Categories = new List<Category>();
+            }
 
             return View(model);
         }

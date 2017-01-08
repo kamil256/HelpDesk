@@ -1,68 +1,36 @@
-﻿@using HelpDesk.UI.Infrastructure;
-
-@model HelpDesk.UI.ViewModels.Users.TicketsViewModel
+﻿@model HelpDesk.UI.ViewModels.Users.TicketsViewModel
 
 @{
     ViewBag.Title = "User details";
-    IdentityHelper identityHelper = new IdentityHelper();
+    HelpDesk.UI.Infrastructure.IdentityHelper identityHelper = new HelpDesk.UI.Infrastructure.IdentityHelper();
 }
 
 <script>
-    function sendAjaxRequest(url, method, data, onSuccess)
-    {
-        $.ajax(url,
-        {
-            type: method,
-            data: data,
-            success: function(response)
-            {
-                if (response.Success)
-                    displayNewSuccessMessage(response.Success);
-                if (response.Fail)
-                    displayNewFailMessage(response.Fail);
-                onSuccess(response);
-            },
-            error: function()
-            {
-                displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-            },
-            beforeSend: showProgressIndicator,
-            complete: hideProgressIndicator
-        });
-    }
-
     function TicketsViewModel()
     {
         var self = this;
 
         self.tickets = ko.observableArray([]);
-        self.currentTicket = ko.observable();
-        self.currentUser = ko.observable();
 
-        self.statuses = ["All", "New", "In progress", "Solved", "Closed"];
-        self.administrators = ko.observableArray([]);
-        self.categories = ko.observableArray([]);
-        self.sortingOptions = ko.observableArray(["Date", "User", "Title", "Category", "Status"]);
+        self.administrators = ko.observableArray(@Html.Raw(Json.Encode(@Model.Administrators)));
+        self.numberOfPages = ko.observable();
+        self.foundItemsCount = ko.observable();
+        self.totalItemsCount = ko.observable();
+        self.currentTicketId = ko.observable();
+        self.currentUserId = ko.observable('@identityHelper.CurrentUser.Id');
+        self.solution = ko.observable('');
 
-        self.filter =
+        self.filters =
         {
-            status: ko.observable(),
-            assignedTo: ko.observable(),
-            category: ko.observable(),
-            search: ko.observable(),
-            advancedSearch: ko.observable(false),
-            sortBy: ko.observable("Date"),
-            descSort: ko.observable(true),
-            page: ko.observable(1)
+            pageNumber: ko.observable(1)
         };
 
-        self.numberOfPages = ko.observable();
         self.pages = ko.computed(function()
         {
             var pages = [];
 
-            var leftBound = self.filter.page() - 2;
-            var rightBound = self.filter.page() + 2;
+            var leftBound = self.filters.pageNumber() - 2;
+            var rightBound = self.filters.pageNumber() + 2;
             while (leftBound < 1)
             {
                 leftBound++;
@@ -74,171 +42,125 @@
                 if (leftBound > 1)
                     leftBound--;
             }
-
             for (var i = leftBound; i <= rightBound; i++)
                 pages.push(i);
+
             return pages;
         });
-        self.foundItemsCount = ko.observable();
-        self.totalItemsCount = ko.observable();
 
         self.getTickets = function()
         {
             var data =
             {
-                UserId: '@Model.UserId',
-                Status: self.filter.status(),
-                AssignedToId: self.filter.assignedTo() ? self.filter.assignedTo().UserId : null,
-                CategoryId: self.filter.category() ? self.filter.category().CategoryId : null,
-                Search: self.filter.search(),
-                AdvancedSearch: self.filter.advancedSearch(),
-                SortBy: self.filter.sortBy(),
-                DescSort: self.filter.descSort(),
-                Page: self.filter.page()
+                userId: '@Model.UserId',
+                status: null,
+                assignedToId: null,
+                categoryId: null,
+                search: null,
+                advancedSearch: false,
+                sortBy: 'Date',
+                descSort: true,
+                page: self.filters.pageNumber()
             };
             var onSuccess = function(response)
             {
-                self.tickets(response.Tickets);
-                self.numberOfPages(response.NumberOfPages);
-                self.foundItemsCount(response.FoundItemsCount);
-                self.totalItemsCount(response.TotalItemsCount);
+                if (response.NumberOfPages != 0 && self.filters.pageNumber() > response.NumberOfPages)
+                    self.changePageAndGetTickets(response.NumberOfPages);
+                else
+                {
+                    self.tickets(response.Tickets);
+                    self.numberOfPages(response.NumberOfPages);
+                    self.foundItemsCount(response.FoundItemsCount);
+                    self.totalItemsCount(response.TotalItemsCount);
+                }
             };
             sendAjaxRequest("/api/Tickets", "GET", data, onSuccess);
         };
 
-        self.getAdministrators = function()
+        self.changePageAndGetTickets = function(pageNumber)
         {
-            var data =
-            {
-                Role: "Admin",
-                Page: 0
-            };
-            var onSuccess = function(response)
-            {
-                for (var i = 0; i < response.Users.length; i++)
-                    response.Users[i].Name = response.Users[i].FirstName + " " + response.Users[i].LastName;
-                self.administrators(response.Users);
-            };
-            sendAjaxRequest("/api/Users", "GET", data, onSuccess);
-        };
-
-        self.getCategories = function()
-        {
-            var onSuccess = function(response)
-            {
-                self.categories(response);
-            };
-            sendAjaxRequest("/api/Categories", "GET", null, onSuccess);
-        };
-
-        self.assignUser = function()
-        {
-            var data =
-            {
-                ticketId: self.currentTicket().TicketId,
-                userId: self.currentUser().UserId
-            };
-            var onSuccess = function()
-            {
-                var updatedTickets = self.tickets();
-                for (var i = 0; i < updatedTickets.length; i++)
-                    if (updatedTickets[i].TicketId == data.ticketId)
-                    {
-                        updatedTickets[i].Status = 'In progress';
-                        updatedTickets[i].AssignedUserId = self.currentUser().UserId;
-                        updatedTickets[i].AssignedUserName = self.currentUser().Name;
-                        self.tickets([]);
-                        self.tickets(updatedTickets);
-                    }
-            }
-            sendAjaxRequest("/Tickets/AssignUserToTicket", "POST", data, onSuccess);
-        };
-
-        self.solution = ko.observable("");
-
-        self.solveTicket = function()
-        {
-            var data =
-            {
-                ticketId: self.currentTicket().TicketId,
-                userId: self.currentUser().UserId,
-                solution: self.solution()
-            };
-            var onSuccess = function()
-            {
-                var updatedTickets = self.tickets();
-                for (var i = 0; i < updatedTickets.length; i++)
-                    if (updatedTickets[i].TicketId == data.ticketId)
-                    {
-                        updatedTickets[i].Status = 'Solved';
-                        updatedTickets[i].AssignedUserId = self.currentUser().UserId;
-                        updatedTickets[i].AssignedUserName = self.currentUser().Name;
-                        updatedTickets[i].Solution = self.solution();
-                        self.tickets([]);
-                        self.tickets(updatedTickets);
-                    }
-            };
-            sendAjaxRequest("/Tickets/SolveTicket", "POST", data, onSuccess);
-        };
-
-        self.closeTicket = function()
-        {
-            var data =
-            {
-                ticketId: self.currentTicket().TicketId
-            };
-            var onSuccess = function()
-            {
-                var updatedTickets = self.tickets();
-                for (var i = 0; i < updatedTickets.length; i++)
-                    if (updatedTickets[i].TicketId == data.ticketId)
-                    {
-                        updatedTickets[i].Status = 'Closed';
-                        self.tickets([]);
-                        self.tickets(updatedTickets);
-                    }
-            }
-            sendAjaxRequest("/Tickets/CloseTicket", "POST", data, onSuccess);
-        };
-
-        self.sort = function(data, event)
-        {
-            var sortBy = event.target.textContent;
-            if (self.filter.sortBy() === sortBy)
-                self.filter.descSort(!self.filter.descSort());
-            else
-                self.filter.sortBy(sortBy);
+            self.filters.pageNumber(pageNumber);
             self.getTickets();
         };
 
-        self.getSortSymbol = ko.computed(function()
+        self.goToTicketDetails = function(id)
         {
-            if (self.filter.descSort())
-                return "\u25BC";
+            document.location.href = '/Tickets/Edit/' + id;
+        };
+
+        self.goToUserDetails = function(id)
+        {
+            document.location.href = '/Users/Edit/' + id;
+        };
+
+        self.assignUser = function(ticket)
+        {
+            if (!$('#assign-user-dialog').is(':visible'))
+            {
+                self.currentTicketId(ticket.TicketId);
+                $('#assign-user-dialog').modal('show');
+            }
             else
-                return "\u25B2";
-        });
+            {
+                var data =
+                {
+                    ticketId: self.currentTicketId(),
+                    userId: self.currentUserId()
+                };
+                var onSuccess = function()
+                {
+                    self.getTickets();
+                }
+                sendAjaxRequest("/Tickets/AssignUserToTicket", "POST", data, onSuccess);
+            }
+        };
+
+        self.solveTicket = function(ticket)
+        {
+            if (!$('#solve-ticket-dialog').is(':visible'))
+            {
+                self.currentTicketId(ticket.TicketId);
+                self.solution(ticket. Solution);
+                $('#solve-ticket-dialog').modal('show');
+            }
+            else
+            {
+                var data =
+                {
+                    ticketId: self.currentTicketId(),
+                    userId: self.currentUserId(),
+                    solution: self.solution()
+                };
+                var onSuccess = function()
+                {
+                    self.getTickets();
+                };
+                sendAjaxRequest("/Tickets/SolveTicket", "POST", data, onSuccess);
+            }
+        };
+
+        self.closeTicket = function(ticket)
+        {
+            if (!$('#close-ticket-dialog').is(':visible'))
+            {
+                self.currentTicketId(ticket.TicketId);
+                $('#close-ticket-dialog').modal('show');
+            }
+            else
+            {
+                var data =
+                {
+                    ticketId: self.currentTicketId()
+                };
+                var onSuccess = function()
+                {
+                    self.getTickets();
+                }
+                sendAjaxRequest("/Tickets/CloseTicket", "POST", data, onSuccess);
+            }
+        };
 
         self.getTickets();
-        self.getAdministrators();
-        self.getCategories();
-    }
-
-    function formatDate(ticks)
-    {
-        function padZero(value)
-        {
-            return value < 10 ? "0" + value : value;
-        }
-
-        var date = new Date(Number(ticks));
-        var year = date.getFullYear();
-        var month = padZero(date.getMonth() + 1);
-        var day = padZero(date.getDate());
-        var hours = padZero(date.getHours());
-        var minutes = padZero(date.getMinutes());
-        var seconds = padZero(date.getSeconds());
-        return year + "-" + month  + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
     }
 
     $(document).ready(function()
@@ -268,39 +190,39 @@
 <main class="container">
     <h3 data-bind="visible: !tickets() || tickets().length === 0">No tickets found...</h3>
 
-    <div data-bind="visible: tickets() && tickets().length != 0">
-        <ul data-bind="visible: pages().length >= 2, foreach: pages" class="pagination pull-left">
+    <div data-bind="visible: tickets() && tickets().length > 0">
+        <ul data-bind="visible: pages().length > 1, foreach: pages" class="pagination pull-left">
             <!-- ko if: $data == $root.pages()[0] -->
             <li>
-                <a data-bind="click: function() { $root.filter.page(1); $root.getTickets(); }" href="#">&laquo;</a>
+                <a data-bind="click: function() { $root.changePageAndGetTickets(1); }" href="#">&laquo;</a>
             </li>
             <!-- /ko -->
 
-            <li data-bind="css: { active: $data == $root.filter.page() }">
-                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
+            <li data-bind="css: { active: $data == $root.filters.pageNumber() }">
+                <a data-bind="text: $data, click: function() { $root.changePageAndGetTickets($data) }" href="#"></a>
             </li>
 
             <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
             <li>
-                <a data-bind="click: function() { $root.filter.page($root.numberOfPages()); $root.getTickets(); }" href="#">&raquo;</a>
+                <a data-bind="click: function() { $root.changePageAndGetTickets($root.numberOfPages()) }" href="#">&raquo;</a>
             </li>
             <!-- /ko -->
         </ul>
 
         <div class="tickets-list" data-bind="foreach: tickets">
-            <div class="well" data-bind="click: function() { document.location.href = '/Tickets/Edit/' + TicketId; }">
+            <div class="well" data-bind="click: function() { $root.goToTicketDetails(TicketId); }">
                 <div class="hidden-xs">
                     <p class="text-gray" data-bind="text: '#' + TicketId"></p>
                     <p data-bind="text: Status, css: { 'color-status-new': Status == 'New', 'color-status-in-progress': Status == 'In progress', 'color-status-solved': Status == 'Solved', 'color-status-closed': Status == 'Closed' }"></p>
                 </div>
 
                 <div>
-                    <p data-bind="text: Title"></p>
+                    <p data-bind="html: Title"></p>
                     <p><span class="text-gray">Date:</span> <span data-bind="text: formatDate(CreateDate)"></span></p>
                     <p>
                         <span class="text-gray">User:</span>
                         <span>
-                            <a href="#" data-bind="visible: RequesterName, click: function(data, event) { event.stopPropagation(); document.location.href = '/Users/Edit/' + RequesterId; }, text: RequesterName"></a>
+                            <a data-bind="visible: RequesterName, click: function(data, event) { event.stopPropagation(); $root.goToUserDetails(RequesterId); }, text: RequesterName"></a>
                             <span data-bind="visible: !RequesterName">-</span>
                         </span>
                     </p>
@@ -308,111 +230,111 @@
                     <p class="visible-xs">
                         <span class="text-gray">Status:</span>
                         <span data-bind="text: Status, css: { 'color-status-new': Status == 'New', 'color-status-in-progress': Status == 'In progress', 'color-status-solved': Status == 'Solved', 'color-status-closed': Status == 'Closed' }"></span>
-                    </p>   
+                    </p>
                 </div>
 
                 @if (identityHelper.IsCurrentUserAnAdministrator())
                 {
                     <div class="hidden-xs">
-                        <button title="Close ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#close-ticket-dialog').modal('show'); }" class="btn btn-sm btn-inverse pull-right"><span class="glyphicon glyphicon-remove"></span></button>
-                        <button title="Solve ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#solve-ticket-dialog').modal('show'); }" class="btn btn-sm btn-success pull-right"><span class="glyphicon glyphicon-ok"></span></button>
-                        <button title="Assign administrator to ticket" data-bind="click: function(data, event) { $root.currentTicket(data); event.stopPropagation(); $('#assign-user-dialog').modal('show'); }" class="btn btn-sm btn-primary pull-right">+<span class="glyphicon glyphicon-user"></span></button>
+                        <button title="Close ticket" data-bind="click: function(data, event) { event.stopPropagation(); $root.closeTicket($data); }" class="btn btn-sm btn-inverse pull-right"><span class="glyphicon glyphicon-remove"></span></button>
+                        <button title="Solve ticket" data-bind="click: function(data, event) { event.stopPropagation(); $root.solveTicket($data); }" class="btn btn-sm btn-success pull-right"><span class="glyphicon glyphicon-ok"></span></button>
+                        <button title="Assign administrator to ticket" data-bind="click: function(data, event) { event.stopPropagation(); $root.assignUser($data); }" class="btn btn-sm btn-primary pull-right">+<span class="glyphicon glyphicon-user"></span></button>
                     </div>
                 }
             </div>
         </div>
 
-        <ul data-bind="visible: pages().length >= 2, foreach: pages" class="pagination pull-left">
+        <ul data-bind="visible: pages().length > 1, foreach: pages" class="pagination pull-left">
             <!-- ko if: $data == $root.pages()[0] -->
             <li>
-                <a data-bind="click: function() { $root.filter.page(1); $root.getTickets(); }" href="#">&laquo;</a>
+                <a data-bind="click: function() { $root.changePageAndGetTickets(1); }" href="#">&laquo;</a>
             </li>
             <!-- /ko -->
 
-            <li data-bind="css: { active: $data == $root.filter.page() }">
-                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getTickets(); }" href="#"></a>
+            <li data-bind="css: { active: $data == $root.filters.pageNumber() }">
+                <a data-bind="text: $data, click: function() { $root.changePageAndGetTickets($data) }" href="#"></a>
             </li>
 
             <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
             <li>
-                <a data-bind="click: function() { $root.filter.page($root.numberOfPages()); $root.getTickets(); }" href="#">&raquo;</a>
+                <a data-bind="click: function() { $root.changePageAndGetTickets($root.numberOfPages()) }" href="#">&raquo;</a>
             </li>
             <!-- /ko -->
         </ul>
 
-        <p class="pull-right" style="line-height: 34px; vertical-align: middle">Page <span data-bind="text: filter.page"></span> of <span data-bind="text: numberOfPages"></span> (<span data-bind="text: foundItemsCount"></span> item<span data-bind="visible: foundItemsCount() != 1">s</span> found of <span data-bind="text: totalItemsCount"></span> total)</p>
+        <p class="pull-right result-info">Page <span data-bind="text: filters.pageNumber"></span> of <span data-bind="text: numberOfPages"></span> (<span data-bind="text: foundItemsCount"></span> item<span data-bind="visible: foundItemsCount() != 1">s</span> found of <span data-bind="text: totalItemsCount"></span> total)</p>
     </div>
 </main>
 
 @if (identityHelper.IsCurrentUserAnAdministrator())
 {
-    <!-- ko if: currentTicket() -->
-        <div id="assign-user-dialog" class="modal fade">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
-                        <h4 class="modal-title">Assign administrator to ticket</h4>
-                    </div>
+    <!-- ko if: currentTicketId() -->
+    <div id="assign-user-dialog" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
+                    <h4 class="modal-title">Assign administrator to ticket</h4>
+                </div>
 
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label class="control-label">Administrator</label>
-                            <select data-bind="options: administrators, optionsText: 'Name', value: currentUser" class="form-control"></select>
-                        </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">Administrator</label>
+                        <select data-bind="options: administrators, optionsText: 'Name', optionsValue: 'UserId', value: currentUserId" class="form-control"></select>
                     </div>
+                </div>
 
-                    <div class="modal-footer">
-                        <button data-bind="click: function() { assignUser(); }" data-dismiss="modal" class="btn btn-primary">Ok</button><button data-dismiss="modal" class="btn btn-default">Cancel</button>                    
-                    </div>
+                <div class="modal-footer">
+                    <button data-bind="click: function() { assignUser(); }" data-dismiss="modal" class="btn btn-primary">Ok</button><button data-dismiss="modal" class="btn btn-default">Cancel</button>
                 </div>
             </div>
         </div>
-    
-        <div id="solve-ticket-dialog" class="modal fade">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
-                        <h4 class="modal-title">Solve ticket</h4>
+    </div>
+
+    <div id="solve-ticket-dialog" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
+                    <h4 class="modal-title">Solve ticket</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">Administrator</label>
+                        <select data-bind="options: administrators, optionsText: 'Name', optionsValue: 'UserId', value: currentUserId" class="form-control"></select>
                     </div>
 
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label class="control-label">Administrator</label>
-                            <select data-bind="options: administrators, optionsText: 'Name', value: currentUser" class="form-control"></select>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label">Solution</label>
-                            <textarea data-bind="value: solution" cols="10" rows="7" class="form-control"></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label class="control-label">Solution</label>
+                        <textarea data-bind="value: solution" cols="10" rows="7" class="form-control"></textarea>
                     </div>
+                </div>
 
-                    <div class="modal-footer">
-                        <button data-dismiss="modal" data-bind="click: function() { solveTicket(); }" class="btn btn-primary">Ok</button><button data-dismiss="modal" class="btn btn-default">Cancel</button>
-                    </div>
+                <div class="modal-footer">
+                    <button data-dismiss="modal" data-bind="click: function() { solveTicket(); }" class="btn btn-primary">Ok</button><button data-dismiss="modal" class="btn btn-default">Cancel</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div id="close-ticket-dialog" class="modal fade">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
-                        <h4 class="modal-title">Close ticket</h4>
-                    </div>
+    <div id="close-ticket-dialog" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
+                    <h4 class="modal-title">Close ticket</h4>
+                </div>
 
-                    <div class="modal-body">
-                        Are you sure you want to close ticket?
-                    </div>
+                <div class="modal-body">
+                    Are you sure you want to close ticket?
+                </div>
 
-                    <div class="modal-footer">
-                        <button data-dismiss="modal" data-bind="click: function() { closeTicket(); }" class="btn btn-primary">Yes</button><button data-dismiss="modal" class="btn btn-default">No</button>
-                    </div>
+                <div class="modal-footer">
+                    <button data-dismiss="modal" data-bind="click: function(data, event) { closeTicket(); }" class="btn btn-primary">Yes</button><button data-dismiss="modal" class="btn btn-default">No</button>
                 </div>
             </div>
         </div>
+    </div>
     <!-- /ko -->
 }

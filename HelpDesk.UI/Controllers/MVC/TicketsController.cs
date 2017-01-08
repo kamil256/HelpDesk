@@ -7,7 +7,6 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Linq.Expressions;
-using PagedList;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.AspNet.Identity;
@@ -478,13 +477,13 @@ namespace HelpDesk.UI.Controllers.MVC
             }
         }
 
-        //protected override void OnException(ExceptionContext filterContext)
-        //{
-        //    if (!filterContext.ExceptionHandled)
-        //    {
-        //        filterContext.Result = new RedirectResult("~/Content/Error.html");
-        //        filterContext.ExceptionHandled = true;
-        //    }
-        //}
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            if (!filterContext.ExceptionHandled)
+            {
+                filterContext.Result = new RedirectResult("~/Content/Error.html");
+                filterContext.ExceptionHandled = true;
+            }
+        }
     }
 }

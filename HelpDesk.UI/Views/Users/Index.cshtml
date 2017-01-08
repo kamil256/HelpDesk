@@ -1,62 +1,61 @@
 ﻿@{
     ViewBag.Title = "List of users";
+    HelpDesk.UI.Infrastructure.IdentityHelper identityHelper = new HelpDesk.UI.Infrastructure.IdentityHelper();
 }
 
 <script>
-    function sendAjaxRequest(url, method, data, onSuccess)
-    {
-        $.ajax(url,
-        {
-            type: method,
-            data: data,
-            success: function(response)
-            {
-                if (response.Success)
-                    displayNewSuccessMessage(response.Success);
-                if (response.Fail)
-                    displayNewFailMessage(response.Fail);
-                onSuccess(response);
-            },
-            error: function()
-            {
-                displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-            },
-            beforeSend: showProgressIndicator,
-            complete: hideProgressIndicator
-        });
-    }
+    var filtersFromCookie = JSON.parse(getCookie('usersFilters_@identityHelper.CurrentUser.Id'));
 
     function UsersViewModel()
     {
         var self = this;
 
         self.users = ko.observableArray([]);
+
         self.sortingOptions = ko.observableArray(["First name", "Last name", "Email", "Phone", "Mobile phone", "Company", "Department", "Role", "Last activity", "Tickets"]);
-        self.currentSearch = ko.observable();
+        self.numberOfPages = ko.observable();
+        self.foundItemsCount = ko.observable();
+        self.totalItemsCount = ko.observable();
 
-        self.markSearch = function(text)
+        self.filters =
         {
-            if (self.currentSearch() && self.currentSearch() != "")
-                return text.replace(new RegExp("(" + self.currentSearch() + ")", 'gi'), "<mark>$1</mark>");
-            else
-                return text;
-        };      
-
-        self.filter =
-        {
-            search: ko.observable(getCookie('user-search')),
-            sortBy: ko.observable(getCookie('user-sort-by') ? getCookie('user-sort-by') : 'Last name'),
-            descSort: ko.observable(getCookie('user-desc-sort') ? (getCookie('user-desc-sort') === 'true' ? true : false) : false),
-            page: ko.observable(1)
+            searchString: ko.observable(filtersFromCookie ? filtersFromCookie.search : ''),
+            sortBy: ko.observable(filtersFromCookie ? filtersFromCookie.sortBy : 'Last name'),
+            descendingSort: ko.observable(filtersFromCookie ? filtersFromCookie.descSort : false),
+            pageNumber: ko.observable(1)
         };
 
-        self.numberOfPages = ko.observable();
+        self.filters.searchString.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 500 } });
+
+        self.filters.searchString.subscribe(function()
+        {
+            self.changePageAndGetUsers(1);
+        });
+
+        self.filters.sortBy.subscribe(function()
+        {
+            self.changePageAndGetUsers(1);
+        });
+
+        self.filters.descendingSort.subscribe(function()
+        {
+            self.changePageAndGetUsers(1);
+        });
+
+        self.markSearchString = function(text)
+        {
+            if (text && self.filters.searchString().trim())
+                return text.replace(new RegExp("(" + self.filters.searchString().trim() + ")", 'gi'), "<mark>$1</mark>");
+            else
+                return text;
+        };
+
         self.pages = ko.computed(function()
         {
             var pages = [];
 
-            var leftBound = self.filter.page() - 2;
-            var rightBound = self.filter.page() + 2;
+            var leftBound = self.filters.pageNumber() - 2;
+            var rightBound = self.filters.pageNumber() + 2;
             while (leftBound < 1)
             {
                 leftBound++;
@@ -68,81 +67,68 @@
                 if (leftBound > 1)
                     leftBound--;
             }
-
             for (var i = leftBound; i <= rightBound; i++)
                 pages.push(i);
+
             return pages;
         });
-        self.foundItemsCount = ko.observable();
-        self.totalItemsCount = ko.observable();
 
         self.getUsers = function()
         {
             var data =
             {
-                Search: self.filter.search(),
-                SortBy: self.filter.sortBy(),
-                DescSort: self.filter.descSort(),
-                Page: self.filter.page()
+                search: self.filters.searchString().trim(),
+                sortBy: self.filters.sortBy(),
+                descSort: self.filters.descendingSort(),
+                page: self.filters.pageNumber()
             };
             var onSuccess = function(response)
             {
-                self.users(response.Users);
-                self.numberOfPages(response.NumberOfPages);
-                self.foundItemsCount(response.NumberOfUsersFound);
-                self.totalItemsCount(response.NumberOfUsers);
-                self.currentSearch(self.filter.search());
+                if (response.NumberOfPages != 0 && self.filters.pageNumber() > response.NumberOfPages)
+                    self.changePageAndGetUsers(response.NumberOfPages);
+                else
+                {
+                    self.users(response.Users);
+                    self.numberOfPages(response.NumberOfPages);
+                    self.foundItemsCount(response.FoundItemsCount);
+                    self.totalItemsCount(response.TotalItemsCount);
+                }
+                setCookie('usersFilters_@identityHelper.CurrentUser.Id', JSON.stringify(data));
             };
             sendAjaxRequest("/api/Users", "GET", data, onSuccess);
         };
 
-        self.sort = function(data, event)
+        self.changePageAndGetUsers = function(pageNumber)
         {
-            var sortBy = event.target.textContent;
-            if (self.filter.sortBy() === sortBy)
-                self.filter.descSort(!self.filter.descSort());
-            else
-                self.filter.sortBy(sortBy);
+            self.filters.pageNumber(pageNumber);
             self.getUsers();
         };
 
-        self.getSortSymbol = ko.computed(function()
+        self.searchUsersWhenEnterKeyPressed = function(data, event)
         {
-            if (self.filter.descSort())
-                return "\u25BC";
+            if (event.keyCode === 13 || event.which === 13)
+                self.changePageAndGetUsers(1);
             else
-                return "\u25B2";
-        });
+                return true;
+        };
+
+        self.searchUsersAndFocusTheInput = function(data, event)
+        {
+            self.changePageAndGetUsers(1);
+            $(event.target).prev().focus();
+        };
+
+        self.toggleSortingOrder = function()
+        {
+            self.filters.descendingSort(!self.filters.descendingSort());
+        };
+
+        self.goToUserDetails = function(id)
+        {
+            document.location.href = '/Users/Edit/' + id;
+        };
 
         self.getUsers();
-    }
-
-    function getCookie(name)
-    {
-        name = name + "=";
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++)
-        {
-            var cookie = cookies[i];
-            while (cookie.charAt(0) == ' ')
-                cookie = cookie.substring(1);
-            if (cookie.indexOf(name) == 0)
-                return cookie.substring(name.length, cookie.length);
-        }
-        return null;
-    }
-
-    function setCookie(name, value)
-    {
-        if (value == 0 || value == false || value)
-            document.cookie = name + "=" + value + ";path=/";
-        else
-            deleteCookie(name);
-    }
-
-    function deleteCookie(name)
-    {
-        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
 
     $(document).ready(function()
@@ -160,8 +146,8 @@
             <div class="form-group col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
                 <label class="control-label">Search</label>
                 <div class="input-with-button">
-                    <input data-bind="textInput: filter.search, event: { blur: function() { if (filter.search()) filter.search(filter.search().trim()); if (filter.search() != currentSearch()) { setCookie('user-search', filter.search()); filter.page(1); getUsers(); } }, keydown: function(data, event) { if (event.keyCode === 13 || event.which === 13) { $(event.target).next().focus(); } else return true; } }" class="form-control" />
-                    <button class="btn btn-default glyphicon glyphicon-search" data-bind="event: { focus: function (data, event) { $(event.target).prev().focus(); } }"></button>
+                    <input data-bind="textInput: filters.searchString, event: { keypress: searchUsersWhenEnterKeyPressed }" class="form-control" />
+                    <button class="btn btn-default glyphicon glyphicon-search" data-bind="click: searchUsersAndFocusTheInput"></button>
                 </div>
             </div>
         </div>
@@ -171,44 +157,44 @@
 <main class="container">
     <h3 data-bind="visible: !users() || users().length === 0">No users found...</h3>
     
-    <div data-bind="visible: users() && users().length != 0">
-        <ul data-bind="visible: pages().length >= 2, foreach: pages" class="pagination pull-left">
+    <div data-bind="visible: users() && users().length > 0">
+        <ul data-bind="visible: pages().length > 1, foreach: pages" class="pagination pull-left">
             <!-- ko if: $data == $root.pages()[0] -->
             <li>
-                <a data-bind="click: function() { $root.filter.page(1); $root.getUsers(); }" href="#">&laquo;</a>
+                <a data-bind="click: function() { $root.changePageAndGetUsers(1); }" href="#">&laquo;</a>
             </li>
             <!-- /ko -->
 
-            <li data-bind="css: { active: $data == $root.filter.page() }">
-                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getUsers(); }" href="#"></a>
+            <li data-bind="css: { active: $data == $root.filters.pageNumber() }">
+                <a data-bind="text: $data, click: function() { $root.changePageAndGetUsers($data) }" href="#"></a>
             </li>
 
             <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
             <li>
-                <a data-bind="click: function() { $root.filter.page($root.numberOfPages()); $root.getUsers(); }" href="#">&raquo;</a>
+                <a data-bind="click: function() { $root.changePageAndGetUsers($root.numberOfPages()) }" href="#">&raquo;</a>
             </li>
             <!-- /ko -->
         </ul>
 
         <div class="input-with-button sort-by form-inline pull-right">
             <label class="control-label">Sort by</label>
-            <select data-bind="options: sortingOptions, value: filter.sortBy, event: { change: function() { setCookie('user-sort-by', filter.sortBy()); filter.page(1); getUsers(); } }" class="form-control"></select>
-            <button data-bind="click: function() { filter.descSort(!filter.descSort()); setCookie('user-desc-sort', filter.descSort()); filter.page(1); getUsers(); }, css: { 'glyphicon-sort-by-attributes': !filter.descSort(), 'glyphicon-sort-by-attributes-alt': filter.descSort() }" class="btn btn-default glyphicon"></button>
+            <select data-bind="value: filters.sortBy, options: sortingOptions" class="form-control"></select>
+            <button data-bind="click: function() { toggleSortingOrder(); }, css: { 'glyphicon-sort-by-attributes': !filters.descendingSort(), 'glyphicon-sort-by-attributes-alt': filters.descendingSort() }" class="btn btn-default glyphicon"></button>
         </div>
 
         <div class="users-list" data-bind="foreach: users">            
-            <div class="well" data-bind="click: function() { document.location.href = '/Users/Edit/' + UserId; }">
-                <p data-bind="html: $root.markSearch(FirstName + ' ' + LastName)"></p>
+            <div class="well" data-bind="click: function() { $root.goToUserDetails(UserId); }">
+                <p data-bind="html: $root.markSearchString(FirstName + ' ' + LastName)"></p>
                 <div class="row">
                     <div class="col-xs-6 col-sm-4">
-                        <p><span class="text-gray">Email:</span> <span class="value" data-bind="html: $root.markSearch(Email)"></span></p>
-                        <p><span class="text-gray">Phone:</span> <span class="value" data-bind="text: Phone"></span></p>
-                        <p><span class="text-gray">Mobile phone:</span> <span class="value" data-bind="text: MobilePhone"></span></p>
+                        <p><span class="text-gray">Email:</span> <span class="value" data-bind="html: $root.markSearchString(Email)"></span></p>
+                        <p><span class="text-gray">Phone:</span> <span class="value" data-bind="html: $root.markSearchString(Phone)"></span></p>
+                        <p><span class="text-gray">Mobile phone:</span> <span class="value" data-bind="html: $root.markSearchString(MobilePhone)"></span></p>
                     </div>
 
                     <div class="col-xs-6 col-sm-4">
-                        <p><span class="text-gray">Company:</span> <span class="value" data-bind="text: Company"></span></p>
-                        <p><span class="text-gray">Department:</span> <span class="value" data-bind="text: Department"></span></p>
+                        <p><span class="text-gray">Company:</span> <span class="value" data-bind="html: $root.markSearchString(Company)"></span></p>
+                        <p><span class="text-gray">Department:</span> <span class="value" data-bind="html: $root.markSearchString(Department)"></span></p>
                         <p><span class="text-gray">Role:</span> <span class="value" data-bind="text: Role"></span></p>
                     </div>
 
@@ -225,24 +211,24 @@
             </div>
         </div>
 
-        <ul data-bind="visible: pages().length >= 2, foreach: pages" class="pagination pull-left">
+        <ul data-bind="visible: pages().length > 1, foreach: pages" class="pagination pull-left">
             <!-- ko if: $data == $root.pages()[0] -->
             <li>
-                <a data-bind="click: function() { $root.filter.page(1); $root.getUsers(); }" href="#">&laquo;</a>
+                <a data-bind="click: function() { $root.changePageAndGetUsers(1); }" href="#">&laquo;</a>
             </li>
             <!-- /ko -->
 
-            <li data-bind="css: { active: $data == $root.filter.page() }">
-                <a data-bind="text: $data, click: function() { $root.filter.page($data); $root.getUsers(); }" href="#"></a>
+            <li data-bind="css: { active: $data == $root.filters.pageNumber() }">
+                <a data-bind="text: $data, click: function() { $root.changePageAndGetUsers($data) }" href="#"></a>
             </li>
 
             <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
             <li>
-                <a data-bind="click: function() { $root.filter.page($root.numberOfPages()); $root.getUsers(); }" href="#">&raquo;</a>
+                <a data-bind="click: function() { $root.changePageAndGetUsers($root.numberOfPages()) }" href="#">&raquo;</a>
             </li>
             <!-- /ko -->
         </ul>
 
-        <p class="pull-right result-info">Page <span data-bind="text: filter.page"></span> of <span data-bind="text: numberOfPages"></span> (<span data-bind="text: foundItemsCount"></span> item<span data-bind="visible: foundItemsCount() != 1">s</span> found of <span data-bind="text: totalItemsCount"></span> total)</p>
+        <p class="pull-right result-info">Page <span data-bind="text: filters.pageNumber"></span> of <span data-bind="text: numberOfPages"></span> (<span data-bind="text: foundItemsCount"></span> item<span data-bind="visible: foundItemsCount() != 1">s</span> found of <span data-bind="text: totalItemsCount"></span> total)</p>
     </div>
 </main>
