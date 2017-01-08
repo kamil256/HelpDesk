@@ -1,4 +1,6 @@
 ﻿using HelpDesk.DAL.Entities;
+using HelpDesk.UI.ViewModels.Categories;
+using HelpDesk.UI.ViewModels.Users;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,7 +26,7 @@ namespace HelpDesk.UI.ViewModels.Tickets
         [Required]
         public string Content { get; set; }
 
-        public User Requester { get; set; }
-        public IEnumerable<Category> Categories { get; set; }
+        public UserDTO Requester { get; set; }
+        public IEnumerable<CategoryDTO> Categories { get; set; }
     }
 }

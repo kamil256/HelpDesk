@@ -1,7 +1,5 @@
-﻿@using HelpDesk.UI.Infrastructure;
-
-@{
-    IdentityHelper identityHelper = new IdentityHelper();
+﻿@{
+    HelpDesk.UI.Infrastructure.IdentityHelper identityHelper = new HelpDesk.UI.Infrastructure.IdentityHelper();
 }
 
 <!DOCTYPE html>
@@ -14,7 +12,7 @@
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
-    
+
     @*<script src="~/Scripts/modernizr-2.6.2.js"></script>*@
     <script src="~/Scripts/jquery-1.12.4.min.js"></script>
     <script src="~/Scripts/jquery-ui-1.12.0.min.js"></script>
@@ -30,6 +28,21 @@
     <script src="https://www.amcharts.com/lib/3/pie.js"></script>
     <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
     <script src="~/Scripts/Common.js"></script>
+    <script>
+        $(document).ready(function()
+        {
+            @if (TempData["Success"] != null)
+            {
+                @: displayNewSuccessMessage('@(TempData["Success"])');
+            }
+            @if (TempData["Fail"] != null)
+            {
+                @: displayNewFailMessage('@(TempData["Fail"])');
+            }
+
+            $(window).scroll(function() { moveMessagesToTopUnderNavBar(); });
+        });
+    </script>
 </head>
 <body class="background-gray">
     @if (User.Identity.IsAuthenticated)
@@ -87,95 +100,6 @@
 
     <div id="messages">
     </div>
-
-    <script>
-        $(document).ready(function()
-        {
-            @if (TempData["Success"] != null)
-            {
-                @: displayNewSuccessMessage('@(TempData["Success"])');
-            }
-            @if (TempData["Fail"] != null)
-            {
-                @: displayNewFailMessage('@(TempData["Fail"])');
-            }
-
-            $(window).scroll(function()
-            {
-                if ($(window).scrollTop() > 52)
-                    $('#messages').css(
-                    {
-                        'position': 'fixed',
-                        'top': '0'
-                    });
-                else
-                    $('#messages').css(
-                    {
-                        'position': 'absolute',
-                        'top': '52px'
-                    });
-            });
-        });
-
-        function displayNewSuccessMessage(messageText)
-        {
-            displayNewMessage(messageText, 'success');
-        }
-
-        function displayNewFailMessage(messageText)
-        {
-            displayNewMessage(messageText, 'fail');
-        }
-
-        function displayNewMessage(messageText, messageType)
-        {
-            var closeButton = $('<a></a>');
-            closeButton.addClass('close');
-            closeButton.attr(
-            {
-                'href': '#',
-                'aria-label': 'close'
-            });
-            closeButton.click(function()
-            {
-                alert.hide('slow');
-            });
-            closeButton.html("&times;");
-
-            var icon = $('<span></span>');
-            icon.addClass('glyphicon');
-            if (messageType === 'success')
-                icon.addClass('glyphicon-info-sign');
-            if (messageType === 'fail')
-                icon.addClass('glyphicon-exclamation-sign');
-
-            var alert = $('<div></div>');
-            alert.addClass('alert');
-            if (messageType === 'success')
-                alert.addClass('alert-success');
-            if (messageType === 'fail')
-                alert.addClass('alert-danger');
-            alert.append(closeButton, icon, ' ' + messageText);
-
-            $('#messages').append(alert);
-            alert.show('slow');
-            setTimeout(function() { $(alert).hide('slow') }, 10000);
-        }
-
-        var numberOfSentAjaxRequests = 0;
-
-        function showProgressIndicator()
-        {
-            if (numberOfSentAjaxRequests++ === 0)
-                $('#progressIndicator').show();
-        }
-
-        function hideProgressIndicator()
-        {
-            if (--numberOfSentAjaxRequests === 0)
-                $('#progressIndicator').hide();
-        }
-    </script>
 
     @RenderBody()
         

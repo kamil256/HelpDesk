@@ -8,184 +8,6 @@
     int MaximumCategoriesCount = Math.Max(Model.CurrentMonthTicketsByCategoryCounts.Count, Math.Max(Model.LastMonthTicketsByCategoryCounts.Count, Model.MonthBeforeLastTicketsByCategoryCounts.Count));
 }
 
-<script>
-    AmCharts.addInitHandler(function(chart) { setSerialChartWidth(chart) }, ['serial']);
-
-    var setSerialChartWidth = function(chart)
-    {
-        var categoryWidth = 40;
-        var chartWidth = categoryWidth * chart.dataProvider.length;
-        chart.div.style.height = 90 + 1.22 * chartWidth + 'px';
-    };
-
-    var pieChart =
-    {
-        "startDuration": 0,
-        "autoMargins": false,
-        "marginTop": "0",
-        "marginBottom": "0",
-        "marginLeft": "0",
-        "marginRight": "0",
-        "pullOutRadius": "0",
-        "type": "pie",
-        "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
-        "innerRadius": "60%",
-        "labelsEnabled": false,
-        "colors": [
-            "orangered",
-            "dodgerblue",
-            "forestgreen",
-            "#555"
-        ],
-        "titleField": "category",
-        "valueField": "column-1",
-        "allLabels": [],
-        "balloon": {},
-        "legend": {
-            "enabled": true,
-            "align": "center",
-            "markerType": "circle"
-        },
-        "titles": []
-    };
-
-    var pieChart1 = AmCharts.makeChart("pieChart1", JSON.parse(JSON.stringify(pieChart)));
-    pieChart1.dataProvider =
-    [
-        {
-            "category": "New",
-            "column-1": '@Model.Last7DaysTicketsByStatusCounts["New"]'
-        },
-        {
-            "category": "In progress",
-            "column-1": '@Model.Last7DaysTicketsByStatusCounts["In progress"]'
-        },
-        {
-            "category": "Solved",
-            "column-1": '@Model.Last7DaysTicketsByStatusCounts["Solved"]'
-        },
-        {
-            "category": "Closed",
-            "column-1": '@Model.Last7DaysTicketsByStatusCounts["Closed"]'
-        }
-    ];
-
-    var pieChart2 = AmCharts.makeChart("pieChart2", JSON.parse(JSON.stringify(pieChart)));
-    pieChart2.dataProvider =
-    [
-        {
-            "category": "New",
-            "column-1": '@Model.Last30DaysTicketsByStatusCounts["New"]'
-        },
-        {
-            "category": "In progress",
-            "column-1": '@Model.Last30DaysTicketsByStatusCounts["In progress"]'
-        },
-        {
-            "category": "Solved",
-            "column-1": '@Model.Last30DaysTicketsByStatusCounts["Solved"]'
-        },
-        {
-            "category": "Closed",
-            "column-1": '@Model.Last30DaysTicketsByStatusCounts["Closed"]'
-        }
-    ];
-
-    var pieChart3 = AmCharts.makeChart("pieChart3", JSON.parse(JSON.stringify(pieChart)));
-    pieChart3.dataProvider =
-    [
-        {
-            "category": "New",
-            "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["New"]'
-        },
-        {
-            "category": "In progress",
-            "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["In progress"]'
-        },
-        {
-            "category": "Solved",
-            "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["Solved"]'
-        },
-        {
-            "category": "Closed",
-            "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["Closed"]'
-        }
-    ];
-
-    var serialChart =
-    {
-        "type": "serial",
-        "rotate": true,
-        "theme": "light",
-        "dataProvider": [],
-        "valueAxes":
-        [{
-            "axisAlpha": 0,
-            "position": "left",
-            "showFirstLabel": false
-        }],
-        "startDuration": 0,
-        "graphs":
-        [{
-            "balloonText": "<b>[[value]]</b>",
-            "fillAlphas": 0.9,
-            "lineAlpha": 0.2,
-            "type": "column",
-            "valueField": "tickets"
-        }],
-        "chartCursor":
-        {
-            "categoryBalloonEnabled": false,
-            "cursorAlpha": 0,
-            "zoomable": false
-        },
-        "categoryField": "category",
-        "categoryAxis":
-        {
-            "gridPosition": "start",
-            "inside": true
-        },
-        "titles":
-        [{
-            "id": "Title-1",
-            "size": 15
-        }]
-    };
-
-    var serialChart1 = AmCharts.makeChart("serialChart1", JSON.parse(JSON.stringify(serialChart)));
-    serialChart1.titles[0].text = "@Model.CurrentMonthName @Model.YearInCurrentMonth";
-    @while (Model.CurrentMonthTicketsByCategoryCounts.Count < MaximumCategoriesCount)
-    {
-        Model.CurrentMonthTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
-    }
-    @foreach (var x in Model.CurrentMonthTicketsByCategoryCounts)
-    {
-        @: serialChart1.dataProvider.push({ category: "@x.Name", tickets: "@x.TicketsCount", color: "red" });
-    }
-
-    var serialChart2 = AmCharts.makeChart("serialChart2", JSON.parse(JSON.stringify(serialChart)));
-    serialChart2.titles[0].text = "@Model.LastMonthName @Model.YearInLastMonth";
-    @while (Model.LastMonthTicketsByCategoryCounts.Count < MaximumCategoriesCount)
-    {
-        Model.LastMonthTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
-    }
-    @foreach (var x in Model.LastMonthTicketsByCategoryCounts)
-    {
-        @: serialChart2.dataProvider.push({ category: "@x.Name", tickets: "@x.TicketsCount", color: "red" });
-    }
-
-    var serialChart3 = AmCharts.makeChart("serialChart3", JSON.parse(JSON.stringify(serialChart)));
-    serialChart3.titles[0].text = "@Model.MonthBeforeLastName @Model.YearInMonthBeforeLast";
-    @while (Model.MonthBeforeLastTicketsByCategoryCounts.Count < MaximumCategoriesCount)
-    {
-        Model.MonthBeforeLastTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
-    }
-    @foreach (var x in Model.MonthBeforeLastTicketsByCategoryCounts)
-    {
-        @: serialChart3.dataProvider.push({ category: "@x.Name", tickets: "@x.TicketsCount", color: "red" });
-    }
-</script>
-
 <header>
     <h1>@ViewBag.Title</h1>
 </header>
@@ -337,3 +159,184 @@
         </div>
     </div>
 </main>
+
+<script>
+    $(document).ready(function()
+    {
+        AmCharts.addInitHandler(function(chart) { setSerialChartWidth(chart) }, ['serial']);
+
+        var setSerialChartWidth = function(chart)
+        {
+            var categoryWidth = 40;
+            var chartWidth = categoryWidth * chart.dataProvider.length;
+            chart.div.style.height = 90 + 1.22 * chartWidth + 'px';
+        };
+
+        var pieChart =
+        {
+            "startDuration": 0,
+            "autoMargins": false,
+            "marginTop": "0",
+            "marginBottom": "0",
+            "marginLeft": "0",
+            "marginRight": "0",
+            "pullOutRadius": "0",
+            "type": "pie",
+            "balloonText": "[[title]]<br><span style='font-size:14px'>[[percents]]%</span>",
+            "innerRadius": "60%",
+            "labelsEnabled": false,
+            "colors": [
+                "orangered",
+                "dodgerblue",
+                "forestgreen",
+                "#555"
+            ],
+            "titleField": "category",
+            "valueField": "column-1",
+            "allLabels": [],
+            "balloon": {},
+            "legend": {
+                "enabled": true,
+                "align": "center",
+                "markerType": "circle"
+            },
+            "titles": []
+        };
+
+        var pieChart1 = AmCharts.makeChart("pieChart1", JSON.parse(JSON.stringify(pieChart)));
+        pieChart1.dataProvider =
+        [
+            {
+                "category": "New",
+                "column-1": '@Model.Last7DaysTicketsByStatusCounts["New"]'
+            },
+            {
+                "category": "In progress",
+                "column-1": '@Model.Last7DaysTicketsByStatusCounts["In progress"]'
+            },
+            {
+                "category": "Solved",
+                "column-1": '@Model.Last7DaysTicketsByStatusCounts["Solved"]'
+            },
+            {
+                "category": "Closed",
+                "column-1": '@Model.Last7DaysTicketsByStatusCounts["Closed"]'
+            }
+        ];
+
+        var pieChart2 = AmCharts.makeChart("pieChart2", JSON.parse(JSON.stringify(pieChart)));
+        pieChart2.dataProvider =
+        [
+            {
+                "category": "New",
+                "column-1": '@Model.Last30DaysTicketsByStatusCounts["New"]'
+            },
+            {
+                "category": "In progress",
+                "column-1": '@Model.Last30DaysTicketsByStatusCounts["In progress"]'
+            },
+            {
+                "category": "Solved",
+                "column-1": '@Model.Last30DaysTicketsByStatusCounts["Solved"]'
+            },
+            {
+                "category": "Closed",
+                "column-1": '@Model.Last30DaysTicketsByStatusCounts["Closed"]'
+            }
+        ];
+
+        var pieChart3 = AmCharts.makeChart("pieChart3", JSON.parse(JSON.stringify(pieChart)));
+        pieChart3.dataProvider =
+        [
+            {
+                "category": "New",
+                "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["New"]'
+            },
+            {
+                "category": "In progress",
+                "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["In progress"]'
+            },
+            {
+                "category": "Solved",
+                "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["Solved"]'
+            },
+            {
+                "category": "Closed",
+                "column-1": '@Model.OlderThan30DaysTicketsByStatusCounts["Closed"]'
+            }
+        ];
+
+        var serialChart =
+        {
+            "type": "serial",
+            "rotate": true,
+            "theme": "light",
+            "dataProvider": [],
+            "valueAxes":
+            [{
+                "axisAlpha": 0,
+                "position": "left",
+                "showFirstLabel": false
+            }],
+            "startDuration": 0,
+            "graphs":
+            [{
+                "balloonText": "<b>[[value]]</b>",
+                "fillAlphas": 0.9,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "valueField": "tickets"
+            }],
+            "chartCursor":
+            {
+                "categoryBalloonEnabled": false,
+                "cursorAlpha": 0,
+                "zoomable": false
+            },
+            "categoryField": "category",
+            "categoryAxis":
+            {
+                "gridPosition": "start",
+                "inside": true
+            },
+            "titles":
+            [{
+                "id": "Title-1",
+                "size": 15
+            }]
+        };
+
+        var serialChart1 = AmCharts.makeChart("serialChart1", JSON.parse(JSON.stringify(serialChart)));
+        serialChart1.titles[0].text = "@Model.CurrentMonthName @Model.YearInCurrentMonth";
+        @while (Model.CurrentMonthTicketsByCategoryCounts.Count < MaximumCategoriesCount)
+        {
+            Model.CurrentMonthTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
+        }
+        @foreach (var x in Model.CurrentMonthTicketsByCategoryCounts)
+        {
+            @: serialChart1.dataProvider.push({ category: "@x.Name", tickets: "@x.TicketsCount", color: "red" });
+        }
+
+        var serialChart2 = AmCharts.makeChart("serialChart2", JSON.parse(JSON.stringify(serialChart)));
+        serialChart2.titles[0].text = "@Model.LastMonthName @Model.YearInLastMonth";
+        @while (Model.LastMonthTicketsByCategoryCounts.Count < MaximumCategoriesCount)
+        {
+            Model.LastMonthTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
+        }
+        @foreach (var x in Model.LastMonthTicketsByCategoryCounts)
+        {
+            @: serialChart2.dataProvider.push({ category: "@x.Name", tickets: "@x.TicketsCount", color: "red" });
+        }
+
+        var serialChart3 = AmCharts.makeChart("serialChart3", JSON.parse(JSON.stringify(serialChart)));
+        serialChart3.titles[0].text = "@Model.MonthBeforeLastName @Model.YearInMonthBeforeLast";
+        @while (Model.MonthBeforeLastTicketsByCategoryCounts.Count < MaximumCategoriesCount)
+        {
+            Model.MonthBeforeLastTicketsByCategoryCounts.Add(new HelpDesk.UI.ViewModels.Home.IndexViewModel.Category { Name = "", TicketsCount = 0 });
+        }
+        @foreach (var x in Model.MonthBeforeLastTicketsByCategoryCounts)
+        {
+            @: serialChart3.dataProvider.push({ category: "@x.Name", tickets: "@x.TicketsCount", color: "red" });
+        }
+    });
+</script>

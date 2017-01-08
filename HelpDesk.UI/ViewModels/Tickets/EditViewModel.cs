@@ -1,4 +1,5 @@
 ﻿using HelpDesk.DAL.Entities;
+using HelpDesk.UI.ViewModels.Users;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -37,7 +38,7 @@ namespace HelpDesk.UI.ViewModels.Tickets
 
         [DisplayName("Creator")]
         public User Creator { get; set; }        
-        public User Requester { get; set; }
+        public UserDTO Requester { get; set; }
 
         // TODO: is displayname attribute necessary?
         [DisplayName("Assigned user")]

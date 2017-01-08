@@ -1,103 +1,9 @@
-﻿@using HelpDesk.UI.Infrastructure;
-
-@model HelpDesk.UI.ViewModels.Tickets.EditViewModel
+﻿@model HelpDesk.UI.ViewModels.Tickets.EditViewModel
 
 @{
     ViewBag.Title = "Ticket details";
-    IdentityHelper identityHelper = new IdentityHelper();
+    HelpDesk.UI.Infrastructure.IdentityHelper identityHelper = new HelpDesk.UI.Infrastructure.IdentityHelper();
 }
-
-<script>
-    function sendAjaxRequest(url, method, data, onSuccess)
-    {
-        $.ajax(url,
-        {
-            type: method,
-            data: data,
-            success: function(response)
-            {
-                if (response.Success)
-                    displayNewSuccessMessage(response.Success);
-                if (response.Fail)
-                    displayNewFailMessage(response.Fail);
-                onSuccess(response);
-            },
-            error: function()
-            {
-                displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-            },
-            beforeSend: showProgressIndicator,
-            complete: hideProgressIndicator
-        });
-    }
-
-    function TicketsViewModel()
-    {
-        var self = this;
-
-        self.requester =
-        {
-            UserId: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.Id}'") : null)),
-            FirstName: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.FirstName}'") : null)),
-            LastName: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.LastName}'") : null)),
-            Email: ko.observable(@(Model.Requester != null ? Html.Raw($"'{@Model.Requester.Email}'") : null))
-        };
-
-        self.requesterNameAndEmail = ko.computed(function()
-        {
-            return self.requester.UserId() ? self.requester.FirstName() + " " + self.requester.LastName() + " (" + self.requester.Email() + ")" : "-";
-        });
-
-        self.searchedUser = ko.observable("");
-        self.users = ko.observableArray([]);
-        self.numberOfUsersToDisplay = ko.computed(function()
-        {
-            return self.users().length;
-        });
-        self.numberOfUsersFound = ko.observable(0);
-        self.selectedUser = ko.observable();
-        self.getUsers = function()
-        {
-            var data =
-            {
-                search: self.searchedUser(),
-                advancedSearch: false,
-                page: 1,
-                usersPerPage: 1
-            };
-            var onSuccess = function(response)
-            {
-                self.users(response.Users);
-                self.numberOfUsersFound(response.NumberOfUsersFound);
-            };
-            sendAjaxRequest("/api/Users", "GET", data, onSuccess);
-        };
-
-        self.changeRequester = function()
-        {
-            if (self.selectedUser())
-            {
-                self.requester.UserId(self.selectedUser().UserId);
-                self.requester.FirstName(self.selectedUser().FirstName);
-                self.requester.LastName(self.selectedUser().LastName);
-                self.requester.Email(self.selectedUser().Email);
-            }
-            else
-            {
-                self.requester.UserId(null);
-                self.requester.FirstName(null);
-                self.requester.LastName(null);
-                self.requester.Email(null);
-            }
-        }
-    }
-
-    $(document).ready(function()
-    {
-        ko.applyBindings(new TicketsViewModel());
-
-    });
-</script>
 
 <header>
     <h1>@ViewBag.Title</h1>
@@ -154,11 +60,11 @@
 
                     <div class="form-group">
                         @Html.LabelFor(model => model.RequesterId, new { @class = "control-label col-sm-3" })
-                        <input type="hidden" name="RequesterId" data-bind="value: requester.UserId" />
+                        <input type="hidden" name="RequesterId" data-bind="value: requester() ? requester().UserId : null" />
                         <div class="col-sm-8 input-with-button">
                             <div class="input-with-button">
                                 <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
-                                <button type="button" data-bind="click: function(data, event) { $('#change-requester-dialog').modal('show'); }" class="btn btn-default glyphicon glyphicon-search"></button>
+                                <button type="button" data-bind="click: function() { $('#change-requester-dialog').modal('show'); }" class="btn btn-default glyphicon glyphicon-search"></button>
                             </div>
                             @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
                         </div>
@@ -203,10 +109,11 @@
                         @Html.LabelFor(model => model.CategoryId, new { @class = "control-label col-sm-3" })
                         <div class="col-sm-8">
                             @Html.DropDownListFor(
-                    expression: model => model.CategoryId,
-                    selectList: new SelectList(Model.Categories.Select(c => new { CategoryId = c.CategoryId, Name = c.Name }), "CategoryId", "Name"),
-                    optionLabel: "-",
-                    htmlAttributes: new { @class = "form-control" })
+                                expression: model => model.CategoryId,
+                                selectList: new SelectList(Model.Categories, "CategoryId", "Name"),
+                                optionLabel: "-",
+                                htmlAttributes: new { @class = "form-control" }
+                            )
                             @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
                         </div>
                     </div>
@@ -268,26 +175,23 @@
 
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="control-label">Find user by name or email</label>
+                    <label class="control-label">Find users</label>
                     <div class="input-with-button">
-                        <input data-bind="value: searchedUser" class="form-control" />
-                        <button data-bind="click: getUsers" class="btn btn-default">
-                            <span class="glyphicon glyphicon-search"></span>
-                        </button>
+                        <input data-bind="textInput: searchString, event: { keypress: searchTicketsWhenEnterKeyPressed }" class="form-control" />
+                        <button data-bind="click: searchTicketsAndFocusTheInput" class="btn btn-default glyphicon glyphicon-search"></button>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Select user</label>
-                    <select size="10" data-bind="options: users, value: selectedUser, optionsText: function(item) { return item.FirstName + ' ' + item.LastName + ' (' + item.Email + ')' }, optionsCaption: '-'" class="form-control"></select>
-                    <img id="change-requestor-img" src="http://i.stack.imgur.com/r6tWv.gif" style="display: none" />
+                    <select size="10" data-bind="options: foundUsers, value: selectedUser, optionsText: function(item) { return item.FirstName + ' ' + item.LastName + ' (' + item.Email + ')' }, optionsCaption: '-'" class="form-control"></select>
                 </div>
 
-                <p>Displaying <span data-bind="text: numberOfUsersToDisplay"></span> users of <span data-bind="text: numberOfUsersFound"></span> found</p>
+                <p>Displaying <span data-bind="text: foundUsers().length"></span> users of <span data-bind="text: totalNumberOfFoundUsers"></span> found</p>
             </div>
 
             <div class="modal-footer">
-                <input data-bind="click: function() { changeRequester(); }" data-dismiss="modal" type="submit" value="Ok" class="btn btn-primary" /><input data-dismiss="modal" type="button" value="Cancel" class="btn btn-default" />
+                <input data-bind="click: function() { requester(selectedUser()); }" data-dismiss="modal" type="submit" value="Ok" class="btn btn-primary" /><input data-dismiss="modal" type="button" value="Cancel" class="btn btn-default" />
             </div>
         </div>
     </div>
@@ -319,3 +223,74 @@
         </div>
     </div>
 }
+
+<script>
+    function EditTicketViewModel()
+    {
+        var self = this;
+
+        self.requester = ko.observable(@Html.Raw(Json.Encode(@Model.Requester)));
+        self.searchString = ko.observable('');
+        self.selectedUser = ko.observable();
+        self.foundUsers = ko.observableArray([]);
+        self.totalNumberOfFoundUsers = ko.observable(0);
+
+        self.requesterNameAndEmail = ko.computed(function()
+        {
+            return self.requester() ? self.requester().FirstName + " " + self.requester().LastName + " (" + self.requester().Email + ")" : "-";
+        });
+
+        self.searchString.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 500 } });
+
+        self.searchString.subscribe(function()
+        {
+            self.getUsers();
+        });
+
+        self.getUsers = function()
+        {
+            if (!self.searchString().trim())
+            {
+                self.foundUsers([]);
+                self.totalNumberOfFoundUsers(0);
+            }
+            else
+            {
+                var data =
+                {
+                    search: self.searchString().trim(),
+                    sortBy: 'First name',
+                    descSort: false,
+                    page: 1,
+                    usersPerPage: 10
+                };
+                var onSuccess = function(response)
+                {
+                    self.foundUsers(response.Users);
+                    self.totalNumberOfFoundUsers(response.FoundItemsCount);
+                };
+                sendAjaxRequest("/api/Users", "GET", data, onSuccess);
+            }
+        };
+
+        self.searchTicketsWhenEnterKeyPressed = function(data, event)
+        {
+            if (event.keyCode === 13 || event.which === 13)
+                self.getUsers();
+            else
+                return true;
+        };
+
+        self.searchTicketsAndFocusTheInput = function(data, event)
+        {
+            self.getUsers();
+            $(event.target).prev().focus();
+        };
+    }
+
+    $(document).ready(function()
+    {
+        ko.applyBindings(new EditTicketViewModel());
+
+    });
+</script>

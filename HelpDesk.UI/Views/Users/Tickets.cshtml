@@ -5,170 +5,6 @@
     HelpDesk.UI.Infrastructure.IdentityHelper identityHelper = new HelpDesk.UI.Infrastructure.IdentityHelper();
 }
 
-<script>
-    function TicketsViewModel()
-    {
-        var self = this;
-
-        self.tickets = ko.observableArray([]);
-
-        self.administrators = ko.observableArray(@Html.Raw(Json.Encode(@Model.Administrators)));
-        self.numberOfPages = ko.observable();
-        self.foundItemsCount = ko.observable();
-        self.totalItemsCount = ko.observable();
-        self.currentTicketId = ko.observable();
-        self.currentUserId = ko.observable('@identityHelper.CurrentUser.Id');
-        self.solution = ko.observable('');
-
-        self.filters =
-        {
-            pageNumber: ko.observable(1)
-        };
-
-        self.pages = ko.computed(function()
-        {
-            var pages = [];
-
-            var leftBound = self.filters.pageNumber() - 2;
-            var rightBound = self.filters.pageNumber() + 2;
-            while (leftBound < 1)
-            {
-                leftBound++;
-                rightBound++;
-            }
-            while (rightBound > self.numberOfPages())
-            {
-                rightBound--;
-                if (leftBound > 1)
-                    leftBound--;
-            }
-            for (var i = leftBound; i <= rightBound; i++)
-                pages.push(i);
-
-            return pages;
-        });
-
-        self.getTickets = function()
-        {
-            var data =
-            {
-                userId: '@Model.UserId',
-                status: null,
-                assignedToId: null,
-                categoryId: null,
-                search: null,
-                advancedSearch: false,
-                sortBy: 'Date',
-                descSort: true,
-                page: self.filters.pageNumber()
-            };
-            var onSuccess = function(response)
-            {
-                if (response.NumberOfPages != 0 && self.filters.pageNumber() > response.NumberOfPages)
-                    self.changePageAndGetTickets(response.NumberOfPages);
-                else
-                {
-                    self.tickets(response.Tickets);
-                    self.numberOfPages(response.NumberOfPages);
-                    self.foundItemsCount(response.FoundItemsCount);
-                    self.totalItemsCount(response.TotalItemsCount);
-                }
-            };
-            sendAjaxRequest("/api/Tickets", "GET", data, onSuccess);
-        };
-
-        self.changePageAndGetTickets = function(pageNumber)
-        {
-            self.filters.pageNumber(pageNumber);
-            self.getTickets();
-        };
-
-        self.goToTicketDetails = function(id)
-        {
-            document.location.href = '/Tickets/Edit/' + id;
-        };
-
-        self.goToUserDetails = function(id)
-        {
-            document.location.href = '/Users/Edit/' + id;
-        };
-
-        self.assignUser = function(ticket)
-        {
-            if (!$('#assign-user-dialog').is(':visible'))
-            {
-                self.currentTicketId(ticket.TicketId);
-                $('#assign-user-dialog').modal('show');
-            }
-            else
-            {
-                var data =
-                {
-                    ticketId: self.currentTicketId(),
-                    userId: self.currentUserId()
-                };
-                var onSuccess = function()
-                {
-                    self.getTickets();
-                }
-                sendAjaxRequest("/Tickets/AssignUserToTicket", "POST", data, onSuccess);
-            }
-        };
-
-        self.solveTicket = function(ticket)
-        {
-            if (!$('#solve-ticket-dialog').is(':visible'))
-            {
-                self.currentTicketId(ticket.TicketId);
-                self.solution(ticket. Solution);
-                $('#solve-ticket-dialog').modal('show');
-            }
-            else
-            {
-                var data =
-                {
-                    ticketId: self.currentTicketId(),
-                    userId: self.currentUserId(),
-                    solution: self.solution()
-                };
-                var onSuccess = function()
-                {
-                    self.getTickets();
-                };
-                sendAjaxRequest("/Tickets/SolveTicket", "POST", data, onSuccess);
-            }
-        };
-
-        self.closeTicket = function(ticket)
-        {
-            if (!$('#close-ticket-dialog').is(':visible'))
-            {
-                self.currentTicketId(ticket.TicketId);
-                $('#close-ticket-dialog').modal('show');
-            }
-            else
-            {
-                var data =
-                {
-                    ticketId: self.currentTicketId()
-                };
-                var onSuccess = function()
-                {
-                    self.getTickets();
-                }
-                sendAjaxRequest("/Tickets/CloseTicket", "POST", data, onSuccess);
-            }
-        };
-
-        self.getTickets();
-    }
-
-    $(document).ready(function()
-    {
-        ko.applyBindings(new TicketsViewModel());
-    });
-</script>
-
 <header>
     <h1>@ViewBag.Title</h1>
 </header>
@@ -338,3 +174,167 @@
     </div>
     <!-- /ko -->
 }
+
+<script>
+    function TicketsListViewModel()
+    {
+        var self = this;
+
+        self.tickets = ko.observableArray([]);
+
+        self.administrators = ko.observableArray(@Html.Raw(Json.Encode(@Model.Administrators)));
+        self.numberOfPages = ko.observable();
+        self.foundItemsCount = ko.observable();
+        self.totalItemsCount = ko.observable();
+        self.currentTicketId = ko.observable();
+        self.currentUserId = ko.observable('@identityHelper.CurrentUser.Id');
+        self.solution = ko.observable('');
+
+        self.filters =
+        {
+            pageNumber: ko.observable(1)
+        };
+
+        self.pages = ko.computed(function()
+        {
+            var pages = [];
+
+            var leftBound = self.filters.pageNumber() - 2;
+            var rightBound = self.filters.pageNumber() + 2;
+            while (leftBound < 1)
+            {
+                leftBound++;
+                rightBound++;
+            }
+            while (rightBound > self.numberOfPages())
+            {
+                rightBound--;
+                if (leftBound > 1)
+                    leftBound--;
+            }
+            for (var i = leftBound; i <= rightBound; i++)
+                pages.push(i);
+
+            return pages;
+        });
+
+        self.getTickets = function()
+        {
+            var data =
+            {
+                userId: '@Model.UserId',
+                status: null,
+                assignedToId: null,
+                categoryId: null,
+                search: null,
+                advancedSearch: false,
+                sortBy: 'Date',
+                descSort: true,
+                page: self.filters.pageNumber()
+            };
+            var onSuccess = function(response)
+            {
+                if (response.NumberOfPages != 0 && self.filters.pageNumber() > response.NumberOfPages)
+                    self.changePageAndGetTickets(response.NumberOfPages);
+                else
+                {
+                    self.tickets(response.Tickets);
+                    self.numberOfPages(response.NumberOfPages);
+                    self.foundItemsCount(response.FoundItemsCount);
+                    self.totalItemsCount(response.TotalItemsCount);
+                }
+            };
+            sendAjaxRequest("/api/Tickets", "GET", data, onSuccess);
+        };
+
+        self.changePageAndGetTickets = function(pageNumber)
+        {
+            self.filters.pageNumber(pageNumber);
+            self.getTickets();
+        };
+
+        self.goToTicketDetails = function(id)
+        {
+            document.location.href = '/Tickets/Edit/' + id;
+        };
+
+        self.goToUserDetails = function(id)
+        {
+            document.location.href = '/Users/Edit/' + id;
+        };
+
+        self.assignUser = function(ticket)
+        {
+            if (!$('#assign-user-dialog').is(':visible'))
+            {
+                self.currentTicketId(ticket.TicketId);
+                $('#assign-user-dialog').modal('show');
+            }
+            else
+            {
+                var data =
+                {
+                    ticketId: self.currentTicketId(),
+                    userId: self.currentUserId()
+                };
+                var onSuccess = function()
+                {
+                    self.getTickets();
+                }
+                sendAjaxRequest("/Tickets/AssignUserToTicket", "POST", data, onSuccess);
+            }
+        };
+
+        self.solveTicket = function(ticket)
+        {
+            if (!$('#solve-ticket-dialog').is(':visible'))
+            {
+                self.currentTicketId(ticket.TicketId);
+                self.solution(ticket. Solution);
+                $('#solve-ticket-dialog').modal('show');
+            }
+            else
+            {
+                var data =
+                {
+                    ticketId: self.currentTicketId(),
+                    userId: self.currentUserId(),
+                    solution: self.solution()
+                };
+                var onSuccess = function()
+                {
+                    self.getTickets();
+                };
+                sendAjaxRequest("/Tickets/SolveTicket", "POST", data, onSuccess);
+            }
+        };
+
+        self.closeTicket = function(ticket)
+        {
+            if (!$('#close-ticket-dialog').is(':visible'))
+            {
+                self.currentTicketId(ticket.TicketId);
+                $('#close-ticket-dialog').modal('show');
+            }
+            else
+            {
+                var data =
+                {
+                    ticketId: self.currentTicketId()
+                };
+                var onSuccess = function()
+                {
+                    self.getTickets();
+                }
+                sendAjaxRequest("/Tickets/CloseTicket", "POST", data, onSuccess);
+            }
+        };
+
+        self.getTickets();
+    }
+
+    $(document).ready(function()
+    {
+        ko.applyBindings(new TicketsListViewModel());
+    });
+</script>

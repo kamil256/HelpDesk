@@ -1,88 +1,9 @@
-﻿@using HelpDesk.UI.Infrastructure;
-
-@model HelpDesk.UI.ViewModels.Settings.IndexViewModel
+﻿@model HelpDesk.UI.ViewModels.Settings.IndexViewModel
 
 @{
     ViewBag.Title = "Settings";
-    IdentityHelper identityHelper = new IdentityHelper();
+    HelpDesk.UI.Infrastructure.IdentityHelper identityHelper = new HelpDesk.UI.Infrastructure.IdentityHelper();
 }
-
-<script>
-
-var settingsViewModel = function()
-{
-    var self = this;
-
-    self.usersPerPage = ko.observable(@Model.UsersPerPage);
-    self.ticketsPerPage = ko.observable(@Model.TicketsPerPage);
-
-    self.decrementUsersPerPage = function(data, event)
-    {
-        event.preventDefault();
-        if (isNaN(self.usersPerPage()))
-            self.usersPerPage(10);
-        if (self.usersPerPage() > 1)
-            self.usersPerPage(self.usersPerPage() - 1);
-    };
-
-    self.incrementUsersPerPage = function(data, event)
-    {
-        event.preventDefault();
-        if (isNaN(self.usersPerPage()))
-            self.usersPerPage(10);
-        self.usersPerPage(self.usersPerPage() + 1);
-    };
-
-    self.decrementTicketsPerPage = function(data, event)
-    {
-        event.preventDefault();
-        if (isNaN(self.ticketsPerPage()))
-            self.ticketsPerPage(10);
-        if (self.ticketsPerPage() > 1)
-            self.ticketsPerPage(self.ticketsPerPage() - 1);
-    };
-
-    self.incrementTicketsPerPage = function(data, event)
-    {
-        event.preventDefault();
-        if (isNaN(self.ticketsPerPage()))
-            self.ticketsPerPage(10);
-        self.ticketsPerPage(self.ticketsPerPage() + 1);
-    };
-
-    self.preventTextHighlightOnMouseDown = function(event)
-    {
-        event.preventDefault();
-    };
-
-    self.categories = ko.observableArray([]);
-
-    @foreach (var category in Model.Categories)
-    {
-        @: self.categories.push({ categoryId: '@category.CategoryId', name: '@category.Name' });
-    }
-
-    self.newCategoryName = ko.observable('');
-
-    self.addCategory = function()
-    {
-        self.categories.push({ categoryId: 0, name: self.newCategoryName() });
-        self.newCategoryName('');
-    }
-
-    self.removeCategory = function(index)
-    {
-        self.categories.splice(index, 1);
-    };
-};
-
-$(document).ready(function()
-{
-    ko.applyBindings(new settingsViewModel());
-    $("#sortable-categories").sortable({ cancel: "input,span.glyphicon-remove,span.glyphicon-plus" });
-});
-
-</script>
 
 <header>
     <h1>@ViewBag.Title</h1>
@@ -208,3 +129,78 @@ $(document).ready(function()
         </div>
     </div>
 </main>
+
+<script>
+    function SettingsViewModel()
+    {
+        var self = this;
+
+        self.usersPerPage = ko.observable(@Model.UsersPerPage);
+        self.ticketsPerPage = ko.observable(@Model.TicketsPerPage);
+
+        self.decrementUsersPerPage = function(data, event)
+        {
+            event.preventDefault();
+            if (isNaN(self.usersPerPage()))
+                self.usersPerPage(10);
+            if (self.usersPerPage() > 1)
+                self.usersPerPage(self.usersPerPage() - 1);
+        };
+
+        self.incrementUsersPerPage = function(data, event)
+        {
+            event.preventDefault();
+            if (isNaN(self.usersPerPage()))
+                self.usersPerPage(10);
+            self.usersPerPage(self.usersPerPage() + 1);
+        };
+
+        self.decrementTicketsPerPage = function(data, event)
+        {
+            event.preventDefault();
+            if (isNaN(self.ticketsPerPage()))
+                self.ticketsPerPage(10);
+            if (self.ticketsPerPage() > 1)
+                self.ticketsPerPage(self.ticketsPerPage() - 1);
+        };
+
+        self.incrementTicketsPerPage = function(data, event)
+        {
+            event.preventDefault();
+            if (isNaN(self.ticketsPerPage()))
+                self.ticketsPerPage(10);
+            self.ticketsPerPage(self.ticketsPerPage() + 1);
+        };
+
+        self.preventTextHighlightOnMouseDown = function(event)
+        {
+            event.preventDefault();
+        };
+
+        self.categories = ko.observableArray([]);
+
+        @foreach (var category in Model.Categories)
+        {
+            @: self.categories.push({ categoryId: '@category.CategoryId', name: '@category.Name' });
+        }
+
+        self.newCategoryName = ko.observable('');
+
+        self.addCategory = function()
+        {
+            self.categories.push({ categoryId: 0, name: self.newCategoryName() });
+            self.newCategoryName('');
+        };
+
+        self.removeCategory = function(index)
+        {
+            self.categories.splice(index, 1);
+        };
+    }
+
+    $(document).ready(function()
+    {
+        ko.applyBindings(new SettingsViewModel());
+        $("#sortable-categories").sortable({ cancel: "input,span.glyphicon-remove,span.glyphicon-plus" });
+    });
+</script>

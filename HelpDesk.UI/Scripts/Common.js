@@ -1,4 +1,79 @@
-﻿function sendAjaxRequest(url, method, data, onSuccess)
+﻿function moveMessagesToTopUnderNavBar()
+{
+    if ($(window).scrollTop() > 52)
+        $('#messages').css(
+        {
+            'position': 'fixed',
+            'top': '0'
+        });
+    else
+        $('#messages').css(
+        {
+            'position': 'absolute',
+            'top': '52px'
+        });
+}
+
+function displayNewSuccessMessage(messageText)
+{
+    displayNewMessage(messageText, 'success');
+}
+
+function displayNewFailMessage(messageText)
+{
+    displayNewMessage(messageText, 'fail');
+}
+
+function displayNewMessage(messageText, messageType)
+{
+    var closeButton = $('<a></a>');
+    closeButton.addClass('close');
+    closeButton.attr(
+    {
+        'href': '#',
+        'aria-label': 'close'
+    });
+    closeButton.click(function()
+    {
+        alert.hide('slow');
+    });
+    closeButton.html("&times;");
+
+    var icon = $('<span></span>');
+    icon.addClass('glyphicon');
+    if (messageType === 'success')
+        icon.addClass('glyphicon-info-sign');
+    if (messageType === 'fail')
+        icon.addClass('glyphicon-exclamation-sign');
+
+    var alert = $('<div></div>');
+    alert.addClass('alert');
+    if (messageType === 'success')
+        alert.addClass('alert-success');
+    if (messageType === 'fail')
+        alert.addClass('alert-danger');
+    alert.append(closeButton, icon, ' ' + messageText);
+
+    $('#messages').append(alert);
+    alert.show('slow');
+    setTimeout(function() { $(alert).hide('slow') }, 10000);
+}
+
+var numberOfSentAjaxRequests = 0;
+
+function showProgressIndicator()
+{
+    if (numberOfSentAjaxRequests++ === 0)
+        $('#progressIndicator').show();
+}
+
+function hideProgressIndicator()
+{
+    if (--numberOfSentAjaxRequests === 0)
+        $('#progressIndicator').hide();
+}
+
+function sendAjaxRequest(url, method, data, onSuccess)
 {
     $.ajax(url,
     {

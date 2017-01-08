@@ -8,7 +8,7 @@
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
     @*<link href="~/Content/themes/base/jquery-ui.min.css" rel="stylesheet" />*@
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
-    
+
     @*<script src="~/Scripts/modernizr-2.6.2.js"></script>*@
     <script src="~/Scripts/jquery-1.12.4.min.js"></script>
     @*<script src="~/Scripts/jquery-ui-1.12.0.min.js"></script>*@
@@ -17,86 +17,9 @@
     <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/knockout-3.4.0.js"></script>
-    <script src="~/Scripts/knockout-3.4.0.debug.js"></script>    
+    <script src="~/Scripts/knockout-3.4.0.debug.js"></script>
 </head>
 <body class="background-blue-gradient">
-    <div id="messages">
-    </div>
-
-    <script>
-        $(document).ready(function()
-        {
-            @if (TempData["Success"] != null)
-            {
-                @: displayNewSuccessMessage("@(TempData["Success"])");
-            }
-            @if (TempData["Fail"] != null)
-            {
-                @: displayNewFailMessage("@(TempData["Fail"])");
-            }
-        });
-
-        function displayNewSuccessMessage(message)
-        {
-            var messages = document.getElementById("messages");
-
-            var a = document.createElement("a");
-            a.setAttribute("href", "#");
-            a.setAttribute("aria-label", "close");
-            a.className = "close";
-            a.setAttribute("onclick", "$(this.parentElement).hide('slow'); ");
-            a.innerHTML = "&times";
-            
-            var span = document.createElement("span");
-            span.className = "glyphicon glyphicon-info-sign";
-
-            var span2 = document.createElement("span");
-            span2.textContent = " " + message;
-            
-            var div = document.createElement("div");
-            div.className = "alert alert-success";
-            
-            div.appendChild(a);
-            div.appendChild(span);
-            div.appendChild(span2);
-
-            messages.appendChild(div);
-            $(div).show("slow");
-
-            setTimeout(function() { $(div).hide("slow") }, 10000);
-        }
-
-        function displayNewFailMessage(message)
-        {
-            var messages = document.getElementById("messages");
-
-            var a = document.createElement("a");
-            a.setAttribute("href", "#");
-            a.setAttribute("aria-label", "close");
-            a.className = "close";
-            a.setAttribute("onclick", "$(this.parentElement).hide('slow'); ");
-            a.innerHTML = "&times";
-
-            var span = document.createElement("span");
-            span.className = "glyphicon glyphicon-exclamation-sign";
-
-            var span2 = document.createElement("span");
-            span2.textContent = " " + message;
-
-            var div = document.createElement("div");
-            div.className = "alert alert-danger";
-
-            div.appendChild(a);
-            div.appendChild(span);
-            div.appendChild(span2);
-
-            messages.appendChild(div);
-            $(div).show("slow");
-
-            setTimeout(function() { $(div).hide("slow") }, 10000);
-        } 
-    </script>
-
     @RenderBody()
         
     @Html.Partial("_Footer")

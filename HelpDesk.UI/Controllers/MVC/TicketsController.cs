@@ -69,10 +69,21 @@ namespace HelpDesk.UI.Controllers.MVC
         [Authorize]
         public ViewResult Create()
         {
+            User requester = identityHelper.CurrentUser;
             ViewModels.Tickets.CreateViewModel model = new ViewModels.Tickets.CreateViewModel
             {
-                Requester = identityHelper.CurrentUser,
-                Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order))
+                Requester = new UserDTO
+                {
+                    UserId = requester.Id,
+                    FirstName = requester.FirstName,
+                    LastName = requester.LastName,
+                    Email = requester.Email
+                },
+                Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order)).Select(c => new CategoryDTO
+                {
+                    CategoryId = c.CategoryId,
+                    Name = c.Name
+                })
             };
             return View(model);
         }
@@ -113,8 +124,19 @@ namespace HelpDesk.UI.Controllers.MVC
                 TempData["Fail"] = "Unable to create new ticket. Try again, and if the problem persists contact your system administrator.";
             }
 
-            model.Requester = await identityHelper.UserManager.FindByIdAsync(model.RequesterId);
-            model.Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order));
+            User requester = await identityHelper.UserManager.FindByIdAsync(model.RequesterId);
+            model.Requester = requester == null ? null : new UserDTO
+            {
+                UserId = requester.Id,
+                FirstName = requester.FirstName,
+                LastName = requester.LastName,
+                Email = requester.Email
+            };
+            model.Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order)).Select(c => new CategoryDTO
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name
+            });
             return View(model);
         }
 
@@ -145,7 +167,13 @@ namespace HelpDesk.UI.Controllers.MVC
                 Content = ticket.Content,
                 Solution = ticket.Solution,
                 Creator = ticket.Creator,
-                Requester = ticket.Requester,
+                Requester = ticket.Requester == null ? null : new UserDTO
+                {
+                    UserId = ticket.Requester.Id,
+                    FirstName = ticket.Requester.FirstName,
+                    LastName = ticket.Requester.LastName,
+                    Email = ticket.Requester.Email
+                },
                 AssignedUser = ticket.AssignedUser
             };
             string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
@@ -222,7 +250,16 @@ namespace HelpDesk.UI.Controllers.MVC
             }
             model.Creator = ticket.Creator;
             model.CreateDate = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss");
-            model.Requester = await identityHelper.UserManager.FindByIdAsync(model.RequesterId);
+
+            User requester = await identityHelper.UserManager.FindByIdAsync(model.RequesterId);
+            model.Requester = requester == null ? null : new UserDTO
+            {
+                UserId = requester.Id,
+                FirstName = requester.FirstName,
+                LastName = requester.LastName,
+                Email = requester.Email
+            };
+
             model.AssignedUser = await identityHelper.UserManager.FindByIdAsync(model.AssignedUserId);
 
             string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
