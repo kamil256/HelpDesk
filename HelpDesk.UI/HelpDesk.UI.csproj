@@ -264,6 +264,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\MVC\AccountController.cs" />
+    <Compile Include="Controllers\MVC\LayoutController.cs" />
     <Compile Include="Controllers\WebAPI\CategoriesController.cs" />
     <Compile Include="Controllers\WebAPI\TicketsController.cs" />
     <Compile Include="Controllers\WebAPI\UsersController.cs" />
@@ -280,6 +281,7 @@
     <Compile Include="ViewModels\Categories\CategoryDTO.cs" />
     <Compile Include="ViewModels\Home\IndexViewModel.cs" />
     <Compile Include="ViewModels\Settings\IndexViewModel.cs" />
+    <Compile Include="ViewModels\Layout\CompanyInfoViewModel.cs" />
     <Compile Include="ViewModels\Tickets\CreateViewModel.cs" />
     <Compile Include="ViewModels\Tickets\EditViewModel.cs" />
     <Compile Include="ViewModels\Tickets\IndexViewModel.cs" />
@@ -314,7 +316,7 @@
     <Content Include="Views\Users\History.cshtml" />
     <Content Include="Views\Tickets\History.cshtml" />
     <Content Include="Views\Shared\_LoginLayout.cshtml" />
-    <Content Include="Views\Shared\_Footer.cshtml" />
+    <Content Include="Views\Layout\_Footer.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

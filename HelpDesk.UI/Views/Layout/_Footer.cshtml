@@ -1,16 +1,18 @@
-﻿<footer>
+﻿@model HelpDesk.UI.ViewModels.Layout.CompanyInfoViewModel
+
+<footer>
     <div class="footer-content">
         <div class="footer-element">
             <div class="glyphicon glyphicon-map-marker"></div>
-            Ulica 1, Wrocław
+            @Model.Address
         </div>
         <div class="footer-element">
             <div class="glyphicon glyphicon-phone-alt"></div>
-            +48 123 456 789
+            @Model.Phone
         </div>
         <div class="footer-element">
             <div class="glyphicon glyphicon-envelope"></div>
-            <a href="mailto:support@ringnet.com">support@company.com</a>
+            <a href="mailto:@Model.Email">@Model.Email</a>
         </div>
     </div>
 </footer>
