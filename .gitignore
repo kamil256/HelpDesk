@@ -206,7 +206,7 @@ UpgradeLog*.htm
 *.mdf
 *.ldf
 
-# Sensitive XML files
+# Sensitive XML files 
 **/App_Data/Settings.xml
 
 # Business Intelligence projects
