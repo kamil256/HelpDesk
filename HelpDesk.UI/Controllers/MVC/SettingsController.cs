@@ -38,7 +38,8 @@ namespace HelpDesk.UI.Controllers.MVC
             IndexViewModel model = new IndexViewModel
             {
                 NewTicketsNotifications = settings.NewTicketsNotifications,
-                SolvedTicketsNotifications = settings.SolvedTicketsNotifications,                
+                SolvedTicketsNotifications = settings.SolvedTicketsNotifications,
+                ClosedTicketsNotifications = settings.ClosedTicketsNotifications,
                 TicketsPerPage = settings.TicketsPerPage
             };
 
@@ -59,7 +60,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
         [Authorize]
-        public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,UsersPerPage,TicketsPerPage,Categories")] IndexViewModel model)
+        public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,ClosedTicketsNotifications,UsersPerPage,TicketsPerPage,Categories")] IndexViewModel model)
         {
             if (!identityHelper.IsCurrentUserAnAdministrator())
             {
@@ -79,6 +80,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     Settings settings = unitOfWork.SettingsRepository.GetById(identityHelper.CurrentUser.Id);
                     settings.NewTicketsNotifications = model.NewTicketsNotifications;
                     settings.SolvedTicketsNotifications = model.SolvedTicketsNotifications;
+                    settings.ClosedTicketsNotifications = model.ClosedTicketsNotifications;
                     settings.TicketsPerPage = model.TicketsPerPage;
 
                     if (identityHelper.IsCurrentUserAnAdministrator())

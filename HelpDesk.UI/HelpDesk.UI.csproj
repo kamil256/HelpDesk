@@ -275,6 +275,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\Abstract\IEmailSender.cs" />
+    <Compile Include="Infrastructure\Concrete\EmailSender.cs" />
     <Compile Include="Infrastructure\IdentityHelper.cs" />
     <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
     <Compile Include="Infrastructure\NinjectResolver.cs" />
@@ -316,7 +318,7 @@
     <Content Include="Views\Users\History.cshtml" />
     <Content Include="Views\Tickets\History.cshtml" />
     <Content Include="Views\Shared\_LoginLayout.cshtml" />
-    <Content Include="Views\Layout\_Footer.cshtml" />
+    <Content Include="Views\Shared\_Footer.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

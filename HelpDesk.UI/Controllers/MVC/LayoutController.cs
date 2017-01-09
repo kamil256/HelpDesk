@@ -37,5 +37,14 @@ namespace HelpDesk.UI.Controllers.MVC
             };
             return PartialView("_Footer", model);
         }
+
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            if (!filterContext.ExceptionHandled)
+            {
+                filterContext.Result = new RedirectResult("~/Content/Error.html");
+                filterContext.ExceptionHandled = true;
+            }
+        }
     }
 }

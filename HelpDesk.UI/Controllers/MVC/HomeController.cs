@@ -154,13 +154,13 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
-        //protected override void OnException(ExceptionContext filterContext)
-        //{
-        //    if (!filterContext.ExceptionHandled)
-        //    {
-        //        filterContext.Result = new RedirectResult("~/Content/Error.html");
-        //        filterContext.ExceptionHandled = true;
-        //    }
-        //}
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            if (!filterContext.ExceptionHandled)
+            {
+                filterContext.Result = new RedirectResult("~/Content/Error.html");
+                filterContext.ExceptionHandled = true;
+            }
+        }
     }
 }

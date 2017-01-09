@@ -106,6 +106,10 @@
     <Compile Include="Migrations\201612041523064_AddLastActivityDateToUserTable.Designer.cs">
       <DependentUpon>201612041523064_AddLastActivityDateToUserTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201701092209026_AddNotificationAboutClosingTicketsToSettingsTable.cs" />
+    <Compile Include="Migrations\201701092209026_AddNotificationAboutClosingTicketsToSettingsTable.Designer.cs">
+      <DependentUpon>201701092209026_AddNotificationAboutClosingTicketsToSettingsTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -119,6 +123,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201612041523064_AddLastActivityDateToUserTable.resx">
       <DependentUpon>201612041523064_AddLastActivityDateToUserTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201701092209026_AddNotificationAboutClosingTicketsToSettingsTable.resx">
+      <DependentUpon>201701092209026_AddNotificationAboutClosingTicketsToSettingsTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

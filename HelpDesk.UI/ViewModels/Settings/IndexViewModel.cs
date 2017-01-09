@@ -16,6 +16,9 @@ namespace HelpDesk.UI.ViewModels.Settings
         public bool SolvedTicketsNotifications { get; set; }
 
         [Required]
+        public bool ClosedTicketsNotifications { get; set; }
+
+        [Required]
         [RegularExpression("([1-9][0-9]*)")]
         public int UsersPerPage { get; set; }
 

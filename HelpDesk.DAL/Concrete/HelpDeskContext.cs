@@ -66,7 +66,7 @@ namespace HelpDesk.DAL.Concrete
             User user = userMgr.FindByName(userName);
             if (user == null)
             {
-                userMgr.Create(new User { UserName = userName, Email = email }, password);
+                userMgr.Create(new User { UserName = userName, Email = email, FirstName = "Admin", LastName = "Admin" }, password);
                 user = userMgr.FindByName(userName);
             }
             user.Settings = new Entities.Settings();
