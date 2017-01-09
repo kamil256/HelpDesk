@@ -77,7 +77,7 @@
                             <li class='@(ViewBag.Title == "Settings" ? "active" : null)'>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
                         </ul>
                     
-                        @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                        @using (Html.BeginForm("LogOut", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
                         {
                             @Html.AntiForgeryToken()
 
@@ -85,7 +85,7 @@
                                 <li>
                                     @Html.ActionLink(identityHelper.CurrentUser.FirstName + " " + identityHelper.CurrentUser.LastName, "Edit", "Users", new { id = identityHelper.CurrentUser.Id }, null)
                                 </li>
-                                <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+                                <li><a href="javascript:document.getElementById('logoutForm').submit()">Log out</a></li>
                             </ul>
                         }
                     </div>

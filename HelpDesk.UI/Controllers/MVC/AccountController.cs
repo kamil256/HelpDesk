@@ -35,7 +35,7 @@ namespace HelpDesk.UI.Controllers.MVC
         {
             if (HttpContext.User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("LogOff");
+                return RedirectToAction("LogOut");
             }
 
             LoginViewModel model = new LoginViewModel
@@ -68,7 +68,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
         [OverrideAuthorization]
         [Authorize]
-        public ActionResult LogOff()
+        public ActionResult LogOut()
         {
             IAuthenticationManager authenticationManager = HttpContext.GetOwinContext().Authentication;
             authenticationManager.SignOut();
