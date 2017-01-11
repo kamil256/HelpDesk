@@ -210,8 +210,12 @@ body {
     width: 40px;
 }
 
-.input-with-button + .checkbox {
+.input-with-button ~ .radio-inline, .input-with-button ~ .checkbox {
     margin-top: 5px;
+}
+
+.input-with-button ~ .checkbox {
+    margin-bottom: 0;
 }
 
 /* ----- highlight searched text ----- */

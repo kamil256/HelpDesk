@@ -29,10 +29,21 @@ namespace HelpDesk.UI.Controllers.WebAPI
             this.identityHelper = new IdentityHelper();
         }
 
+        private string removeExcessSpaces(string text)
+        {
+            if (text != null)
+            {
+                System.Text.RegularExpressions.Regex trimmer = new System.Text.RegularExpressions.Regex(@"\s\s+");
+                return trimmer.Replace(text.Trim(), " ");
+            }
+            else
+                return text;
+        }
+
         [HttpGet]
         [OverrideAuthorization]
         [Authorize]
-        public HttpResponseMessage GetUsers(string role = null, string search = null, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
+        public HttpResponseMessage GetUsers(string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
         {
             List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
 
@@ -42,16 +53,26 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 filters.Add(u => u.Roles.FirstOrDefault(r => r.RoleId == roleId) != null);
             }
 
-            if (!string.IsNullOrWhiteSpace(search))
+            search = removeExcessSpaces(search);
+            if (!string.IsNullOrEmpty(search))
             {
-                filters.Add(u => u.FirstName.ToLower().Contains(search.ToLower()) ||
-                                 u.LastName.ToLower().Contains(search.ToLower()) ||
-                                 (u.FirstName.ToLower() + " " + u.LastName.ToLower()).Contains(search.ToLower()) ||
-                                 u.Email.ToLower().Contains(search.ToLower()) ||
-                                 u.Phone.ToLower().Contains(search.ToLower()) ||
-                                 u.MobilePhone.ToLower().Contains(search.ToLower()) ||
-                                 u.Company.ToLower().Contains(search.ToLower()) ||
-                                 u.Department.ToLower().Contains(search.ToLower()));
+                string[] words = search.Split(' ');
+                if (searchAllWords)
+                    filters.Add(u => words.All(w => u.FirstName.ToLower().Contains(w.ToLower()) ||
+                                                    u.LastName.ToLower().Contains(w.ToLower()) ||
+                                                    u.Email.ToLower().Contains(w.ToLower()) ||
+                                                    u.Phone.ToLower().Contains(w.ToLower()) ||
+                                                    u.MobilePhone.ToLower().Contains(w.ToLower()) ||
+                                                    u.Company.ToLower().Contains(w.ToLower()) ||
+                                                    u.Department.ToLower().Contains(w.ToLower())));
+                else
+                    filters.Add(u => words.Any(w => u.FirstName.ToLower().Contains(w.ToLower()) ||
+                                                    u.LastName.ToLower().Contains(w.ToLower()) ||
+                                                    u.Email.ToLower().Contains(w.ToLower()) ||
+                                                    u.Phone.ToLower().Contains(w.ToLower()) ||
+                                                    u.MobilePhone.ToLower().Contains(w.ToLower()) ||
+                                                    u.Company.ToLower().Contains(w.ToLower()) ||
+                                                    u.Department.ToLower().Contains(w.ToLower())));
             }
 
             Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;

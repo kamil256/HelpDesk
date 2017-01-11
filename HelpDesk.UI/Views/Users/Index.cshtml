@@ -15,6 +15,8 @@
                     <input data-bind="textInput: filters.searchString, event: { keypress: searchUsersWhenEnterKeyPressed }" class="form-control" />
                     <button class="btn btn-default glyphicon glyphicon-search" data-bind="click: searchUsersAndFocusTheInput"></button>
                 </div>
+                <label class="radio-inline"><input data-bind="checked: filters.searchAllWords" value="false" name="searchAllWords" type="radio">Any word</label>
+                <label class="radio-inline"><input data-bind="checked: filters.searchAllWords" value="true" name="searchAllWords" type="radio">All words</label>
             </div>
         </div>
     </div>
@@ -116,6 +118,7 @@
         self.filters =
         {
             searchString: ko.observable(filtersFromCookie ? filtersFromCookie.search : ''),
+            searchAllWords: ko.observable(filtersFromCookie ? filtersFromCookie.searchAllWords : 'false'),
             sortBy: ko.observable(filtersFromCookie ? filtersFromCookie.sortBy : 'Last name'),
             descendingSort: ko.observable(filtersFromCookie ? filtersFromCookie.descSort : false),
             pageNumber: ko.observable(1)
@@ -126,6 +129,12 @@
         self.filters.searchString.subscribe(function()
         {
             self.changePageAndGetUsers(1);
+        });
+
+        self.filters.searchAllWords.subscribe(function()
+        {
+            if (removeExcessSpaces(self.filters.searchString()))
+                self.changePageAndGetUsers(1);
         });
 
         self.filters.sortBy.subscribe(function()
@@ -140,8 +149,12 @@
 
         self.markSearchString = function(text)
         {
-            if (text && self.filters.searchString().trim())
-                return text.replace(new RegExp("(" + self.filters.searchString().trim() + ")", 'gi'), "<mark>$1</mark>");
+            var searchString = removeExcessSpaces(self.filters.searchString());
+            if (searchString && text)
+            {
+                var words = searchString.split(' ');
+                return mark(text, words);
+            }
             else
                 return text;
         };
@@ -173,7 +186,8 @@
         {
             var data =
             {
-                search: self.filters.searchString().trim(),
+                search: removeExcessSpaces(self.filters.searchString()),
+                searchAllWords: self.filters.searchAllWords(),
                 sortBy: self.filters.sortBy(),
                 descSort: self.filters.descendingSort(),
                 page: self.filters.pageNumber()

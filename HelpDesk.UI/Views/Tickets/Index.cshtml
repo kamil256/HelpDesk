@@ -35,6 +35,8 @@
                     <input data-bind="textInput: filters.searchString, event: { keypress: searchTicketsWhenEnterKeyPressed }" class="form-control" />
                     <button class="btn btn-default glyphicon glyphicon-search" data-bind="click: searchTicketsAndFocusTheInput"></button>
                 </div>
+                <label class="radio-inline"><input data-bind="checked: filters.searchAllWords" value="false" name="searchAllWords" type="radio">Any word</label>
+                <label class="radio-inline"><input data-bind="checked: filters.searchAllWords" value="true" name="searchAllWords" type="radio">All words</label>
                 <div class="checkbox">
                     <label class="control-label">
                         <input data-bind="checked: filters.advancedSearch" type="checkbox" />
@@ -230,6 +232,7 @@
             assignedUserId: ko.observable(filtersFromCookie ? filtersFromCookie.assignedToId : null),
             categoryId: ko.observable(filtersFromCookie ? filtersFromCookie.categoryId : null),
             searchString: ko.observable(filtersFromCookie ? filtersFromCookie.search : ''),
+            searchAllWords: ko.observable(filtersFromCookie ? filtersFromCookie.searchAllWords : 'false'),
             advancedSearch: ko.observable(filtersFromCookie ? filtersFromCookie.advancedSearch : false),
             sortBy: ko.observable(filtersFromCookie ? filtersFromCookie.sortBy : 'Date'),
             descendingSort: ko.observable(filtersFromCookie ? filtersFromCookie.descSort : true),
@@ -258,9 +261,16 @@
             self.changePageAndGetTickets(1);
         });
 
+        self.filters.searchAllWords.subscribe(function()
+        {
+            if (removeExcessSpaces(self.filters.searchString()))
+                self.changePageAndGetTickets(1);
+        });
+
         self.filters.advancedSearch.subscribe(function()
         {
-            self.changePageAndGetTickets(1);
+            if (removeExcessSpaces(self.filters.searchString()))
+                self.changePageAndGetTickets(1);
         });
 
         self.filters.sortBy.subscribe(function()
@@ -271,12 +281,16 @@
         self.filters.descendingSort.subscribe(function()
         {
             self.changePageAndGetTickets(1);
-        });
+        });        
 
         self.markSearchString = function(text)
         {
-            if (self.filters.searchString() && self.filters.searchString() != "")
-                return text.replace(new RegExp("(" + self.filters.searchString() + ")", 'gi'), "<mark>$1</mark>");
+            var searchString = removeExcessSpaces(self.filters.searchString());
+            if (searchString && text)
+            {
+                var words = searchString.split(' ');
+                return mark(text, words);
+            }
             else
                 return text;
         };
@@ -311,7 +325,8 @@
                 status: self.filters.status(),
                 assignedToId: self.filters.assignedUserId(),
                 categoryId: self.filters.categoryId(),
-                search: self.filters.searchString().trim(),
+                search: removeExcessSpaces(self.filters.searchString()),
+                searchAllWords: self.filters.searchAllWords(),
                 advancedSearch: self.filters.advancedSearch(),
                 sortBy: self.filters.sortBy(),
                 descSort: self.filters.descendingSort(),

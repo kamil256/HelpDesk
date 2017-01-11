@@ -28,11 +28,22 @@ namespace HelpDesk.UI.Controllers.WebAPI
             this.unitOfWork = new UnitOfWork();
             identityHelper = new IdentityHelper();
         }
+
+        private string removeExcessSpaces(string text)
+        {
+            if (text != null)
+            {
+                System.Text.RegularExpressions.Regex trimmer = new System.Text.RegularExpressions.Regex(@"\s\s+");
+                return trimmer.Replace(text.Trim(), " ");
+            }
+            else
+                return text;
+        }
                 
         [HttpGet]
         [OverrideAuthorization]
         [Authorize]
-        public HttpResponseMessage GetTickets(string userId = null, string status = null, string assignedToId = null, int? categoryId = null, string search = null, bool advancedSearch = false, string sortBy = "Date", bool descSort = true, int page = 0)
+        public HttpResponseMessage GetTickets(string userId = null, string status = null, string assignedToId = null, int? categoryId = null, string search = null, bool searchAllWords = false, bool advancedSearch = false, string sortBy = "Date", bool descSort = true, int page = 0)
         {
             List<Expression<Func<Ticket, bool>>> filters = new List<Expression<Func<Ticket, bool>>>();
             if (!identityHelper.IsCurrentUserAnAdministrator())
@@ -49,14 +60,24 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     filters.Add(ticket => ticket.CategoryId == (categoryId == 0 ? null : categoryId));
             }
 
-            if (!string.IsNullOrWhiteSpace(search))
+            search = removeExcessSpaces(search);
+            if (!string.IsNullOrEmpty(search))
             {
+                string[] words = search.Split(' ');
                 if (!advancedSearch)
-                    filters.Add(ticket => ticket.Title.ToLower().Contains(search.ToLower()));
+                    if (searchAllWords)
+                        filters.Add(t => words.All(w => t.Title.ToLower().Contains(w.ToLower())));
+                    else
+                        filters.Add(t => words.Any(w => t.Title.ToLower().Contains(w.ToLower())));
                 else
-                    filters.Add(ticket => ticket.Title.ToLower().Contains(search.ToLower()) ||
-                                          ticket.Content.ToLower().Contains(search.ToLower()) ||
-                                          ticket.Solution.ToLower().Contains(search.ToLower()));
+                    if (searchAllWords)
+                        filters.Add(t => words.All(w => t.Title.ToLower().Contains(w.ToLower()) || 
+                                                        t.Content.ToLower().Contains(w.ToLower()) || 
+                                                        t.Solution.ToLower().Contains(w.ToLower())));
+                    else
+                        filters.Add(t => words.Any(w => t.Title.ToLower().Contains(w.ToLower()) || 
+                                                        t.Content.ToLower().Contains(w.ToLower()) || 
+                                                        t.Solution.ToLower().Contains(w.ToLower())));
             }
 
             Func<IQueryable<Ticket>, IOrderedQueryable<Ticket>> orderBy = null;

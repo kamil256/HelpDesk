@@ -142,3 +142,53 @@ function deleteCookie(name)
 {
     document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
+
+function split(text, separator)
+{
+    var separators = [];
+    var index = text.toLowerCase().indexOf(separator.toLowerCase());
+    while (index != -1)
+    {
+        separators.push(text.substr(index, separator.length));
+        index = text.toLowerCase().indexOf(separator.toLowerCase(), index + separator.length);
+    }
+
+    var fragments = text.split(new RegExp(separator, 'gi'));
+
+    return { fragments, separators };
+}
+
+function join(fragments, separators)
+{
+    var text = '';
+    for (var i = 0; i < separators.length; i++)
+    {
+        text += fragments[i];
+        text += separators[i];
+    }
+    text += fragments[i];
+    return text;
+}
+
+function mark(text, words)
+{
+    if (words.length > 0)
+    {
+        var obj = split(text, words[0]);
+        for (var i = 0; i < obj.fragments.length; i++)
+            obj.fragments[i] = mark(obj.fragments[i], words.slice(1, words.length));
+        for (var i = 0; i < obj.separators.length; i++)
+            obj.separators[i] = '<mark>' + obj.separators[i] + '</mark>';
+        return join(obj.fragments, obj.separators);
+    }
+    else
+        return text;
+}
+
+function removeExcessSpaces(text)
+{
+    if (text)
+        return text.trim().replace(/\s\s+/g, ' ');
+    else
+        return text;
+}
