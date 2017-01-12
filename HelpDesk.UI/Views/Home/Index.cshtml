@@ -3,13 +3,13 @@
 @model HelpDesk.UI.ViewModels.Home.IndexViewModel
 
 @{
-    ViewBag.Title = "Dashboard";
+    ViewBag.Title = "Summary";
     IdentityHelper identityHelper = new IdentityHelper();
     int MaximumCategoriesCount = Math.Max(Model.CurrentMonthTicketsByCategoryCounts.Count, Math.Max(Model.LastMonthTicketsByCategoryCounts.Count, Model.MonthBeforeLastTicketsByCategoryCounts.Count));
 }
 
 <header>
-    <h1>@ViewBag.Title</h1>
+    <h1>Summary</h1>
 </header>
 
 <main class="container">    
