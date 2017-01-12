@@ -179,6 +179,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\Settings.xml" />
+    <Content Include="Content\Error.css" />
     <Content Include="Content\images\AjaxLoader.gif" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.css.map" />

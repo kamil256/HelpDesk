@@ -1,0 +1,40 @@
+﻿html {
+    height: 100%;
+}
+        
+body {
+    background: radial-gradient(ellipse, rgba(1, 108, 190, 0.8), rgba(1, 38, 108, 0.8));
+    color: white;
+    font-family: Arial;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body > div {
+    display: table; 
+    height: 100%; 
+    width: 100%;
+}
+
+body > div > div {
+    display: table-cell; 
+    text-align: center;
+    vertical-align: middle; 
+}
+
+p {
+    margin: 10px;
+}
+
+p:first-child {
+    font-size: 72px;
+}
+
+p:last-child {
+    font-size: 14px;
+}
+
+a {
+    color: yellow;
+}
