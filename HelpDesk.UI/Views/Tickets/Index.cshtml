@@ -85,11 +85,11 @@
 
                 <div>
                     <p data-bind="html: $root.markSearchString(Title)"></p>
-                    <p><span class="text-gray">Date:</span> <span data-bind="text: formatDate(CreateDate)"></span></p>
+                    <p><span class="text-gray">Date:</span> <span data-bind="html: $root.markSearchString(CreateDate)"></span></p>
                     <p>
                         <span class="text-gray">User:</span>
                         <span>
-                            <a data-bind="visible: RequesterName, click: function(data, event) { event.stopPropagation(); $root.goToUserDetails(RequesterId); }, text: RequesterName"></a>
+                            <a data-bind="visible: RequesterName, click: function(data, event) { event.stopPropagation(); $root.goToUserDetails(RequesterId); }, html: $root.markSearchString(RequesterName)"></a>
                             <span data-bind="visible: !RequesterName">-</span>
                         </span>
                     </p>

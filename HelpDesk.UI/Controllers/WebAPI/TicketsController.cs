@@ -66,16 +66,24 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 string[] words = search.Split(' ');
                 if (!advancedSearch)
                     if (searchAllWords)
-                        filters.Add(t => words.All(w => t.Title.ToLower().Contains(w.ToLower())));
+                        filters.Add(t => words.All(w => t.Title.ToLower().Contains(w.ToLower()) ||
+                                                        (t.CreateDate.Year.ToString() + "-" + (t.CreateDate.Month < 10 ? "0" + t.CreateDate.Month.ToString() : t.CreateDate.Month.ToString()) + "-" + (t.CreateDate.Day < 10 ? "0" + t.CreateDate.Day.ToString() : t.CreateDate.Day.ToString()) + " " + (t.CreateDate.Hour < 10 ? "0" + t.CreateDate.Hour.ToString() : t.CreateDate.Hour.ToString()) + ":" + (t.CreateDate.Minute < 10 ? "0" + t.CreateDate.Minute.ToString() : t.CreateDate.Minute.ToString()) + ":" + (t.CreateDate.Second < 10 ? "0" + t.CreateDate.Second.ToString() : t.CreateDate.Second.ToString())).Contains(w) ||
+                                                        (t.Requester.FirstName + " " + t.Requester.LastName).ToLower().Contains(w.ToLower())));
                     else
-                        filters.Add(t => words.Any(w => t.Title.ToLower().Contains(w.ToLower())));
+                        filters.Add(t => words.Any(w => t.Title.ToLower().Contains(w.ToLower()) ||
+                                                        (t.CreateDate.Year.ToString() + "-" + (t.CreateDate.Month < 10 ? "0" + t.CreateDate.Month.ToString() : t.CreateDate.Month.ToString()) + "-" + (t.CreateDate.Day < 10 ? "0" + t.CreateDate.Day.ToString() : t.CreateDate.Day.ToString()) + " " + (t.CreateDate.Hour < 10 ? "0" + t.CreateDate.Hour.ToString() : t.CreateDate.Hour.ToString()) + ":" + (t.CreateDate.Minute < 10 ? "0" + t.CreateDate.Minute.ToString() : t.CreateDate.Minute.ToString()) + ":" + (t.CreateDate.Second < 10 ? "0" + t.CreateDate.Second.ToString() : t.CreateDate.Second.ToString())).Contains(w) ||
+                                                        (t.Requester.FirstName + " " + t.Requester.LastName).ToLower().Contains(w.ToLower())));
                 else
                     if (searchAllWords)
-                        filters.Add(t => words.All(w => t.Title.ToLower().Contains(w.ToLower()) || 
+                        filters.Add(t => words.All(w => t.Title.ToLower().Contains(w.ToLower()) ||
+                                                        (t.CreateDate.Year.ToString() + "-" + (t.CreateDate.Month < 10 ? "0" + t.CreateDate.Month.ToString() : t.CreateDate.Month.ToString()) + "-" + (t.CreateDate.Day < 10 ? "0" + t.CreateDate.Day.ToString() : t.CreateDate.Day.ToString()) + " " + (t.CreateDate.Hour < 10 ? "0" + t.CreateDate.Hour.ToString() : t.CreateDate.Hour.ToString()) + ":" + (t.CreateDate.Minute < 10 ? "0" + t.CreateDate.Minute.ToString() : t.CreateDate.Minute.ToString()) + ":" + (t.CreateDate.Second < 10 ? "0" + t.CreateDate.Second.ToString() : t.CreateDate.Second.ToString())).Contains(w) ||
+                                                        (t.Requester.FirstName + " " + t.Requester.LastName).ToLower().Contains(w.ToLower()) ||
                                                         t.Content.ToLower().Contains(w.ToLower()) || 
                                                         t.Solution.ToLower().Contains(w.ToLower())));
                     else
-                        filters.Add(t => words.Any(w => t.Title.ToLower().Contains(w.ToLower()) || 
+                        filters.Add(t => words.Any(w => t.Title.ToLower().Contains(w.ToLower()) ||
+                                                        (t.CreateDate.Year.ToString() + "-" + (t.CreateDate.Month < 10 ? "0" + t.CreateDate.Month.ToString() : t.CreateDate.Month.ToString()) + "-" + (t.CreateDate.Day < 10 ? "0" + t.CreateDate.Day.ToString() : t.CreateDate.Day.ToString()) + " " + (t.CreateDate.Hour < 10 ? "0" + t.CreateDate.Hour.ToString() : t.CreateDate.Hour.ToString()) + ":" + (t.CreateDate.Minute < 10 ? "0" + t.CreateDate.Minute.ToString() : t.CreateDate.Minute.ToString()) + ":" + (t.CreateDate.Second < 10 ? "0" + t.CreateDate.Second.ToString() : t.CreateDate.Second.ToString())).Contains(w) ||
+                                                        (t.Requester.FirstName + " " + t.Requester.LastName).ToLower().Contains(w.ToLower()) ||
                                                         t.Content.ToLower().Contains(w.ToLower()) || 
                                                         t.Solution.ToLower().Contains(w.ToLower())));
             }
@@ -132,13 +140,13 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 numberOfPages = 1;
                 tickets = unitOfWork.TicketRepository.Get(filters: filters, orderBy: orderBy);                
             }
-            
-            return Request.CreateResponse(HttpStatusCode.OK, new 
+
+            return Request.CreateResponse(HttpStatusCode.OK, new
             {
                 Tickets = tickets.Select(t => new TicketDTO
                 {
                     TicketId = t.TicketId,
-                    CreateDate = ((t.CreateDate - new DateTime(1970, 1, 1)).Ticks / 10000).ToString(),
+                    CreateDate = t.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"),
                     CreatorName = t.Creator != null ? t.Creator.FirstName + " " + t.Creator.LastName : null,
                     RequesterName = t.Requester != null ? t.Requester.FirstName + " " + t.Requester.LastName : null,
                     AssignedUserName = t.AssignedUser != null ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : null,

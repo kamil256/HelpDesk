@@ -222,6 +222,7 @@ body {
 
 mark {
     background-color: yellow;
+    color: inherit;
     padding: 0.2em 0;
 }
 
