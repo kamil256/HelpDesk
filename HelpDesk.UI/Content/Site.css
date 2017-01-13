@@ -61,6 +61,23 @@ textarea {
     margin-bottom: 0;
 }
 
+#logoutForm .navbar-text a {
+    color: #9D9D9D;
+    text-decoration: none;
+}
+
+#logoutForm .navbar-text a:hover {
+    color: white;
+}
+
+#logoutForm .glyphicon-refresh {
+    cursor: pointer;
+}
+
+#logoutForm .glyphicon-refresh:hover {
+    color: white;
+}
+
 /* ----- header ----- */ 
 
 #viewContent > header {
