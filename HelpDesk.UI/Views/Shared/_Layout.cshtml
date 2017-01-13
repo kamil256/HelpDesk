@@ -30,10 +30,13 @@
     <script src="~/Scripts/Common.js"></script>  
     
     <script>
+        var logOutAutomaticallyFromCookie = getCookie('logOutAutomatically');
+
         function LayoutViewModel()
         {
             var self = this;
 
+            self.logOutAutomatically = ko.observable(logOutAutomaticallyFromCookie === 'no' ? false : true);
             self.secondsToAutomaticLogOut = ko.observable(600);
 
             self.timeToAutomaticLogOut = ko.computed(function()
@@ -54,7 +57,8 @@
                     document.location.href = '/Account/LogOut';
             };
 
-            self.countdown();
+            if (self.logOutAutomatically())
+                self.countdown();
         }
 
         $(document).ready(function()
@@ -104,7 +108,9 @@
                     
                     <p class="navbar-text pull-right" style="margin-right: 0;">
                         <a href="javascript:document.getElementById('logoutForm').submit()"><span class="glyphicon glyphicon-log-out"></span> Log out</a>
+                        <!--ko if: logOutAutomatically -->
                         (<b data-bind="text: timeToAutomaticLogOut, css: { 'text-danger': secondsToAutomaticLogOut() < 60 }"></b> <span data-bind="click: function() { secondsToAutomaticLogOut(600); }" class="glyphicon glyphicon-refresh"></span>)
+                        <!-- /ko -->
                     </p>
 
                     <ul class="nav navbar-nav pull-right">

@@ -15,6 +15,20 @@
             <div class="well">
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
+                <div class="form-horizontal">
+                    <div class="form-group ">
+                        <label class="control-label col-sm-3">Automatic logout</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" data-bind="checked: logOutAutomatically" />
+                                    Log out automatically in this web browser (value stored in cookie)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 @using (@Html.BeginForm("Index", "Settings", FormMethod.Post, new { @class = "form-horizontal" }))
                 {
                     @Html.AntiForgeryToken()
@@ -137,12 +151,25 @@
 </main>
 
 <script>
+    
+
+    var logOutAutomaticallyFromCookie = getCookie('logOutAutomatically');
+
     function SettingsViewModel()
     {
         var self = this;
 
+        self.logOutAutomatically = ko.observable(logOutAutomaticallyFromCookie === 'no' ? false : true);
         self.usersPerPage = ko.observable(@Model.UsersPerPage);
         self.ticketsPerPage = ko.observable(@Model.TicketsPerPage);
+
+        $('input[type=submit]').click(function()
+        {
+            if (self.logOutAutomatically())
+                setCookie('logOutAutomatically', 'yes');
+            else
+                setCookie('logOutAutomatically', 'no');
+        });
 
         self.decrementUsersPerPage = function(data, event)
         {
