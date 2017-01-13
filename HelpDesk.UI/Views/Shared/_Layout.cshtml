@@ -27,8 +27,36 @@
     <script src="https://www.amcharts.com/lib/3/serial.js"></script>
     <script src="https://www.amcharts.com/lib/3/pie.js"></script>
     <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
-    <script src="~/Scripts/Common.js"></script>
+    <script src="~/Scripts/Common.js"></script>  
+    
     <script>
+        function LayoutViewModel()
+        {
+            var self = this;
+
+            self.secondsToAutomaticLogOut = ko.observable(600);
+
+            self.secondsToAutomaticLogOutFormatted = ko.computed(function()
+            {
+                var minutes = Math.floor(self.secondsToAutomaticLogOut() / 60);
+                var seconds = padZero(self.secondsToAutomaticLogOut() % 60);
+                return minutes + ':' + seconds;
+            });
+
+            self.countdown = function()
+            {
+                if (self.secondsToAutomaticLogOut() > 0)
+                {
+                    self.secondsToAutomaticLogOut(self.secondsToAutomaticLogOut() - 1);
+                    setTimeout(self.countdown, 1000);
+                }
+                else
+                    document.location.href = '/Account/LogOut';
+            };
+
+            self.countdown();
+        }
+
         $(document).ready(function()
         {
             @if (TempData["Success"] != null)
@@ -41,58 +69,49 @@
             }
 
             $(window).scroll(function() { moveMessagesToTopUnderNavBar(); });
+
+            layoutViewModel = new LayoutViewModel();
+            ko.applyBindings(layoutViewModel, document.getElementById('navbar'));
         });
-    </script>
+    </script>  
 </head>
 <body class="background-gray">
-    @if (User.Identity.IsAuthenticated)
-    {
-        <div class="navbar navbar-inverse">
-            @if (!User.Identity.IsAuthenticated)
-            {
-                <div class="navbar-header">
-                    @Html.ActionLink("Help Desk", "Index", "Home", null, new { @class = "navbar-brand" })
-                </div>
-            }
-            else
-            {
-                <div class="container">
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        @Html.ActionLink("Help Desk", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-                    </div>
-                    <div class="navbar-collapse collapse">
-                        <ul class="nav navbar-nav">
-                            @if (identityHelper.IsCurrentUserAnAdministrator())
-                            {
-                                <li class='@(ViewBag.Title == "New user" ? "active" : null)'>@Html.ActionLink("New user", "Create", "Users")</li>
-                                <li class='@(ViewBag.Title == "Users" ? "active" : null)'>@Html.ActionLink("Users", "Index", "Users")</li>
-                            }
-                            <li class='@(ViewBag.Title == "New ticket" ? "active" : null)'>@Html.ActionLink("New ticket", "Create", "Tickets")</li>
-                            <li class='@(ViewBag.Title == "Tickets" ? "active" : null)'>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
-                            <li class='@(ViewBag.Title == "Settings" ? "active" : null)'>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
-                        </ul>
+    <div id="navbar" class="navbar navbar-inverse">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Help Desk", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    @if (identityHelper.IsCurrentUserAnAdministrator())
+                    {
+                        <li class='@(ViewBag.Title == "New user" ? "active" : null)'>@Html.ActionLink("New user", "Create", "Users")</li>
+                        <li class='@(ViewBag.Title == "Users" ? "active" : null)'>@Html.ActionLink("Users", "Index", "Users")</li>
+                    }
+                    <li class='@(ViewBag.Title == "New ticket" ? "active" : null)'>@Html.ActionLink("New ticket", "Create", "Tickets")</li>
+                    <li class='@(ViewBag.Title == "Tickets" ? "active" : null)'>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
+                    <li class='@(ViewBag.Title == "Settings" ? "active" : null)'>@Html.ActionLink("Settings", "Index", "Settings")</li>                    
+                </ul>
                     
-                        @using (Html.BeginForm("LogOut", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
-                        {
-                            @Html.AntiForgeryToken()
+                @using (Html.BeginForm("LogOut", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                {
+                    @Html.AntiForgeryToken()
 
-                            <ul class="nav navbar-nav navbar-right">
-                                <li>
-                                    @Html.ActionLink(identityHelper.CurrentUser.FirstName + " " + identityHelper.CurrentUser.LastName, "Edit", "Users", new { id = identityHelper.CurrentUser.Id }, null)
-                                </li>
-                                <li><a href="javascript:document.getElementById('logoutForm').submit()">Log out</a></li>
-                            </ul>
-                        }
-                    </div>
-                </div>
-            }
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            @Html.ActionLink(identityHelper.CurrentUser.FirstName + " " + identityHelper.CurrentUser.LastName, "Edit", "Users", new { id = identityHelper.CurrentUser.Id }, null)
+                        </li>
+                        <li><a href="javascript:document.getElementById('logoutForm').submit()">Log out (<b data-bind="text: secondsToAutomaticLogOutFormatted, css: { 'text-danger': secondsToAutomaticLogOut() < 60 }"></b> <span data-bind="click: function() { secondsToAutomaticLogOut(600); }" class="glyphicon glyphicon-repeat"></span>)</a></li>
+                    </ul>
+                }
+            </div>
         </div>
-    }
+    </div>
 
     <div id="progressIndicator">
         <img src="~/Content/images/AjaxLoader.gif" width="100" height="100" />
@@ -101,8 +120,10 @@
     <div id="messages">
     </div>
 
-    @RenderBody()
+    <div id="viewContent">
+        @RenderBody()
+    </div>
         
-    @Html.Action("Footer", "Layout")
+    @Html.Action("Footer", "Layout")    
 </body>
 </html>

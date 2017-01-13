@@ -63,18 +63,18 @@ textarea {
 
 /* ----- header ----- */ 
 
-body > header {
+#viewContent > header {
     background-color: #00AAFF; 
     color: white;
     margin-bottom: 25px;
     padding: 30px 0;
 }
 
-body > header > h1 {
+#viewContent > header > h1 {
     text-align: center; 
 }
 
-body > header > div > hr {
+#viewContent > header > div > hr {
     border-color: #3F95C4; 
     margin:30px 0; 
     border-top-left-radius: 200px 1px; 

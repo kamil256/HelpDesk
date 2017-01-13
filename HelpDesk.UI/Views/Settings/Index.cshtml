@@ -206,7 +206,7 @@
 
     $(document).ready(function()
     {
-        ko.applyBindings(new SettingsViewModel());
+        ko.applyBindings(new SettingsViewModel(), document.getElementById('viewContent'));
         $("#sortable-categories").sortable({ cancel: "input,span.glyphicon-remove,span.glyphicon-plus" });
     });
 </script>

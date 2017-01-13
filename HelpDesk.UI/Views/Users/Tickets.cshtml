@@ -54,7 +54,7 @@
 
                 <div>
                     <p data-bind="html: Title"></p>
-                    <p><span class="text-gray">Date:</span> <span data-bind="text: formatDate(CreateDate)"></span></p>
+                    <p><span class="text-gray">Date:</span> <span data-bind="text: CreateDate"></span></p>
                     <p>
                         <span class="text-gray">User:</span>
                         <span>
@@ -335,6 +335,6 @@
 
     $(document).ready(function()
     {
-        ko.applyBindings(new TicketsListViewModel());
+        ko.applyBindings(new TicketsListViewModel(), document.getElementById('viewContent'));
     });
 </script>

@@ -59,8 +59,6 @@ function displayNewMessage(messageText, messageType)
     setTimeout(function() { $(alert).hide('slow') }, 10000);
 }
 
-var numberOfSentAjaxRequests = 0;
-
 function showProgressIndicator()
 {
     if (numberOfSentAjaxRequests++ === 0)
@@ -73,8 +71,11 @@ function hideProgressIndicator()
         $('#progressIndicator').hide();
 }
 
+var numberOfSentAjaxRequests = 0;
+
 function sendAjaxRequest(url, method, data, onSuccess)
 {
+    layoutViewModel.secondsToAutomaticLogOut(600);
     $.ajax(url,
     {
         type: method,
@@ -96,13 +97,13 @@ function sendAjaxRequest(url, method, data, onSuccess)
     });
 }
 
+function padZero(value)
+{
+    return value < 10 ? "0" + value : value;
+}
+
 function formatDate(ticks)
 {
-    function padZero(value)
-    {
-        return value < 10 ? "0" + value : value;
-    }
-
     var date = new Date(Number(ticks));
     var year = date.getFullYear();
     var month = padZero(date.getMonth() + 1);

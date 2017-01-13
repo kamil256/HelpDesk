@@ -166,8 +166,8 @@
         };
     }
 
-    $(document).ready(function () {
-            ko.applyBindings(new CreateTicketViewModel());
-
-        });
+    $(document).ready(function()
+    {
+        ko.applyBindings(new CreateTicketViewModel(), document.getElementById('viewContent'));
+    });
 </script>

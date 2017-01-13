@@ -290,7 +290,6 @@
 
     $(document).ready(function()
     {
-        ko.applyBindings(new EditTicketViewModel());
-
+        ko.applyBindings(new EditTicketViewModel(), document.getElementById('viewContent'));
     });
 </script>
