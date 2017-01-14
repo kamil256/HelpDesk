@@ -12,6 +12,7 @@ namespace HelpDesk.DAL.Entities
         public string MobilePhone { get; set; }
         public string Company { get; set; }
         public string Department { get; set; }
+        public bool Active { get; set; } = true;
         public DateTime? LastActivity { get; set; }
 
         public virtual ICollection<Ticket> CreatedTickets { get; set; }

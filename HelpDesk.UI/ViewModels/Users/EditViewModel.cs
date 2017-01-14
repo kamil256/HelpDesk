@@ -11,6 +11,12 @@ namespace HelpDesk.UI.ViewModels.Users
     {
         public string UserId { get; set; }
 
+        [Display(Name = "Last activity")]
+        public string LastActivity { get; set; }
+
+        [Display(Name = "Active account")]
+        public bool Active { get; set; }
+
         [Required]
         [Display(Name = "First name")]
         public string FirstName { get; set; }
@@ -34,8 +40,5 @@ namespace HelpDesk.UI.ViewModels.Users
         public string Company { get; set; }
         public string Department { get; set; }
         public string Role { get; set; }
-
-        [Display(Name = "Last activity")]
-        public string LastActivity { get; set; }
     }
 }

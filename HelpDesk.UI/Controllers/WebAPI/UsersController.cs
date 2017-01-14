@@ -43,9 +43,14 @@ namespace HelpDesk.UI.Controllers.WebAPI
         [HttpGet]
         [OverrideAuthorization]
         [Authorize]
-        public HttpResponseMessage GetUsers(string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
+        public HttpResponseMessage GetUsers(bool? active = null, string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
         {
             List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
+
+            if (active != null)
+            {
+                filters.Add(u => u.Active == active);
+            }
 
             if (!string.IsNullOrEmpty(role))
             {
@@ -182,6 +187,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     Company = u.Company,
                     Department = u.Department,
                     Role = identityHelper.UserManager.IsInRole(u.Id, "Admin") ? "Admin" : "User",
+                    Active = u.Active,
                     LastActivity = u.LastActivity != null ? ((DateTime)u.LastActivity).ToString("yyyy-MM-dd HH:mm") : "Never",
                     TicketsCount = u.CreatedTickets.Union(u.RequestedTickets).Distinct().Count()
                 }),

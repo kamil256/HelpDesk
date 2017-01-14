@@ -98,17 +98,9 @@
     <Compile Include="Entities\Category.cs" />
     <Compile Include="Entities\Settings.cs" />
     <Compile Include="Entities\TicketsHistory.cs" />
-    <Compile Include="Migrations\201611291721451_InitialCreate.cs" />
-    <Compile Include="Migrations\201611291721451_InitialCreate.Designer.cs">
-      <DependentUpon>201611291721451_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201612041523064_AddLastActivityDateToUserTable.cs" />
-    <Compile Include="Migrations\201612041523064_AddLastActivityDateToUserTable.Designer.cs">
-      <DependentUpon>201612041523064_AddLastActivityDateToUserTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201701092209026_AddNotificationAboutClosingTicketsToSettingsTable.cs" />
-    <Compile Include="Migrations\201701092209026_AddNotificationAboutClosingTicketsToSettingsTable.Designer.cs">
-      <DependentUpon>201701092209026_AddNotificationAboutClosingTicketsToSettingsTable.cs</DependentUpon>
+    <Compile Include="Migrations\201701140732561_Init.cs" />
+    <Compile Include="Migrations\201701140732561_Init.Designer.cs">
+      <DependentUpon>201701140732561_Init.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -118,14 +110,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201611291721451_InitialCreate.resx">
-      <DependentUpon>201611291721451_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201612041523064_AddLastActivityDateToUserTable.resx">
-      <DependentUpon>201612041523064_AddLastActivityDateToUserTable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201701092209026_AddNotificationAboutClosingTicketsToSettingsTable.resx">
-      <DependentUpon>201701092209026_AddNotificationAboutClosingTicketsToSettingsTable.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201701140732561_Init.resx">
+      <DependentUpon>201701140732561_Init.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

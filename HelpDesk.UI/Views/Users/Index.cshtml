@@ -9,12 +9,17 @@
     <div class="container">
         <hr />
         <div class="row">
-            <div class="form-group col-sm-6 col-md-offset-3 col-md-3">
+            <div class="form-group col-sm-4">
+                <label class="control-label">Activity</label>
+                <select data-bind="value: filters.active, options: activityOptions, optionsCaption: 'All', optionsText: 'text'" class="form-control"></select>
+            </div>
+
+            <div class="form-group col-sm-4">
                 <label class="control-label">Role</label>
                 <select data-bind="value: filters.role, options: roles, optionsCaption: 'All'" class="form-control"></select>
             </div>
 
-            <div class="form-group col-sm-6 col-md-3">
+            <div class="form-group col-sm-4">
                 <label class="control-label">Search</label>
                 <div class="input-with-button">
                     <input data-bind="textInput: filters.searchString, event: { keypress: searchUsersWhenEnterKeyPressed }" class="form-control" />
@@ -59,24 +64,25 @@
             <div class="well" data-bind="click: function() { $root.goToUserDetails(UserId); }">
                 <p data-bind="html: $root.markSearchString(FirstName + ' ' + LastName)"></p>
                 <div class="row">
-                    <div class="col-xs-6 col-sm-4">
-                        <p><span class="text-gray">Email:</span> <span class="value" data-bind="html: $root.markSearchString(Email)"></span></p>
-                        <p><span class="text-gray">Phone:</span> <span class="value" data-bind="html: $root.markSearchString(Phone)"></span></p>
-                        <p><span class="text-gray">Mobile phone:</span> <span class="value" data-bind="html: $root.markSearchString(MobilePhone)"></span></p>
+                    <div class="col-sm-4">
+                        <p><span class="text-gray">Email:</span> <span data-bind="html: $root.markSearchString(Email)"></span></p>
+                        <p><span class="text-gray">Phone:</span> <span data-bind="html: $root.markSearchString(Phone)"></span></p>
+                        <p><span class="text-gray">Mobile phone:</span> <span data-bind="html: $root.markSearchString(MobilePhone)"></span></p>
                     </div>
 
-                    <div class="col-xs-6 col-sm-4">
-                        <p><span class="text-gray">Company:</span> <span class="value" data-bind="html: $root.markSearchString(Company)"></span></p>
-                        <p><span class="text-gray">Department:</span> <span class="value" data-bind="html: $root.markSearchString(Department)"></span></p>
-                        <p><span class="text-gray">Role:</span> <span class="value" data-bind="text: Role"></span></p>
+                    <div class="col-sm-4">
+                        <p><span class="text-gray">Company:</span> <span data-bind="html: $root.markSearchString(Company)"></span></p>
+                        <p><span class="text-gray">Department:</span> <span data-bind="html: $root.markSearchString(Department)"></span></p>
+                        <p><span class="text-gray">Role:</span> <span data-bind="text: Role"></span></p>
                     </div>
 
-                    <div class="hidden-xs col-sm-2">
-                        <p class="text-gray">Last activity:</p>
-                        <p data-bind="text: LastActivity"></p>
+                    <div class="hidden-xs col-sm-4 col-md-2">
+                        <p><span class="text-gray">Active:</span> <span data-bind="text: Active ? 'Yes' : 'No'"></span></p>
+                        <p><span class="text-gray">Last activity:</span> <span data-bind="text: LastActivity"></span></p>
+                        <p class="hidden-md hidden-lg"><span class="text-gray">Tickets:</span> <span data-bind="text: TicketsCount"></span></p>
                     </div>
 
-                    <div class="hidden-xs col-sm-2">
+                    <div class="hidden-xs hidden-sm col-md-2">
                         <p class="text-gray">Tickets:</p>
                         <p data-bind="text: TicketsCount"></p>
                     </div>
@@ -115,6 +121,7 @@
 
         self.users = ko.observableArray([]);
 
+        self.activityOptions = ko.observableArray([{ text: 'Active', value: 'true' }, { text: 'Inactive', value: 'false' }]);
         self.roles = ko.observableArray(['Admin', 'User']);
         self.sortingOptions = ko.observableArray(["First name", "Last name", "Email", "Phone", "Mobile phone", "Company", "Department", "Role", "Last activity", "Tickets"]);
         self.numberOfPages = ko.observable();
@@ -123,6 +130,7 @@
 
         self.filters =
         {
+            active: ko.observable(filtersFromCookie ? (filtersFromCookie.active === 'true' ? self.activityOptions()[0] : (filtersFromCookie.active === 'false' ? self.activityOptions()[1] : undefined)) : undefined),
             role: ko.observable(filtersFromCookie ? filtersFromCookie.role : ''),
             searchString: ko.observable(filtersFromCookie ? filtersFromCookie.search : ''),
             searchAllWords: ko.observable(filtersFromCookie ? filtersFromCookie.searchAllWords : 'false'),
@@ -132,6 +140,11 @@
         };
 
         self.filters.searchString.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 500 } });
+
+        self.filters.active.subscribe(function()
+        {
+            self.changePageAndGetUsers(1);
+        });
 
         self.filters.role.subscribe(function()
         {
@@ -198,6 +211,7 @@
         {
             var data =
             {
+                active: self.filters.active() ? self.filters.active().value.toString() : null,
                 role: self.filters.role(),
                 search: removeExcessSpaces(self.filters.searchString()),
                 searchAllWords: self.filters.searchAllWords(),

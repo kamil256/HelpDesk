@@ -9,8 +9,7 @@ namespace HelpDesk.DAL.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
-            ContextKey = "HelpDesk.DAL.Concrete.HelpDeskContext";
+            AutomaticMigrationsEnabled = true;
         }
 
         protected override void Seed(HelpDesk.DAL.Concrete.HelpDeskContext context)

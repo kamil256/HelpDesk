@@ -294,18 +294,14 @@ mark {
     margin-bottom: 5px;
 }
 
-.users-list > .well > .row > div:nth-child(2), .users-list > .well > .row > .col-sm-2 {
-    border-left: 1px solid lightgray;
-}
-
-.users-list > .well > .row > div:nth-child(3) > p:nth-child(2) {
-    font-size: 16px;
-    line-height: 48px; 
-    vertical-align: middle; 
-}
-
 .users-list > .well > .row > div:nth-child(4) > p:nth-child(2) {
     font-size: 34px;
+}
+
+@media (min-width: 768px) {
+    .users-list > .well > .row > div:not(:first-child) {
+        border-left: 1px solid lightgray;
+    }
 }
 
 /* ----- tickets list ----- */

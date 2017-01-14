@@ -3,7 +3,7 @@ namespace HelpDesk.DAL.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class InitialCreate : DbMigration
+    public partial class Init : DbMigration
     {
         public override void Up()
         {
@@ -53,6 +53,8 @@ namespace HelpDesk.DAL.Migrations
                         MobilePhone = c.String(),
                         Company = c.String(),
                         Department = c.String(),
+                        Active = c.Boolean(nullable: false),
+                        LastActivity = c.DateTime(),
                         Email = c.String(maxLength: 256),
                         EmailConfirmed = c.Boolean(nullable: false),
                         PasswordHash = c.String(),
@@ -113,6 +115,7 @@ namespace HelpDesk.DAL.Migrations
                         SettingsId = c.String(nullable: false, maxLength: 128),
                         NewTicketsNotifications = c.Boolean(nullable: false),
                         SolvedTicketsNotifications = c.Boolean(nullable: false),
+                        ClosedTicketsNotifications = c.Boolean(nullable: false),
                         UsersPerPage = c.Int(nullable: false),
                         TicketsPerPage = c.Int(nullable: false),
                     })
