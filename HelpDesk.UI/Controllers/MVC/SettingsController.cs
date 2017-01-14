@@ -45,6 +45,7 @@ namespace HelpDesk.UI.Controllers.MVC
 
             if (identityHelper.IsCurrentUserAnAdministrator())
             {
+                model.AssignedTicketsNotifications = settings.AssignedTicketsNotifications;
                 model.UsersPerPage = settings.UsersPerPage;
                 model.Categories = unitOfWork.CategoryRepository.Get(orderBy: q => q.OrderBy(c => c.Order)).ToList();
             }
@@ -60,10 +61,11 @@ namespace HelpDesk.UI.Controllers.MVC
         [ValidateAntiForgeryToken]
         [OverrideAuthorization]
         [Authorize]
-        public ActionResult Index([Bind(Include = "NewTicketsNotifications,SolvedTicketsNotifications,ClosedTicketsNotifications,UsersPerPage,TicketsPerPage,Categories")] IndexViewModel model)
+        public ActionResult Index([Bind(Include = "NewTicketsNotifications,AssignedTicketsNotifications,SolvedTicketsNotifications,ClosedTicketsNotifications,UsersPerPage,TicketsPerPage,Categories")] IndexViewModel model)
         {
             if (!identityHelper.IsCurrentUserAnAdministrator())
             {
+                ModelState.Remove("AssignedTicketsNotifications");
                 ModelState.Remove("UsersPerPage");
                 ModelState.Remove("Categories");
             }
@@ -85,6 +87,8 @@ namespace HelpDesk.UI.Controllers.MVC
 
                     if (identityHelper.IsCurrentUserAnAdministrator())
                     {
+                        settings.AssignedTicketsNotifications = model.AssignedTicketsNotifications;
+
                         settings.UsersPerPage = model.UsersPerPage;
 
                         IEnumerable<Category> existingCategories = unitOfWork.CategoryRepository.Get(includeProperties: "Tickets");

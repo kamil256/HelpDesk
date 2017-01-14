@@ -102,6 +102,10 @@
     <Compile Include="Migrations\201701140732561_Init.Designer.cs">
       <DependentUpon>201701140732561_Init.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201701141559303_AddAssignedTicketsNotificationPropertyToSettingsClass.cs" />
+    <Compile Include="Migrations\201701141559303_AddAssignedTicketsNotificationPropertyToSettingsClass.Designer.cs">
+      <DependentUpon>201701141559303_AddAssignedTicketsNotificationPropertyToSettingsClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -112,6 +116,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201701140732561_Init.resx">
       <DependentUpon>201701140732561_Init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201701141559303_AddAssignedTicketsNotificationPropertyToSettingsClass.resx">
+      <DependentUpon>201701141559303_AddAssignedTicketsNotificationPropertyToSettingsClass.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -67,6 +67,64 @@ namespace HelpDesk.UI.Controllers.MVC
             return View(model);
         }
 
+        private void sendNewTicketNotification(Ticket ticket)
+        {
+            EmailSender emailSender = new EmailSender();
+            string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
+            IEnumerable<User> notifiedUsers = identityHelper.UserManager.Users.Where(u => u.Id == ticket.RequesterId || u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
+            string subject = $"New help desk ticket: {ticket.Title}";
+            string content = $"<p>New ticket ID is #{ticket.TicketId}.<br />" +
+                             $"To see ticket's details go to the following URL and log in to help desk system: http://localhost:54848/Tickets/Edit/{ticket.TicketId}</p>" +
+                             $"<p>Yours sincerely, " +
+                             $"<br />Ringnet Support Team</p>";
+            foreach (User notifiedUser in notifiedUsers)
+                if (notifiedUser != null && notifiedUser.Settings.NewTicketsNotifications)
+                    emailSender.SendEmail($"{notifiedUser.FirstName} {notifiedUser.LastName} <{notifiedUser.Email}>", subject, $"<p>Dear {notifiedUser.FirstName} {notifiedUser.LastName},</p>" + content);
+        }
+
+        private void sendAssignedTicketNotification(Ticket ticket)
+        {
+            EmailSender emailSender = new EmailSender();
+            User notifiedUser = identityHelper.UserManager.FindById(ticket.AssignedUserId);
+            string subject = $"Assigned help desk ticket: {ticket.Title}";
+            string content = $"<p>Assigned ticket ID is #{ticket.TicketId}.<br />" +
+                             $"To see ticket's details go to the following URL and log in to help desk system: http://localhost:54848/Tickets/Edit/{ticket.TicketId}</p>" +
+                             $"<p>Yours sincerely, " +
+                             $"<br />Ringnet Support Team</p>";
+            if (notifiedUser != null && notifiedUser.Settings.AssignedTicketsNotifications)
+                emailSender.SendEmail($"{notifiedUser.FirstName} {notifiedUser.LastName} <{notifiedUser.Email}>", subject, $"<p>Dear {notifiedUser.FirstName} {notifiedUser.LastName},</p>" + content);
+        }
+
+        private void sendSolvedTicketNotification(Ticket ticket)
+        {
+            EmailSender emailSender = new EmailSender();
+            string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
+            IEnumerable<User> notifiedUsers = identityHelper.UserManager.Users.Where(u => u.Id == ticket.RequesterId || u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
+            string subject = $"Solved help desk ticket: {ticket.Title}";
+            string content = $"<p>Solved ticket ID is #{ticket.TicketId}.<br />" +
+                             $"To see ticket's details go to the following URL and log in to help desk system: http://localhost:54848/Tickets/Edit/{ticket.TicketId}</p>" +
+                             $"<p>Yours sincerely, " +
+                             $"<br />Ringnet Support Team</p>";
+            foreach (User notifiedUser in notifiedUsers)
+                if (notifiedUser != null && notifiedUser.Settings.SolvedTicketsNotifications)
+                    emailSender.SendEmail($"{notifiedUser.FirstName} {notifiedUser.LastName} <{notifiedUser.Email}>", subject, $"<p>Dear {notifiedUser.FirstName} {notifiedUser.LastName},</p>" + content);
+        }
+
+        private void sendClosedTicketNotification(Ticket ticket)
+        {
+            EmailSender emailSender = new EmailSender();
+            string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
+            IEnumerable<User> notifiedUsers = identityHelper.UserManager.Users.Where(u => u.Id == ticket.RequesterId || u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
+            string subject = $"Closed help desk ticket: {ticket.Title}";
+            string content = $"<p>Closed ticket ID is #{ticket.TicketId}.<br />" +
+                             $"To see ticket's details go to the following URL and log in to help desk system: http://localhost:54848/Tickets/Edit/{ticket.TicketId}</p>" +
+                             $"<p>Yours sincerely, " +
+                             $"<br />Ringnet Support Team</p>";
+            foreach (User notifiedUser in notifiedUsers)
+                if (notifiedUser != null && notifiedUser.Settings.ClosedTicketsNotifications)
+                    emailSender.SendEmail($"{notifiedUser.FirstName} {notifiedUser.LastName} <{notifiedUser.Email}>", subject, $"<p>Dear {notifiedUser.FirstName} {notifiedUser.LastName},</p>" + content);
+        }
+
         [OverrideAuthorization]
         [Authorize]
         public ViewResult Create()
@@ -118,17 +176,7 @@ namespace HelpDesk.UI.Controllers.MVC
                     unitOfWork.TicketRepository.Insert(ticket);
                     unitOfWork.Save();
 
-                    EmailSender emailSender = new EmailSender();
-                    string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
-                    IEnumerable<User> notifiedUsers = identityHelper.UserManager.Users.Where(u => u.Id == ticket.RequesterId || u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
-                    string subject = $"New help desk ticket: {ticket.Title}";
-                    string content = $"<p>New ticket ID is #{ticket.TicketId}.<br />" +
-                                     $"To see ticket's details go to the following URL and log in to help desk system: http://localhost:54848/Tickets/Edit/{ticket.TicketId}</p>" +
-                                     $"<p>Yours sincerely, " +
-                                     $"<br />Ringnet Support Team</p>";
-                    foreach (User notifiedUser in notifiedUsers)
-                        if (notifiedUser.Settings.NewTicketsNotifications)
-                            emailSender.SendEmail($"{notifiedUser.FirstName} {notifiedUser.LastName} <{notifiedUser.Email}>", subject, $"<p>Dear {notifiedUser.FirstName} {notifiedUser.LastName},</p>" + content);
+                    sendNewTicketNotification(ticket);
 
                     TempData["Success"] = "Successfully created new ticket.";
                     return RedirectToAction("Index");
@@ -260,13 +308,38 @@ namespace HelpDesk.UI.Controllers.MVC
 
                     updateTicketHistory(oldTicket, ticket);
                     unitOfWork.Save();
+
+                    if (ticket.Status == oldTicket.Status)
+                    {
+                        if (ticket.AssignedUserId != oldTicket.AssignedUserId)
+                            sendAssignedTicketNotification(ticket);
+                    }
+                    else
+                        switch (ticket.Status)
+                        {
+                            case "In progress":
+                                sendAssignedTicketNotification(ticket);
+                                break;
+                            case "Solved":
+                                sendSolvedTicketNotification(ticket);
+                                break;
+                            case "Closed":
+                                sendClosedTicketNotification(ticket);
+                                break;
+                        }
+
                     TempData["Success"] = "Successfully edited ticket.";
                     return RedirectToAction("Index");
                 }
             }
-            catch
+            catch (DataException)
             {
-                TempData["Fail"] = "Unable to edit ticket. Try again, and if the problem persists contact your system administrator.";
+                TempData["Fail"] = "Unable to edit new ticket. Try again, and if the problem persists contact your system administrator.";
+            }
+            catch (SmtpException)
+            {
+                TempData["Fail"] = "Successfully created new ticket, but unable to send email notification. If the problem persists contact your system administrator.";
+                return RedirectToAction("Index");
             }
             model.Creator = ticket.Creator;
             model.CreateDate = ticket.CreateDate.ToString("yyyy-MM-dd hh:mm:ss");
@@ -392,12 +465,27 @@ namespace HelpDesk.UI.Controllers.MVC
 
                 updateTicketHistory(oldTicket, ticket);
                 unitOfWork.Save();
+
+                if (ticket.Status == oldTicket.Status)
+                {
+                    if (ticket.AssignedUserId != oldTicket.AssignedUserId)
+                        sendAssignedTicketNotification(ticket);
+                }
+                else
+                    sendAssignedTicketNotification(ticket);
             }
-            catch
+            catch (DataException)
             {
                 return Json(new
                 {
                     Fail = "Cannot assign user to ticket. Try again, and if the problem persists contact your system administrator."
+                });
+            }
+            catch (SmtpException)
+            {
+                return Json(new
+                {
+                    Fail = "Successfully assigned user to ticket, but unable to send email notification. If the problem persists contact your system administrator."
                 });
             }
 
@@ -440,17 +528,13 @@ namespace HelpDesk.UI.Controllers.MVC
                 updateTicketHistory(oldTicket, ticket);
                 unitOfWork.Save();
 
-                EmailSender emailSender = new EmailSender();
-                string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
-                IEnumerable<User> notifiedUsers = identityHelper.UserManager.Users.Where(u => u.Id == ticket.RequesterId || u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
-                string subject = $"Solved help desk ticket: {ticket.Title}";
-                string content = $"<p>Solved ticket ID is #{ticket.TicketId}.<br />" +
-                                 $"To see ticket's details go to the following URL and log in to help desk system: http://localhost:54848/Tickets/Edit/{ticket.TicketId}</p>" +
-                                 $"<p>Yours sincerely, " +
-                                 $"<br />Ringnet Support Team</p>";
-                foreach (User notifiedUser in notifiedUsers)
-                    if (notifiedUser.Settings.SolvedTicketsNotifications)
-                        emailSender.SendEmail($"{notifiedUser.FirstName} {notifiedUser.LastName} <{notifiedUser.Email}>", subject, $"<p>Dear {notifiedUser.FirstName} {notifiedUser.LastName},</p>" + content);
+                if (ticket.Status == oldTicket.Status)
+                {
+                    if (ticket.AssignedUserId != oldTicket.AssignedUserId)
+                        sendAssignedTicketNotification(ticket);
+                }
+                else
+                    sendSolvedTicketNotification(ticket);
             }
             catch (DataException)
             {
@@ -496,17 +580,13 @@ namespace HelpDesk.UI.Controllers.MVC
                 updateTicketHistory(oldTicket, ticket);
                 unitOfWork.Save();
 
-                EmailSender emailSender = new EmailSender();
-                string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
-                IEnumerable<User> notifiedUsers = identityHelper.UserManager.Users.Where(u => u.Id == ticket.RequesterId || u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
-                string subject = $"Closed help desk ticket: {ticket.Title}";
-                string content = $"<p>Closed ticket ID is #{ticket.TicketId}.<br />" +
-                                 $"To see ticket's details go to the following URL and log in to help desk system: http://localhost:54848/Tickets/Edit/{ticket.TicketId}</p>" +
-                                 $"<p>Yours sincerely, " +
-                                 $"<br />Ringnet Support Team</p>";
-                foreach (User notifiedUser in notifiedUsers)
-                    if (notifiedUser.Settings.ClosedTicketsNotifications)
-                        emailSender.SendEmail($"{notifiedUser.FirstName} {notifiedUser.LastName} <{notifiedUser.Email}>", subject, $"<p>Dear {notifiedUser.FirstName} {notifiedUser.LastName},</p>" + content);
+                if (ticket.Status == oldTicket.Status)
+                {
+                    if (ticket.AssignedUserId != oldTicket.AssignedUserId)
+                        sendAssignedTicketNotification(ticket);
+                }
+                else
+                    sendClosedTicketNotification(ticket);
             }
             catch (DataException)
             {

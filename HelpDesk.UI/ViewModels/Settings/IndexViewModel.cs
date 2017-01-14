@@ -13,6 +13,9 @@ namespace HelpDesk.UI.ViewModels.Settings
         public bool NewTicketsNotifications { get; set; }
 
         [Required]
+        public bool AssignedTicketsNotifications { get; set; }
+
+        [Required]
         public bool SolvedTicketsNotifications { get; set; }
 
         [Required]

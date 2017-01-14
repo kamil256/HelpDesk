@@ -42,6 +42,15 @@
                                     Send email notifications about new tickets
                                 </label>
                             </div>
+                            @if (identityHelper.IsCurrentUserAnAdministrator())
+                            {
+                                <div class="checkbox">
+                                    <label>
+                                        @Html.CheckBoxFor(x => x.AssignedTicketsNotifications)
+                                        Send email notifications about assigned tickets
+                                    </label>
+                                </div>
+                            }
                             <div class="checkbox">
                                 <label>
                                     @Html.CheckBoxFor(x => x.SolvedTicketsNotifications)
