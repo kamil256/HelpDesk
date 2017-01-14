@@ -201,38 +201,9 @@ body {
 
 /* ----- input with search button ----- */
 
-.input-with-button {
-    position: relative;
-}
-
-.input-with-button > input, .input-with-button > select {
-    border-bottom-right-radius: 0;
-    border-top-right-radius: 0;    
-}
-
-.input-with-button > input {
-    width: calc(100% - 40px);
-}
-
-.input-with-button > select {
-    margin-right: 40px;
-}
-
-.input-with-button > button {
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 40px;
-}
-
-.input-with-button ~ .radio-inline, .input-with-button ~ .checkbox {
-    margin-top: 5px;
-}
-
-.input-with-button ~ .checkbox {
+.input-group ~ .radio-inline, .input-group ~ .checkbox {
     margin-bottom: 0;
+    margin-top: 5px;
 }
 
 /* ----- highlight searched text ----- */
@@ -266,12 +237,12 @@ mark {
 .sort-by {    
     margin-bottom: 15px;
 }
-@media (max-width: 767px) {
-    .sort-by .form-control {
+/*@media (max-width: 767px) {
+    .sort-by .input-group {
         display: inline-block;
         width: auto;
     }
-}
+}*/
 
 /* ----- users list ----- */
 

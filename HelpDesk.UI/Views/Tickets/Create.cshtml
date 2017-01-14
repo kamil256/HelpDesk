@@ -22,9 +22,11 @@
                         @Html.LabelFor(model => model.RequesterId, new { @class = "control-label col-sm-3" })
                         <input type="hidden" name="RequesterId" data-bind="value: requester() ? requester().UserId : null" />
                         <div class="col-sm-8 "> 
-                            <div class="input-with-button">
+                            <div class="input-group">
                                 <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
-                                <button type="button" data-bind="click: function() { $('#change-requester-dialog').modal('show'); }" class="btn btn-default glyphicon glyphicon-search"></button>
+                                <div class="input-group-btn">
+                                    <button data-bind="click: function() { $('#change-requester-dialog').modal('show'); }" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                                </div>
                             </div>
                             @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
                         </div>
@@ -81,9 +83,12 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="control-label">Find users</label>
-                    <div class="input-with-button">
+                    
+                    <div class="input-group">
                         <input data-bind="textInput: searchString, event: { keypress: searchTicketsWhenEnterKeyPressed }" class="form-control" />
-                        <button data-bind="click: searchTicketsAndFocusTheInput" class="btn btn-default glyphicon glyphicon-search"></button>
+                        <div class="input-group-btn">
+                            <button data-bind="click: searchTicketsAndFocusTheInput" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                        </div>
                     </div>
                 </div>
 

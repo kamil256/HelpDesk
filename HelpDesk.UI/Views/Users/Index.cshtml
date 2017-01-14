@@ -21,10 +21,14 @@
 
             <div class="form-group col-sm-4">
                 <label class="control-label">Search</label>
-                <div class="input-with-button">
+                
+                <div class="input-group">
                     <input data-bind="textInput: filters.searchString, event: { keypress: searchUsersWhenEnterKeyPressed }" class="form-control" />
-                    <button class="btn btn-default glyphicon glyphicon-search" data-bind="click: searchUsersAndFocusTheInput"></button>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" data-bind="click: searchUsersAndFocusTheInput"><span class="glyphicon glyphicon-search"></span></button>
+                    </div>
                 </div>
+
                 <label class="radio-inline"><input data-bind="checked: filters.searchAllWords" value="false" name="searchAllWords" type="radio">Any word</label>
                 <label class="radio-inline"><input data-bind="checked: filters.searchAllWords" value="true" name="searchAllWords" type="radio">All words</label>
             </div>
@@ -54,10 +58,14 @@
             <!-- /ko -->
         </ul>
 
-        <div class="input-with-button sort-by form-inline pull-right">
+        <div class="form-inline pull-right sort-by">
             <label class="control-label">Sort by</label>
-            <select data-bind="value: filters.sortBy, options: sortingOptions" class="form-control"></select>
-            <button data-bind="click: function() { toggleSortingOrder(); }, css: { 'glyphicon-sort-by-attributes': !filters.descendingSort(), 'glyphicon-sort-by-attributes-alt': filters.descendingSort() }" class="btn btn-default glyphicon"></button>
+            <div class="input-group">
+                <select data-bind="value: filters.sortBy, options: sortingOptions" class="form-control"></select>
+                <div class="input-group-btn">
+                    <button data-bind="click: function() { toggleSortingOrder(); }" class="btn btn-default"><span class="glyphicon" data-bind="css: { 'glyphicon-sort-by-attributes': !filters.descendingSort(), 'glyphicon-sort-by-attributes-alt': filters.descendingSort() }"></span></button>
+                </div>
+            </div>
         </div>
 
         <div class="users-list" data-bind="foreach: users">            
