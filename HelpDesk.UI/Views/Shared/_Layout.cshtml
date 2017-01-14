@@ -105,19 +105,19 @@
                 @using (Html.BeginForm("LogOut", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
                 {
                     @Html.AntiForgeryToken()
-                    
-                    <p class="navbar-text pull-right" style="margin-right: 0;">
-                        <a href="javascript:document.getElementById('logoutForm').submit()"><span class="glyphicon glyphicon-log-out"></span> Log out</a>
-                        <!--ko if: logOutAutomatically -->
-                        (<b data-bind="text: timeToAutomaticLogOut, css: { 'text-danger': secondsToAutomaticLogOut() < 60 }"></b> <span data-bind="click: function() { secondsToAutomaticLogOut(600); }" class="glyphicon glyphicon-refresh"></span>)
-                        <!-- /ko -->
-                    </p>
 
-                    <ul class="nav navbar-nav pull-right">
+                    <ul class="nav navbar-nav nav-right">
                         <li>
                             <a href="@Url.Action("Edit", "Users", new { id = identityHelper.CurrentUser.Id })"><span class="glyphicon glyphicon-user"></span> @identityHelper.CurrentUser.FirstName @identityHelper.CurrentUser.LastName</a>
                         </li>
                     </ul>
+
+                    <p class="navbar-text nav-right" style="margin-right: 0;">
+                        <a href="javascript:document.getElementById('logoutForm').submit()"><span class="glyphicon glyphicon-log-out"></span> Log out</a>
+                        <!--ko if: logOutAutomatically -->
+                        (<b data-bind="text: timeToAutomaticLogOut, css: { 'text-danger': secondsToAutomaticLogOut() < 60 }"></b> <span data-bind="click: function() { secondsToAutomaticLogOut(600); }" class="glyphicon glyphicon-refresh"></span>)
+                        <!-- /ko -->
+                    </p>                    
                 }
             </div>
         </div>
