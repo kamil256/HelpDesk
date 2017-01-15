@@ -55,6 +55,8 @@ namespace HelpDesk.UI.Controllers.MVC
                 User user = await identityHelper.UserManager.FindAsync(model.Email, model.Password);
                 if (user == null)
                     ModelState.AddModelError("", "Incorrect email or password");
+                else if (!user.Active)
+                    ModelState.AddModelError("", "Account is inactive");
                 else
                 {
                     IAuthenticationManager authenticationManager = HttpContext.GetOwinContext().Authentication;
