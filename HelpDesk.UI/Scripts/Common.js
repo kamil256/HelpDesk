@@ -156,7 +156,7 @@ function split(text, separator)
 
     var fragments = text.split(new RegExp(separator, 'gi'));
 
-    return { fragments, separators };
+    return { fragments: fragments, separators: separators };
 }
 
 function join(fragments, separators)

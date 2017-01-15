@@ -42,6 +42,11 @@ textarea {
     resize: vertical;
 }
 
+.fakeInputToDisableCredentialsAutocomplete {
+    position: absolute;
+    visibility: hidden; 
+}
+
 /* ----- log in -----*/
 
 .log-in-panel {

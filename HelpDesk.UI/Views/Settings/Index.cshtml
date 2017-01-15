@@ -29,7 +29,7 @@
                     </div>
                 </div>
 
-                @using (@Html.BeginForm("Index", "Settings", FormMethod.Post, new { @class = "form-horizontal" }))
+                @using (@Html.BeginForm("Index", "Settings", FormMethod.Post, new { @class = "form-horizontal", autocomplete = "off" }))
                 {
                     @Html.AntiForgeryToken()
 

@@ -9,7 +9,7 @@
     <div class="panel-heading">
         <h4 class="modal-title">Log in to Help Desk</h4>
     </div>
-    @using (Html.BeginForm("Login", "Account", new { Model.ReturnUrl }))
+    @using (Html.BeginForm("Login", "Account", new { Model.ReturnUrl }, FormMethod.Post, new { autocomplete = "off" }))
     {
         @Html.AntiForgeryToken()        
 
