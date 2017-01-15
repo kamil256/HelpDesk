@@ -146,16 +146,18 @@ function deleteCookie(name)
 
 function split(text, separator)
 {
+    var fragments = [];
     var separators = [];
-    var index = text.toLowerCase().indexOf(separator.toLowerCase());
-    while (index != -1)
+    var nextFragmentIndex = 0;
+    var nextSeparatorIndex = text.toLowerCase().indexOf(separator.toLowerCase());
+    while (nextSeparatorIndex != -1)
     {
-        separators.push(text.substr(index, separator.length));
-        index = text.toLowerCase().indexOf(separator.toLowerCase(), index + separator.length);
+        fragments.push(text.substr(nextFragmentIndex, nextSeparatorIndex - nextFragmentIndex));
+        separators.push(text.substr(nextSeparatorIndex, separator.length));
+        nextFragmentIndex = nextSeparatorIndex + separator.length;
+        nextSeparatorIndex = text.toLowerCase().indexOf(separator.toLowerCase(), nextSeparatorIndex + separator.length);
     }
-
-    var fragments = text.split(new RegExp(separator, 'gi'));
-
+    fragments.push(text.substr(nextFragmentIndex, text.length - nextFragmentIndex));
     return { fragments: fragments, separators: separators };
 }
 
