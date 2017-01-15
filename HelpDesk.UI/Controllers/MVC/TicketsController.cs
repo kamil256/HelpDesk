@@ -438,13 +438,6 @@ namespace HelpDesk.UI.Controllers.MVC
         public async Task<JsonResult> AssignUserToTicket(string userId, int ticketId)
         {
             User user = await identityHelper.UserManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return Json(new
-                {
-                    Fail = "Cannot assign ticket to user which doesn't exist. Try again, and if the problem persists contact your system administrator."
-                });
-            }
 
             Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
             if (ticket == null)
@@ -459,7 +452,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 Ticket oldTicket = (Ticket)ticket.Clone();
 
-                ticket.AssignedUserId = user.Id;
+                ticket.AssignedUserId = user != null ? user.Id : null;
                 ticket.Status = "In progress";
                 unitOfWork.TicketRepository.Update(ticket);
 
@@ -499,14 +492,7 @@ namespace HelpDesk.UI.Controllers.MVC
         public async Task<JsonResult> SolveTicket(string userId, int ticketId, string solution)
         {
             User user = await identityHelper.UserManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return Json(new
-                {
-                    Fail = "Cannot solve ticket by user which doesn't exist. Try again, and if the problem persists contact your system administrator."
-                });
-            }
-
+            
             Ticket ticket = unitOfWork.TicketRepository.GetById(ticketId);
             if (ticket == null)
             {
@@ -520,7 +506,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 Ticket oldTicket = (Ticket)ticket.Clone();
 
-                ticket.AssignedUserId = user.Id;
+                ticket.AssignedUserId = user != null ? user.Id : null;
                 ticket.Status = "Solved";
                 ticket.Solution = string.IsNullOrWhiteSpace(solution) ? null : solution;
                 unitOfWork.TicketRepository.Update(ticket);
