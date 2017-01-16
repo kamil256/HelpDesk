@@ -1,5 +1,7 @@
 ﻿using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Concrete;
+using HelpDesk.UI.Infrastructure.Abstract;
+using HelpDesk.UI.Infrastructure.Concrete;
 using Ninject;
 using System;
 using System.Collections.Generic;
@@ -22,6 +24,7 @@ namespace HelpDesk.UI.Infrastructure
         private void AddBindings()
         {
             kernel.Bind<IUnitOfWork>().To<UnitOfWork>();
+            kernel.Bind<IEmailSender>().To<EmailSender>();
         }
 
         public object GetService(Type serviceType)

@@ -20,6 +20,7 @@ using HelpDesk.UI.ViewModels.Users;
 using HelpDesk.UI.ViewModels.Categories;
 using HelpDesk.UI.Infrastructure.Concrete;
 using System.Net.Mail;
+using HelpDesk.UI.Infrastructure.Abstract;
 
 namespace HelpDesk.UI.Controllers.MVC
 {
@@ -28,11 +29,13 @@ namespace HelpDesk.UI.Controllers.MVC
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly IdentityHelper identityHelper;
+        private readonly IEmailSender emailSender;
 
-        public TicketsController(IUnitOfWork unitOfWork)
+        public TicketsController(IUnitOfWork unitOfWork, IEmailSender emailSender)
         {
             this.unitOfWork = unitOfWork;
             this.identityHelper = new IdentityHelper();
+            this.emailSender = emailSender;
         }
 
         [OverrideAuthorization]
@@ -69,7 +72,6 @@ namespace HelpDesk.UI.Controllers.MVC
 
         private void sendNewTicketNotification(Ticket ticket)
         {
-            EmailSender emailSender = new EmailSender();
             string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
             IEnumerable<User> notifiedUsers = identityHelper.UserManager.Users.Where(u => u.Id == ticket.RequesterId || u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
             string subject = $"New help desk ticket: {ticket.Title}";
@@ -84,7 +86,6 @@ namespace HelpDesk.UI.Controllers.MVC
 
         private void sendAssignedTicketNotification(Ticket ticket)
         {
-            EmailSender emailSender = new EmailSender();
             User notifiedUser = identityHelper.UserManager.FindById(ticket.AssignedUserId);
             string subject = $"Assigned help desk ticket: {ticket.Title}";
             string content = $"<p>Assigned ticket ID is #{ticket.TicketId}.<br />" +
@@ -97,7 +98,6 @@ namespace HelpDesk.UI.Controllers.MVC
 
         private void sendSolvedTicketNotification(Ticket ticket)
         {
-            EmailSender emailSender = new EmailSender();
             string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
             IEnumerable<User> notifiedUsers = identityHelper.UserManager.Users.Where(u => u.Id == ticket.RequesterId || u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
             string subject = $"Solved help desk ticket: {ticket.Title}";
@@ -112,7 +112,6 @@ namespace HelpDesk.UI.Controllers.MVC
 
         private void sendClosedTicketNotification(Ticket ticket)
         {
-            EmailSender emailSender = new EmailSender();
             string adminRoleId = identityHelper.RoleManager.FindByName("Admin").Id;
             IEnumerable<User> notifiedUsers = identityHelper.UserManager.Users.Where(u => u.Id == ticket.RequesterId || u.Roles.FirstOrDefault(r => r.RoleId == adminRoleId) != null);
             string subject = $"Closed help desk ticket: {ticket.Title}";

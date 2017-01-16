@@ -25,7 +25,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
 
         public TicketsController()
         {
-            this.unitOfWork = new UnitOfWork();
+            unitOfWork = new UnitOfWork();
             identityHelper = new IdentityHelper();
         }
 
