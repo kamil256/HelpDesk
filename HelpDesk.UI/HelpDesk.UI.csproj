@@ -267,7 +267,6 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\MVC\AccountController.cs" />
     <Compile Include="Controllers\MVC\LayoutController.cs" />
-    <Compile Include="Controllers\WebAPI\CategoriesController.cs" />
     <Compile Include="Controllers\WebAPI\TicketsController.cs" />
     <Compile Include="Controllers\WebAPI\UsersController.cs" />
     <Compile Include="Controllers\MVC\HomeController.cs" />
