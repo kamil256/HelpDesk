@@ -16,7 +16,7 @@ namespace HelpDesk.DAL.Concrete
 
         static HelpDeskContext()
         {
-            Database.SetInitializer<HelpDeskContext>(new IdentityDbInit());
+            Database.SetInitializer<HelpDeskContext>(new MigrateDatabaseToLatestVersion<HelpDeskContext, HelpDesk.DAL.Migrations.Configuration>());
         }
 
         public static HelpDeskContext Create()

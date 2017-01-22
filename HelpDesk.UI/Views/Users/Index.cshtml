@@ -240,7 +240,7 @@
                 }
                 setCookie('usersFilters_@identityHelper.CurrentUser.Id', JSON.stringify(data));
             };
-            sendAjaxRequest("/api/Users", "GET", data, onSuccess);
+            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', 'GET', data, onSuccess); 
         };
 
         self.changePageAndGetUsers = function(pageNumber)
@@ -270,7 +270,7 @@
 
         self.goToUserDetails = function(id)
         {
-            document.location.href = '/Users/Edit/' + id;
+            document.location.href = '@Url.Action("Edit", "Users")/' + id;
         };
 
         self.getUsers();

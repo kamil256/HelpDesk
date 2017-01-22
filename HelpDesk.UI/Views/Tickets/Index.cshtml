@@ -290,7 +290,7 @@
         self.filters.descendingSort.subscribe(function()
         {
             self.changePageAndGetTickets(1);
-        });        
+        });
 
         self.markSearchString = function(text)
         {
@@ -354,7 +354,7 @@
                 }
                 setCookie('ticketsFilters_@identityHelper.CurrentUser.Id', JSON.stringify(data));
             };
-            sendAjaxRequest("/api/Tickets", "GET", data, onSuccess);
+            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Tickets" })', "GET", data, onSuccess);
         };
 
         self.changePageAndGetTickets = function(pageNumber)
@@ -384,12 +384,12 @@
 
         self.goToTicketDetails = function(id)
         {
-            document.location.href = '/Tickets/Edit/' + id;
+            document.location.href = '@Url.Action("Edit", "Tickets")/' + id;
         };
 
         self.goToUserDetails = function(id)
         {
-            document.location.href = '/Users/Edit/' + id;
+            document.location.href = '@Url.Action("Edit", "Users")/' + id;
         };
 
         self.assignUser = function(ticket)
@@ -410,7 +410,7 @@
                 {
                     self.getTickets();
                 }
-                sendAjaxRequest("/Tickets/AssignUserToTicket", "POST", data, onSuccess);
+                sendAjaxRequest('@Url.Action("AssignUserToTicket", "Tickets")', "POST", data, onSuccess);
             }
         };
 
@@ -434,7 +434,7 @@
                 {
                     self.getTickets();
                 };
-                sendAjaxRequest("/Tickets/SolveTicket", "POST", data, onSuccess);
+                sendAjaxRequest('@Url.Action("SolveTicket", "Tickets")', "POST", data, onSuccess);
             }
         };
 
@@ -455,7 +455,7 @@
                 {
                     self.getTickets();
                 }
-                sendAjaxRequest("/Tickets/CloseTicket", "POST", data, onSuccess);
+                sendAjaxRequest('@Url.Action("CloseTicket", "Tickets")', "POST", data, onSuccess);
             }
         };
 

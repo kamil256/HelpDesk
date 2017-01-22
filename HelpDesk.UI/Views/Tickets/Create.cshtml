@@ -152,7 +152,7 @@
                     self.foundUsers(response.Users);
                     self.totalNumberOfFoundUsers(response.FoundItemsCount);
                 };
-                sendAjaxRequest("/api/Users", "GET", data, onSuccess);
+                sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', "GET", data, onSuccess);
             }
         };
 

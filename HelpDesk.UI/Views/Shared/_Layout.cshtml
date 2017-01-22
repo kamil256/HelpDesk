@@ -54,7 +54,7 @@
                     setTimeout(self.countdown, 1000);
                 }
                 else
-                    document.location.href = '/Account/LogOut';
+                    document.location.href = '@Url.Action("LogOut", "Account")';
             };
 
             if (self.logOutAutomatically())
