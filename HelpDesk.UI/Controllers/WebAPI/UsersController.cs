@@ -21,10 +21,12 @@ namespace HelpDesk.UI.Controllers.WebAPI
     public class UsersController : ApiController
     {
         private readonly IdentityHelper identityHelper;
+        private readonly IUnitOfWork unitOfWork;
 
         public UsersController()
         {
             this.identityHelper = new IdentityHelper();
+            this.unitOfWork = new UnitOfWork();
         }
 
         private string removeExcessSpaces(string text)
@@ -43,15 +45,15 @@ namespace HelpDesk.UI.Controllers.WebAPI
         [Authorize]
         public HttpResponseMessage GetUsers(bool? active = null, string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
         {
-            IQueryable<User> users = identityHelper.UserManager.Users;
+            List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
 
             if (active != null)
-                users = users.Where(u => u.Active == active);
+                filters.Add(u => u.Active == active);
 
             if (!string.IsNullOrEmpty(role))
             {
                 string roleId = identityHelper.RoleManager.FindByName(role).Id;
-                users = users.Where(u => u.Roles.FirstOrDefault(r => r.RoleId == roleId) != null);
+                filters.Add(u => u.Roles.FirstOrDefault(r => r.RoleId == roleId) != null);
             }
 
             search = removeExcessSpaces(search);
@@ -59,101 +61,105 @@ namespace HelpDesk.UI.Controllers.WebAPI
             {
                 string[] words = search.Split(' ');
                 if (searchAllWords)
-                    users = users.Where(u => words.All(w => u.FirstName.ToLower().Contains(w.ToLower()) ||
-                                                            u.LastName.ToLower().Contains(w.ToLower()) ||
-                                                            u.Email.ToLower().Contains(w.ToLower()) ||
-                                                            u.Phone.ToLower().Contains(w.ToLower()) ||
-                                                            u.MobilePhone.ToLower().Contains(w.ToLower()) ||
-                                                            u.Company.ToLower().Contains(w.ToLower()) ||
-                                                            u.Department.ToLower().Contains(w.ToLower())));
+                    filters.Add(u => words.All(w => u.FirstName.ToLower().Contains(w.ToLower()) ||
+                                                    u.LastName.ToLower().Contains(w.ToLower()) ||
+                                                    u.Email.ToLower().Contains(w.ToLower()) ||
+                                                    u.Phone.ToLower().Contains(w.ToLower()) ||
+                                                    u.MobilePhone.ToLower().Contains(w.ToLower()) ||
+                                                    u.Company.ToLower().Contains(w.ToLower()) ||
+                                                    u.Department.ToLower().Contains(w.ToLower())));
                 else
-                    users = users.Where(u => words.Any(w => u.FirstName.ToLower().Contains(w.ToLower()) ||
-                                                            u.LastName.ToLower().Contains(w.ToLower()) ||
-                                                            u.Email.ToLower().Contains(w.ToLower()) ||
-                                                            u.Phone.ToLower().Contains(w.ToLower()) ||
-                                                            u.MobilePhone.ToLower().Contains(w.ToLower()) ||
-                                                            u.Company.ToLower().Contains(w.ToLower()) ||
-                                                            u.Department.ToLower().Contains(w.ToLower())));
+                    filters.Add(u => words.Any(w => u.FirstName.ToLower().Contains(w.ToLower()) ||
+                                                    u.LastName.ToLower().Contains(w.ToLower()) ||
+                                                    u.Email.ToLower().Contains(w.ToLower()) ||
+                                                    u.Phone.ToLower().Contains(w.ToLower()) ||
+                                                    u.MobilePhone.ToLower().Contains(w.ToLower()) ||
+                                                    u.Company.ToLower().Contains(w.ToLower()) ||
+                                                    u.Department.ToLower().Contains(w.ToLower())));
             }
+
+            Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
 
             switch (sortBy)
             {
                 case "First name":
                     if (descSort)
-                        users = users.OrderByDescending(u => u.FirstName);
+                        orderBy = query => query.OrderByDescending(u => u.FirstName);
                     else
-                        users = users.OrderBy(u => u.FirstName);
+                        orderBy = query => query.OrderBy(u => u.FirstName);
                     break;
                 case "Email":
                     if (descSort)
-                        users = users.OrderByDescending(u => u.Email);
+                        orderBy = query => query.OrderByDescending(u => u.Email);
                     else
-                        users = users.OrderBy(u => u.Email);
+                        orderBy = query => query.OrderBy(u => u.Email);
                     break;
                 case "Phone":
                     if (descSort)
-                        users = users.OrderByDescending(u => u.Phone);
+                        orderBy = query => query.OrderByDescending(u => u.Phone);
                     else
-                        users = users.OrderBy(u => u.Phone);
+                        orderBy = query => query.OrderBy(u => u.Phone);
                     break;
                 case "Mobile phone":
                     if (descSort)
-                        users = users.OrderByDescending(u => u.MobilePhone);
+                        orderBy = query => query.OrderByDescending(u => u.MobilePhone);
                     else
-                        users = users.OrderBy(u => u.MobilePhone);
+                        orderBy = query => query.OrderBy(u => u.MobilePhone);
                     break;
                 case "Company":
                     if (descSort)
-                        users = users.OrderByDescending(u => u.Company);
+                        orderBy = query => query.OrderByDescending(u => u.Company);
                     else
-                        users = users.OrderBy(u => u.Company);
+                        orderBy = query => query.OrderBy(u => u.Company);
                     break;
                 case "Department":
                     if (descSort)
-                        users = users.OrderByDescending(u => u.Department);
+                        orderBy = query => query.OrderByDescending(u => u.Department);
                     else
-                        users = users.OrderBy(u => u.Department);
+                        orderBy = query => query.OrderBy(u => u.Department);
                     break;
                 case "Role":
                     IQueryable<Role> allRoles = identityHelper.RoleManager.Roles;
                     if (descSort)
-                        users = users.OrderByDescending(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
+                        orderBy = query => query.OrderByDescending(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
                     else
-                        users = users.OrderBy(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
+                        orderBy = query => query.OrderBy(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
                     break;
                 case "Last activity":
                     if (descSort)
-                        users = users.OrderByDescending(u => u.LastActivity);
+                        orderBy = query => query.OrderByDescending(u => u.LastActivity);
                     else
-                        users = users.OrderBy(u => u.LastActivity);
+                        orderBy = query => query.OrderBy(u => u.LastActivity);
                     break;
                 case "Tickets":
                     if (descSort)
-                        users = users.OrderByDescending(u => u.CreatedTickets.Union(u.RequestedTickets).Distinct().Count());
+                        orderBy = query => query.OrderByDescending(u => u.CreatedTickets.Union(u.RequestedTickets).Distinct().Count());
                     else
-                        users = users.OrderBy(u => u.CreatedTickets.Union(u.RequestedTickets).Distinct().Count());
+                        orderBy = query => query.OrderBy(u => u.CreatedTickets.Union(u.RequestedTickets).Distinct().Count());
                     break;
                 case "Last name":
                 default:
                     if (descSort)
-                        users = users.OrderByDescending(u => u.LastName);
+                        orderBy = query => query.OrderByDescending(u => u.LastName);
                     else
-                        users = users.OrderBy(u => u.LastName);
+                        orderBy = query => query.OrderBy(u => u.LastName);
                     break;
             }
 
             usersPerPage = usersPerPage ?? identityHelper.CurrentUser.Settings.UsersPerPage;
-            int numberOfUsers = users.Count();
-
+            int numberOfUsers = unitOfWork.UserRepository.Get(filters).Count();
             int numberOfPages;
+
+            IEnumerable<User> users;
             if (page != 0)
             {
                 numberOfPages = (int)Math.Ceiling((decimal)numberOfUsers / (int)usersPerPage);
-                users = users.Skip((page - 1) * (int)usersPerPage).Take((int)usersPerPage);
+                users = unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy, skip: (page - 1) * (int)usersPerPage, take: (int)usersPerPage);
             }
             else
             {
                 numberOfPages = 1;
+                users = unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy);
             }
 
             return Request.CreateResponse(HttpStatusCode.OK, new

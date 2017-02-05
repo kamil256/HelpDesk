@@ -27,6 +27,8 @@ namespace HelpDesk.UI.Infrastructure
             }
         }
 
+        private User currentUser = null;
+
         public User CurrentUser
         {
             get
@@ -46,6 +48,8 @@ namespace HelpDesk.UI.Infrastructure
             }
         }
 
+        private bool? isCurrentUserAnAdministrator = null;
+
         public bool IsCurrentUserAnAdministrator()
         {
             if (HttpContext.Current.User.Identity.IsAuthenticated)
@@ -57,8 +61,5 @@ namespace HelpDesk.UI.Infrastructure
                 isCurrentUserAnAdministrator = null;
             return isCurrentUserAnAdministrator ?? false;
         }
-
-        private User currentUser = null;
-        private bool? isCurrentUserAnAdministrator = null;        
     }
 }

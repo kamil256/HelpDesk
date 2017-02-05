@@ -9,6 +9,7 @@ namespace HelpDesk.DAL.Abstract
 {
     public interface IUnitOfWork
     {
+        GenericRepository<User> UserRepository { get; }
         GenericRepository<Ticket> TicketRepository { get; }
         GenericRepository<Category> CategoryRepository { get; }
         GenericRepository<Settings> SettingsRepository { get; }

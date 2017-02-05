@@ -16,5 +16,6 @@ namespace HelpDesk.DAL.Abstract
         void Insert(T entity);
         void Update(T entity);
         void Delete(int id);
-        void Delete(T entity);    }
+        void Delete(T entity);
+    }
 }

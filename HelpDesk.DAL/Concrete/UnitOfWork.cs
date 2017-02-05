@@ -12,10 +12,21 @@ namespace HelpDesk.DAL.Concrete
     {
         private readonly HelpDeskContext context = new HelpDeskContext();
 
+        private GenericRepository<User> userRepository;
         private GenericRepository<Ticket> ticketRepository;
         private GenericRepository<Category> categoryRepository;
         private GenericRepository<Settings> settingsRepository;
         private GenericRepository<TicketsHistory> ticketsHistoryRepository;
+
+        public GenericRepository<User> UserRepository
+        {
+            get
+            {
+                if (userRepository == null)
+                    userRepository = new GenericRepository<User>(context);
+                return userRepository;
+            }
+        }
 
         public GenericRepository<Ticket> TicketRepository
         {
