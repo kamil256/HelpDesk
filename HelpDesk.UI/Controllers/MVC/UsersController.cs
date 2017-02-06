@@ -17,6 +17,7 @@ using HelpDesk.DAL.Entities;
 using HelpDesk.DAL.Abstract;
 using HelpDesk.UI.ViewModels.Users;
 using HelpDesk.UI.Infrastructure;
+using HelpDesk.UI.Infrastructure.Abstract;
 
 namespace HelpDesk.UI.Controllers.MVC
 {
@@ -24,12 +25,12 @@ namespace HelpDesk.UI.Controllers.MVC
     public class UsersController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
-        private readonly IdentityHelper identityHelper;
+        private readonly IIdentityHelper identityHelper;
 
-        public UsersController(IUnitOfWork unitOfWork)
+        public UsersController(IUnitOfWork unitOfWork, IIdentityHelper identityHelper)
         {
             this.unitOfWork = unitOfWork;
-            this.identityHelper = new IdentityHelper();
+            this.identityHelper = identityHelper;
         }
 
         public ViewResult Index()

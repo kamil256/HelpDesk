@@ -2,6 +2,7 @@
 using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
 using HelpDesk.UI.Infrastructure;
+using HelpDesk.UI.Infrastructure.Abstract;
 using HelpDesk.UI.ViewModels.Users;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -20,13 +21,13 @@ namespace HelpDesk.UI.Controllers.WebAPI
     [Authorize(Roles = "Admin")]
     public class UsersController : ApiController
     {
-        private readonly IdentityHelper identityHelper;
+        private readonly IIdentityHelper identityHelper;
         private readonly IUnitOfWork unitOfWork;
 
-        public UsersController(IUnitOfWork unitOfWork)
+        public UsersController(IUnitOfWork unitOfWork, IIdentityHelper identityHelper)
         {
-            this.identityHelper = new IdentityHelper();
             this.unitOfWork = unitOfWork;
+            this.identityHelper = identityHelper;
         }
 
         [HttpGet]
@@ -41,7 +42,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
 
             if (!string.IsNullOrEmpty(role))
             {
-                string roleId = identityHelper.RoleManager.FindByName(role).Id;
+                string roleId = identityHelper.GetRoleId(role);
                 filters.Add(u => u.Roles.FirstOrDefault(r => r.RoleId == roleId) != null);
             }
 
@@ -135,7 +136,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     break;
             }
 
-            usersPerPage = usersPerPage ?? identityHelper.CurrentUser.Settings.UsersPerPage;
+            usersPerPage = usersPerPage ?? identityHelper.UsersPerPageSettingOfCurrentUser;
             int numberOfUsers = unitOfWork.UserRepository.Get(filters).Count();
             int numberOfPages;
 
@@ -163,14 +164,14 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     MobilePhone = u.MobilePhone,
                     Company = u.Company,
                     Department = u.Department,
-                    Role = identityHelper.UserManager.IsInRole(u.Id, "Admin") ? "Admin" : "User",
+                    Role = identityHelper.IsUserAnAdministrator(u.Id) ? "Admin" : "User",
                     Active = u.Active,
                     LastActivity = u.LastActivity != null ? ((DateTime)u.LastActivity).ToString("yyyy-MM-dd HH:mm") : "Never",
                     TicketsCount = u.CreatedTickets.Union(u.RequestedTickets).Distinct().Count()
                 }),
                 NumberOfPages = numberOfPages,
                 FoundItemsCount = numberOfUsers,
-                TotalItemsCount = identityHelper.UserManager.Users.Count()
+                TotalItemsCount = identityHelper.TotalUsersCount
             });
         }
     }

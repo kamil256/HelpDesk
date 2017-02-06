@@ -6,10 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using HelpDesk.UI.Infrastructure.Abstract;
 
-namespace HelpDesk.UI.Infrastructure
+namespace HelpDesk.UI.Infrastructure.Concrete
 {
-    public class IdentityHelper
+    public class IdentityHelper : IIdentityHelper
     {
         public UserManager UserManager
         {
@@ -24,6 +25,23 @@ namespace HelpDesk.UI.Infrastructure
             get
             {
                 return HttpContext.Current.GetOwinContext().GetUserManager<RoleManager>();
+            }
+        }
+
+        public string GetRoleId(string roleName)
+        {
+            return RoleManager.FindByName(roleName).Id;
+        }
+
+        private string adminRoleId = null;
+
+        public string AdminRoleId
+        {
+            get
+            {
+                if (adminRoleId == null)
+                    adminRoleId = GetRoleId("Admin");
+                return adminRoleId;
             }
         }
 
@@ -60,6 +78,27 @@ namespace HelpDesk.UI.Infrastructure
             else
                 isCurrentUserAnAdministrator = null;
             return isCurrentUserAnAdministrator ?? false;
+        }
+
+        public bool IsUserAnAdministrator(string userId)
+        {
+            return UserManager.IsInRole(userId, "Admin");
+        }
+
+        public int UsersPerPageSettingOfCurrentUser
+        {
+            get
+            {
+                return CurrentUser.Settings.UsersPerPage;
+            }
+        }
+
+        public int TotalUsersCount
+        {
+            get
+            {
+                return UserManager.Users.Count();
+            }
         }
     }
 }

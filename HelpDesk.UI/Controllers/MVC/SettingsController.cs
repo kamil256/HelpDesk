@@ -2,6 +2,7 @@
 using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
 using HelpDesk.UI.Infrastructure;
+using HelpDesk.UI.Infrastructure.Abstract;
 using HelpDesk.UI.ViewModels;
 using HelpDesk.UI.ViewModels.Settings;
 using Microsoft.AspNet.Identity;
@@ -21,12 +22,12 @@ namespace HelpDesk.UI.Controllers.MVC
     public class SettingsController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
-        private readonly IdentityHelper identityHelper;
+        private readonly IIdentityHelper identityHelper;
 
-        public SettingsController(IUnitOfWork unitOfWork)
+        public SettingsController(IUnitOfWork unitOfWork, IIdentityHelper identityHelper)
         {
             this.unitOfWork = unitOfWork;
-            this.identityHelper = new IdentityHelper();
+            this.identityHelper = identityHelper;
         }
 
         [OverrideAuthorization]

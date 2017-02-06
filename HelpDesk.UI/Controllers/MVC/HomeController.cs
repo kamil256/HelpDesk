@@ -1,6 +1,6 @@
 ﻿using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Entities;
-using HelpDesk.UI.Infrastructure;
+using HelpDesk.UI.Infrastructure.Abstract;
 using HelpDesk.UI.ViewModels.Home;
 using Microsoft.AspNet.Identity;
 using System;
@@ -18,12 +18,12 @@ namespace HelpDesk.UI.Controllers.MVC
     public class HomeController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
-        private readonly IdentityHelper identityHelper;
+        private readonly IIdentityHelper identityHelper;
 
-        public HomeController(IUnitOfWork unitOfWork)
+        public HomeController(IUnitOfWork unitOfWork, IIdentityHelper identityHelper)
         {
             this.unitOfWork = unitOfWork;
-            identityHelper = new IdentityHelper();
+            this.identityHelper = identityHelper;
         }
 
         [OverrideAuthorization]

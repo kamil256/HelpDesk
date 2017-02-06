@@ -44,6 +44,7 @@ namespace HelpDesk.UI.Infrastructure
         private void AddBindings(IKernel kernel)
         {
             kernel.Bind<IUnitOfWork>().To<UnitOfWork>().InRequestScope();
+            kernel.Bind<IIdentityHelper>().To<IdentityHelper>().InRequestScope();
             kernel.Bind<IEmailSender>().To<EmailSender>().InRequestScope();
         }        
     }

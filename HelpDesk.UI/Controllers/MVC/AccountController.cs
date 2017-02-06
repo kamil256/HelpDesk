@@ -1,7 +1,8 @@
 ﻿using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Concrete;
 using HelpDesk.DAL.Entities;
-using HelpDesk.UI.Infrastructure;
+using HelpDesk.UI.Infrastructure.Abstract;
+using HelpDesk.UI.Infrastructure.Concrete;
 using HelpDesk.UI.ViewModels;
 using HelpDesk.UI.ViewModels.Account;
 using Microsoft.AspNet.Identity;
@@ -22,12 +23,12 @@ namespace HelpDesk.UI.Controllers.MVC
     public class AccountController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
-        private readonly IdentityHelper identityHelper;
+        private readonly IIdentityHelper identityHelper;
 
-        public AccountController(IUnitOfWork unitOfWork)
+        public AccountController(IUnitOfWork unitOfWork, IIdentityHelper identityHelper)
         {
             this.unitOfWork = unitOfWork;
-            this.identityHelper = new IdentityHelper();
+            this.identityHelper = identityHelper;
         }
 
         [AllowAnonymous]
@@ -77,13 +78,13 @@ namespace HelpDesk.UI.Controllers.MVC
             return RedirectToAction("Index", "Home");
         }
 
-        //protected override void OnException(ExceptionContext filterContext)
-        //{
-        //    if (!filterContext.ExceptionHandled)
-        //    {
-        //        filterContext.Result = new RedirectResult("~/Content/Error.html");
-        //        filterContext.ExceptionHandled = true;
-        //    }
-        //}
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            if (!filterContext.ExceptionHandled)
+            {
+                filterContext.Result = new RedirectResult("~/Content/Error.html");
+                filterContext.ExceptionHandled = true;
+            }
+        }
     }
 }

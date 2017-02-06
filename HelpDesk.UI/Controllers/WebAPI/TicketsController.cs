@@ -14,6 +14,7 @@ using HelpDesk.DAL.Entities;
 using HelpDesk.DAL.Abstract;
 using HelpDesk.UI.ViewModels.Tickets;
 using HelpDesk.UI.Infrastructure;
+using HelpDesk.UI.Infrastructure.Abstract;
 
 namespace HelpDesk.UI.Controllers.WebAPI
 {
@@ -21,12 +22,12 @@ namespace HelpDesk.UI.Controllers.WebAPI
     public class TicketsController : ApiController
     {
         private readonly IUnitOfWork unitOfWork;
-        private readonly IdentityHelper identityHelper;
+        private readonly IIdentityHelper identityHelper;
 
-        public TicketsController(IUnitOfWork unitOfWork)
+        public TicketsController(IUnitOfWork unitOfWork, IIdentityHelper identityHelper)
         {
             this.unitOfWork = unitOfWork;
-            identityHelper = new IdentityHelper();
+            this.identityHelper = identityHelper;
         }
 
         [HttpGet]
