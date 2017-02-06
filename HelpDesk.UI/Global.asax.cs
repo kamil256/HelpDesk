@@ -14,7 +14,9 @@ namespace HelpDesk.UI
         {
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            RouteConfig.RegisterRoutes(RouteTable.Routes);            
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+
+            System.Web.Mvc.DependencyResolver.SetResolver((System.Web.Mvc.IDependencyResolver)GlobalConfiguration.Configuration.DependencyResolver);           
         }
     }
 }

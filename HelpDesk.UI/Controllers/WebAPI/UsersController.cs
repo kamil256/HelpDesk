@@ -23,10 +23,10 @@ namespace HelpDesk.UI.Controllers.WebAPI
         private readonly IdentityHelper identityHelper;
         private readonly IUnitOfWork unitOfWork;
 
-        public UsersController()
+        public UsersController(IUnitOfWork unitOfWork)
         {
             this.identityHelper = new IdentityHelper();
-            this.unitOfWork = new UnitOfWork();
+            this.unitOfWork = unitOfWork;
         }
 
         private string removeExcessSpaces(string text)
@@ -119,11 +119,11 @@ namespace HelpDesk.UI.Controllers.WebAPI
                         orderBy = query => query.OrderBy(u => u.Department);
                     break;
                 case "Role":
-                    IQueryable<Role> allRoles = identityHelper.RoleManager.Roles;
-                    if (descSort)
-                        orderBy = query => query.OrderByDescending(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
-                    else
-                        orderBy = query => query.OrderBy(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
+                    //IQueryable<Role> allRoles = identityHelper.RoleManager.Roles;
+                    //if (descSort)
+                    //    orderBy = query => query.OrderByDescending(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
+                    //else
+                    //    orderBy = query => query.OrderBy(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
                     break;
                 case "Last activity":
                     if (descSort)

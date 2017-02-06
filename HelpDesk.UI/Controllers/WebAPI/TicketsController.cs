@@ -23,9 +23,9 @@ namespace HelpDesk.UI.Controllers.WebAPI
         private readonly IUnitOfWork unitOfWork;
         private readonly IdentityHelper identityHelper;
 
-        public TicketsController()
+        public TicketsController(IUnitOfWork unitOfWork)
         {
-            unitOfWork = new UnitOfWork();
+            this.unitOfWork = unitOfWork;
             identityHelper = new IdentityHelper();
         }
 

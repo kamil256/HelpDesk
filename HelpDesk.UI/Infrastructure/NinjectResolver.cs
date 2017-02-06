@@ -3,30 +3,31 @@ using System.Collections.Generic;
 using System.Web.Http.Dependencies;
 using Ninject;
 using Ninject.Extensions.ChildKernel;
+using Ninject.Web.Common;
 using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Concrete;
-using Ninject.Web.WebApi.Filter;
-using System.Linq;
+using HelpDesk.UI.Infrastructure.Abstract;
+using HelpDesk.UI.Infrastructure.Concrete;
 
 namespace HelpDesk.UI.Infrastructure
 {
     // TODO: not working
-    public class NinjectResolver : IDependencyResolver
+    public class NinjectResolver : System.Web.Http.Dependencies.IDependencyResolver, System.Web.Mvc.IDependencyResolver
     {
         private IKernel kernel;
-        public NinjectResolver() : this(new StandardKernel()) { }
-public NinjectResolver(IKernel ninjectKernel, bool scope = false)
+
+        public NinjectResolver() : this(new StandardKernel())
+        {
+        }
+
+        public NinjectResolver(IKernel ninjectKernel)
         {
             kernel = ninjectKernel;
-            if (!scope)
-            {
-                AddBindings(kernel);
-            }
+            AddBindings(kernel);
         }
         public IDependencyScope BeginScope()
         {
-            return new NinjectResolver(AddRequestBindings(
-            new ChildKernel(kernel)), true);
+            return this;
         }
         public object GetService(Type serviceType)
         {
@@ -42,14 +43,8 @@ public NinjectResolver(IKernel ninjectKernel, bool scope = false)
         }
         private void AddBindings(IKernel kernel)
         {
-            // singleton and transient bindings go here
-        }
-        private IKernel AddRequestBindings(IKernel kernel)
-        {
-            kernel.Bind<DefaultModelValidatorProviders>().ToConstant(new DefaultModelValidatorProviders(GetServices(typeof(System.Web.Http.Validation.ModelValidatorProvider)).Cast<System.Web.Http.Validation.ModelValidatorProvider>()));
-            kernel.Bind<DefaultFilterProviders>().ToConstant(new DefaultFilterProviders(new[] { new NinjectFilterProvider(kernel) }.AsEnumerable()));
-            kernel.Bind<IUnitOfWork>().To<UnitOfWork>().InSingletonScope();
-            return kernel;
-        }
+            kernel.Bind<IUnitOfWork>().To<UnitOfWork>().InRequestScope();
+            kernel.Bind<IEmailSender>().To<EmailSender>().InRequestScope();
+        }        
     }
 }

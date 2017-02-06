@@ -10,6 +10,8 @@ namespace HelpDesk.UI
     {
         public static void Register(HttpConfiguration config)
         {
+            config.DependencyResolver = new NinjectResolver();
+
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
