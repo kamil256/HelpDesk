@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelpDesk.UI", "HelpDesk.UI\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelpDesk.DAL", "HelpDesk.DAL\HelpDesk.DAL.csproj", "{40A75D74-EF50-4FB5-AE02-00F452590F8E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelpDesk.Tests", "HelpDesk.Tests\HelpDesk.Tests.csproj", "{22700404-EE20-400F-A6E2-65BA88B8F25D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{40A75D74-EF50-4FB5-AE02-00F452590F8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40A75D74-EF50-4FB5-AE02-00F452590F8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40A75D74-EF50-4FB5-AE02-00F452590F8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22700404-EE20-400F-A6E2-65BA88B8F25D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22700404-EE20-400F-A6E2-65BA88B8F25D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22700404-EE20-400F-A6E2-65BA88B8F25D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22700404-EE20-400F-A6E2-65BA88B8F25D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

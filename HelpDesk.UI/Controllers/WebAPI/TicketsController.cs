@@ -29,17 +29,6 @@ namespace HelpDesk.UI.Controllers.WebAPI
             identityHelper = new IdentityHelper();
         }
 
-        private string removeExcessSpaces(string text)
-        {
-            if (text != null)
-            {
-                System.Text.RegularExpressions.Regex trimmer = new System.Text.RegularExpressions.Regex(@"\s\s+");
-                return trimmer.Replace(text.Trim(), " ");
-            }
-            else
-                return text;
-        }
-                
         [HttpGet]
         [OverrideAuthorization]
         [Authorize]
@@ -60,7 +49,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     filters.Add(ticket => ticket.CategoryId == (categoryId == 0 ? null : categoryId));
             }
 
-            search = removeExcessSpaces(search);
+            search = search.RemoveExcessSpaces();
             if (!string.IsNullOrEmpty(search))
             {
                 string[] words = search.Split(' ');
