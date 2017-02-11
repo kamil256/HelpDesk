@@ -7,15 +7,14 @@ using System.Threading.Tasks;
 
 namespace HelpDesk.DAL.Abstract
 {
-    public interface IRepository<T> where T: class
+    public interface IRepository<TEntity, TKey> where TEntity : class
     {
-        IEnumerable<T> Get(IEnumerable<Expression<Func<T, bool>>> filters = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, int skip = 0, int take = 0, string includeProperties = "");
-        int Count(Expression<Func<T, bool>> filter = null);
-        T GetById(int id);
-        T GetById(string id);
-        void Insert(T entity);
-        void Update(T entity);
+        IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, int skip = 0, int take = 0, string includeProperties = "");
+        int Count(Expression<Func<TEntity, bool>> filter = null);
+        TEntity GetById(TKey id);
+        void Insert(TEntity entity);
+        void Update(TEntity entity);
         void Delete(int id);
-        void Delete(T entity);
+        void Delete(TEntity entity);
     }
 }

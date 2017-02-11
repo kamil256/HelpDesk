@@ -42,7 +42,7 @@ namespace HelpDesk.Tests.WebAPIControllersTests
         [Test]
         public void GetUsers_ByDefault_ReturnsAllUsers()
         {
-            IRepository<User> userRepository = Substitute.For<IRepository<User>>();
+            IRepository<User, string> userRepository = Substitute.For<IRepository<User, string>>();
             List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
             Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = query => query.OrderBy(u => u.LastName);
             userRepository.Get(filters, orderBy, 0, 0, "").Returns(usersFactory());

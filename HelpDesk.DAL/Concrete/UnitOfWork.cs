@@ -12,58 +12,58 @@ namespace HelpDesk.DAL.Concrete
     {
         private readonly HelpDeskContext context = new HelpDeskContext();
 
-        private IRepository<User> userRepository;
-        private IRepository<Ticket> ticketRepository;
-        private IRepository<Category> categoryRepository;
-        private IRepository<Settings> settingsRepository;
-        private IRepository<TicketsHistory> ticketsHistoryRepository;
+        private IRepository<User, string> userRepository;
+        private IRepository<Ticket, int> ticketRepository;
+        private IRepository<Category, int> categoryRepository;
+        private IRepository<Settings, string> settingsRepository;
+        private IRepository<TicketsHistory, int> ticketsHistoryRepository;
 
-        public IRepository<User> UserRepository
+        public IRepository<User, string> UserRepository
         {
             get
             {
                 if (userRepository == null)
-                    userRepository = new GenericRepository<User>(context);
+                    userRepository = new GenericRepository<User, string>(context);
                 return userRepository;
             }
         }
 
-        public IRepository<Ticket> TicketRepository
+        public IRepository<Ticket, int> TicketRepository
         {
             get
             {
                 if (ticketRepository == null)
-                    ticketRepository = new GenericRepository<Ticket>(context);
+                    ticketRepository = new GenericRepository<Ticket, int>(context);
                 return ticketRepository;
             }
         }
 
-        public IRepository<Category> CategoryRepository
+        public IRepository<Category, int> CategoryRepository
         {
             get
             {
                 if (categoryRepository == null)
-                    categoryRepository = new GenericRepository<Category>(context);
+                    categoryRepository = new GenericRepository<Category, int>(context);
                 return categoryRepository;
             }
         }
 
-        public IRepository<Settings> SettingsRepository
+        public IRepository<Settings, string> SettingsRepository
         {
             get
             {
                 if (settingsRepository == null)
-                    settingsRepository = new GenericRepository<Settings>(context);
+                    settingsRepository = new GenericRepository<Settings, string>(context);
                 return settingsRepository;
             }
         }
 
-        public IRepository<TicketsHistory> TicketsHistoryRepository
+        public IRepository<TicketsHistory, int> TicketsHistoryRepository
         {
             get
             {
                 if (ticketsHistoryRepository == null)
-                    ticketsHistoryRepository = new GenericRepository<TicketsHistory>(context);
+                    ticketsHistoryRepository = new GenericRepository<TicketsHistory, int>(context);
                 return ticketsHistoryRepository;
             }
         }
