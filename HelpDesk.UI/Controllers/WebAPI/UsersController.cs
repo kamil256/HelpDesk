@@ -33,7 +33,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
         [HttpGet]
         [OverrideAuthorization]
         [Authorize]
-        public HttpResponseMessage GetUsers(bool? active = null, string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
+        public IHttpActionResult GetUsers(bool? active = null, string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
         {
             List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
 
@@ -152,9 +152,9 @@ namespace HelpDesk.UI.Controllers.WebAPI
                 users = unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy);
             }
 
-            return Request.CreateResponse(HttpStatusCode.OK, new
+            return Ok(new UserResponse
             {
-                Users = users.AsEnumerable().Select(u => new UserDTO
+                Users = users.Select(u => new UserDTO
                 {
                     UserId = u.Id,
                     FirstName = u.FirstName,

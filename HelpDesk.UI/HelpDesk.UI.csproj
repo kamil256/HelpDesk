@@ -295,6 +295,7 @@
     <Compile Include="ViewModels\Users\TicketsViewModel.cs" />
     <Compile Include="ViewModels\Users\UserDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\Users\UserResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />

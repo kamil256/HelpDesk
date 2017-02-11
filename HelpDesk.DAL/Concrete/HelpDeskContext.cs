@@ -1,4 +1,5 @@
-﻿using HelpDesk.DAL.Entities;
+﻿using HelpDesk.DAL.Abstract;
+using HelpDesk.DAL.Entities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
@@ -12,7 +13,9 @@ namespace HelpDesk.DAL.Concrete
 {
     public class HelpDeskContext : IdentityDbContext<HelpDesk.DAL.Entities.User>
     {
-        public HelpDeskContext() : base("HelpDeskContext") { }
+        public HelpDeskContext() : base("HelpDeskContext")
+        {
+        }
 
         static HelpDeskContext()
         {

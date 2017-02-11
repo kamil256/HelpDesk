@@ -9,11 +9,11 @@ namespace HelpDesk.DAL.Abstract
 {
     public interface IUnitOfWork
     {
-        GenericRepository<User> UserRepository { get; }
-        GenericRepository<Ticket> TicketRepository { get; }
-        GenericRepository<Category> CategoryRepository { get; }
-        GenericRepository<Settings> SettingsRepository { get; }
-        GenericRepository<TicketsHistory> TicketsHistoryRepository { get; }
+        IRepository<User> UserRepository { get; }
+        IRepository<Ticket> TicketRepository { get; }
+        IRepository<Category> CategoryRepository { get; }
+        IRepository<Settings> SettingsRepository { get; }
+        IRepository<TicketsHistory> TicketsHistoryRepository { get; }
         void Save();
     }
 }

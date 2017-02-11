@@ -6,8 +6,10 @@ namespace HelpDesk.DAL.Entities
 {
     public class User : IdentityUser
     {
+        public override string Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public override string Email { get; set; }
         public string Phone { get; set; }
         public string MobilePhone { get; set; }
         public string Company { get; set; }

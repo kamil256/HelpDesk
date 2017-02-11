@@ -12,13 +12,13 @@ namespace HelpDesk.DAL.Concrete
     {
         private readonly HelpDeskContext context = new HelpDeskContext();
 
-        private GenericRepository<User> userRepository;
-        private GenericRepository<Ticket> ticketRepository;
-        private GenericRepository<Category> categoryRepository;
-        private GenericRepository<Settings> settingsRepository;
-        private GenericRepository<TicketsHistory> ticketsHistoryRepository;
+        private IRepository<User> userRepository;
+        private IRepository<Ticket> ticketRepository;
+        private IRepository<Category> categoryRepository;
+        private IRepository<Settings> settingsRepository;
+        private IRepository<TicketsHistory> ticketsHistoryRepository;
 
-        public GenericRepository<User> UserRepository
+        public IRepository<User> UserRepository
         {
             get
             {
@@ -28,7 +28,7 @@ namespace HelpDesk.DAL.Concrete
             }
         }
 
-        public GenericRepository<Ticket> TicketRepository
+        public IRepository<Ticket> TicketRepository
         {
             get
             {
@@ -38,7 +38,7 @@ namespace HelpDesk.DAL.Concrete
             }
         }
 
-        public GenericRepository<Category> CategoryRepository
+        public IRepository<Category> CategoryRepository
         {
             get
             {
@@ -48,7 +48,7 @@ namespace HelpDesk.DAL.Concrete
             }
         }
 
-        public GenericRepository<Settings> SettingsRepository
+        public IRepository<Settings> SettingsRepository
         {
             get
             {
@@ -58,7 +58,7 @@ namespace HelpDesk.DAL.Concrete
             }
         }
 
-        public GenericRepository<TicketsHistory> TicketsHistoryRepository
+        public IRepository<TicketsHistory> TicketsHistoryRepository
         {
             get
             {
