@@ -32,7 +32,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
         {
             this.unitOfWork = unitOfWork;
             this.identityHelper = identityHelper;
-            userService = new UserService(unitOfWork);
+            userService = new UserService(unitOfWork, HttpContext.Current.User.Identity.GetUserId());
         }
 
         [HttpGet]

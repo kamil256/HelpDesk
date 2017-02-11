@@ -13,6 +13,7 @@ namespace HelpDesk.DAL.Concrete
         private readonly HelpDeskContext context = new HelpDeskContext();
 
         private IRepository<User, string> userRepository;
+        private IRepository<Role, string> roleRepository;
         private IRepository<Ticket, int> ticketRepository;
         private IRepository<Category, int> categoryRepository;
         private IRepository<Settings, string> settingsRepository;
@@ -25,6 +26,16 @@ namespace HelpDesk.DAL.Concrete
                 if (userRepository == null)
                     userRepository = new GenericRepository<User, string>(context);
                 return userRepository;
+            }
+        }
+
+        public IRepository<Role, string> RoleRepository
+        {
+            get
+            {
+                if (roleRepository == null)
+                    roleRepository = new GenericRepository<Role, string>(context);
+                return roleRepository;
             }
         }
 

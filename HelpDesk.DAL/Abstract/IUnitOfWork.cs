@@ -10,6 +10,7 @@ namespace HelpDesk.DAL.Abstract
     public interface IUnitOfWork
     {
         IRepository<User, string> UserRepository { get; }
+        IRepository<Role, string> RoleRepository { get; }
         IRepository<Ticket, int> TicketRepository { get; }
         IRepository<Category, int> CategoryRepository { get; }
         IRepository<Settings, string> SettingsRepository { get; }

@@ -14,10 +14,12 @@ namespace HelpDesk.BLL.Concrete
     public class UserService : IUserService
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly string loggedInUserId;
 
-        public UserService(IUnitOfWork unitOfWork)
+        public UserService(IUnitOfWork unitOfWork, string loggedInUserId)
         {
             this.unitOfWork = unitOfWork;
+            this.loggedInUserId = loggedInUserId;
         }
 
         public PagedUsersList GetUsers(bool? active = null, string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
@@ -29,8 +31,8 @@ namespace HelpDesk.BLL.Concrete
 
             if (!string.IsNullOrEmpty(role))
             {
-                //string roleId = identityHelper.GetRoleId(role);
-                //filters.Add(u => u.Roles.FirstOrDefault(r => r.RoleId == roleId) != null);
+                string roleId = unitOfWork.RoleRepository.Get(new List<Expression<Func<Role, bool>>> { r => r.Name == role }).FirstOrDefault().Id;
+                filters.Add(u => u.Roles.FirstOrDefault(r => r.RoleId == roleId) != null);
             }
 
             //search = search.RemoveExcessSpaces();
@@ -123,7 +125,7 @@ namespace HelpDesk.BLL.Concrete
                     break;
             }
 
-            usersPerPage = usersPerPage ?? 10;//identityHelper.UsersPerPageSettingOfCurrentUser;
+            usersPerPage = usersPerPage ?? unitOfWork.UserRepository.GetById(loggedInUserId).Settings.UsersPerPage;//10;//identityHelper.UsersPerPageSettingOfCurrentUser;
             int numberOfUsers = unitOfWork.UserRepository.Get(filters).Count();
             int numberOfPages;
 
@@ -144,7 +146,7 @@ namespace HelpDesk.BLL.Concrete
                 Users = users,
                 NumberOfPages = numberOfPages,
                 FoundItemsCount = numberOfUsers,
-                TotalItemsCount = 100//identityHelper.TotalUsersCount
+                TotalItemsCount = unitOfWork.UserRepository.Count()//100//identityHelper.TotalUsersCount
             };
         }
     }
