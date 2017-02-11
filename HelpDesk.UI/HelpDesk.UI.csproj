@@ -326,6 +326,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\HelpDesk.BLL\HelpDesk.BLL.csproj">
+      <Project>{a3619c50-c946-435a-94f7-998fbf4685bd}</Project>
+      <Name>HelpDesk.BLL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HelpDesk.DAL\HelpDesk.DAL.csproj">
       <Project>{40a75d74-ef50-4fb5-ae02-00f452590f8e}</Project>
       <Name>HelpDesk.DAL</Name>
