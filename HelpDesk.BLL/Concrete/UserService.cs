@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity.EntityFramework;
+using HelpDesk.BBL.ExtensionMethods;
 
 namespace HelpDesk.BLL.Concrete
 {
@@ -22,7 +23,7 @@ namespace HelpDesk.BLL.Concrete
             this.loggedInUserId = loggedInUserId;
         }
 
-        public PagedUsersList GetUsers(bool? active = null, string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
+        public PagedUsersList GetPagedUsersList(bool? active, string role, string search, bool searchAllWords, string sortBy, bool descSort, int? page, int? usersPerPage)
         {
             List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
 
@@ -35,7 +36,7 @@ namespace HelpDesk.BLL.Concrete
                 filters.Add(u => u.Roles.FirstOrDefault(r => r.RoleId == roleId) != null);
             }
 
-            //search = search.RemoveExcessSpaces();
+            search = search.RemoveExcessSpaces();
             if (!string.IsNullOrEmpty(search))
             {
                 string[] words = search.Split(' ');
@@ -56,6 +57,7 @@ namespace HelpDesk.BLL.Concrete
                                                     u.Company.ToLower().Contains(w.ToLower()) ||
                                                     u.Department.ToLower().Contains(w.ToLower())));
             }
+
 
             Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null;
 
@@ -98,11 +100,11 @@ namespace HelpDesk.BLL.Concrete
                         orderBy = query => query.OrderBy(u => u.Department);
                     break;
                 case "Role":
-                    //IQueryable<Role> allRoles = identityHelper.RoleManager.Roles;
-                    //if (descSort)
-                    //    orderBy = query => query.OrderByDescending(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
-                    //else
-                    //    orderBy = query => query.OrderBy(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
+                    IQueryable<Role> allRoles = unitOfWork.RoleRepository.Get().AsQueryable<Role>();
+                    if (descSort)
+                        orderBy = query => query.OrderByDescending(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
+                    else
+                        orderBy = query => query.OrderBy(u => u.Roles.Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { r.Name }).FirstOrDefault().Name);
                     break;
                 case "Last activity":
                     if (descSort)
@@ -125,15 +127,17 @@ namespace HelpDesk.BLL.Concrete
                     break;
             }
 
-            usersPerPage = usersPerPage ?? unitOfWork.UserRepository.GetById(loggedInUserId).Settings.UsersPerPage;//10;//identityHelper.UsersPerPageSettingOfCurrentUser;
-            int numberOfUsers = unitOfWork.UserRepository.Get(filters).Count();
+            usersPerPage = usersPerPage ?? unitOfWork.UserRepository.GetById(loggedInUserId).Settings.UsersPerPage;
+
             int numberOfPages;
+            int foundUsersCount = unitOfWork.UserRepository.Count(filters.ToArray());
+            int totalUsersCount = unitOfWork.UserRepository.Count();
 
             IEnumerable<User> users;
-            if (page != 0)
+            if (page != null)
             {
-                numberOfPages = (int)Math.Ceiling((decimal)numberOfUsers / (int)usersPerPage);
-                users = unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy, skip: (page - 1) * (int)usersPerPage, take: (int)usersPerPage);
+                numberOfPages = (int)Math.Ceiling((decimal)foundUsersCount / (int)usersPerPage);
+                users = unitOfWork.UserRepository.Get(filters: filters, orderBy: orderBy, skip: ((int)page - 1) * (int)usersPerPage, take: (int)usersPerPage);
             }
             else
             {
@@ -145,8 +149,8 @@ namespace HelpDesk.BLL.Concrete
             {
                 Users = users,
                 NumberOfPages = numberOfPages,
-                FoundItemsCount = numberOfUsers,
-                TotalItemsCount = unitOfWork.UserRepository.Count()//100//identityHelper.TotalUsersCount
+                FoundItemsCount = foundUsersCount,
+                TotalItemsCount = totalUsersCount
             };
         }
     }

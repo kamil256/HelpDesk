@@ -24,14 +24,14 @@ namespace HelpDesk.UI.Controllers.WebAPI
     [Authorize(Roles = "Admin")]
     public class UsersController : ApiController
     {
-        private readonly IIdentityHelper identityHelper;
-        private readonly IUnitOfWork unitOfWork;
+        //private readonly IIdentityHelper identityHelper;
+        //private readonly IUnitOfWork unitOfWork;
         private readonly IUserService userService;
 
         public UsersController(IUnitOfWork unitOfWork, IIdentityHelper identityHelper)
         {
-            this.unitOfWork = unitOfWork;
-            this.identityHelper = identityHelper;
+            //this.unitOfWork = unitOfWork;
+            //this.identityHelper = identityHelper;
             userService = new UserService(unitOfWork, HttpContext.Current.User.Identity.GetUserId());
         }
 
@@ -40,8 +40,9 @@ namespace HelpDesk.UI.Controllers.WebAPI
         [Authorize]
         public IHttpActionResult GetUsers(bool? active = null, string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null)
         {
-            PagedUsersList pagedUsersList = userService.GetUsers(active, role, search, searchAllWords, sortBy, descSort, page, usersPerPage);
-
+            // todo: use RoleService instead of UnitOfWork
+            string adminRoleId = unitOfWork.RoleRepository.Get(new Expression<Func<Role, bool>>[] { r => r.Name == "Admin" }).First().Id;
+            PagedUsersList pagedUsersList = userService.GetPagedUsersList(active, role, search, searchAllWords, sortBy, descSort, page, usersPerPage);
             return Ok(new UserResponse
             {
                 Users = pagedUsersList.Users.Select(u => new UserDTO
@@ -54,7 +55,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     MobilePhone = u.MobilePhone,
                     Company = u.Company,
                     Department = u.Department,
-                    Role = identityHelper.IsUserAnAdministrator(u.Id) ? "Admin" : "User",
+                    Role = u.Roles.FirstOrDefault().RoleId == adminRoleId ? "Admin" : "User",
                     Active = u.Active,
                     LastActivity = u.LastActivity != null ? ((DateTime)u.LastActivity).ToString("yyyy-MM-dd HH:mm") : "Never",
                     TicketsCount = u.CreatedTickets.Union(u.RequestedTickets).Distinct().Count()

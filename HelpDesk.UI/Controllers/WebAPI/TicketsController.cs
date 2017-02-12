@@ -50,7 +50,7 @@ namespace HelpDesk.UI.Controllers.WebAPI
                     filters.Add(ticket => ticket.CategoryId == (categoryId == 0 ? null : categoryId));
             }
 
-            search = search.RemoveExcessSpaces();
+            //search = search.RemoveExcessSpaces();
             if (!string.IsNullOrEmpty(search))
             {
                 string[] words = search.Split(' ');

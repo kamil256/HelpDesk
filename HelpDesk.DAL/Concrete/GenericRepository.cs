@@ -35,11 +35,13 @@ namespace HelpDesk.DAL.Concrete
             return query;
         }
 
-        public int Count(Expression<Func<TEntity, bool>> filter = null)
+        public int Count(params Expression<Func<TEntity, bool>>[] filters)
         {
             IQueryable<TEntity> query = context.Set<TEntity>();
-            if (filter != null)
-                query = query.Where(filter);
+            if (filters != null)
+                foreach (var filter in filters)
+                    if (filter != null)
+                        query = query.Where(filter);
             return query.Count();
         }
 

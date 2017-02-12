@@ -10,7 +10,7 @@ namespace HelpDesk.DAL.Abstract
     public interface IRepository<TEntity, TKey> where TEntity : class
     {
         IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, int skip = 0, int take = 0, string includeProperties = "");
-        int Count(Expression<Func<TEntity, bool>> filter = null);
+        int Count(params Expression<Func<TEntity, bool>>[] filters);
         TEntity GetById(TKey id);
         void Insert(TEntity entity);
         void Update(TEntity entity);

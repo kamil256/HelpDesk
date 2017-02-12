@@ -8,6 +8,8 @@ using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Concrete;
 using HelpDesk.UI.Infrastructure.Abstract;
 using HelpDesk.UI.Infrastructure.Concrete;
+using HelpDesk.BLL.Concrete;
+using HelpDesk.BLL.Abstract;
 
 namespace HelpDesk.UI.Infrastructure
 {
@@ -44,6 +46,7 @@ namespace HelpDesk.UI.Infrastructure
         private void AddBindings(IKernel kernel)
         {
             kernel.Bind<IUnitOfWork>().To<UnitOfWork>().InRequestScope();
+            kernel.Bind<IUserService>().To<UserService>().InRequestScope();
             kernel.Bind<IIdentityHelper>().To<IdentityHelper>().InRequestScope();
             kernel.Bind<IEmailSender>().To<EmailSender>().InRequestScope();
         }        

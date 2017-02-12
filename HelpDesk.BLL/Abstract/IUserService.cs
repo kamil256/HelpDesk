@@ -9,7 +9,6 @@ namespace HelpDesk.BLL.Abstract
 {
     public interface IUserService
     {
-        //IEnumerable<User> GetUsers(bool? active = null, string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null);
-        PagedUsersList GetUsers(bool? active = null, string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int page = 0, int? usersPerPage = null);
+        PagedUsersList GetPagedUsersList(bool? active, string role, string search, bool searchAllWords, string sortBy, bool descSort, int? page, int? usersPerPage);
     }
 }

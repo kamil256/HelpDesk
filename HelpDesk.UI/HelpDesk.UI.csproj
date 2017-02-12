@@ -274,7 +274,6 @@
     <Compile Include="Infrastructure\Abstract\IEmailSender.cs" />
     <Compile Include="Infrastructure\Abstract\IIdentityHelper.cs" />
     <Compile Include="Infrastructure\Concrete\EmailSender.cs" />
-    <Compile Include="Infrastructure\ExtensionMethods.cs" />
     <Compile Include="Infrastructure\Concrete\IdentityHelper.cs" />
     <Compile Include="Infrastructure\NinjectResolver.cs" />
     <Compile Include="ViewModels\Categories\CategoryDTO.cs" />

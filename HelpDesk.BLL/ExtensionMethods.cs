@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Text.RegularExpressions;
 
-namespace HelpDesk.UI.Infrastructure
+namespace HelpDesk.BBL.ExtensionMethods
 {
     public static class ExtensionMethods
     {
@@ -11,7 +8,7 @@ namespace HelpDesk.UI.Infrastructure
         {
             if (text != null)
             {
-                System.Text.RegularExpressions.Regex trimmer = new System.Text.RegularExpressions.Regex(@"\s\s+");
+                Regex trimmer = new Regex(@"\s\s+");
                 return trimmer.Replace(text.Trim(), " ");
             }
             else
