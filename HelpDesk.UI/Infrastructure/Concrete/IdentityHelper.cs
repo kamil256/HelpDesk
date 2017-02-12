@@ -66,6 +66,14 @@ namespace HelpDesk.UI.Infrastructure.Concrete
             }
         }
 
+        public string CurrentUserId
+        {
+            get
+            {
+                return CurrentUser.Id;
+            }
+        }
+
         private bool? isCurrentUserAnAdministrator = null;
 
         public bool IsCurrentUserAnAdministrator()

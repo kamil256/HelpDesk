@@ -47,5 +47,18 @@ namespace HelpDesk.DAL.Entities
                 Solution = this.Solution
             };
         }
+
+        public class TicketsComparer : IEqualityComparer<Ticket>
+        {
+            public bool Equals(Ticket x, Ticket y)
+            {
+                return x.TicketId == y.TicketId;
+            }
+
+            public int GetHashCode(Ticket obj)
+            {
+                return obj.TicketId;
+            }
+        }
     }
 }

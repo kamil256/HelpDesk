@@ -15,15 +15,13 @@ namespace HelpDesk.BLL.Concrete
     public class UserService : IUserService
     {
         private readonly IUnitOfWork unitOfWork;
-        private readonly string loggedInUserId;
 
-        public UserService(IUnitOfWork unitOfWork, string loggedInUserId)
+        public UserService(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
-            this.loggedInUserId = loggedInUserId;
         }
 
-        public PagedUsersList GetPagedUsersList(bool? active, string role, string search, bool searchAllWords, string sortBy, bool descSort, int? page, int? usersPerPage)
+        public PagedUsersList GetPagedUsersList(string loggedInUserId, bool? active, string role, string search, bool searchAllWords, string sortBy, bool descSort, int? page, int? usersPerPage)
         {
             List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
 

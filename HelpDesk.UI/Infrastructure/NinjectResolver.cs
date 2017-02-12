@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Web.Http.Dependencies;
 using Ninject;
-using Ninject.Extensions.ChildKernel;
 using Ninject.Web.Common;
 using HelpDesk.DAL.Abstract;
 using HelpDesk.DAL.Concrete;
@@ -13,7 +12,6 @@ using HelpDesk.BLL.Abstract;
 
 namespace HelpDesk.UI.Infrastructure
 {
-    // TODO: not working
     public class NinjectResolver : System.Web.Http.Dependencies.IDependencyResolver, System.Web.Mvc.IDependencyResolver
     {
         private IKernel kernel;
@@ -47,6 +45,7 @@ namespace HelpDesk.UI.Infrastructure
         {
             kernel.Bind<IUnitOfWork>().To<UnitOfWork>().InRequestScope();
             kernel.Bind<IUserService>().To<UserService>().InRequestScope();
+            kernel.Bind<IRoleService>().To<RoleService>().InRequestScope();
             kernel.Bind<IIdentityHelper>().To<IdentityHelper>().InRequestScope();
             kernel.Bind<IEmailSender>().To<EmailSender>().InRequestScope();
         }        

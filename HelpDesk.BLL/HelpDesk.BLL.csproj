@@ -58,7 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\IRoleService.cs" />
     <Compile Include="Abstract\IUserService.cs" />
+    <Compile Include="Concrete\RoleService.cs" />
     <Compile Include="Concrete\UserService.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

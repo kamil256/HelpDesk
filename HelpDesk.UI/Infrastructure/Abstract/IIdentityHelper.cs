@@ -17,6 +17,7 @@ namespace HelpDesk.UI.Infrastructure.Abstract
         string GetRoleId(string roleName);
         string AdminRoleId { get; }
         User CurrentUser { get; }
+        string CurrentUserId { get; }
         bool IsCurrentUserAnAdministrator();
         bool IsUserAnAdministrator(string userId);
         int UsersPerPageSettingOfCurrentUser { get; }
