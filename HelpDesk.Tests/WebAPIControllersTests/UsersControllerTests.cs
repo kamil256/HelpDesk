@@ -161,6 +161,7 @@ namespace HelpDesk.Tests.WebAPIControllersTests
             OkNegotiatedContentResult<UserResponse> result = actionResult as OkNegotiatedContentResult<UserResponse>;
             UserResponse resultContent = result.Content;
 
+            // Assert
             userService.Received().GetPagedUsersList(loggedInUserId, null, null, null, false, "Last name", false, 0, null);
             Assert.IsNotNull(resultContent);
             Assert.IsNotNull(resultContent.Users);
