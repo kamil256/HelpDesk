@@ -21,7 +21,7 @@ namespace HelpDesk.BLL.Concrete
             this.unitOfWork = unitOfWork;
         }
 
-        public PagedUsersList GetPagedUsersList(string loggedInUserId, bool? active, string role, string search, bool searchAllWords, string sortBy, bool descSort, int? page, int? usersPerPage)
+        public PagedUsersList GetPagedUsersList(string loggedInUserId, bool? active = null, string role = null, string search = null, bool searchAllWords = false, string sortBy = "Last name", bool descSort = false, int? page = null, int? usersPerPage = null)
         {
             List<Expression<Func<User, bool>>> filters = new List<Expression<Func<User, bool>>>();
 
