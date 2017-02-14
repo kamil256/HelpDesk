@@ -147,6 +147,7 @@ namespace HelpDesk.BLL.Concrete
             {
                 Users = users,
                 NumberOfPages = numberOfPages,
+                // todo: probably not needed
                 FoundItemsCount = foundUsersCount,
                 TotalItemsCount = totalUsersCount
             };
