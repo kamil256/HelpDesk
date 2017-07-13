@@ -22,6 +22,7 @@ namespace HelpDesk.DAL.Migrations
             RoleManager roleMgr = new RoleManager(new RoleStore<Role>(context));
             string roleName = "Admin";
             string userName = "admin@example.com";
+            // CURRENT ADMIN PASSWORD IS DIFFERENT THAN INITIAL!!!
             string password = "Password";
             string email = "admin@example.com";
             if (!roleMgr.RoleExists(roleName))

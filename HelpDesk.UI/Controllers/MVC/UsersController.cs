@@ -142,6 +142,11 @@ namespace HelpDesk.UI.Controllers.MVC
                     TempData["Fail"] = "Unable to edit user. Try again, and if the problem persists contact your system administrator.";
                     return RedirectToAction("Index");
                 }
+                else if (HttpContext.User.Identity.Name == "demo@example.com" && identityHelper.IsUserAnAdministrator(user.Id))
+                {
+                    TempData["Fail"] = "Demo user can't edit own or other administrator's account.";
+                    return View(model);
+                }
                 if (model.Role != "Admin" && model.Role != "User")
                     ModelState.AddModelError("Role", $"Role \"{model.Role}\" is incorrect.");
             }
@@ -243,6 +248,11 @@ namespace HelpDesk.UI.Controllers.MVC
                 {
                     TempData["Fail"] = "Unable to change user's password. Try again, and if the problem persists contact your system administrator.";
                     return RedirectToAction("Index");
+                }
+                else if (HttpContext.User.Identity.Name == "demo@example.com" && identityHelper.IsUserAnAdministrator(user.Id))
+                {
+                    TempData["Fail"] = "Demo user can't change own or other administrator's password.";
+                    return View(model);
                 }
                 if (user.Id != identityHelper.CurrentUser.Id)
                 {
@@ -378,6 +388,7 @@ namespace HelpDesk.UI.Controllers.MVC
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(string userId)
         {
+            
             User user = await identityHelper.UserManager.Users.Include(u => u.CreatedTickets)
                                                               .Include(u => u.RequestedTickets)
                                                               .Include(u => u.AssignedTickets)
@@ -388,7 +399,12 @@ namespace HelpDesk.UI.Controllers.MVC
                 TempData["Fail"] = "Unable to delete user. Try again, and if the problem persists contact your system administrator.";
                 return RedirectToAction("Index");
             }
-            
+            else if (HttpContext.User.Identity.Name == "demo@example.com" && identityHelper.IsUserAnAdministrator(user.Id))
+            {
+                TempData["Fail"] = "Demo user can't delete own or other administrator's account.";
+                return RedirectToAction("Index");
+            }
+
             try
             {
                 IdentityResult userDeleteResult = await identityHelper.UserManager.DeleteAsync(user);

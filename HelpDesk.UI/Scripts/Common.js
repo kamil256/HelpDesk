@@ -56,7 +56,7 @@ function displayNewMessage(messageText, messageType)
 
     $('#messages').append(alert);
     alert.show('slow');
-    setTimeout(function() { $(alert).hide('slow') }, 10000);
+    setTimeout(function() { $(alert).hide('slow') }, 20000);
 }
 
 function showProgressIndicator()

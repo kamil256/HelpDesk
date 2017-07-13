@@ -18,8 +18,27 @@
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/knockout-3.4.0.js"></script>
     <script src="~/Scripts/knockout-3.4.0.debug.js"></script>
+    <script src="~/Scripts/Common.js"></script>
+    
+    <script>
+        $(document).ready(function()
+        {
+            @if (TempData["Success"] != null)
+            {
+                @: displayNewSuccessMessage('@(TempData["Success"])');
+            }
+            @if (TempData["Fail"] != null)
+            {
+                @: displayNewFailMessage('@(TempData["Fail"])');
+            }
+        });
+    </script>  
 </head>
+
 <body class="background-blue-gradient">
+    <div id="messages" style="top: 0">
+    </div>
+
     @RenderBody()
         
     @Html.Action("Footer", "Layout")
