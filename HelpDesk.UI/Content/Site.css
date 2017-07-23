@@ -152,6 +152,13 @@ footer > .footer-content > .footer-element > div.glyphicon {
     padding: 10px;
 }
 
+footer > .copyright {
+    font-size: 12px;
+    font-weight: normal;
+    text-align: right;
+    color: #999;
+}
+
 /* ----- success and fail messages ----- */
 
 #messages {

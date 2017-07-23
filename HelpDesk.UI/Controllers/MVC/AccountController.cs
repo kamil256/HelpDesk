@@ -43,7 +43,7 @@ namespace HelpDesk.UI.Controllers.MVC
             {
                 ReturnUrl = returnUrl
             };
-            TempData["Success"] = "Demonstracyjny login: demo@example.com, hasło: password. Nie możesz wprowadzać zmian w kontach administratorów.";
+            TempData["Success"] = "Demo username: demo@example.com, demo password: password. You can't modify own or other administrator's account.";
             return View(model);
         }
 
