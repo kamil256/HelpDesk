@@ -152,11 +152,14 @@ footer > .footer-content > .footer-element > div.glyphicon {
     padding: 10px;
 }
 
-footer > .copyright {
+footer .copyright {
+    bottom: 5px;
+    color: #999;
     font-size: 12px;
     font-weight: normal;
+    right: 5px;
     text-align: right;
-    color: #999;
+    position: absolute;
 }
 
 /* ----- success and fail messages ----- */
