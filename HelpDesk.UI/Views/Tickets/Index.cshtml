@@ -215,6 +215,11 @@
     <!-- /ko -->
 }
 
+<div ng-app="HelpDesk" ng-controller="TicketsList">
+    <input ng-model="x" />
+    <p>{{ x }}</p>
+</div>
+
 <script>
     var filtersFromCookie = JSON.parse(getCookie('ticketsFilters_@identityHelper.CurrentUser.Id'));
 

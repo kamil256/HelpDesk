@@ -24,6 +24,7 @@
     <script src="~/Scripts/knockout-3.4.0.js"></script>
     <script src="~/Scripts/knockout-3.4.0.debug.js"></script>
     <script src="~/Scripts/knockout-sortable.js"></script>
+    <script src="~/Scripts/angular.js"></script>
     <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
     <script src="https://www.amcharts.com/lib/3/serial.js"></script>
     <script src="https://www.amcharts.com/lib/3/pie.js"></script>
@@ -61,6 +62,8 @@
             if (self.logOutAutomatically())
                 self.countdown();
         }
+
+        angular.module('HelpDesk', []);
 
         $(document).ready(function()
         {
