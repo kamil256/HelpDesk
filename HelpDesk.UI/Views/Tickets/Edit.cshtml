@@ -5,297 +5,305 @@
     IdentityHelper identityHelper = new IdentityHelper();
 }
 
-<header>
-    <h1>Ticket details</h1>
-</header>
+<div ng-app="HelpDesk" ng-controller="EditTicket">
+    <header>
+        <h1>Ticket details</h1>
+    </header>
 
-<nav class="container horizontal-menu hidden-xs">
-    @Html.ActionLink("Details", "Edit", new { id = Model.TicketId }, new { @class = "selected" })
-    @Html.ActionLink("History", "History", new { id = Model.TicketId })
-</nav>
+    <nav class="container horizontal-menu hidden-xs">
+        @Html.ActionLink("Details", "Edit", new { id = Model.TicketId }, new { @class = "selected" })
+        @Html.ActionLink("History", "History", new { id = Model.TicketId })
+    </nav>
 
-<nav class="tickets-menu container btn-group horizontal-menu-xs visible-xs">
-    <a href="@Url.Action("Details", new { id = Model.TicketId })" class="btn btn-primary glyphicon glyphicon-pencil active"></a>
-    <a href="@Url.Action("History", new { id = Model.TicketId })" class="btn btn-primary glyphicon glyphicon-time"></a>
-</nav>
+    <nav class="tickets-menu container btn-group horizontal-menu-xs visible-xs">
+        <a href="@Url.Action("Details", new { id = Model.TicketId })" class="btn btn-primary glyphicon glyphicon-pencil active"></a>
+        <a href="@Url.Action("History", new { id = Model.TicketId })" class="btn btn-primary glyphicon glyphicon-time"></a>
+    </nav>
 
-<main class="container">
-    <div class="row">
-        <div class="col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
-            <div class="well">
-                <p class="text-center text-gray">#@Model.TicketId</p>
+    <main class="container">
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
+                <div class="well">
+                    <p class="text-center text-gray">#@Model.TicketId</p>
 
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-                @using (Html.BeginForm("Edit", "Tickets", FormMethod.Post, new { @class = "form-horizontal", autocomplete = "off" }))
-                {
-                    @Html.AntiForgeryToken()
+                    @using (Html.BeginForm("Edit", "Tickets", FormMethod.Post, new { @class = "form-horizontal", autocomplete = "off" }))
+                    {
+                        @Html.AntiForgeryToken()
 
-                    @Html.HiddenFor(model => model.TicketId)
+                        @Html.HiddenFor(model => model.TicketId)
 
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.CreateDate, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            <p class="form-control-static">
-                                @Model.CreateDate
-                            </p>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CreateDate, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
+                                <p class="form-control-static">
+                                    @Model.CreateDate
+                                </p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.Creator, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            <p class="form-control-static">
-                                @if (Model.Creator != null)
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Creator, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
+                                <p class="form-control-static">
+                                    @if (Model.Creator != null)
+                                    {
+                                        <a href='@Url.Action("Edit", "Users", new { id = Model.Creator.Id })'>@Model.Creator.FirstName @Model.Creator.LastName (@Model.Creator.Email)</a>
+                                    }
+                                    else
+                                    {
+                                        <span>Deleted user</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.RequesterId, new { @class = "control-label col-sm-3" })
+                            <input type="hidden" name="RequesterId" value="{{ requester ? requester.UserId : null }}" />
+
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input value="{{ requesterNameAndEmail() }}" class="form-control" disabled="disabled" />
+                                    <div class="input-group-btn">
+                                        <button type="button" ng-click="showChangeRequesterDialog()" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                                    </div>
+                                </div>
+                                @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.AssignedUserId, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
+                                @if (identityHelper.IsCurrentUserAnAdministrator())
                                 {
-                                    <a href='@Url.Action("Edit", "Users", new { id = Model.Creator.Id })'>@Model.Creator.FirstName @Model.Creator.LastName (@Model.Creator.Email)</a>
+                                    @Html.DropDownListFor(
+                                        expression: model => model.AssignedUserId,
+                                        selectList: new SelectList(Model.Administrators.Select(u => new { UserId = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserId", "Name"),
+                                        optionLabel: "-",
+                                        htmlAttributes: new { @class = "form-control" }
+                                    )
+                                    @Html.ValidationMessageFor(model => model.AssignedUserId, "", new { @class = "text-danger" })
                                 }
                                 else
                                 {
-                                    <span>Deleted user</span>
+                                    <input value='@(Model.AssignedUser != null ? $"{Model.AssignedUser.FirstName} {Model.AssignedUser.LastName} ({Model.AssignedUser.Email})" : "-")' class="form-control" disabled="disabled" />
                                 }
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.RequesterId, new { @class = "control-label col-sm-3" })
-                        <input type="hidden" name="RequesterId" data-bind="value: requester() ? requester().UserId : null" />
-                        
-                        <div class="col-sm-8">
-                            <div class="input-group">
-                                <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
-                                <div class="input-group-btn">
-                                    <button data-bind="click: function() { $('#change-requester-dialog').modal('show'); }" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
-                                </div>
                             </div>
-                            @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.AssignedUserId, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            @if (identityHelper.IsCurrentUserAnAdministrator())
-                            {
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Status, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
+                                @if (identityHelper.IsCurrentUserAnAdministrator())
+                                {
+                                    @Html.DropDownListFor(model => model.Status, new SelectList(new[] { "New", "In progress", "Solved", "Closed" }), new { @class = "form-control" })
+                                }
+                                else
+                                {
+                                    <input value='@Model.Status' class="form-control" disabled="disabled" />
+                                }
+                                @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CategoryId, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
                                 @Html.DropDownListFor(
-                                expression: model => model.AssignedUserId,
-                                selectList: new SelectList(Model.Administrators.Select(u => new { UserId = u.Id, Name = $"{u.FirstName} {u.LastName}" }), "UserId", "Name"),
-                                optionLabel: "-",
-                                htmlAttributes: new { @class = "form-control" }
-                    )
-                                @Html.ValidationMessageFor(model => model.AssignedUserId, "", new { @class = "text-danger" })
-                            }
-                            else
-                            {
-                                <input value='@(Model.AssignedUser != null ? $"{Model.AssignedUser.FirstName} {Model.AssignedUser.LastName} ({Model.AssignedUser.Email})" : "-")' class="form-control" disabled="disabled" />
-                            }
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.Status, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            @if (identityHelper.IsCurrentUserAnAdministrator())
-                            {
-                                @Html.DropDownListFor(model => model.Status, new SelectList(new[] { "New", "In progress", "Solved", "Closed" }), new { @class = "form-control" })
-                            }
-                            else
-                            {
-                                <input value='@Model.Status' class="form-control" disabled="disabled" />
-                            }
-                            @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.CategoryId, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            @Html.DropDownListFor(
                                 expression: model => model.CategoryId,
                                 selectList: new SelectList(Model.Categories, "CategoryId", "Name"),
                                 optionLabel: "-",
                                 htmlAttributes: new { @class = "form-control" }
                             )
-                            @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+                                @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.Title, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            @Html.TextBoxFor(model => model.Title, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Title, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.Title, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.Content, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            @Html.TextAreaFor(model => model.Content, 7, 10, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Content, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
+                                @Html.TextAreaFor(model => model.Content, 7, 10, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.Solution, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            @{
-                                Dictionary<string, object> htmlAttributes = new Dictionary<string, object>();
-                                htmlAttributes["class"] = "form-control";
-                                if (!identityHelper.IsCurrentUserAnAdministrator())
-                                {
-                                    htmlAttributes["disabled"] = "disabled";
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Solution, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
+                                @{
+                                    Dictionary<string, object> htmlAttributes = new Dictionary<string, object>();
+                                    htmlAttributes["class"] = "form-control";
+                                    if (!identityHelper.IsCurrentUserAnAdministrator())
+                                    {
+                                        htmlAttributes["disabled"] = "disabled";
+                                    }
                                 }
-                            }
-                            @Html.TextAreaFor(model => model.Solution, 7, 10, htmlAttributes)
-                            @Html.ValidationMessageFor(model => model.Solution, "", new { @class = "text-danger" })
+                                @Html.TextAreaFor(model => model.Solution, 7, 10, htmlAttributes)
+                                @Html.ValidationMessageFor(model => model.Solution, "", new { @class = "text-danger" })
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <div class="col-sm-offset-3 col-sm-8">
-                            <input type="submit" value="Save" class="btn btn-primary" />
-                            @if (identityHelper.IsCurrentUserAnAdministrator())
-                            {
-                                <a href="#delete-ticket-dialog" class="btn btn-danger" data-toggle="modal">Delete</a>
-                            }
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-8">
+                                <input type="submit" value="Save" class="btn btn-primary" />
+                                @if (identityHelper.IsCurrentUserAnAdministrator())
+                                {
+                                    <a href="#delete-ticket-dialog" class="btn btn-danger" data-toggle="modal">Delete</a>
+                                }
+                            </div>
                         </div>
-                    </div>
-                }
+                                    }
+                </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
 
-<div id="change-requester-dialog" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Change requester</h4>
-            </div>
-
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="control-label">Find users</label>
-                    
-                    <div class="input-group">
-                        <input data-bind="textInput: searchString, event: { keypress: searchTicketsWhenEnterKeyPressed }" class="form-control" />
-                        <div class="input-group-btn">
-                            <button data-bind="click: searchTicketsAndFocusTheInput" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Select user</label>
-                    <select size="10" data-bind="options: foundUsers, value: selectedUser, optionsText: function(item) { return item.FirstName + ' ' + item.LastName + ' (' + item.Email + ')' }, optionsCaption: '-'" class="form-control"></select>
-                </div>
-
-                <p>Displaying <span data-bind="text: foundUsers().length"></span> users of <span data-bind="text: totalNumberOfFoundUsers"></span> found</p>
-            </div>
-
-            <div class="modal-footer">
-                <input data-bind="click: function() { requester(selectedUser()); }" data-dismiss="modal" type="submit" value="Ok" class="btn btn-primary" /><input data-dismiss="modal" type="button" value="Cancel" class="btn btn-default" />
-            </div>
-        </div>
-    </div>
-</div>
-
-@if (identityHelper.IsCurrentUserAnAdministrator())
-{
-    <div id="delete-ticket-dialog" class="modal fade">
+    <div id="change-requester-dialog" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Confirmation</h4>
+                    <h4 class="modal-title">Change requester</h4>
                 </div>
 
-                @using (Html.BeginForm("Delete", "Tickets"))
-{
-                    @Html.AntiForgeryToken()
-                    @Html.HiddenFor(model => model.TicketId)
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete ticket?</p>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">Find users</label>
+
+                        <div class="input-group">
+                            <input id="search" ng-model="searchString" ng-keypress="searchTicketsWhenEnterKeyPressed($event)" class="form-control" />
+                            <div class="input-group-btn">
+                                <button ng-click="searchTicketsAndFocusTheInput()" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <input type="submit" value="Yes" class="btn btn-danger" /><input data-dismiss="modal" type="button" value="No" class="btn btn-default" />
+                    <div class="form-group">
+                        <label>Select user</label>
+                        <select size="10" ng-model="selectedUser" ng-options="x as x.FirstName + ' ' + x.LastName + ' (' + x.Email + ')' for  x in foundUsers" class="form-control">
+                            <option value="">-</option>
+                        </select>
                     </div>
-                }
+
+                    <p>Displaying {{ foundUsers.length }} users of {{ totalNumberOfFoundUsers }} found</p>
+                </div>
+
+                <div class="modal-footer">
+                    <input ng-click="requester = selectedUser" data-dismiss="modal" type="submit" value="Ok" class="btn btn-primary" /><input data-dismiss="modal" type="button" value="Cancel" class="btn btn-default" />
+                </div>
             </div>
         </div>
     </div>
-}
+
+    @if (identityHelper.IsCurrentUserAnAdministrator())
+    {
+        <div id="delete-ticket-dialog" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Confirmation</h4>
+                    </div>
+
+                    @using (Html.BeginForm("Delete", "Tickets"))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.TicketId)
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete ticket?</p>
+                        </div>
+
+                        <div class="modal-footer">
+                            <input type="submit" value="Yes" class="btn btn-danger" /><input data-dismiss="modal" type="button" value="No" class="btn btn-default" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
 
 <script>
-    function EditTicketViewModel()
+    angular.module('HelpDesk').controller('EditTicket', function($scope, $http, $timeout)
     {
-        var self = this;
+        $scope.requester = @Html.Raw(Json.Encode(@Model.Requester));
+        $scope.searchString = '';
+        $scope.selectedUser = null;
+        $scope.foundUsers = [];
+        $scope.totalNumberOfFoundUsers = 0;
 
-        self.requester = ko.observable(@Html.Raw(Json.Encode(@Model.Requester)));
-        self.searchString = ko.observable('');
-        self.selectedUser = ko.observable();
-        self.foundUsers = ko.observableArray([]);
-        self.totalNumberOfFoundUsers = ko.observable(0);
-
-        self.requesterNameAndEmail = ko.computed(function()
+        $scope.requesterNameAndEmail = function()
         {
-            return self.requester() ? self.requester().FirstName + " " + self.requester().LastName + " (" + self.requester().Email + ")" : "-";
-        });
+            return $scope.requester ? $scope.requester.FirstName + " " + $scope.requester.LastName + " (" + $scope.requester.Email + ")" : "-";
+        };
 
-        self.searchString.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 500 } });
-
-        self.searchString.subscribe(function()
+        var searchStringTimeout;
+        $scope.$watch('searchString', function(newValue, oldValue)
         {
-            self.getUsers();
-        });
-
-        self.getUsers = function()
-        {
-            if (!self.searchString().trim())
+            if (newValue !== oldValue)
             {
-                self.foundUsers([]);
-                self.totalNumberOfFoundUsers(0);
+                $timeout.cancel(searchStringTimeout);
+                searchStringTimeout = $timeout(function()
+                {
+                    $scope.getUsers();
+                }, 500);
+            }
+        });
+
+        $scope.getUsers = function()
+        {
+            if (!removeExcessSpaces($scope.searchString))
+            {
+                $scope.foundUsers = [];
+                $scope.totalNumberOfFoundUsers = 0;
             }
             else
             {
                 var data =
                 {
-                    search: self.searchString().trim(),
+                    search: removeExcessSpaces($scope.searchString),
                     sortBy: 'First name',
                     descSort: false,
                     page: 1,
                     usersPerPage: 10
                 };
+
                 var onSuccess = function(response)
                 {
-                    self.foundUsers(response.Users);
-                    self.totalNumberOfFoundUsers(response.FoundItemsCount);
+                    $scope.foundUsers = response.Users;
+                    $scope.totalNumberOfFoundUsers = response.FoundItemsCount;
                 };
-                sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', "GET", data, onSuccess);
+
+                sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', "GET", data, onSuccess, $http);
             }
         };
 
-        self.searchTicketsWhenEnterKeyPressed = function(data, event)
+        $scope.searchTicketsWhenEnterKeyPressed = function(event)
         {
             if (event.keyCode === 13 || event.which === 13)
-                self.getUsers();
-            else
-                return true;
+                $scope.getUsers();
         };
 
-        self.searchTicketsAndFocusTheInput = function(data, event)
+        $scope.searchTicketsAndFocusTheInput = function(event)
         {
-            self.getUsers();
-            $(event.target).prev().focus();
+            $scope.getUsers();
+            $('#search').focus();
         };
-    }
 
-    $(document).ready(function()
-    {
-        ko.applyBindings(new EditTicketViewModel(), document.getElementById('viewContent'));
+        $scope.showChangeRequesterDialog = function()
+        {
+            $('#change-requester-dialog').modal('show');
+        }
     });
 </script>

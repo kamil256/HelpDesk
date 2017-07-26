@@ -95,7 +95,6 @@
 
                     <div class="form-group">
                         <label>Select user</label>
-                        @*x.FirstName + ' ' + item.LastName + ' (' + item.Email + ')' }*@
                         <select size="10" ng-model="selectedUser" ng-options="x as x.FirstName + ' ' + x.LastName + ' (' + x.Email + ')' for  x in foundUsers" class="form-control">
                             <option value="">-</option>
                         </select>
@@ -179,7 +178,7 @@
             $('#search').focus();
         };
 
-        $scope.showChangeRequesterDialog = function(event)
+        $scope.showChangeRequesterDialog = function()
         {
             $('#change-requester-dialog').modal('show');
         }
