@@ -73,28 +73,54 @@ function hideProgressIndicator()
 
 var numberOfSentAjaxRequests = 0;
 
-function sendAjaxRequest(url, method, data, onSuccess)
+function sendAjaxRequest(url, method, data, onSuccess, ngHttpService)
 {
     layoutViewModel.secondsToAutomaticLogOut(600);
-    $.ajax(url,
+    showProgressIndicator();
+    ngHttpService(
     {
-        type: method,
-        data: data,
-        success: function(response)
-        {
-            if (response.Success)
-                displayNewSuccessMessage(response.Success);
-            if (response.Fail)
-                displayNewFailMessage(response.Fail);
-            onSuccess(response);
-        },
-        error: function()
-        {
-            displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-        },
-        beforeSend: showProgressIndicator,
-        complete: hideProgressIndicator
+        url: url,
+        method: method,
+        params: data
+    }).then(function(response)
+    {
+        if (response.data.Success)
+            displayNewSuccessMessage(response.data.Success);
+        if (response.data.Fail)
+            displayNewFailMessage(response.data.Fail);
+
+        onSuccess(response.data);
+
+        hideProgressIndicator();
+    }, function()
+    {
+        displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
+        hideProgressIndicator();
     });
+
+
+
+
+
+    //$.ajax(url,
+    //{
+    //    type: method,
+    //    data: data,
+    //    success: function(response)
+    //    {
+    //        if (response.Success)
+    //            displayNewSuccessMessage(response.Success);
+    //        if (response.Fail)
+    //            displayNewFailMessage(response.Fail);
+    //        onSuccess(response);
+    //    },
+    //    error: function()
+    //    {
+    //        displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
+    //    },
+    //    beforeSend: showProgressIndicator,
+    //    complete: hideProgressIndicator
+    //});
 }
 
 function padZero(value)

@@ -25,6 +25,7 @@
     <script src="~/Scripts/knockout-3.4.0.debug.js"></script>
     <script src="~/Scripts/knockout-sortable.js"></script>
     <script src="~/Scripts/angular.js"></script>
+    <script src="~/Scripts/angular-sanitize.js"></script>
     <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
     <script src="https://www.amcharts.com/lib/3/serial.js"></script>
     <script src="https://www.amcharts.com/lib/3/pie.js"></script>
@@ -63,7 +64,7 @@
                 self.countdown();
         }
 
-        angular.module('HelpDesk', []);
+       
 
         $(document).ready(function()
         {
@@ -78,8 +79,7 @@
 
             $(window).scroll(function() { moveMessagesToTopUnderNavBar(); });
 
-            layoutViewModel = new LayoutViewModel();
-            ko.applyBindings(layoutViewModel, document.getElementById('navbar'));
+            
         });
     </script>  
 </head>
@@ -134,10 +134,19 @@
     <div id="messages">
     </div>
 
+    <script>
+        layoutViewModel = new LayoutViewModel();
+        ko.applyBindings(layoutViewModel, document.getElementById('navbar'));
+
+        angular.module('HelpDesk', ['ngSanitize']);
+    </script>
+
     <div id="viewContent">
         @RenderBody()
     </div>
         
     @Html.Action("Footer", "Layout")    
+
+    
 </body>
 </html>
