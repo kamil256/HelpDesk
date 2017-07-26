@@ -3,186 +3,202 @@
     IdentityHelper identityHelper = new IdentityHelper();
 }
 
-<header>
-    <h1>List of users</h1>
+<div ng-app="HelpDesk" ng-controller="UsersList">
+    <header>
+        <h1>List of users</h1>
 
-    <div class="container">
-        <hr />
-        <div class="row">
-            <div class="form-group col-sm-4">
-                <label class="control-label">Activity</label>
-                <select data-bind="value: filters.active, options: activityOptions, optionsCaption: 'All', optionsText: 'text'" class="form-control"></select>
+        <div class="container">
+            <hr />
+            <div class="row">
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Activity</label>
+                    <select ng-model="filters.active" ng-options="x as x.text for x in activityOptions"  class="form-control">
+                        <option value="">All</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Role</label>
+                    <select ng-model="filters.role" ng-options="x for x in roles" class="form-control">
+                        <option value="">All</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-sm-4">
+                    <label class="control-label">Search</label>
+
+                    <div class="input-group">
+                        <input id="search" ng-model="filters.searchString" ng-keypress="searchUsersWhenEnterKeyPressed($event)" class="form-control" />
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" ng-click="searchUsersAndFocusTheInput()"><span class="glyphicon glyphicon-search"></span></button>
+                        </div>
+                    </div>
+
+                    <label class="radio-inline"><input ng-model="filters.searchAllWords" value="false" name="searchAllWords" type="radio">Any word</label>
+                    <label class="radio-inline"><input ng-model="filters.searchAllWords" value="true" name="searchAllWords" type="radio">All words</label>
+                </div>
             </div>
+        </div>
+    </header>
 
-            <div class="form-group col-sm-4">
-                <label class="control-label">Role</label>
-                <select data-bind="value: filters.role, options: roles, optionsCaption: 'All'" class="form-control"></select>
-            </div>
+    <main class="container">
+        <h3 ng-show="!users || users.length === 0">No users found...</h3>
 
-            <div class="form-group col-sm-4">
-                <label class="control-label">Search</label>
-                
+        <div ng-show="users && users.length > 0">
+            <ul ng-show="pages.length > 1" class="pagination pull-left">
+                <li>
+                    <a ng-click="changePageAndGetUsers(1)" href="#">&laquo;</a>
+                </li>
+
+                <li ng-repeat="x in pages" ng-class="{ 'active': x === filters.pageNumber }" *@>
+                    <a ng-click="changePageAndGetUsers(x)" href="#">{{ x }}</a>
+                </li>
+
+                <li>
+                    <a ng-click="changePageAndGetUsers(numberOfPages)" href="#">&raquo;</a>
+                </li>
+            </ul>
+
+            <div class="form-inline pull-right sort-by">
+                <label class="control-label">Sort by</label>
                 <div class="input-group">
-                    <input data-bind="textInput: filters.searchString, event: { keypress: searchUsersWhenEnterKeyPressed }" class="form-control" />
+                    <select ng-model="filters.sortBy" ng-options="x for x in sortingOptions" class="form-control"></select>
                     <div class="input-group-btn">
-                        <button class="btn btn-default" data-bind="click: searchUsersAndFocusTheInput"><span class="glyphicon glyphicon-search"></span></button>
-                    </div>
-                </div>
-
-                <label class="radio-inline"><input data-bind="checked: filters.searchAllWords" value="false" name="searchAllWords" type="radio">Any word</label>
-                <label class="radio-inline"><input data-bind="checked: filters.searchAllWords" value="true" name="searchAllWords" type="radio">All words</label>
-            </div>
-        </div>
-    </div>
-</header>
-
-<main class="container">
-    <h3 data-bind="visible: !users() || users().length === 0">No users found...</h3>
-    
-    <div data-bind="visible: users() && users().length > 0">
-        <ul data-bind="visible: pages().length > 1, foreach: pages" class="pagination pull-left">
-            <!-- ko if: $data == $root.pages()[0] -->
-            <li>
-                <a data-bind="click: function() { $root.changePageAndGetUsers(1); }" href="#">&laquo;</a>
-            </li>
-            <!-- /ko -->
-
-            <li data-bind="css: { active: $data == $root.filters.pageNumber() }">
-                <a data-bind="text: $data, click: function() { $root.changePageAndGetUsers($data) }" href="#"></a>
-            </li>
-
-            <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
-            <li>
-                <a data-bind="click: function() { $root.changePageAndGetUsers($root.numberOfPages()) }" href="#">&raquo;</a>
-            </li>
-            <!-- /ko -->
-        </ul>
-
-        <div class="form-inline pull-right sort-by">
-            <label class="control-label">Sort by</label>
-            <div class="input-group">
-                <select data-bind="value: filters.sortBy, options: sortingOptions" class="form-control"></select>
-                <div class="input-group-btn">
-                    <button data-bind="click: function() { toggleSortingOrder(); }" class="btn btn-default"><span class="glyphicon" data-bind="css: { 'glyphicon-sort-by-attributes': !filters.descendingSort(), 'glyphicon-sort-by-attributes-alt': filters.descendingSort() }"></span></button>
-                </div>
-            </div>
-        </div>
-
-        <div class="users-list" data-bind="foreach: users">            
-            <div class="well" data-bind="click: function() { $root.goToUserDetails(UserId); }">
-                <p data-bind="html: $root.markSearchString(FirstName + ' ' + LastName)"></p>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <p><span class="text-gray">Email:</span> <span data-bind="html: $root.markSearchString(Email)"></span></p>
-                        <p><span class="text-gray">Phone:</span> <span data-bind="html: $root.markSearchString(Phone)"></span></p>
-                        <p><span class="text-gray">Mobile phone:</span> <span data-bind="html: $root.markSearchString(MobilePhone)"></span></p>
-                    </div>
-
-                    <div class="col-sm-4">
-                        <p><span class="text-gray">Company:</span> <span data-bind="html: $root.markSearchString(Company)"></span></p>
-                        <p><span class="text-gray">Department:</span> <span data-bind="html: $root.markSearchString(Department)"></span></p>
-                        <p><span class="text-gray">Role:</span> <span data-bind="text: Role"></span></p>
-                    </div>
-
-                    <div class="hidden-xs col-sm-4 col-md-2">
-                        <p><span class="text-gray">Active:</span> <span data-bind="text: Active ? 'Yes' : 'No'"></span></p>
-                        <p><span class="text-gray">Last activity:</span> <span data-bind="text: LastActivity"></span></p>
-                        <p class="hidden-md hidden-lg"><span class="text-gray">Tickets:</span> <span data-bind="text: TicketsCount"></span></p>
-                    </div>
-
-                    <div class="hidden-xs hidden-sm col-md-2">
-                        <p class="text-gray">Tickets:</p>
-                        <p data-bind="text: TicketsCount"></p>
+                        <button ng-click="toggleSortingOrder()" class="btn btn-default"><span class="glyphicon" ng-class="filters.descendingSort ? 'glyphicon-sort-by-attributes-alt' : 'glyphicon-sort-by-attributes'"></span></button>
                     </div>
                 </div>
             </div>
+
+            <div class="users-list">
+                <div class="well" ng-repeat="x in users" ng-click="goToUserDetails(x.UserId)">
+                    <p ng-bind-html="markSearchString(x.FirstName + ' ' + x.LastName)"></p>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <p><span class="text-gray">Email:</span> <span ng-bind-html="markSearchString(x.Email)"></span></p>
+                            <p><span class="text-gray">Phone:</span> <span ng-bind-html="markSearchString(x.Phone)"></span></p>
+                            <p><span class="text-gray">Mobile phone:</span> <span ng-bind-html="markSearchString(x.MobilePhone)"></span></p>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <p><span class="text-gray">Company:</span> <span ng-bind-html="markSearchString(x.Company)"></span></p>
+                            <p><span class="text-gray">Department:</span> <span ng-bind-html="markSearchString(x.Department)"></span></p>
+                            <p><span class="text-gray">Role:</span> {{ x.Role }}</p>
+                        </div>
+
+                        <div class="hidden-xs col-sm-4 col-md-2">
+                            <p><span class="text-gray">Active:</span> {{ x.Active ? 'Yes' : 'No' }}</p>
+                            <p><span class="text-gray">Last activity:</span> {{ x.LastActivity }}</p>
+                            <p class="hidden-md hidden-lg"><span class="text-gray">Tickets:</span> {{ x.TicketsCount }}</p>
+                        </div>
+
+                        <div class="hidden-xs hidden-sm col-md-2">
+                            <p class="text-gray">Tickets:</p>
+                            <p>{{ x.TicketsCount }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <ul ng-show="pages.length > 1" class="pagination pull-left">
+                <li>
+                    <a ng-click="changePageAndGetUsers(1)" href="#">&laquo;</a>
+                </li>
+
+                <li ng-repeat="x in pages" ng-class="{ 'active': x === filters.pageNumber }" *@>
+                    <a ng-click="changePageAndGetUsers(x)" href="#">{{ x }}</a>
+                </li>
+
+                <li>
+                    <a ng-click="changePageAndGetUsers(numberOfPages)" href="#">&raquo;</a>
+                </li>
+            </ul>
+
+            <p class="pull-right result-info">Page {{ filters.pageNumber }} of {{ numberOfPages }} ({{ foundItemsCount }} item<span ng-show="foundItemsCount > 1">s</span> found of {{ totalItemsCount }} total)</p>
         </div>
-
-        <ul data-bind="visible: pages().length > 1, foreach: pages" class="pagination pull-left">
-            <!-- ko if: $data == $root.pages()[0] -->
-            <li>
-                <a data-bind="click: function() { $root.changePageAndGetUsers(1); }" href="#">&laquo;</a>
-            </li>
-            <!-- /ko -->
-
-            <li data-bind="css: { active: $data == $root.filters.pageNumber() }">
-                <a data-bind="text: $data, click: function() { $root.changePageAndGetUsers($data) }" href="#"></a>
-            </li>
-
-            <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
-            <li>
-                <a data-bind="click: function() { $root.changePageAndGetUsers($root.numberOfPages()) }" href="#">&raquo;</a>
-            </li>
-            <!-- /ko -->
-        </ul>
-
-        <p class="pull-right result-info">Page <span data-bind="text: filters.pageNumber"></span> of <span data-bind="text: numberOfPages"></span> (<span data-bind="text: foundItemsCount"></span> item<span data-bind="visible: foundItemsCount() != 1">s</span> found of <span data-bind="text: totalItemsCount"></span> total)</p>
-    </div>
-</main>
+    </main>
+</div>
 
 <script>
     var filtersFromCookie = JSON.parse(getCookie('usersFilters_@identityHelper.CurrentUser.Id'));
 
-    function UsersListViewModel()
+    angular.module('HelpDesk').controller('UsersList', function($scope, $http, $timeout)
     {
-        var self = this;
+        $scope.users = [];
+        $scope.activityOptions = [{ text: 'Active', value: 'true' }, { text: 'Inactive', value: 'false' }];
+        $scope.roles = ['Admin', 'User'];
+        $scope.sortingOptions = ["First name", "Last name", "Email", "Phone", "Mobile phone", "Company", "Department", "Role", "Last activity", "Tickets"];
+        $scope.numberOfPages = 0;
+        $scope.foundItemsCount = 0;
+        $scope.totalItemsCount = 0;
 
-        self.users = ko.observableArray([]);
-
-        self.activityOptions = ko.observableArray([{ text: 'Active', value: 'true' }, { text: 'Inactive', value: 'false' }]);
-        self.roles = ko.observableArray(['Admin', 'User']);
-        self.sortingOptions = ko.observableArray(["First name", "Last name", "Email", "Phone", "Mobile phone", "Company", "Department", "Role", "Last activity", "Tickets"]);
-        self.numberOfPages = ko.observable();
-        self.foundItemsCount = ko.observable();
-        self.totalItemsCount = ko.observable();
-
-        self.filters =
+        $scope.filters =
         {
-            active: ko.observable(filtersFromCookie ? (filtersFromCookie.active === 'true' ? self.activityOptions()[0] : (filtersFromCookie.active === 'false' ? self.activityOptions()[1] : undefined)) : undefined),
-            role: ko.observable(filtersFromCookie ? filtersFromCookie.role : ''),
-            searchString: ko.observable(filtersFromCookie ? filtersFromCookie.search : ''),
-            searchAllWords: ko.observable(filtersFromCookie ? filtersFromCookie.searchAllWords : 'false'),
-            sortBy: ko.observable(filtersFromCookie ? filtersFromCookie.sortBy : 'Last name'),
-            descendingSort: ko.observable(filtersFromCookie ? filtersFromCookie.descSort : false),
-            pageNumber: ko.observable(1)
+            active: filtersFromCookie ? (filtersFromCookie.active === 'true' ? $scope.activityOptions[0] : (filtersFromCookie.active === 'false' ? $scope.activityOptions[1] : undefined)) : undefined,
+            role: filtersFromCookie ? filtersFromCookie.role : '',
+            searchString: filtersFromCookie ? filtersFromCookie.search : '',
+            searchAllWords: filtersFromCookie ? filtersFromCookie.searchAllWords : 'false',
+            sortBy: filtersFromCookie ? filtersFromCookie.sortBy : 'Last name',
+            descendingSort: filtersFromCookie ? filtersFromCookie.descSort : false,
+            pageNumber: 1
         };
 
-        self.filters.searchString.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 500 } });
-
-        self.filters.active.subscribe(function()
+        $scope.$watch('filters.active', function(newValue, oldValue)
         {
-            self.changePageAndGetUsers(1);
+            if (newValue !== oldValue)
+            {
+                $scope.changePageAndGetUsers(1);
+            }
         });
 
-        self.filters.role.subscribe(function()
+        $scope.$watch('filters.role', function(newValue, oldValue)
         {
-            self.changePageAndGetUsers(1);
+            if (newValue !== oldValue)
+            {
+                $scope.changePageAndGetUsers(1);
+            }
         });
 
-        self.filters.searchString.subscribe(function()
+        var searchStringTimeout;
+        $scope.$watch('filters.searchString', function(newValue, oldValue)
         {
-            self.changePageAndGetUsers(1);
+            if (newValue !== oldValue)
+            {
+                $timeout.cancel(searchStringTimeout);
+                searchStringTimeout = $timeout(function()
+                {
+                    $scope.changePageAndGetUsers(1);
+                }, 500);
+            }
         });
 
-        self.filters.searchAllWords.subscribe(function()
+        $scope.$watch('filters.searchAllWords', function(newValue, oldValue)
         {
-            if (removeExcessSpaces(self.filters.searchString()))
-                self.changePageAndGetUsers(1);
+            if (newValue !== oldValue)
+            {
+                if (removeExcessSpaces($scope.filters.searchString))
+                    $scope.changePageAndGetUsers(1);
+            }
         });
 
-        self.filters.sortBy.subscribe(function()
+        $scope.$watch('filters.sortBy', function(newValue, oldValue)
         {
-            self.changePageAndGetUsers(1);
+            if (newValue !== oldValue)
+            {
+                $scope.changePageAndGetUsers(1);
+            }
         });
 
-        self.filters.descendingSort.subscribe(function()
+        $scope.$watch('filters.descendingSort', function(newValue, oldValue)
         {
-            self.changePageAndGetUsers(1);
+            if (newValue !== oldValue)
+            {
+                $scope.changePageAndGetUsers(1);
+            }
         });
 
-        self.markSearchString = function(text)
+        $scope.markSearchString = function(text)
         {
-            var searchString = removeExcessSpaces(self.filters.searchString());
+            var searchString = removeExcessSpaces($scope.filters.searchString);
             if (searchString && text)
             {
                 var words = searchString.split(' ');
@@ -192,18 +208,18 @@
                 return text;
         };
 
-        self.pages = ko.computed(function()
+        $scope.computePages = function()
         {
             var pages = [];
 
-            var leftBound = self.filters.pageNumber() - 2;
-            var rightBound = self.filters.pageNumber() + 2;
+            var leftBound = $scope.filters.pageNumber - 2;
+            var rightBound = $scope.filters.pageNumber + 2;
             while (leftBound < 1)
             {
                 leftBound++;
                 rightBound++;
             }
-            while (rightBound > self.numberOfPages())
+            while (rightBound > $scope.numberOfPages)
             {
                 rightBound--;
                 if (leftBound > 1)
@@ -213,71 +229,68 @@
                 pages.push(i);
 
             return pages;
-        });
+        };
 
-        self.getUsers = function()
+        $scope.getUsers = function()
         {
             var data =
             {
-                active: self.filters.active() ? self.filters.active().value.toString() : null,
-                role: self.filters.role(),
-                search: removeExcessSpaces(self.filters.searchString()),
-                searchAllWords: self.filters.searchAllWords(),
-                sortBy: self.filters.sortBy(),
-                descSort: self.filters.descendingSort(),
-                page: self.filters.pageNumber()
+                active: $scope.filters.active ? $scope.filters.active.value.toString() : null,
+                role: $scope.filters.role,
+                search: removeExcessSpaces($scope.filters.searchString),
+                searchAllWords: $scope.filters.searchAllWords,
+                sortBy: $scope.filters.sortBy,
+                descSort: $scope.filters.descendingSort,
+                page: $scope.filters.pageNumber
             };
+
             var onSuccess = function(response)
             {
-                if (response.NumberOfPages != 0 && self.filters.pageNumber() > response.NumberOfPages)
-                    self.changePageAndGetUsers(response.NumberOfPages);
+                if (response.NumberOfPages != 0 && $scope.filters.pageNumber > response.NumberOfPages)
+                    $scope.changePageAndGetUsers(response.NumberOfPages);
                 else
                 {
-                    self.users(response.Users);
-                    self.numberOfPages(response.NumberOfPages);
-                    self.foundItemsCount(response.FoundItemsCount);
-                    self.totalItemsCount(response.TotalItemsCount);
+                    $scope.users = response.Users;
+                    $scope.numberOfPages = response.NumberOfPages;
+                    $scope.foundItemsCount = response.FoundItemsCount;
+                    $scope.totalItemsCount = response.TotalItemsCount;
+
+                    $scope.pages = $scope.computePages();
                 }
                 setCookie('usersFilters_@identityHelper.CurrentUser.Id', JSON.stringify(data));
             };
-            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', 'GET', data, onSuccess); 
+
+            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', 'GET', data, onSuccess, $http);
         };
 
-        self.changePageAndGetUsers = function(pageNumber)
+        $scope.changePageAndGetUsers = function(pageNumber)
         {
-            self.filters.pageNumber(pageNumber);
-            self.getUsers();
+            $scope.filters.pageNumber = pageNumber;
+            $scope.getUsers();
         };
 
-        self.searchUsersWhenEnterKeyPressed = function(data, event)
+        $scope.searchUsersWhenEnterKeyPressed = function(event)
         {
             if (event.keyCode === 13 || event.which === 13)
-                self.changePageAndGetUsers(1);
-            else
-                return true;
+                $scope.changePageAndGetUsers(1);
         };
 
-        self.searchUsersAndFocusTheInput = function(data, event)
+        $scope.searchUsersAndFocusTheInput = function(event)
         {
-            self.changePageAndGetUsers(1);
-            $(event.target).prev().focus();
+            $scope.changePageAndGetUsers(1);
+            $('#search').focus();
         };
 
-        self.toggleSortingOrder = function()
+        $scope.toggleSortingOrder = function()
         {
-            self.filters.descendingSort(!self.filters.descendingSort());
+            $scope.filters.descendingSort = !$scope.filters.descendingSort;
         };
 
-        self.goToUserDetails = function(id)
+        $scope.goToUserDetails = function(id)
         {
             document.location.href = '@Url.Action("Edit", "Users")/' + id;
         };
 
-        self.getUsers();
-    }
-
-    $(document).ready(function()
-    {
-        ko.applyBindings(new UsersListViewModel(), document.getElementById('viewContent'));
+        $scope.getUsers();
     });
 </script>
