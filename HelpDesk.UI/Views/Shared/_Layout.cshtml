@@ -25,6 +25,7 @@
     <script src="~/Scripts/knockout-3.4.0.debug.js"></script>
     <script src="~/Scripts/knockout-sortable.js"></script>
     <script src="~/Scripts/angular.js"></script>
+    <script src="~/Scripts/angular-ui/sortable.js"></script>
     <script src="~/Scripts/angular-sanitize.js"></script>
     <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
     <script src="https://www.amcharts.com/lib/3/serial.js"></script>
@@ -33,37 +34,7 @@
     <script src="~/Scripts/Common.js"></script>  
     
     <script>
-        var logOutAutomaticallyFromCookie = getCookie('logOutAutomatically');
-
-        function LayoutViewModel()
-        {
-            var self = this;
-
-            self.logOutAutomatically = ko.observable(logOutAutomaticallyFromCookie === 'no' ? false : true);
-            self.secondsToAutomaticLogOut = ko.observable(600);
-
-            self.timeToAutomaticLogOut = ko.computed(function()
-            {
-                var minutes = Math.floor(self.secondsToAutomaticLogOut() / 60);
-                var seconds = padZero(self.secondsToAutomaticLogOut() % 60);
-                return minutes + ':' + seconds;
-            });
-
-            self.countdown = function()
-            {
-                if (self.secondsToAutomaticLogOut() > 0)
-                {
-                    self.secondsToAutomaticLogOut(self.secondsToAutomaticLogOut() - 1);
-                    setTimeout(self.countdown, 1000);
-                }
-                else
-                    document.location.href = '@Url.Action("LogOut", "Account")';
-            };
-
-            if (self.logOutAutomatically())
-                self.countdown();
-        }
-
+        
        
 
         $(document).ready(function()
@@ -83,7 +54,7 @@
         });
     </script>  
 </head>
-<body class="background-gray">
+<body class="background-gray" ng-app="HelpDesk">
     <div id="navbar" class="navbar navbar-inverse">
         <div class="container">
             <div class="navbar-header">
@@ -118,9 +89,9 @@
 
                     <p class="navbar-text nav-right" style="margin-right: 0;">
                         <a href="javascript:document.getElementById('logoutForm').submit()"><span class="glyphicon glyphicon-log-out"></span> Log out</a>
-                        <!--ko if: logOutAutomatically -->
-                        (<b data-bind="text: timeToAutomaticLogOut, css: { 'text-danger': secondsToAutomaticLogOut() < 60 }"></b> <span data-bind="click: function() { secondsToAutomaticLogOut(600); }" class="glyphicon glyphicon-refresh"></span>)
-                        <!-- /ko -->
+                        <span  ng-controller="Layout" ng-show="logOutAutomatically">
+                            (<b ng-class="{ 'text-danger': secondsToAutomaticLogOut < 60 }" >{{ timeToAutomaticLogOut() }}</b> <span ng-click="secondsToAutomaticLogOut = 600" class="glyphicon glyphicon-refresh"></span>)
+                        </span>
                     </p>                    
                 }
             </div>
@@ -135,10 +106,36 @@
     </div>
 
     <script>
-        layoutViewModel = new LayoutViewModel();
-        ko.applyBindings(layoutViewModel, document.getElementById('navbar'));
+        angular.module('HelpDesk', ['ui.sortable', 'ngSanitize']);
 
-        angular.module('HelpDesk', ['ngSanitize']);
+        var logOutAutomaticallyFromCookie = getCookie('logOutAutomatically');
+
+        angular.module('HelpDesk').controller('Layout', function($scope, $timeout)
+        {
+            $scope.logOutAutomatically = logOutAutomaticallyFromCookie !== 'no';
+            $scope.secondsToAutomaticLogOut = 600;
+
+            $scope.timeToAutomaticLogOut = function()
+            {
+                var minutes = Math.floor($scope.secondsToAutomaticLogOut / 60);
+                var seconds = padZero($scope.secondsToAutomaticLogOut % 60);
+                return minutes + ':' + seconds;
+            };
+
+            $scope.countdown = function()
+            {
+                if ($scope.secondsToAutomaticLogOut > 0)
+                {
+                    $scope.secondsToAutomaticLogOut--;
+                    $timeout($scope.countdown, 1000);
+                }
+                else
+                    document.location.href = '@Url.Action("LogOut", "Account")';
+            };
+
+            if ($scope.logOutAutomatically)
+                $scope.countdown();
+        });
     </script>
 
     <div id="viewContent">
