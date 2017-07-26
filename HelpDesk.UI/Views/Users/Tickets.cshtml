@@ -23,190 +23,179 @@
     <a href="@Url.Action("History", new { id = Model.UserId })" class="btn btn-primary glyphicon glyphicon-time"></a>
 </nav>
 
-<main class="container">
-    <h3 data-bind="visible: !tickets() || tickets().length === 0">No tickets found...</h3>
+<div ng-app="HelpDesk" ng-controller="UsersTicketsList">
+    <main class="container">
+        <h3 ng-show="!tickets || tickets.length === 0">No tickets found...</h3>
 
-    <div data-bind="visible: tickets() && tickets().length > 0">
-        <ul data-bind="visible: pages().length > 1, foreach: pages" class="pagination pull-left">
-            <!-- ko if: $data == $root.pages()[0] -->
-            <li>
-                <a data-bind="click: function() { $root.changePageAndGetTickets(1); }" href="#">&laquo;</a>
-            </li>
-            <!-- /ko -->
+        <div ng-show="tickets && tickets.length > 0">
+            <ul ng-show="pages.length > 1" class="pagination pull-left">
+                <li>
+                    <a ng-click="changePageAndGetTickets(1)" href="#">&laquo;</a>
+                </li>
 
-            <li data-bind="css: { active: $data == $root.filters.pageNumber() }">
-                <a data-bind="text: $data, click: function() { $root.changePageAndGetTickets($data) }" href="#"></a>
-            </li>
+                <li ng-repeat="x in pages" ng-class="{ 'active': x === filters.pageNumber }" *@>
+                    <a ng-click="changePageAndGetTickets(x)" href="#">{{ x }}</a>
+                </li>
 
-            <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
-            <li>
-                <a data-bind="click: function() { $root.changePageAndGetTickets($root.numberOfPages()) }" href="#">&raquo;</a>
-            </li>
-            <!-- /ko -->
-        </ul>
+                <li>
+                    <a ng-click="changePageAndGetTickets(numberOfPages)" href="#">&raquo;</a>
+                </li>
+            </ul>
 
-        <div class="tickets-list" data-bind="foreach: tickets">
-            <div class="well" data-bind="click: function() { $root.goToTicketDetails(TicketId); }">
-                <div class="hidden-xs">
-                    <p class="text-gray" data-bind="text: '#' + TicketId"></p>
-                    <p data-bind="text: Status, css: { 'color-status-new': Status == 'New', 'color-status-in-progress': Status == 'In progress', 'color-status-solved': Status == 'Solved', 'color-status-closed': Status == 'Closed' }"></p>
-                </div>
-
-                <div>
-                    <p data-bind="html: Title"></p>
-                    <p><span class="text-gray">Date:</span> <span data-bind="text: CreateDate"></span></p>
-                    <p>
-                        <span class="text-gray">User:</span>
-                        <span>
-                            <a data-bind="visible: RequesterName, click: function(data, event) { event.stopPropagation(); $root.goToUserDetails(RequesterId); }, text: RequesterName"></a>
-                            <span data-bind="visible: !RequesterName">-</span>
-                        </span>
-                    </p>
-                    <p><span class="text-gray">Category:</span> <span data-bind="text: Category ? Category : '-'"></span></p>
-                    <p class="visible-xs">
-                        <span class="text-gray">Status:</span>
-                        <span data-bind="text: Status, css: { 'color-status-new': Status == 'New', 'color-status-in-progress': Status == 'In progress', 'color-status-solved': Status == 'Solved', 'color-status-closed': Status == 'Closed' }"></span>
-                    </p>
-                </div>
-
-                @if (identityHelper.IsCurrentUserAnAdministrator())
-                {
+            <div class="tickets-list">
+                <div class="well" ng-repeat="x in tickets" ng-click="goToTicketDetails(x.TicketId)">
                     <div class="hidden-xs">
-                        <button title="Close ticket" data-bind="click: function(data, event) { event.stopPropagation(); $root.closeTicket($data); }" class="btn btn-sm btn-inverse pull-right"><span class="glyphicon glyphicon-remove"></span></button>
-                        <button title="Solve ticket" data-bind="click: function(data, event) { event.stopPropagation(); $root.solveTicket($data); }" class="btn btn-sm btn-success pull-right"><span class="glyphicon glyphicon-ok"></span></button>
-                        <button title="Assign administrator to ticket" data-bind="click: function(data, event) { event.stopPropagation(); $root.assignUser($data); }" class="btn btn-sm btn-primary pull-right">+<span class="glyphicon glyphicon-user"></span></button>
+                        <p class="text-gray">#{{ x.TicketId }}</p>
+                        <p ng-class="{ 'color-status-new': x.Status === 'New', 'color-status-in-progress': x.Status === 'In progress', 'color-status-solved': x.Status === 'Solved', 'color-status-closed': x.Status === 'Closed' }">{{ x.Status }}</p>
                     </div>
-                }
+
+                    <div>
+                        <p ng-bind-html="x.Title"></p>
+                        <p><span class="text-gray">Date:</span> <span ng-bind-html="x.CreateDate"></span></p>
+                        <p>
+                            <span class="text-gray">User:</span>
+                            <span>
+                                <a ng-show="x.RequesterName" ng-click="goToUserDetails($event, x.RequesterId)" ng-bind-html="x.RequesterName"></a>
+                                <span ng-show="!x.RequesterName">-</span>
+                            </span>
+                        </p>
+                        <p><span class="text-gray">Category:</span> <span>{{ x.Category || '-' }}</span></p>
+                        <p class="visible-xs">
+                            <span class="text-gray">Status:</span>
+                            <span ng-class="{ 'color-status-new': x.Status == 'New', 'color-status-in-progress': x.Status == 'In progress', 'color-status-solved': x.Status == 'Solved', 'color-status-closed': x.Status == 'Closed' }">{{ x.Status }}</span>
+                        </p>
+                    </div>
+
+                    @if (identityHelper.IsCurrentUserAnAdministrator())
+                    {
+                        <div class="hidden-xs">
+                            <button title="Close ticket" ng-click="closeTicket($event, x)" class="btn btn-sm btn-inverse pull-right"><span class="glyphicon glyphicon-remove"></span></button>
+                            <button title="Solve ticket" ng-click="solveTicket($event, x)" class="btn btn-sm btn-success pull-right"><span class="glyphicon glyphicon-ok"></span></button>
+                            <button title="Assign administrator to ticket" ng-click="assignUser($event, x)" class="btn btn-sm btn-primary pull-right">+<span class="glyphicon glyphicon-user"></span></button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <ul ng-show="pages.length > 1" class="pagination pull-left">
+                <li>
+                    <a ng-click="changePageAndGetTickets(1)" href="#">&laquo;</a>
+                </li>
+
+                <li ng-repeat="x in pages" ng-class="{ 'active': x === filters.pageNumber }" *@>
+                    <a ng-click="changePageAndGetTickets(x)" href="#">{{ x }}</a>
+                </li>
+
+                <li>
+                    <a ng-click="changePageAndGetTickets(numberOfPages)" href="#">&raquo;</a>
+                </li>
+            </ul>
+
+            <p class="pull-right result-info">Page {{ filters.pageNumber }} of {{ numberOfPages }} ({{ foundItemsCount }} item<span ng-show="foundItemsCount > 1">s</span> found of {{ totalItemsCount }} total)</p>
+        </div>
+    </main>
+
+    @if (identityHelper.IsCurrentUserAnAdministrator())
+    {
+        <div id="assign-user-dialog" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Assign administrator to ticket</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="control-label">Administrator</label>
+                            <select ng-model="currentUserId" ng-options="x.UserId as x.Name for x in administrators" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button ng-click="assignUser($event, x)" data-dismiss="modal" class="btn btn-primary">Ok</button><button data-dismiss="modal" class="btn btn-default">Cancel</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <ul data-bind="visible: pages().length > 1, foreach: pages" class="pagination pull-left">
-            <!-- ko if: $data == $root.pages()[0] -->
-            <li>
-                <a data-bind="click: function() { $root.changePageAndGetTickets(1); }" href="#">&laquo;</a>
-            </li>
-            <!-- /ko -->
-
-            <li data-bind="css: { active: $data == $root.filters.pageNumber() }">
-                <a data-bind="text: $data, click: function() { $root.changePageAndGetTickets($data) }" href="#"></a>
-            </li>
-
-            <!-- ko if: $data == $root.pages()[$root.pages().length - 1] -->
-            <li>
-                <a data-bind="click: function() { $root.changePageAndGetTickets($root.numberOfPages()) }" href="#">&raquo;</a>
-            </li>
-            <!-- /ko -->
-        </ul>
-
-        <p class="pull-right result-info">Page <span data-bind="text: filters.pageNumber"></span> of <span data-bind="text: numberOfPages"></span> (<span data-bind="text: foundItemsCount"></span> item<span data-bind="visible: foundItemsCount() != 1">s</span> found of <span data-bind="text: totalItemsCount"></span> total)</p>
-    </div>
-</main>
-
-@if (identityHelper.IsCurrentUserAnAdministrator())
-{
-    <!-- ko if: currentTicketId() -->
-    <div id="assign-user-dialog" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Assign administrator to ticket</h4>
-                </div>
-
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="control-label">Administrator</label>
-                        <select data-bind="options: administrators, optionsText: 'Name', optionsValue: 'UserId', value: currentUserId" class="form-control"></select>
+        <div id="solve-ticket-dialog" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Solve ticket</h4>
                     </div>
-                </div>
 
-                <div class="modal-footer">
-                    <button data-bind="click: function() { assignUser(); }" data-dismiss="modal" class="btn btn-primary">Ok</button><button data-dismiss="modal" class="btn btn-default">Cancel</button>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="control-label">Administrator</label>
+                            <select ng-model="currentUserId" ng-options="x.UserId as x.Name for x in administrators" class="form-control"></select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Solution</label>
+                            <textarea ng-model="solution" cols="10" rows="7" class="form-control"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button data-dismiss="modal" ng-click="solveTicket($event, x)" class="btn btn-primary">Ok</button><button data-dismiss="modal" class="btn btn-default">Cancel</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="solve-ticket-dialog" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Solve ticket</h4>
-                </div>
-
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="control-label">Administrator</label>
-                        <select data-bind="options: administrators, optionsText: 'Name', optionsValue: 'UserId', value: currentUserId" class="form-control"></select>
+        <div id="close-ticket-dialog" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Close ticket</h4>
                     </div>
 
-                    <div class="form-group">
-                        <label class="control-label">Solution</label>
-                        <textarea data-bind="value: solution" cols="10" rows="7" class="form-control"></textarea>
+                    <div class="modal-body">
+                        Are you sure you want to close ticket?
                     </div>
-                </div>
 
-                <div class="modal-footer">
-                    <button data-dismiss="modal" data-bind="click: function() { solveTicket(); }" class="btn btn-primary">Ok</button><button data-dismiss="modal" class="btn btn-default">Cancel</button>
+                    <div class="modal-footer">
+                        <button data-dismiss="modal" ng-click="closeTicket($event, x)" class="btn btn-primary">Yes</button><button data-dismiss="modal" class="btn btn-default">No</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div id="close-ticket-dialog" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Close ticket</h4>
-                </div>
-
-                <div class="modal-body">
-                    Are you sure you want to close ticket?
-                </div>
-
-                <div class="modal-footer">
-                    <button data-dismiss="modal" data-bind="click: function(data, event) { closeTicket(); }" class="btn btn-primary">Yes</button><button data-dismiss="modal" class="btn btn-default">No</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- /ko -->
-}
+    }
+</div>
 
 <script>
-    function TicketsListViewModel()
+    angular.module('HelpDesk').controller('UsersTicketsList', function($scope, $http)
     {
-        var self = this;
+        $scope.tickets = [];
+        $scope.administrators = @Html.Raw(Json.Encode(@Model.Administrators));
+        $scope.numberOfPages = 0;
+        $scope.foundItemsCount = 0;
+        $scope.totalItemsCount = 0;
+        $scope.currentTicketId = 0;
+        $scope.currentUserId = '@identityHelper.CurrentUser.Id';
+        $scope.solution = '';
 
-        self.tickets = ko.observableArray([]);
-
-        self.administrators = ko.observableArray(@Html.Raw(Json.Encode(@Model.Administrators)));
-        self.numberOfPages = ko.observable();
-        self.foundItemsCount = ko.observable();
-        self.totalItemsCount = ko.observable();
-        self.currentTicketId = ko.observable();
-        self.currentUserId = ko.observable('@identityHelper.CurrentUser.Id');
-        self.solution = ko.observable('');
-
-        self.filters =
+        $scope.filters =
         {
-            pageNumber: ko.observable(1)
+            pageNumber: 1
         };
 
-        self.pages = ko.computed(function()
+        $scope.computePages = function()
         {
             var pages = [];
 
-            var leftBound = self.filters.pageNumber() - 2;
-            var rightBound = self.filters.pageNumber() + 2;
+            var leftBound = $scope.filters.pageNumber - 2;
+            var rightBound = $scope.filters.pageNumber + 2;
             while (leftBound < 1)
             {
                 leftBound++;
                 rightBound++;
             }
-            while (rightBound > self.numberOfPages())
+            while (rightBound > $scope.numberOfPages)
             {
                 rightBound--;
                 if (leftBound > 1)
@@ -216,9 +205,9 @@
                 pages.push(i);
 
             return pages;
-        });
+        };
 
-        self.getTickets = function()
+        $scope.getTickets = function()
         {
             var data =
             {
@@ -230,111 +219,120 @@
                 advancedSearch: false,
                 sortBy: 'Date',
                 descSort: true,
-                page: self.filters.pageNumber()
+                page: $scope.filters.pageNumber
             };
+
             var onSuccess = function(response)
             {
-                if (response.NumberOfPages != 0 && self.filters.pageNumber() > response.NumberOfPages)
-                    self.changePageAndGetTickets(response.NumberOfPages);
+                if (response.NumberOfPages != 0 && $scope.filters.pageNumber > response.NumberOfPages)
+                    $scope.changePageAndGetTickets(response.NumberOfPages);
                 else
                 {
-                    self.tickets(response.Tickets);
-                    self.numberOfPages(response.NumberOfPages);
-                    self.foundItemsCount(response.FoundItemsCount);
-                    self.totalItemsCount(response.TotalItemsCount);
+                    $scope.tickets = response.Tickets;
+                    $scope.numberOfPages = response.NumberOfPages;
+                    $scope.foundItemsCount = response.FoundItemsCount;
+                    $scope.totalItemsCount = response.TotalItemsCount;
+
+                    $scope.pages = $scope.computePages();
                 }
             };
-            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Tickets" })', "GET", data, onSuccess);
+
+            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Tickets" })', 'GET', data, onSuccess, $http);
         };
 
-        self.changePageAndGetTickets = function(pageNumber)
+        $scope.changePageAndGetTickets = function(pageNumber)
         {
-            self.filters.pageNumber(pageNumber);
-            self.getTickets();
+            $scope.filters.pageNumber = pageNumber;
+            $scope.getTickets();
         };
-
-        self.goToTicketDetails = function(id)
+        
+        $scope.goToTicketDetails = function(id)
         {
             document.location.href = '@Url.Action("Edit", "Tickets")/' + id;
         };
 
-        self.goToUserDetails = function(id)
+        $scope.goToUserDetails = function(event, id)
         {
+            event.stopPropagation();
             document.location.href = '@Url.Action("Edit", "Users")/' + id;
         };
 
-        self.assignUser = function(ticket)
+        $scope.assignUser = function(event, ticket)
         {
             if (!$('#assign-user-dialog').is(':visible'))
             {
-                self.currentTicketId(ticket.TicketId);
+                event.stopPropagation();
+                $scope.currentTicketId = ticket.TicketId;
                 $('#assign-user-dialog').modal('show');
             }
             else
             {
                 var data =
                 {
-                    ticketId: self.currentTicketId(),
-                    userId: self.currentUserId()
+                    ticketId: $scope.currentTicketId,
+                    userId: $scope.currentUserId
                 };
+
                 var onSuccess = function()
                 {
-                    self.getTickets();
+                    $scope.getTickets();
                 }
-                sendAjaxRequest('@Url.Action("AssignUserToTicket", "Tickets")', "POST", data, onSuccess);
+
+                sendAjaxRequest('@Url.Action("AssignUserToTicket", "Tickets")', "POST", data, onSuccess, $http);
             }
         };
 
-        self.solveTicket = function(ticket)
+        $scope.solveTicket = function(event, ticket)
         {
             if (!$('#solve-ticket-dialog').is(':visible'))
             {
-                self.currentTicketId(ticket.TicketId);
-                self.solution(ticket. Solution);
+                event.stopPropagation();
+                $scope.currentTicketId = ticket.TicketId;
+                $scope.solution = ticket.Solution;
                 $('#solve-ticket-dialog').modal('show');
             }
             else
             {
                 var data =
                 {
-                    ticketId: self.currentTicketId(),
-                    userId: self.currentUserId(),
-                    solution: self.solution()
+                    ticketId: $scope.currentTicketId,
+                    userId: $scope.currentUserId,
+                    solution: $scope.solution
                 };
+
                 var onSuccess = function()
                 {
-                    self.getTickets();
-                };
-                sendAjaxRequest('@Url.Action("SolveTicket", "Tickets")', "POST", data, onSuccess);
+                    $scope.getTickets();
+                }
+
+                sendAjaxRequest('@Url.Action("SolveTicket", "Tickets")', "POST", data, onSuccess, $http);
             }
         };
 
-        self.closeTicket = function(ticket)
+        $scope.closeTicket = function(event, ticket)
         {
             if (!$('#close-ticket-dialog').is(':visible'))
             {
-                self.currentTicketId(ticket.TicketId);
+                event.stopPropagation();
+                $scope.currentTicketId = ticket.TicketId;
                 $('#close-ticket-dialog').modal('show');
             }
             else
             {
                 var data =
                 {
-                    ticketId: self.currentTicketId()
+                    ticketId: $scope.currentTicketId
                 };
+
                 var onSuccess = function()
                 {
-                    self.getTickets();
+                    $scope.getTickets();
                 }
-                sendAjaxRequest('@Url.Action("CloseTicket", "Tickets")', "POST", data, onSuccess);
+
+                sendAjaxRequest('@Url.Action("CloseTicket", "Tickets")', "POST", data, onSuccess, $http);
             }
         };
 
-        self.getTickets();
-    }
-
-    $(document).ready(function()
-    {
-        ko.applyBindings(new TicketsListViewModel(), document.getElementById('viewContent'));
+        $scope.getTickets();
     });
 </script>
