@@ -97,30 +97,6 @@ function sendAjaxRequest(url, method, data, onSuccess, ngHttpService)
         displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
         hideProgressIndicator();
     });
-
-
-
-
-
-    //$.ajax(url,
-    //{
-    //    type: method,
-    //    data: data,
-    //    success: function(response)
-    //    {
-    //        if (response.Success)
-    //            displayNewSuccessMessage(response.Success);
-    //        if (response.Fail)
-    //            displayNewFailMessage(response.Fail);
-    //        onSuccess(response);
-    //    },
-    //    error: function()
-    //    {
-    //        displayNewFailMessage("Problem with connection. Try again, and if the problem persists contact your system administrator.");
-    //    },
-    //    beforeSend: showProgressIndicator,
-    //    complete: hideProgressIndicator
-    //});
 }
 
 function padZero(value)
