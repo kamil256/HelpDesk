@@ -4,175 +4,184 @@
     ViewBag.Title = "New ticket";
 }
 
-<header>
-    <h1>Add new ticket</h1>
-</header>
+<div ng-app="HelpDesk" ng-controller="CreateTicket">
+    <header>
+        <h1>Add new ticket</h1>
+    </header>
 
-<main class="container">
-    <div class="row">
-        <div class="col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
-            <div class="well">
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    
-                @using (Html.BeginForm("Create", "Tickets", FormMethod.Post, new { @class = "form-horizontal", autocomplete = "off" }))
-                {
-                    @Html.AntiForgeryToken()
-            
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.RequesterId, new { @class = "control-label col-sm-3" })
-                        <input type="hidden" name="RequesterId" data-bind="value: requester() ? requester().UserId : null" />
-                        <div class="col-sm-8 "> 
-                            <div class="input-group">
-                                <input data-bind="value: requesterNameAndEmail" class="form-control" disabled="disabled" />
-                                <div class="input-group-btn">
-                                    <button data-bind="click: function() { $('#change-requester-dialog').modal('show'); }" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+    <main class="container">
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
+                <div class="well">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    @using (Html.BeginForm("Create", "Tickets", FormMethod.Post, new { @class = "form-horizontal", autocomplete = "off" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.RequesterId, new { @class = "control-label col-sm-3" })
+                            <input type="hidden" name="RequesterId" value="{{ requester ? requester.UserId : null }}" />
+                            <div class="col-sm-8 ">
+                                <div class="input-group">
+                                    <input value="{{ requesterNameAndEmail() }}" class="form-control" disabled="disabled" />
+                                    <div class="input-group-btn">
+                                        <button type="button" ng-click="showChangeRequesterDialog()" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                                    </div>
                                 </div>
+                                @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
                             </div>
-                            @Html.ValidationMessageFor(model => model.RequesterId, "", new { @class = "text-danger" })
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        @Html.LabelFor(model => model.CategoryId, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            @Html.DropDownListFor(
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CategoryId, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(
                                 expression: model => model.CategoryId,
                                 selectList: new SelectList(Model.Categories, "CategoryId", "Name"),
                                 optionLabel: "-",
                                 htmlAttributes: new { @class = "form-control" }
                             )
-                            @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+                                @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group wide-form-group">
-                        @Html.LabelFor(model => model.Title, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            @Html.TextBoxFor(model => model.Title, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                        <div class="form-group wide-form-group">
+                            @Html.LabelFor(model => model.Title, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.Title, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group wide-form-group">
-                        @Html.LabelFor(model => model.Content, new { @class = "control-label col-sm-3" })
-                        <div class="col-sm-8">
-                            @Html.TextAreaFor(model => model.Content, 7, 10, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+                        <div class="form-group wide-form-group">
+                            @Html.LabelFor(model => model.Content, new { @class = "control-label col-sm-3" })
+                            <div class="col-sm-8">
+                                @Html.TextAreaFor(model => model.Content, 7, 10, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-8">
+                                <input type="submit" value="Create" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="change-requester-dialog" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Change requester</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">Find users</label>
+
+                        <div class="input-group">
+                            <input id="search" ng-model="searchString" ng-keypress="searchTicketsWhenEnterKeyPressed($event)" class="form-control" />
+                            <div class="input-group-btn">
+                                <button ng-click="searchTicketsAndFocusTheInput()" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <div class="col-sm-offset-3 col-sm-8">
-                            <input type="submit" value="Create" class="btn btn-primary" />
-                        </div>
+                        <label>Select user</label>
+                        @*x.FirstName + ' ' + item.LastName + ' (' + item.Email + ')' }*@
+                        <select size="10" ng-model="selectedUser" ng-options="x as x.FirstName + ' ' + x.LastName + ' (' + x.Email + ')' for  x in foundUsers" class="form-control">
+                            <option value="">-</option>
+                        </select>
                     </div>
-                }
-            </div>
-        </div>
-    </div>
-</main>
 
-<div id="change-requester-dialog" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Change requester</h4>
-            </div>
-
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="control-label">Find users</label>
-                    
-                    <div class="input-group">
-                        <input data-bind="textInput: searchString, event: { keypress: searchTicketsWhenEnterKeyPressed }" class="form-control" />
-                        <div class="input-group-btn">
-                            <button data-bind="click: searchTicketsAndFocusTheInput" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
-                        </div>
-                    </div>
+                    <p>Displaying {{ foundUsers.length }} users of {{ totalNumberOfFoundUsers }} found</p>
                 </div>
 
-                <div class="form-group">
-                    <label>Select user</label>
-                    <select size="10" data-bind="options: foundUsers, value: selectedUser, optionsText: function(item) { return item.FirstName + ' ' + item.LastName + ' (' + item.Email + ')' }, optionsCaption: '-'" class="form-control"></select>
+                <div class="modal-footer">
+                    <input ng-click="requester = selectedUser" data-dismiss="modal" type="submit" value="Ok" class="btn btn-primary" /><input data-dismiss="modal" type="button" value="Cancel" class="btn btn-default" />
                 </div>
-
-                <p>Displaying <span data-bind="text: foundUsers().length"></span> users of <span data-bind="text: totalNumberOfFoundUsers"></span> found</p>
-            </div>
-
-            <div class="modal-footer">
-                <input data-bind="click: function() { requester(selectedUser()); }" data-dismiss="modal" type="submit" value="Ok" class="btn btn-primary" /><input data-dismiss="modal" type="button" value="Cancel" class="btn btn-default" />
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function CreateTicketViewModel()
+    angular.module('HelpDesk').controller('CreateTicket', function($scope, $http, $timeout)
     {
-        var self = this;
+        $scope.requester = @Html.Raw(Json.Encode(@Model.Requester));
+        $scope.searchString = '';
+        $scope.selectedUser = null;
+        $scope.foundUsers = [];
+        $scope.totalNumberOfFoundUsers = 0;
 
-        self.requester = ko.observable(@Html.Raw(Json.Encode(@Model.Requester)));
-        self.searchString = ko.observable('');
-        self.selectedUser = ko.observable();
-        self.foundUsers = ko.observableArray([]);
-        self.totalNumberOfFoundUsers = ko.observable(0);
-
-        self.requesterNameAndEmail = ko.computed(function()
+        $scope.requesterNameAndEmail = function()
         {
-            return self.requester() ? self.requester().FirstName + " " + self.requester().LastName + " (" + self.requester().Email + ")" : "-";
-        });
+            return $scope.requester ? $scope.requester.FirstName + " " + $scope.requester.LastName + " (" + $scope.requester.Email + ")" : "-";
+        };
 
-        self.searchString.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 500 } });
-
-        self.searchString.subscribe(function()
+        var searchStringTimeout;
+        $scope.$watch('searchString', function(newValue, oldValue)
         {
-            self.getUsers();
-        });
-
-        self.getUsers = function()
-        {
-            if (!self.searchString().trim())
+            if (newValue !== oldValue)
             {
-                self.foundUsers([]);
-                self.totalNumberOfFoundUsers(0);
+                $timeout.cancel(searchStringTimeout);
+                searchStringTimeout = $timeout(function()
+                {
+                    $scope.getUsers();
+                }, 500);
+            }
+        });
+
+        $scope.getUsers = function()
+        {
+            if (!removeExcessSpaces($scope.searchString))
+            {
+                $scope.foundUsers = [];
+                $scope.totalNumberOfFoundUsers = 0;
             }
             else
             {
                 var data =
                 {
-                    search: self.searchString().trim(),
+                    search: removeExcessSpaces($scope.searchString),
                     sortBy: 'First name',
                     descSort: false,
                     page: 1,
                     usersPerPage: 10
                 };
+
                 var onSuccess = function(response)
                 {
-                    self.foundUsers(response.Users);
-                    self.totalNumberOfFoundUsers(response.FoundItemsCount);
+                    $scope.foundUsers = response.Users;
+                    $scope.totalNumberOfFoundUsers = response.FoundItemsCount;
                 };
-                sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', "GET", data, onSuccess);
+
+                sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', "GET", data, onSuccess, $http);
             }
         };
 
-        self.searchTicketsWhenEnterKeyPressed = function(data, event)
+        $scope.searchTicketsWhenEnterKeyPressed = function(event)
         {
             if (event.keyCode === 13 || event.which === 13)
-                self.getUsers();
-            else
-                return true;
+                $scope.getUsers();
         };
 
-        self.searchTicketsAndFocusTheInput = function(data, event)
+        $scope.searchTicketsAndFocusTheInput = function(event)
         {
-            self.getUsers();
-            $(event.target).prev().focus();
+            $scope.getUsers();
+            $('#search').focus();
         };
-    }
 
-    $(document).ready(function()
-    {
-        ko.applyBindings(new CreateTicketViewModel(), document.getElementById('viewContent'));
+        $scope.showChangeRequesterDialog = function(event)
+        {
+            $('#change-requester-dialog').modal('show');
+        }
     });
 </script>
