@@ -168,7 +168,7 @@
 </div>
 
 <script>
-    angular.module('HelpDesk').controller('UsersTicketsList', function($scope, $http)
+    angular.module('HelpDesk').controller('UsersTicketsList', function($scope, $http, timer)
     {
         $scope.tickets = [];
         $scope.administrators = @Html.Raw(Json.Encode(@Model.Administrators));
@@ -237,7 +237,7 @@
                 }
             };
 
-            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Tickets" })', 'GET', data, onSuccess, $http);
+            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Tickets" })', 'GET', data, onSuccess, $http, timer);
         };
 
         $scope.changePageAndGetTickets = function(pageNumber)
@@ -278,7 +278,7 @@
                     $scope.getTickets();
                 }
 
-                sendAjaxRequest('@Url.Action("AssignUserToTicket", "Tickets")', "POST", data, onSuccess, $http);
+                sendAjaxRequest('@Url.Action("AssignUserToTicket", "Tickets")', "POST", data, onSuccess, $http, timer);
             }
         };
 
@@ -305,7 +305,7 @@
                     $scope.getTickets();
                 }
 
-                sendAjaxRequest('@Url.Action("SolveTicket", "Tickets")', "POST", data, onSuccess, $http);
+                sendAjaxRequest('@Url.Action("SolveTicket", "Tickets")', "POST", data, onSuccess, $http, timer);
             }
         };
 
@@ -329,7 +329,7 @@
                     $scope.getTickets();
                 }
 
-                sendAjaxRequest('@Url.Action("CloseTicket", "Tickets")', "POST", data, onSuccess, $http);
+                sendAjaxRequest('@Url.Action("CloseTicket", "Tickets")', "POST", data, onSuccess, $http, timer);
             }
         };
 

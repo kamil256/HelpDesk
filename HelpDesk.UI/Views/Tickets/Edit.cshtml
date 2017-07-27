@@ -235,7 +235,7 @@
 </div>
 
 <script>
-    angular.module('HelpDesk').controller('EditTicket', function($scope, $http, $timeout)
+    angular.module('HelpDesk').controller('EditTicket', function($scope, $http, $timeout, timer)
     {
         $scope.requester = @Html.Raw(Json.Encode(@Model.Requester));
         $scope.searchString = '';
@@ -285,7 +285,7 @@
                     $scope.totalNumberOfFoundUsers = response.FoundItemsCount;
                 };
 
-                sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', "GET", data, onSuccess, $http);
+                sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', "GET", data, onSuccess, $http, timer);
             }
         };
 

@@ -90,7 +90,7 @@
                     <p class="navbar-text nav-right" style="margin-right: 0;">
                         <a href="javascript:document.getElementById('logoutForm').submit()"><span class="glyphicon glyphicon-log-out"></span> Log out</a>
                         <span  ng-controller="Layout" ng-show="logOutAutomatically">
-                            (<b ng-class="{ 'text-danger': secondsToAutomaticLogOut < 60 }" >{{ timeToAutomaticLogOut() }}</b> <span ng-click="secondsToAutomaticLogOut = 600" class="glyphicon glyphicon-refresh"></span>)
+                            (<b ng-class="{ 'text-danger': secondsToAutomaticLogOut() < 60 }" >{{ timeToAutomaticLogOut() }}</b> <span ng-click="resetTimer()" class="glyphicon glyphicon-refresh"></span>)
                         </span>
                     </p>                    
                 }
@@ -106,35 +106,78 @@
     </div>
 
     <script>
-        angular.module('HelpDesk', ['ui.sortable', 'ngSanitize']);
-
         var logOutAutomaticallyFromCookie = getCookie('logOutAutomatically');
 
-        angular.module('HelpDesk').controller('Layout', function($scope, $timeout)
+        angular.module('HelpDesk', ['ui.sortable', 'ngSanitize']);
+
+        angular.module('HelpDesk').service('timer', ['$timeout', function($timeout)
+        {
+            var self = this;
+            var initialSeconds = 0;
+            var seconds = 0;
+            var action = null;
+
+            self.getSeconds = function()
+            {
+                return seconds;
+            };
+
+            self.setSeconds = function(value)
+            {
+                initialSeconds = value;
+                seconds = value;
+                return self;
+            };
+
+            self.setAction = function(value)
+            {
+                action = value;
+                return self;
+            };
+
+            self.start = function()
+            {
+                if (seconds > 0)
+                {
+                    seconds--;
+                    $timeout(self.start, 1000);
+                }
+                else
+                    action();
+            };
+
+            self.reset = function()
+            {
+                seconds = initialSeconds;
+            };
+        }]);
+
+        angular.module('HelpDesk').controller('Layout', function($scope, timer)
         {
             $scope.logOutAutomatically = logOutAutomaticallyFromCookie !== 'no';
-            $scope.secondsToAutomaticLogOut = 600;
 
             $scope.timeToAutomaticLogOut = function()
             {
-                var minutes = Math.floor($scope.secondsToAutomaticLogOut / 60);
-                var seconds = padZero($scope.secondsToAutomaticLogOut % 60);
+                var timerSeconds = timer.getSeconds();
+                var minutes = Math.floor(timerSeconds / 60);
+                var seconds = padZero(timerSeconds % 60);
                 return minutes + ':' + seconds;
             };
 
-            $scope.countdown = function()
+            $scope.secondsToAutomaticLogOut = function()
             {
-                if ($scope.secondsToAutomaticLogOut > 0)
-                {
-                    $scope.secondsToAutomaticLogOut--;
-                    $timeout($scope.countdown, 1000);
-                }
-                else
-                    document.location.href = '@Url.Action("LogOut", "Account")';
+                return timer.getSeconds();
             };
 
             if ($scope.logOutAutomatically)
-                $scope.countdown();
+            {
+                timer.setSeconds(600).setAction(function() { document.location.href = '@Url.Action("LogOut", "Account")'; }).start();
+            };
+
+            $scope.resetTimer = function()
+            {
+                timer.reset();
+            };
         });
     </script>
 

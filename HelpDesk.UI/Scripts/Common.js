@@ -73,9 +73,10 @@ function hideProgressIndicator()
 
 var numberOfSentAjaxRequests = 0;
 
-function sendAjaxRequest(url, method, data, onSuccess, ngHttpService)
+function sendAjaxRequest(url, method, data, onSuccess, ngHttpService, ngTimerService)
 {
-    layoutViewModel.secondsToAutomaticLogOut(600);
+    ngTimerService.reset();
+    
     showProgressIndicator();
     ngHttpService(
     {

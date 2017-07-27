@@ -121,7 +121,7 @@
 <script>
     var filtersFromCookie = JSON.parse(getCookie('usersFilters_@identityHelper.CurrentUser.Id'));
 
-    angular.module('HelpDesk').controller('UsersList', function($scope, $http, $timeout)
+    angular.module('HelpDesk').controller('UsersList', function($scope, $http, $timeout, timer)
     {
         $scope.users = [];
         $scope.activityOptions = [{ text: 'Active', value: 'true' }, { text: 'Inactive', value: 'false' }];
@@ -260,7 +260,7 @@
                 setCookie('usersFilters_@identityHelper.CurrentUser.Id', JSON.stringify(data));
             };
 
-            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', 'GET', data, onSuccess, $http);
+            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Users" })', 'GET', data, onSuccess, $http, timer);
         };
 
         $scope.changePageAndGetUsers = function(pageNumber)

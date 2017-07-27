@@ -5,7 +5,7 @@
     IdentityHelper identityHelper = new IdentityHelper();
 }
 
-<div ng-app="HelpDesk" ng-controller="TicketsList">
+<div ng-controller="TicketsList">
     <header>
         <h1>List of tickets</h1>
 
@@ -216,7 +216,7 @@
 <script>
     var filtersFromCookie = JSON.parse(getCookie('ticketsFilters_@identityHelper.CurrentUser.Id'));
 
-    angular.module('HelpDesk').controller('TicketsList', function($scope, $http, $timeout)
+    angular.module('HelpDesk').controller('TicketsList', function($scope, $http, $timeout, timer)
     {
         $scope.tickets = [];
         $scope.statuses = ['New', 'In progress', 'Solved', 'Closed'];
@@ -380,7 +380,7 @@
                 setCookie('ticketsFilters_@identityHelper.CurrentUser.Id', JSON.stringify(data));
             };
 
-            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Tickets" })', 'GET', data, onSuccess, $http);
+            sendAjaxRequest('@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Tickets" })', 'GET', data, onSuccess, $http, timer);
         };
 
         $scope.changePageAndGetTickets = function(pageNumber)
@@ -438,7 +438,7 @@
                     $scope.getTickets();
                 }
 
-                sendAjaxRequest('@Url.Action("AssignUserToTicket", "Tickets")', "POST", data, onSuccess, $http);
+                sendAjaxRequest('@Url.Action("AssignUserToTicket", "Tickets")', "POST", data, onSuccess, $http, timer);
             }
         };
 
@@ -465,7 +465,7 @@
                     $scope.getTickets();
                 }
 
-                sendAjaxRequest('@Url.Action("SolveTicket", "Tickets")', "POST", data, onSuccess, $http);
+                sendAjaxRequest('@Url.Action("SolveTicket", "Tickets")', "POST", data, onSuccess, $http, timer);
             }
         };
 
@@ -489,7 +489,7 @@
                     $scope.getTickets();
                 }
 
-                sendAjaxRequest('@Url.Action("CloseTicket", "Tickets")', "POST", data, onSuccess, $http);
+                sendAjaxRequest('@Url.Action("CloseTicket", "Tickets")', "POST", data, onSuccess, $http, timer);
             }
         };
 
