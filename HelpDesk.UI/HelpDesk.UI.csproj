@@ -184,11 +184,7 @@
     <Content Include="Content\Error.html" />
     <Content Include="Content\header.css" />
     <Content Include="Content\images\favicon.ico" />
-    <Content Include="Content\select2.css" />
-    <Content Include="Content\select2.png" />
-    <Content Include="Content\select2x2.png" />
     <Content Include="Content\Site.css" />
-    <Content Include="Content\spinner.gif" />
     <Content Include="Content\themes\base\accordion.css" />
     <Content Include="Content\themes\base\all.css" />
     <Content Include="Content\themes\base\autocomplete.css" />
