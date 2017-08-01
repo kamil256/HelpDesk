@@ -232,9 +232,9 @@
 
         $scope.filters =
         {
-            status: filtersFromCookie ? filtersFromCookie.status : $scope.statuses[0],
-            assignedUserId: filtersFromCookie ? filtersFromCookie.assignedToId : '0',
-            categoryId: filtersFromCookie ? filtersFromCookie.categoryId : '0',
+            status: filtersFromCookie ? filtersFromCookie.status : null,
+            assignedUserId: filtersFromCookie ? filtersFromCookie.assignedToId : null,
+            categoryId: filtersFromCookie ? filtersFromCookie.categoryId : null,
             searchString: filtersFromCookie ? filtersFromCookie.search : '',
             searchAllWords: filtersFromCookie ? filtersFromCookie.searchAllWords : 'false',
             advancedSearch: filtersFromCookie ? filtersFromCookie.advancedSearch : false,

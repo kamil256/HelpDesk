@@ -133,8 +133,8 @@
 
         $scope.filters =
         {
-            active: filtersFromCookie ? (filtersFromCookie.active === 'true' ? $scope.activityOptions[0] : (filtersFromCookie.active === 'false' ? $scope.activityOptions[1] : undefined)) : undefined,
-            role: filtersFromCookie ? filtersFromCookie.role : '',
+            active: filtersFromCookie ? (filtersFromCookie.active === 'true' ? $scope.activityOptions[0] : (filtersFromCookie.active === 'false' ? $scope.activityOptions[1] : null)) : null,
+            role: filtersFromCookie ? filtersFromCookie.role : null,
             searchString: filtersFromCookie ? filtersFromCookie.search : '',
             searchAllWords: filtersFromCookie ? filtersFromCookie.searchAllWords : 'false',
             sortBy: filtersFromCookie ? filtersFromCookie.sortBy : 'Last name',
